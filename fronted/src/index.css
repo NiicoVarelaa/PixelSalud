@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: 'Outfit';
+    src: url('./assets/fonts/Outfit-VariableFont_wght.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 100 700;
+    font-display: swap;
+}
+
+@theme {
+
+    /* Colores */
+    --color-body: #fff;
+
+    --color-primary-100: #d6ffe4;
+    --color-primary-200: #afffca;
+    --color-primary-300: #71ffa3;
+    --color-primary-400: #2dfb73;
+    --color-primary-500: #02e551;
+    --color-primary-600: #00bf3e;
+    --color-primary-700: #00a339;
+    --color-primary-800: #06752d;
+    --color-primary-900: #085f28;
+    --color-primary-950: #003614;
+
+    --color-secondary-100: #d4f5f9;
+    --color-secondary-200: #adeaf4;
+    --color-secondary-300: #75d9eb;
+    --color-secondary-400: #55c9e0;
+    --color-secondary-500: #1aa3c0;
+    --color-secondary-600: #1882a2;
+    --color-secondary-700: #1b6a83;
+    --color-secondary-800: #1e566c;
+    --color-secondary-900: #1d495c;
+    --color-secondary-950: #0e2e3e;
+
+    --color-info-50: #f4f8ff;
+    --color-info-75: #c9dafe;
+    --color-info-100: #366de8;
+
+    --color-success-50: #e9f6f0;
+    --color-success-75: #def1e9;
+    --color-success-100: #0d7d4e;
+
+    --color-warning-50: #fffbee;
+    --color-warning-75: #ffe5bf;
+    --color-warning-100: #fada00;
+
+    --color-danger-50: #fbe1e0;
+    --color-danger-75: #ffaaa8;
+    --color-danger-100: #de201c;  
+
+    --color-gray-100: #ebebeb;
+    --color-gray-200: #e0e0e0;
+    --color-gray-300: #ababab;
+    --color-gray-400: #999;
+    --color-gray-500: #666;
+    --color-gray-600: #565656;
+    --color-gray-700: #333;
+    --color-gray-800: #242424;
+    --color-gray-900: #1f1f1f;
+
+    /* Fuentes */
+    --font-sans: 'Outfit', system-ui, sans-serif;
+
+}
