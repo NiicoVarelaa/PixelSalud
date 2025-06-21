@@ -1,8 +1,12 @@
-import React from 'react'
+import MiniBanner from './MiniBanner'
+import Navbar from './Navbar'
 
 const Header = () => {
   return (
-    <div>Header</div>
+    <div>
+      <MiniBanner />
+      <Navbar />
+    </div>
   )
 }
 

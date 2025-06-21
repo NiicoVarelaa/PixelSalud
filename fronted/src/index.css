@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+
+
 @font-face {
     font-family: 'Outfit';
     src: url('./assets/fonts/Outfit-VariableFont_wght.woff2') format('woff2');
@@ -64,4 +66,8 @@
     /* Fuentes */
     --font-sans: 'Outfit', system-ui, sans-serif;
 
+}
+
+a.active hr {
+    display: block;
 }

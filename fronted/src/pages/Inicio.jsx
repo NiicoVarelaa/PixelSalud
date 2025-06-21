@@ -1,14 +1,10 @@
-import React from "react";
+import Header from "../components/Header";
+
 
 const Inicio = () => {
   return (
     <div>
-      <div className="bg-primary-700">
-        Inicio
-      </div>
-      <div className="bg-secondary-400">
-        asdasd
-      </div>
+      inicio
     </div>
   );
 };
