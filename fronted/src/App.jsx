@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Inicio from "./pages/Inicio";
 import Productos from "./pages/Productos";
 import SobreNosotros from "./pages/SobreNosotros";
@@ -12,8 +12,23 @@ import Header from "./components/Header";
 import { useCarritoStore } from "./store/useCarritoStore";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import Administrador from "./pages/Administrador";
 
 const App = () => {
+  const location = useLocation();
+
+  // agrego el IF y USELOCATION para separar el header del admin
+
+
+// Si estamos en /admin o /admin/loque sea → mostrar solo admin
+ if (location.pathname.startsWith("/admin")) {
+    return (
+      <Routes>
+        <Route path="/admin/*" element={<Administrador/>} />
+      </Routes>
+    );
+  }
+
   const { sincronizarCarrito } = useCarritoStore();
   useEffect(() => {
     sincronizarCarrito();
