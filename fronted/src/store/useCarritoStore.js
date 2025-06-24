@@ -5,21 +5,14 @@ import { toast } from "react-toastify";
 export const useCarritoStore = create((set, get) => ({
   carrito: [],
 
-  // 🔄 Sincroniza el carrito desde la base de datos del usuario logueado
   sincronizarCarrito: async () => {
     try {
-      const usuariosResponse = await axios.get('http://localhost:5000/clientes');
-      const usuarios = usuariosResponse.data;
+      const { data: usuarios } = await axios.get('http://localhost:5000/clientes');
       const usuarioLogueado = usuarios.find(user => user.logueado === 1);
+      if (!usuarioLogueado) return;
 
-      if (!usuarioLogueado) {
-        console.warn("No hay usuario logueado para sincronizar el carrito.");
-        return;
-      }
-
-      const idCliente = usuarioLogueado.idCliente;
-      const carritoResponse = await axios.get(`http://localhost:5000/carrito/${idCliente}`);
-      const carritoServidor = carritoResponse.data;
+      const { idCliente } = usuarioLogueado;
+      const { data: carritoServidor } = await axios.get(`http://localhost:5000/carrito/${idCliente}`);
 
       set({ carrito: carritoServidor });
     } catch (error) {
@@ -28,80 +21,91 @@ export const useCarritoStore = create((set, get) => ({
     }
   },
 
-  // ➕ Agrega un producto al carrito (con validación backend)
   agregarCarrito: async (producto) => {
-  const { carrito } = get();
+    try {
+      const { carrito } = get();
 
-  try {
-    const usuariosResponse = await axios.get('http://localhost:5000/clientes');
-    const usuarios = usuariosResponse.data;
-    const usuarioLogueado = usuarios.find(user => user.logueado === 1);
+      const { data: usuarios } = await axios.get('http://localhost:5000/clientes');
+      const usuarioLogueado = usuarios.find(user => user.logueado === 1);
+      if (!usuarioLogueado) {
+        toast.error("Debés iniciar sesión para agregar productos al carrito");
+        return;
+      }
 
-    if (!usuarioLogueado) {
-      toast.error("Debés iniciar sesión para agregar productos al carrito");
-      return;
+      const { idCliente } = usuarioLogueado;
+
+      // Chequear si producto ya está en carrito (servidor)
+      const { data: carritoServidor } = await axios.get(`http://localhost:5000/carrito/${idCliente}`);
+      const yaExiste = carritoServidor.some(item => item.idProducto === producto.idProducto);
+
+      if (yaExiste) {
+        // Actualizamos la cantidad localmente (se puede sincronizar con backend si lo deseas)
+        set({
+          carrito: carrito.map(item =>
+            item.idProducto === producto.idProducto
+              ? { ...item, cantidad: item.cantidad + 1 }
+              : item
+          ),
+        });
+      } else {
+        // Agregamos producto al backend
+        await axios.post('http://localhost:5000/carrito/agregar', {
+          idProducto: producto.idProducto,
+          idCliente,
+        });
+
+        set({
+          carrito: [...carrito, { ...producto, cantidad: 1 }],
+        });
+      }
+
+      toast.success("Producto agregado al carrito");
+    } catch (error) {
+      console.error("Error al agregar al carrito:", error);
+      toast.error("Ocurrió un problema al agregar el producto");
     }
+  },
 
-    const idCliente = usuarioLogueado.idCliente;
-    const carritoResponse = await axios.get(`http://localhost:5000/carrito/${idCliente}`);
-    const carritoServidor = carritoResponse.data;
+  eliminarDelCarrito: (id) => {
+    set(state => ({
+      carrito: state.carrito.filter(item => item.idProducto !== id),
+    }));
+    toast.info("Producto eliminado del carrito");
+  },
 
-    const yaExiste = carritoServidor.some(item => item.idProducto === producto.idProducto);
+  vaciarCarrito: () => {
+    set({ carrito: [] });
+    toast.info("Carrito vaciado");
+  },
 
-    if (yaExiste) {
-      toast.info("El producto ya estaba en el carrito, se sumó la cantidad");
-      set({
-        carrito: carrito.map((item) =>
-          item.idProducto === producto.idProducto
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        ),
-      });
-    } else {
-      await axios.post('http://localhost:5000/carrito/agregar', {
-        idProducto: producto.idProducto,
-        idCliente: idCliente,
-      });
-
-      toast.success("Producto agregado correctamente!");
-      set({
-        carrito: [...carrito, { ...producto, cantidad: 1 }],
-      });
-    }
-
-  } catch (error) {
-    console.error("Error al agregar al carrito:", error);
-    toast.error("Ocurrió un problema al agregar el producto");
-  }
-},
-
-
-  // ❌ Elimina completamente un producto del carrito (local)
-  eliminarDelCarrito: (id) =>
-    set((state) => ({
-      carrito: state.carrito.filter((item) => item.idProducto !== id),
-    })),
-
-  // 🧹 Vacía el carrito completo
-  vaciarCarrito: () => set({ carrito: [] }),
-
-  // 🔼 Aumenta cantidad de un producto en el carrito
-  aumentarCantidad: (id) =>
-    set((state) => ({
-      carrito: state.carrito.map((item) =>
+  aumentarCantidad: (id) => {
+    set(state => ({
+      carrito: state.carrito.map(item =>
         item.idProducto === id
           ? { ...item, cantidad: item.cantidad + 1 }
           : item
       ),
-    })),
+    }));
+    toast.success("Cantidad incrementada");
+  },
 
-  // 🔽 Disminuye cantidad (si llega a 1, deberías confirmar antes de eliminar si querés)
-  disminuirCantidad: (id) =>
-    set((state) => ({
-      carrito: state.carrito.map((item) =>
-        item.idProducto === id && item.cantidad > 1
-          ? { ...item, cantidad: item.cantidad - 1 }
-          : item
-      ),
-    })),
+  disminuirCantidad: (id) => {
+    const { carrito } = get();
+    const producto = carrito.find(item => item.idProducto === id);
+
+    if (!producto) return;
+
+    if (producto.cantidad > 1) {
+      set(state => ({
+        carrito: state.carrito.map(item =>
+          item.idProducto === id
+            ? { ...item, cantidad: item.cantidad - 1 }
+            : item
+        ),
+      }));
+      toast.info("Cantidad disminuida");
+    } else {
+      toast.warning("La cantidad mínima es 1. Usa eliminar para borrar el producto.");
+    }
+  },
 }));

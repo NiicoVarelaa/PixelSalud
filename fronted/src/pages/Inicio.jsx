@@ -9,7 +9,7 @@ const Inicio = () => {
   const [productos, setProductos] = useState([]);
 
   useEffect(() => {
-    const fetchProductos = async () => {
+    const getProducts = async () => {
       try {
         const res = await axios.get("http://localhost:5000/productos");
         const todos = res.data;
@@ -22,7 +22,7 @@ const Inicio = () => {
       }
     };
 
-    fetchProductos();
+    getProducts();
   }, []);
 
   return (

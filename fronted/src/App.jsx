@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+
 import { Route, Routes } from "react-router-dom";
 import Inicio from "./pages/Inicio";
 import Productos from "./pages/Productos";
@@ -9,15 +9,11 @@ import Registro from "./pages/Registro";
 import Producto from "./pages/Producto";
 import Carrito from "./pages/Carrito";
 import Header from "./components/Header";
-import { useCarritoStore } from "./store/useCarritoStore";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
-  const { sincronizarCarrito } = useCarritoStore();
-  useEffect(() => {
-    sincronizarCarrito();
-  }, []); 
+   
   return (
     <div className="bg-body overflow-x-hidden">
       <ToastContainer position="top-right" autoClose={2500} />
