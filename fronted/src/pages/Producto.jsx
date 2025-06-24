@@ -1,8 +1,11 @@
-import React from 'react'
+import Footer from "../components/Footer";
+
 
 const Producto = () => {
   return (
-    <div>Producto</div>
+    <div>
+      <Footer/>
+    </div>
   )
 }
 
