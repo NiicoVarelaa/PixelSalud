@@ -71,3 +71,10 @@
 a.active hr {
     display: block;
 }
+
+@media screen and (min-width: 1600px) {
+  .full-width-over-1600 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}

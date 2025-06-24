@@ -36,19 +36,19 @@ const getProducto = (req, res) => {
 // Crear un nuevo producto
 const createProducto = (req, res) => { 
 
-    const id = req.params.id;
-    const { nombreProducto, descripcion, precio, img, categoria } = req.body;
+    
+    const { nombreProducto, descripcion, precio, img, categoria, stock } = req.body;
     const consulta = `
-        INSERT INTO Productos (nombreProducto, descripcion, precio, img, categoria) 
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO Productos (nombreProducto, descripcion, precio, img, categoria, stock) 
+        VALUES (?, ?, ?, ?, ?, ?)
     `;
 
-    conection.query(consulta, [nombreProducto, descripcion, precio, img, categoria], (err, results) => {
+    conection.query(consulta, [nombreProducto, descripcion, precio, img, categoria, stock], (err, results) => {
         if (err) {
             console.error('Error al crear el producto:', err);
             return res.status(500).json({ error: 'Error al crear el producto' });
         }
-        res.status(201).json({ message: 'Producto creado correctamente', idProducto: results.insertId });
+        res.status(201).json({ message: 'Producto creado correctamente'});/* Pregunar a nico que onda eso */
     });
 
 };
@@ -57,18 +57,18 @@ const createProducto = (req, res) => {
 const updateProducto = (req, res) => {
 
     const id = req.params.id;
-    const { nombreProducto, descripcion, precio, img, categoria } = req.body;
+    const { nombreProducto, descripcion, precio, img, categoria ,stock } = req.body;
 
     const consulta = `
         UPDATE Productos 
-        SET nombreProducto = ?, descripcion = ?, precio = ?, img = ?, categoria = ? 
+        SET nombreProducto = ?, descripcion = ?, precio = ?, img = ?, categoria = ?, stock=?
         WHERE idProducto = ?
     `;
 
-    conection.query(consulta, [nombreProducto, descripcion, precio, img, categoria, id], (err, results) => {
+    conection.query(consulta, [nombreProducto, descripcion, precio, img, categoria, stock,id], (err, results) => {
         if (err) {
             console.error('Error al obtener el producto:', err);
-            return res.status(500).json({ error: 'Error al eliminar el producto' });
+            return res.status(500).json({ error: 'Error al actulizar el producto' });
         }
         res.status(200).json({ message: 'Producto actualizado correctamente' });
     });

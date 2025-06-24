@@ -2,6 +2,8 @@
 const express = require('express');
 const { conection } = require('./config/database');
 const routesProductos = require('./routes/productos');
+const routesCarrito = require("./routes/carrito")
+const routesClientes = require("./routes/clientes")
 const cors = require('cors');
 
 
@@ -17,7 +19,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/', routesProductos);
-
+app.use("/",routesCarrito)
+app.use("/",routesClientes)
 
 // Conexión a la base de datos
 conection.connect((err) => {
