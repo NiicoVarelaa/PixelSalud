@@ -1,8 +1,11 @@
 import React from 'react'
+import Footer from '../components/Footer'
 
 const Carrito = () => {
   return (
-    <div>Carrito</div>
+    <div>
+      <Footer/>
+    </div>
   )
 }
 
