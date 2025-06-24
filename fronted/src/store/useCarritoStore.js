@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { getCliente } from "./useClienteStore";
 
 export const useCarritoStore = create((set, get) => ({
   carrito: [],
@@ -8,16 +9,7 @@ export const useCarritoStore = create((set, get) => ({
   // 🔄 Sincroniza el carrito desde la base de datos del usuario logueado
   sincronizarCarrito: async () => {
     try {
-      const usuariosResponse = await axios.get('http://localhost:5000/clientes');
-      const usuarios = usuariosResponse.data;
-      const usuarioLogueado = usuarios.find(user => user.logueado === 1);
-
-      if (!usuarioLogueado) {
-        console.warn("No hay usuario logueado para sincronizar el carrito.");
-        return;
-      }
-
-      const idCliente = usuarioLogueado.idCliente;
+      const idCliente = await getCliente()
       const carritoResponse = await axios.get(`http://localhost:5000/carrito/${idCliente}`);
       const carritoServidor = carritoResponse.data;
 
@@ -49,14 +41,8 @@ export const useCarritoStore = create((set, get) => ({
     const yaExiste = carritoServidor.some(item => item.idProducto === producto.idProducto);
 
     if (yaExiste) {
-      toast.info("El producto ya estaba en el carrito, se sumó la cantidad");
-      set({
-        carrito: carrito.map((item) =>
-          item.idProducto === producto.idProducto
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        ),
-      });
+      toast.info("El producto ya se encuentra en el carrito");
+
     } else {
       await axios.post('http://localhost:5000/carrito/agregar', {
         idProducto: producto.idProducto,
