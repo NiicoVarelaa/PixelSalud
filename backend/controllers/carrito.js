@@ -34,6 +34,33 @@ const deleteCarrito = (req, res) => {
 };
 
 
+const incrementCarrito = (req,res)=>{
+  idProducto= req.params.idProducto
+  const consulta = "update productos set cantidad = cantidad + 1 where idproducto = ?"
+
+  conection.query(consulta,[idProducto], (err, results)=>{
+    if(err){
+      console.error("Error al querer aumentar la cantidad", err)
+      return res.status(500).json({error:"Error al querer aumentar la cantidad del producto"})
+    }res.status(201).json({ message: 'Se aumento correctamente la cantidad del producto'});
+  })
+
+}
+
+const decrementCarrito = (req,res)=>{
+  idProducto= req.params.idProducto
+  const consulta = "update productos set cantidad = cantidad - 1 where idproducto = ? "
+
+  conection.query(consulta,[idProducto], (err, results)=>{
+    if(err){
+      console.error("Error al querer disminuir la cantidad", err)
+      return res.status(500).json({error:"Error al querer disminuir la cantidad del producto"})
+    }res.status(201).json({ message: 'Se disminuyo correctamente la cantidad del producto'});
+  })
+
+}
+
+
 /* Agrego producto al carrito */
 const addCarrito = (req,res)=>{
 
@@ -52,5 +79,7 @@ const addCarrito = (req,res)=>{
 module.exports= {
     addCarrito,
     getCarrito,
-    deleteCarrito
+    deleteCarrito, 
+    incrementCarrito,
+    decrementCarrito
 }
