@@ -25,7 +25,7 @@ app.use('/', routesProductos);
 app.use("/",routesCarrito)
 app.use("/",routesClientes)
 app.use('/', loginRoutes);  
-app.use('/registro', registroRouter);
+app.use('/', registroRouter);
 app.use('/', medicoRoutes);
 
 // Conexión a la base de datos

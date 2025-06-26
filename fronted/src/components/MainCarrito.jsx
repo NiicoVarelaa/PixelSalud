@@ -17,7 +17,7 @@ const MainCarrito = () => {
   
   const handleDelete = async (id) => {
     Swal.fire({
-      title: "Estas seguro de elimir este producto de tu carrito?",
+      title: "Estas seguro de eliminar este producto de tu carrito?",
       showDenyButton: true,
       confirmButtonText: "Si",
       denyButtonText: `No`,

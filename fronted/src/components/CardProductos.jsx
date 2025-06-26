@@ -1,8 +1,8 @@
-import { useCarritoStore } from '../store/useCarritoStore';
-import { FaShoppingCart } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { useCarritoStore } from "../store/useCarritoStore";
+import { FaShoppingCart } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
-const CardProductos = ({ product, currency = "$" }) => {
+const CardProductos = ({ product }) => {
   const {
     carrito,
     agregarCarrito,
@@ -11,7 +11,9 @@ const CardProductos = ({ product, currency = "$" }) => {
     eliminarDelCarrito,
   } = useCarritoStore();
 
-  const itemEnCarrito = carrito.find(item => item.idProducto === product.idProducto);
+  const itemEnCarrito = carrito.find(
+    (item) => item.idProducto === product.idProducto
+  );
   const cantidad = itemEnCarrito?.cantidad || 0;
 
   const handleAgregar = (e) => {
@@ -34,8 +36,11 @@ const CardProductos = ({ product, currency = "$" }) => {
   };
 
   return (
-    <div className="border border-gray-200 rounded-md bg-white shadow transition-transform duration-200 hover:shadow-lg hover:scale-[1.02] w-full h-full flex flex-col">      
-      <Link to={`/productos/${product.idProducto}`} className="flex flex-col flex-1">
+    <div className="border border-gray-200 rounded-md bg-white shadow transition-transform duration-200 hover:shadow-lg hover:scale-[1.02] w-full h-full flex flex-col">
+      <Link
+        to={`/productos/${product.idProducto}`}
+        className="flex flex-col flex-1"
+      >
         {/* Imagen */}
         <div className="w-full h-48 flex items-center justify-center p-4 overflow-hidden">
           <img
@@ -48,14 +53,21 @@ const CardProductos = ({ product, currency = "$" }) => {
         {/* Información */}
         <div className="p-4 flex flex-col flex-1">
           <p className="text-gray-400 text-sm">{product.categoria}</p>
-          <p className="text-gray-800 font-semibold text-base truncate">{product.nombreProducto}</p>
+          <p className="text-gray-800 font-semibold text-base truncate">
+            {product.nombreProducto}
+          </p>
 
           {/* Stock */}
-          <p className="text-sm text-gray-500 mt-1">Stock Disponible: {product.stock}</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Stock Disponible: {product.stock}
+          </p>
 
           {/* Precio */}
           <p className="text-green-600 font-bold text-lg mt-2">
-            {currency}{product.precio}
+            {new Intl.NumberFormat("es-AR", {
+              style: "currency",
+              currency: "ARS",
+            }).format(product.precio)}
           </p>
         </div>
       </Link>

@@ -33,7 +33,7 @@ const App = () => {
  
   return (
     <div className="bg-body overflow-x-hidden">
-      <ToastContainer position="top-right" autoClose={2500} />
+      <ToastContainer position="bottom-right" autoClose={2500} />
       <Header />
       <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
         <Routes>

@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { useCarritoStore } from "../store/useCarritoStore";
 import { Link, NavLink } from "react-router-dom";
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
-import searchIcon from "../assets/iconos/search_icon.png";
 import profileIcon from "../assets/iconos/profile_icon.png";
 import cartIcon from "../assets/iconos/cart_icon.png";
 import menuIcon from "../assets/iconos/menu_icon.png";
@@ -10,17 +9,20 @@ import closeIcon from "../assets/iconos/cross_icon.png";
 
 const Navbar = () => {
   const carrito = useCarritoStore((state) => state.carrito);
-  const sincronizarCarrito = useCarritoStore((state) => state.sincronizarCarrito);
+  const sincronizarCarrito = useCarritoStore(
+    (state) => state.sincronizarCarrito
+  );
 
-  const totalItems = carrito.reduce((acc, item) => acc + (item.cantidad || 0), 0);
+  const totalItems = carrito.reduce(
+    (acc, item) => acc + (item.cantidad || 0),
+    0
+  );
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
-    // Sincronizar carrito solo 1 vez al montar
     sincronizarCarrito();
 
-    // Cierre del menú si se clickea fuera o se presiona Escape
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsMenuOpen(false);
@@ -44,7 +46,11 @@ const Navbar = () => {
   return (
     <div className="flex items-center justify-between py-5 font-medium relative px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
       <Link to="/">
-        <img className="w-auto h-9" src={LogoPixelSalud} alt="Logo Pixel Salud" />
+        <img
+          className="w-auto h-9"
+          src={LogoPixelSalud}
+          alt="Logo Pixel Salud"
+        />
       </Link>
 
       <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
@@ -56,7 +62,10 @@ const Navbar = () => {
           <p>TIENDA</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-primary-700 hidden" />
         </NavLink>
-        <NavLink to="/sobreNosotros" className="flex flex-col items-center gap-1">
+        <NavLink
+          to="/sobreNosotros"
+          className="flex flex-col items-center gap-1"
+        >
           <p>NOSOTROS</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-primary-700 hidden" />
         </NavLink>
@@ -67,25 +76,25 @@ const Navbar = () => {
       </ul>
 
       <div className="flex items-center gap-6">
-        <img src={searchIcon} className="w-5 cursor-pointer" alt="searchIcon" />
-        <div className="group relative">
-          <img src={profileIcon} className="w-5 cursor-pointer" alt="profileIcon" />
-          <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
-            <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-              <p className="cursor-pointer hover:text-black">Mi cuenta</p>
-              <p className="cursor-pointer hover:text-black">Pedidos</p>
-              <p className="cursor-pointer hover:text-black">Cerrar sesión</p>
-            </div>
-          </div>
+                <div className="group relative">
+          <NavLink to="loginCliente">
+            <img
+              src={profileIcon}
+              className="w-5 cursor-pointer"
+              alt="profileIcon"
+            />
+          </NavLink>
         </div>
 
         <Link to="/carrito" className="relative">
           <img src={cartIcon} className="w-5 min-w-5" alt="cartIcon" />
-          {totalItems > 0 && (
-            <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-primary-700 text-white aspect-square rounded-full text-[8px]">
-              {totalItems}
-            </p>
-          )}
+          <p>
+            {totalItems > 0 && (
+              <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-primary-700 text-white aspect-square rounded-full text-[8px]">
+                {totalItems}
+              </p>
+            )}
+          </p>
         </Link>
 
         <button
@@ -100,7 +109,9 @@ const Navbar = () => {
       {/* Menú móvil */}
       <div
         className={`fixed inset-0 z-50 transition-opacity duration-300 ${
-          isMenuOpen ? "opacity-100 backdrop-blur-sm" : "opacity-0 pointer-events-none"
+          isMenuOpen
+            ? "opacity-100 backdrop-blur-sm"
+            : "opacity-0 pointer-events-none"
         }`}
       >
         <div className="absolute inset-0 bg-white/80 backdrop-blur-sm transition duration-300"></div>
@@ -112,7 +123,11 @@ const Navbar = () => {
           }`}
         >
           <div className="flex justify-between items-center p-4 border-b border-gray-200">
-            <img className="w-auto h-9" src={LogoPixelSalud} alt="Logo Pixel Salud" />
+            <img
+              className="w-auto h-9"
+              src={LogoPixelSalud}
+              alt="Logo Pixel Salud"
+            />
             <button
               onClick={() => setIsMenuOpen(false)}
               className="p-2 rounded-full cursor-pointer"
@@ -123,16 +138,32 @@ const Navbar = () => {
           </div>
 
           <nav className="flex flex-col p-4">
-            <NavLink to="/" onClick={() => setIsMenuOpen(false)} className="py-3 px-4 rounded-lg hover:bg-gray-50">
+            <NavLink
+              to="/"
+              onClick={() => setIsMenuOpen(false)}
+              className="py-3 px-4 rounded-lg hover:bg-gray-50"
+            >
               INICIO
             </NavLink>
-            <NavLink to="/productos" onClick={() => setIsMenuOpen(false)} className="py-3 px-4 rounded-lg hover:bg-gray-50">
+            <NavLink
+              to="/productos"
+              onClick={() => setIsMenuOpen(false)}
+              className="py-3 px-4 rounded-lg hover:bg-gray-50"
+            >
               TIENDA
             </NavLink>
-            <NavLink to="/sobreNosotros" onClick={() => setIsMenuOpen(false)} className="py-3 px-4 rounded-lg hover:bg-gray-50">
+            <NavLink
+              to="/sobreNosotros"
+              onClick={() => setIsMenuOpen(false)}
+              className="py-3 px-4 rounded-lg hover:bg-gray-50"
+            >
               NOSOTROS
             </NavLink>
-            <NavLink to="/contacto" onClick={() => setIsMenuOpen(false)} className="py-3 px-4 rounded-lg hover:bg-gray-50">
+            <NavLink
+              to="/contacto"
+              onClick={() => setIsMenuOpen(false)}
+              className="py-3 px-4 rounded-lg hover:bg-gray-50"
+            >
               CONTACTO
             </NavLink>
           </nav>
