@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import CardProductos from '../components/CardProductos';
 
@@ -6,6 +7,19 @@ const Productos = () => {
   const [productos, setProductos] = useState([]);
   const [filtro, setFiltro] = useState('todos');
   const [categorias, setCategorias] = useState([]);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const categoria = params.get('categoria');
+
+    if (categoria) {
+      setFiltro(categoria);
+    } else {
+      setFiltro('todos');
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -23,18 +37,16 @@ const Productos = () => {
     fetchProductos();
   }, []);
 
-  const productosFiltrados = filtro === 'todos'
-    ? productos
-    : productos.filter(p => p.categoria === filtro);
+  const productosFiltrados =
+    filtro === 'todos'
+      ? productos
+      : productos.filter((p) => p.categoria === filtro);
 
   return (
     <section className="py-10 px-4 max-w-screen-xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">All Collections</h1>
+      <h1 className="text-3xl font-bold mb-8">Productos</h1>
 
-      {/* Layout principal: Filtros y productos uno al lado del otro */}
       <div className="flex flex-col lg:flex-row gap-8">
-        
-        {/* Sidebar de Filtros */}
         <aside className="w-full lg:w-1/4 border border-gray-200 rounded p-4 bg-white shadow-sm">
           <h2 className="text-lg font-semibold mb-4">Filtros</h2>
           <div className="space-y-2">
@@ -64,7 +76,6 @@ const Productos = () => {
           </div>
         </aside>
 
-        {/* Grid de Productos */}
         <div className="w-full lg:w-3/4">
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             {productosFiltrados.map((p) => (
