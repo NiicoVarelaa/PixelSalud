@@ -39,6 +39,9 @@ export const useCarritoStore = create((set, get) => ({
 
     try {
       const idCliente = await getCliente();
+      if (!idCliente) {
+        return alert("no estas logueado")
+      }
       const carritoResponse = await axios.get(
         `http://localhost:5000/carrito/${idCliente}`
       );
