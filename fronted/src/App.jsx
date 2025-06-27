@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Inicio from "./pages/Inicio";
 import Productos from "./pages/Productos";
@@ -13,7 +12,6 @@ import LoginMedico from "./pages/LoginMedico";
 import LoginCliente from "./pages/LoginCliente";
 import RegistroCliente from "./pages/RegistroCliente";
 import RegistroMedico from "./pages/RegistroMedico";
-import { useCarritoStore } from "./store/useCarritoStore";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Administrador from "./pages/Administrador";
@@ -24,8 +22,7 @@ const App = () => {
 
   // agrego el IF y USELOCATION para separar el header del admin
 
-
-// Si estamos en /admin o /admin/loque sea → mostrar solo admin
+  // Si estamos en /admin o /admin/loque sea → mostrar solo admin
  if (location.pathname.startsWith("/admin")) {
     return (
       <Routes>
@@ -33,14 +30,10 @@ const App = () => {
       </Routes>
     );
   }
-
-  const { sincronizarCarrito } = useCarritoStore();
-  useEffect(() => {
-    sincronizarCarrito();
-  }, []); 
+ 
   return (
     <div className="bg-body overflow-x-hidden">
-      <ToastContainer position="top-right" autoClose={2500} />
+      <ToastContainer position="bottom-right" autoClose={2500} />
       <Header />
       <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
         <Routes>
@@ -51,8 +44,9 @@ const App = () => {
           <Route path="/iniciaSesion" element={<IniciaSesion />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/productos/:id" element={<Producto />} />
+          <Route path="/productos/:categoria?" element={<Productos />} />
           <Route path="/carrito" element={<Carrito />} />
-            <Route path='/LoginMedico' element={<LoginMedico/>}/>
+          <Route path='/LoginMedico' element={<LoginMedico/>}/>
           <Route path='/LoginCliente' element={<LoginCliente/>}/>
           <Route path='/registroCliente' element={<RegistroCliente/>}/>
           <Route path="/registroMedico" element={<RegistroMedico />} />

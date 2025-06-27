@@ -8,12 +8,13 @@ export const getCliente = async () =>{
 
       if (!usuarioLogueado) {
         console.log("Usuario no encontrado o logueado.");
-        return;
+        return 
+        
       }
 
       const idCliente = usuarioLogueado.idCliente;
       return idCliente
     } catch (error) {
-        console.error("Usuario no encontrado o logueado.")
+        console.error("Usuario no encontrado o logueado." + error)
     }
 }

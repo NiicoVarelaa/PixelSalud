@@ -7,7 +7,6 @@ import Swal from "sweetalert2";
 export const useCarritoStore = create((set, get) => ({
   carrito: [],
 
-  // 🔄 Sincroniza el carrito desde la base de datos del usuario logueado
   sincronizarCarrito: async () => {
     try {
       const idCliente = await getCliente();
@@ -35,12 +34,14 @@ export const useCarritoStore = create((set, get) => ({
     }
   },
 
-  // ➕ Agrega un producto al carrito (con validación backend)
   agregarCarrito: async (producto) => {
     const { carrito } = get();
 
     try {
       const idCliente = await getCliente();
+      if (!idCliente) {
+        return alert("no estas logueado")
+      }
       const carritoResponse = await axios.get(
         `http://localhost:5000/carrito/${idCliente}`
       );
