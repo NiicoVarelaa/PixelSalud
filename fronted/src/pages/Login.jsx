@@ -1,40 +1,48 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
-const LoginCliente = () => {
-  const [userCliente, setUserCliente] = useState({
+const Login = () => {
+  const [user, setUser] = useState({
     email: "",
     password: "",
   });
 
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/login", {
-        email: userCliente.email,
-        password: userCliente.password,
-      });
+     const response = await axios.post("http://localhost:5000/login", {
+  email: user.email.toLowerCase(),
+  contra: user.password,
+});
 
       console.log("Login exitoso:", response.data);
-      // localStorage.setItem('usuario', JSON.stringify(response.data));
-      // navigate('/dashboard');
+
+      // Según rol redirigir
+    const rol = response.data.rol?.toLowerCase();
+
+if (rol === "cliente") {
+  navigate("/");
+} else if (rol === "empleado") {
+  navigate("/panelempleados");
+} else if (rol === "admin") {
+  navigate("/admin");
+} else {
+  alert("Rol no reconocido");
+}
+
+      // Opcional: guardar datos en localStorage o context
+      // localStorage.setItem("usuario", JSON.stringify(response.data));
     } catch (error) {
       if (error.response) {
-        alert(error.response.data.error);
+        alert(error.response.data.error || "Credenciales incorrectas");
       } else {
         alert("Error al conectar con el servidor");
       }
       console.error(error);
     }
-  };
-
-  const handleEmailInput = (e) => {
-    setUserCliente({ ...userCliente, email: e.target.value });
-  };
-
-  const handlePasswordInput = (e) => {
-    setUserCliente({ ...userCliente, password: e.target.value });
   };
 
   return (
@@ -51,8 +59,9 @@ const LoginCliente = () => {
             <input
               type="email"
               placeholder="Correo electrónico"
-              onChange={handleEmailInput}
+              onChange={(e) => setUser({ ...user, email: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+              required
             />
           </div>
           <div>
@@ -62,24 +71,25 @@ const LoginCliente = () => {
             <input
               type="password"
               placeholder="Contraseña"
-              onChange={handlePasswordInput}
+              onChange={(e) => setUser({ ...user, password: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+              required
             />
           </div>
           <button
             type="submit"
             className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition duration-300"
           >
-            Loguear
+            Iniciar sesión
           </button>
         </form>
-        <p className="text-center mt-4 text-sm text-gray-600">
-          ¿No tenés cuenta?
+        <p className="mt-4 text-center text-gray-600">
+          ¿No tenés cuenta?{" "}
           <Link
-            to="http://localhost:5173/registroCliente"
-            className="text-green-600 hover:underline ml-1"
+            to="/Registro"
+            className="text-green-600 hover:underline"
           >
-            Registrate aquí
+            Registrate acá
           </Link>
         </p>
       </div>
@@ -87,4 +97,4 @@ const LoginCliente = () => {
   );
 };
 
-export default LoginCliente;
+export default Login;
