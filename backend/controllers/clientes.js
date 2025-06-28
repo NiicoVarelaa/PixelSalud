@@ -76,9 +76,39 @@ const  getClientes = (req, res) => {
   });
 };
 
+// Actualizar un cliente por ID
+const actualizarCliente = (req, res) => {
+  const id = req.params.id;
+  const { nombreCliente, contraCliente, email, receta, rolCliente } = req.body;
+
+  const consulta = `
+    UPDATE Clientes SET 
+      nombreCliente = ?, 
+      contraCliente = ?, 
+      email = ?, 
+      receta = ?, 
+      rolCliente = ? 
+    WHERE idCliente = ?
+  `;
+
+  conection.query(
+    consulta,
+    [nombreCliente, contraCliente, email, receta, rolCliente, id],
+    (err, results) => {
+      if (err) {
+        console.error("Error al actualizar el cliente:", err);
+        return res.status(500).json({ error: "Error al actualizar el cliente" });
+      }
+
+      res.status(200).json({ message: "Cliente actualizado correctamente" });
+    }
+  );
+};
+
 module.exports = {
   crearCliente,
   actualizarLogueado,
   borrarCliente,
-  getClientes
+  getClientes,
+  actualizarCliente,
 };

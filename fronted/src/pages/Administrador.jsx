@@ -1,5 +1,6 @@
 import { Routes, Route, Link } from "react-router-dom";
 import AdminProductos from "../components/AdminProductos";
+import AdminEmpleados from "../components/AdminEmpleados";
 import AdminMedicos from "../components/AdminMedicos";
 import AdminRecetas from "../components/AdminRecetas";
 import AdminClientes from "../components/AdminClientes";
@@ -9,6 +10,7 @@ import NavbarAdmin from "../components/NavbarAdmin";
 import AdminCards from "../components/AdminCards";
 import { useState, useEffect} from "react";
 import axios from "axios";
+
 
 const Administrador = () => {
 const [productos, setProductos] = useState([]);
@@ -35,6 +37,7 @@ const obtenerProductos = async () => {
           <nav className="flex flex-wrap justify-center gap-4 mb-10">
             <Link to="/admin/productos" className="px-5 py-2 text-lg font-medium transition-transform duration-200 hover:scale-105 hover:bg-primary-700 hover:text-white rounded-full shadow-md">Productos</Link>
             <Link to="/admin/clientes" className="px-5 py-2 text-lg font-medium transition-transform duration-200 hover:scale-105 hover:bg-primary-700 hover:text-white rounded-full shadow-md">Clientes</Link>
+            <Link to="/admin/Empleados" className="px-5 py-2 text-lg font-medium transition-transform duration-200 hover:scale-105 hover:bg-primary-700 hover:text-white rounded-full shadow-md">Empleados</Link>
            {/*  <Link to="/admin/medicos" className="px-5 py-2 text-lg font-medium transition-transform duration-200 hover:scale-105 hover:bg-primary-700 hover:text-white rounded-full shadow-md">Médicos</Link>
             <Link to="/admin/recetas" className="px-5 py-2 text-lg font-medium transition-transform duration-200 hover:scale-105 hover:bg-primary-700 hover:text-white rounded-full shadow-md">Recetas</Link> */}
             <Link to="/admin/ventasE" className="px-5 py-2 text-lg font-medium transition-transform duration-200 hover:scale-105 hover:bg-primary-700 hover:text-white rounded-full shadow-md">Ventas Empleados</Link>
@@ -48,7 +51,8 @@ const obtenerProductos = async () => {
           {/* Subrutas dentro del administrador */}
           <Routes>
             <Route path="productos" element={<AdminProductos productos={productos} obtenerProductos={obtenerProductos} />} />
-            <Route path="clientes" element={<AdminClientes />} />
+            <Route path="clientes" element={<AdminClientes/>} />
+            <Route path= "empleados" element={<AdminEmpleados/>} />
             {/* <Route path="medicos" element={<AdminMedicos />} />
             <Route path="recetas" element={<AdminRecetas />} /> */}
             <Route path="ventasE" element={<AdminVentasE />} />

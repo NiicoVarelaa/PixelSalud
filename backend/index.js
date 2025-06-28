@@ -7,6 +7,7 @@ const routesClientes = require("./routes/clientes")
 const medicoRoutes = require('./routes/medico');
 const registroRouter = require('./routes/registro');
 const loginRoutes = require('./routes/login');
+const routesEmpleados = require("./routes/Empleados");
 const cors = require('cors');
 
 
@@ -27,6 +28,7 @@ app.use("/",routesClientes)
 app.use('/', loginRoutes);  
 app.use('/', registroRouter);
 app.use('/', medicoRoutes);
+app.use('/', routesEmpleados)
 
 // Conexión a la base de datos
 conection.connect((err) => {
