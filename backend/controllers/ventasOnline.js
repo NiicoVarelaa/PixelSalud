@@ -1,47 +1,101 @@
 const { conection } = require("../config/database");
 
-/* Crear una venta con sus productos usando for tradicional */
-const createVenta = (req, res) => {
-  const { totalPago, metodoPago, idEnvio, idCliente, productos } = req.body;
+const createVenta = async (req, res) => {
+  try {
+    const { totalPago, metodoPago, idCliente, productos } = req.body;
 
-  if (!productos || productos.length === 0) {
-    return res.status(400).json({ error: "La venta debe incluir al menos un producto" });
-  }
+    // Validar stock
+    for (let i = 0; i < productos.length; i++) {
+      const { idProducto, cantidad } = productos[i];
+      const stockQuery = "SELECT stock FROM Productos WHERE idProducto = ?";
 
-  const consultaVenta = "INSERT INTO VentasOnlines (totalPago, metodoPago, idEnvio, idCliente) VALUES (?, ?, ?, ?)";
-
-  conection.query(consultaVenta, [totalPago, metodoPago, idEnvio, idCliente], (err, result) => {
-    if (err) {
-      console.error("Error al crear la venta:", err);
-      return res.status(500).json({ error: "Error al crear la venta" });
-    }
-    const idVentaO = result.insertId;
-
-    // Función para insertar productos uno por uno con for tradicional
-    const insertarProducto = (index) => {
-      if (index >= productos.length) {
-        // Terminó de insertar todos los productos
-        return res.status(201).json({ message: "Venta registrada correctamente", idVentaO });
-      }
-
-      const { idProducto, cantidad, precioUnitario } = productos[index];
-      const consultaDetalle = "INSERT INTO DetalleVentaOnline (idVentaO, idProducto, cantidad, precioUnitario) VALUES (?, ?, ?, ?)";
-
-      conection.query(consultaDetalle, [idVentaO, idProducto, cantidad, precioUnitario], (err2) => {
-        if (err2) {
-          console.error("Error al insertar producto en detalle:", err2);
-          return res.status(500).json({ error: "Error al insertar producto en detalle" });
-        }
-        // Llamo recursivamente para el siguiente producto
-        insertarProducto(index + 1);
+      const [stockResult] = await new Promise((resolve, reject) => {
+        conection.query(stockQuery, [idProducto], (err, results) => {
+          if (err) reject(err);
+          else resolve(results);
+        });
       });
-    };
 
-    // Empiezo a insertar desde el primer producto
-    insertarProducto(0);
-  });
+      if (!stockResult || stockResult.stock < cantidad) {
+        return res.status(400).json({
+          error: `Stock insuficiente del producto `,
+        });
+      }
+    }
+
+    // Insertar venta
+    const ventaQuery = `
+      INSERT INTO VentasOnlines (totalPago, metodoPago, idCliente)
+      VALUES (?, ?, ?)
+    `;
+
+    conection.query(
+      ventaQuery,
+      [totalPago, metodoPago, idCliente],
+      (err, result) => {
+        if (err) {
+          console.error("Error al registrar la venta:", err);
+          return res.status(500).json({ error: "Error al registrar la venta" });
+        }
+
+        const idVentaO = result.insertId;
+
+        for (let i = 0; i < productos.length; i++) {
+          const { idProducto, cantidad, precioUnitario } = productos[i];
+
+          // Insertar detalle de venta
+          const detalleQuery = `
+          INSERT INTO DetalleVentaOnline (idVentaO, idProducto, cantidad, precioUnitario)
+          VALUES (?, ?, ?, ?)
+        `;
+          conection.query(
+            detalleQuery,
+            [idVentaO, idProducto, cantidad, precioUnitario],
+            (err) => {
+              if (err) console.error("Error al insertar detalle:", err);
+            }
+          );
+
+          // Actualizar stock
+          const updateStockQuery = `
+          UPDATE Productos
+          SET stock = stock - ?
+          WHERE idProducto = ? AND stock >= ?
+        `;
+          conection.query(
+            updateStockQuery,
+            [cantidad, idProducto, cantidad],
+            (err) => {
+              if (err) console.error("Error al actualizar stock:", err);
+            }
+          );
+        }
+
+        res
+          .status(201)
+          .json({ message: "Compra realizada con éxito", idVentaO });
+      }
+    );
+  } catch (error) {
+    console.error("Error inesperado en registrarVenta:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
 };
 
+const mostrarCompras = async (req, res) => {
+  const idCliente = req.params.idCliente;
+  const consulta =
+    "SELECT v.idVentaO, v.fechaPago, v.metodoPago, c.nombreCliente, p.nombreProducto, d.cantidad, d.precioUnitario, v.totalPago FROM VentasOnlines v JOIN Clientes c ON v.idCliente = c.idCliente JOIN DetalleVentaOnline d ON v.idVentaO = d.idVentaO JOIN Productos p ON d.idProducto = p.idProducto Where c.idCliente = ? ;";
+  conection.query(consulta,[idCliente],(err,results)=>{
+    if(err){
+      console.log("Hubo un error a la hora de traer tus compras",err)
+      res.status(500).json({error:"Error al intentar traer las compras"})
+    }
+    res.status(200).json({message:"Exito al traer las compras", results})
+  })
+
+  };
 module.exports = {
-  createVenta
+  createVenta,
+  mostrarCompras
 };

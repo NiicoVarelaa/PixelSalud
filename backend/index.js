@@ -8,6 +8,7 @@ const medicoRoutes = require('./routes/medico');
 const registroRouter = require('./routes/registro');
 const loginRoutes = require('./routes/login');
 const routesEmpleados = require("./routes/Empleados");
+const routesOnlines = require("./routes/ventasOnline")
 const cors = require('cors');
 
 
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 
 app.use('/', routesProductos);
 app.use("/",routesCarrito)
+app.use("/", routesOnlines)
 app.use("/",routesClientes)
 app.use('/', loginRoutes);  
 app.use('/', registroRouter);

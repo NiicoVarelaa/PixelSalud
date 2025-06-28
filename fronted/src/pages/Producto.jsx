@@ -6,8 +6,10 @@ import ModalCompra from "../components/ModalCompra";
 import Footer from "../components/Footer";
 
 
+
 const Producto = () => {
    const {agregarCarrito} = useCarritoStore()
+   
 
   const [producto, setProducto] = useState([]);
   const { id } = useParams();
@@ -20,6 +22,8 @@ const Producto = () => {
       console.error("Error al obtener productos:", error);
     }
   };
+
+ 
 
   useEffect(() => {
     getProducto();
@@ -55,7 +59,7 @@ const Producto = () => {
             <button className="w-full py-3.5 cursor-pointer font-medium bg-gray-100 text-gray-800/80 hover:bg-gray-200 transition" onClick={()=>agregarCarrito(producto)}>
               Agregar a carrito
             </button>
-            <ModalCompra/>
+            <ModalCompra {...producto} />
           </div>
           
         </div>

@@ -76,33 +76,20 @@ const  getClientes = (req, res) => {
   });
 };
 
-// Actualizar un cliente por ID
-const actualizarCliente = (req, res) => {
-  const id = req.params.id;
-  const { nombreCliente, contraCliente, email, receta, rolCliente } = req.body;
+const desloguearCliente = (req, res) => {
+  const id = req.params.idCliente;
+  const consulta = `UPDATE Clientes SET logueado = 0 WHERE idCliente = ?`; // Set logueado to 0
 
-  const consulta = `
-    UPDATE Clientes SET 
-      nombreCliente = ?, 
-      contraCliente = ?, 
-      email = ?, 
-      receta = ?, 
-      rolCliente = ? 
-    WHERE idCliente = ?
-  `;
-
-  conection.query(
-    consulta,
-    [nombreCliente, contraCliente, email, receta, rolCliente, id],
-    (err, results) => {
-      if (err) {
-        console.error("Error al actualizar el cliente:", err);
-        return res.status(500).json({ error: "Error al actualizar el cliente" });
-      }
-
-      res.status(200).json({ message: "Cliente actualizado correctamente" });
+  conection.query(consulta, [id], (err, results) => {
+    if (err) {
+      console.error("Error al desloguear al usuario:", err);
+      return res.status(500).json({ error: "Error al desloguear al usuario" });
     }
-  );
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+    res.status(200).json({ message: "Usuario deslogueado correctamente" });
+  });
 };
 
 module.exports = {
@@ -110,5 +97,5 @@ module.exports = {
   actualizarLogueado,
   borrarCliente,
   getClientes,
-  actualizarCliente,
+  desloguearCliente
 };

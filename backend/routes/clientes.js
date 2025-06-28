@@ -1,10 +1,11 @@
+// clientes.js
 const express = require("express");
 const {
   crearCliente,
   actualizarLogueado,
   borrarCliente,
   getClientes,
-   actualizarCliente,
+  desloguearCliente,
 } = require("../controllers/clientes");
 
 const router = express.Router();
@@ -18,8 +19,8 @@ router.post("/clientes/crear", crearCliente);
 // Loguear usuario (logueado = 1 y los demás en 0)
 router.put("/clientes/loguear/:idCliente", actualizarLogueado);
 
-// Actualizar usuario 
-router.put("/clientes/actualizar/:id", actualizarCliente);
+// Corrected logout route
+router.put("/clientes/:idCliente/logout", desloguearCliente);
 
 // Eliminar usuario
 router.delete("/clientes/:idCliente", borrarCliente);

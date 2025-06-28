@@ -16,6 +16,7 @@ import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Administrador from "./pages/Administrador";
 import PanelEmpleados from "./pages/PanelEmpleados";
+import MisCompras from "./pages/MisCompras";
 
 
 const App = () => {
@@ -41,7 +42,7 @@ const App = () => {
   }
  
   return (
-    <div className="bg-body overflow-x-hidden">
+    <div className="bg-gray-50 overflow-x-hidden">
       <ToastContainer position="bottom-right" autoClose={2500} />
       <Header />
       <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
@@ -59,6 +60,7 @@ const App = () => {
           <Route path='/LoginCliente' element={<LoginCliente/>}/>
           <Route path='/registroCliente' element={<RegistroCliente/>}/>
           <Route path="/registroMedico" element={<RegistroMedico />} />
+          <Route path="/MisCompras" element={<MisCompras/>} />
         </Routes>
       </div>
     </div>

@@ -1,4 +1,5 @@
-import ModalCompra from "./ModalCompra";
+import ModalCompraCarrito from "./ModalCompraCarrito";
+
 
 const CardCompra = () => {
   return (
@@ -17,7 +18,7 @@ const CardCompra = () => {
         </div>
       </div>
 
-      <ModalCompra />
+      <ModalCompraCarrito/>
     </div>
   );
 };
