@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import CardProductos from "../components/CardProductos";
 import BannerPromo from "../components/BannerPromo";
+import BannerGrid from "../components/BannerGrid";
+import BannerInfo from "../components/BannerInfo";
 
 const Inicio = () => {
   const [productosArriba, setProductosArriba] = useState([]);
@@ -58,6 +60,9 @@ const Inicio = () => {
           ))}
         </div>
       </section>
+      <BannerGrid />
+
+      <BannerInfo />
       <Footer />
     </div>
   );

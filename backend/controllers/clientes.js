@@ -76,9 +76,26 @@ const  getClientes = (req, res) => {
   });
 };
 
+const desloguearCliente = (req, res) => {
+  const id = req.params.idCliente;
+  const consulta = `UPDATE Clientes SET logueado = 0 WHERE idCliente = ?`; // Set logueado to 0
+
+  conection.query(consulta, [id], (err, results) => {
+    if (err) {
+      console.error("Error al desloguear al usuario:", err);
+      return res.status(500).json({ error: "Error al desloguear al usuario" });
+    }
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+    res.status(200).json({ message: "Usuario deslogueado correctamente" });
+  });
+};
+
 module.exports = {
   crearCliente,
   actualizarLogueado,
   borrarCliente,
-  getClientes
+  getClientes,
+  desloguearCliente
 };
