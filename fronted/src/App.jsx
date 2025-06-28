@@ -15,6 +15,7 @@ import RegistroMedico from "./pages/RegistroMedico";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Administrador from "./pages/Administrador";
+import PanelEmpleados from "./pages/PanelEmpleados";
 import MisCompras from "./pages/MisCompras";
 import Error404 from "./pages/Error404";
 
@@ -29,6 +30,14 @@ const App = () => {
     return (
       <Routes>
         <Route path="/admin/*" element={<Administrador/>} />
+      </Routes>
+    );
+  }
+
+  if (location.pathname.startsWith("/panelempleados")) {
+    return (
+      <Routes>
+        <Route path="/panelempleados" element={<PanelEmpleados/>} />
       </Routes>
     );
   }

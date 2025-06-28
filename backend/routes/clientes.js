@@ -25,4 +25,6 @@ router.put("/clientes/:idCliente/logout", desloguearCliente);
 // Eliminar usuario
 router.delete("/clientes/:idCliente", borrarCliente);
 
+//
+
 module.exports = router;
