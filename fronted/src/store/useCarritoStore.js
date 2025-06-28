@@ -10,6 +10,7 @@ export const useCarritoStore = create((set, get) => ({
   sincronizarCarrito: async () => {
     try {
       const idCliente = await getCliente();
+      console.log(idCliente);
       const carritoResponse = await axios.get(
         `http://localhost:5000/carrito/${idCliente}`
       );

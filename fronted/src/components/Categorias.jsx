@@ -27,7 +27,7 @@ const Categorias = () => {
         {categories.map((categoria, index) => (
           <div
             key={index}
-            className="group cursor-pointer py-5 px-3 gap-2 rounded-lg flex flex-col items-center justify-center bg-gray-50 hover:bg-secondary-100 transition-colors"
+            className="group cursor-pointer py-5 px-3 gap-2 rounded-lg flex flex-col items-center justify-center bg-slate-100 hover:bg-secondary-100 transition-colors"
             onClick={() => {
               navigate(`/productos?categoria=${encodeURIComponent(categoria.text)}`);
               scrollTo(0, 0);
