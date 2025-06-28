@@ -16,6 +16,7 @@ import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Administrador from "./pages/Administrador";
 import MisCompras from "./pages/MisCompras";
+import Error404 from "./pages/Error404";
 
 
 const App = () => {
@@ -32,6 +33,7 @@ const App = () => {
     );
   }
  
+  
   return (
     <div className="bg-gray-50 overflow-x-hidden">
       <ToastContainer position="bottom-right" autoClose={2500} />
@@ -47,11 +49,10 @@ const App = () => {
           <Route path="/productos/:id" element={<Producto />} />
           <Route path="/productos/:categoria?" element={<Productos />} />
           <Route path="/carrito" element={<Carrito />} />
-          <Route path='/LoginMedico' element={<LoginMedico/>}/>
           <Route path='/LoginCliente' element={<LoginCliente/>}/>
           <Route path='/registroCliente' element={<RegistroCliente/>}/>
-          <Route path="/registroMedico" element={<RegistroMedico />} />
           <Route path="/MisCompras" element={<MisCompras/>} />
+          <Route path="*" element={<Error404/>}/>
         </Routes>
       </div>
     </div>

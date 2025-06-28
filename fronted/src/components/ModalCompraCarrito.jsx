@@ -19,6 +19,7 @@ const ModalCompraCarrito = () => {
 
   const handlePago = (e) => {
     e.preventDefault();
+    realizarCompraCarrito(metodoPago)
     Swal.fire("Pago exitoso", "Tu compra ha sido procesada", "success");
     cerrarModal();
   };
@@ -39,7 +40,7 @@ const ModalCompraCarrito = () => {
 
             <div className="flex flex-col gap-3 mb-4">
               <button
-                onClick={() => setMetodoPago("debito")}
+                onClick={() => setMetodoPago("Debito")}
                 className={`border px-4 py-2 rounded ${
                   metodoPago === "Debito" ? "bg-green-100" : ""
                 }`}
@@ -47,7 +48,7 @@ const ModalCompraCarrito = () => {
                 Tarjeta de Débito
               </button>
               <button
-                onClick={() => setMetodoPago("credito")}
+                onClick={() => setMetodoPago("Credito")}
                 className={`border px-4 py-2 rounded ${
                   metodoPago === "Credito" ? "bg-green-100" : ""
                 }`}
@@ -64,28 +65,28 @@ const ModalCompraCarrito = () => {
                   required
                   className="border rounded px-3 py-2"
                 />
-                <input
-                  type="text"
+                  <input
+                  type="Number"
                   placeholder="Número de tarjeta"
                   required
                   className="border rounded px-3 py-2"
                 />
                 <div className="flex gap-2">
                   <input
-                    type="text"
+                    type="month"
                     placeholder="MM/AA"
                     required
                     className="border rounded px-3 py-2 w-1/2"
                   />
                   <input
-                    type="text"
+                    type="Number"
                     placeholder="CVV"
                     required
                     className="border rounded px-3 py-2 w-1/2"
                   />
                 </div>
                 <button
-                onClick={()=>realizarCompraCarrito(metodoPago)}
+                
                   type="submit"
                   className="w-full py-3.5 cursor-pointer font-medium bg-green-500 text-white hover:bg-green-600 transition"
                 >
