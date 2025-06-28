@@ -6,14 +6,16 @@ import bannerSm3 from '../assets/bannerSm3.webp';
 const MainBanner = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [leavingIndex, setLeavingIndex] = useState(null);
 
   const desktopImages = [
     'https://cdn.batitienda.com/baticloud/images/section_picture_f1424a5a19ff4eb0973f12e4b7effe22_638850739937396556_0_k.webp',
-    'https://cdn.batitienda.com/baticloud/images/section_picture_2d15cd0f93d24bd3b58fde503ef4340e_638857998633550357_0_k.webp',    
+    'https://cdn.batitienda.com/baticloud/images/section_picture_2d15cd0f93d24bd3b58fde503ef4340e_638857998633550357_0_k.webp',
     'https://cdn.batitienda.com/baticloud/images/section_picture_c11b601b51494b5ab55a775fefa4e14c_638858006686257310_0_k.webp',
   ];
 
   const mobileImages = [bannerSm1, bannerSm2, bannerSm3];
+  const images = isMobile ? mobileImages : desktopImages; 
 
   useEffect(() => {
     const checkIfMobile = () => {
@@ -26,14 +28,17 @@ const MainBanner = () => {
   }, []);
 
   const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? desktopImages.length - 1 : prev - 1));
+    setLeavingIndex(currentIndex); 
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
 
   const goToNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev === desktopImages.length - 1 ? 0 : prev + 1));
-  }, [desktopImages.length]);
+    setLeavingIndex(currentIndex);
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  }, [currentIndex, images.length]); 
 
   const goToSlide = (index) => {
+    setLeavingIndex(currentIndex);
     setCurrentIndex(index);
   };
 
@@ -44,20 +49,23 @@ const MainBanner = () => {
     return () => clearTimeout(timer);
   }, [currentIndex, goToNext]);
 
-  const images = isMobile ? mobileImages : desktopImages;
-
   return (
     <div className="relative w-full overflow-hidden">
       <div className="relative w-full aspect-[4/3] md:aspect-[16/5] px-0 3xl:px-32">
-        {/* Imagen del banner */}
-        <img
-          src={images[currentIndex]}
-          alt={`Slide ${currentIndex + 1}`}
-          className="w-full h-full object-cover rounded-xl"
-        />
+        {images.map((imageSrc, idx) => (
+          <img
+            key={idx}
+            src={imageSrc}
+            alt={`Slide ${idx + 1}`}
+            className={`absolute top-0 left-0 w-full h-full object-cover rounded-xl transition-opacity duration-1000 ease-in-out
+              ${currentIndex === idx ? 'opacity-100' : 'opacity-0'}
+              ${leavingIndex === idx && currentIndex !== idx ? 'opacity-0' : ''}
+            `}
+          />
+        ))}
 
         {/* Botón anterior */}
-        <button 
+        <button
           onClick={goToPrevious}
           className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black/20 text-white p-2 rounded-full hover:bg-black/30 transition z-10 cursor-pointer"
         >
@@ -67,7 +75,7 @@ const MainBanner = () => {
         </button>
 
         {/* Botón siguiente */}
-        <button 
+        <button
           onClick={goToNext}
           className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black/20 text-white p-2 rounded-full hover:bg-black/30 transition z-10 cursor-pointer"
         >

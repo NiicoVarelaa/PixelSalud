@@ -1,16 +1,17 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
+import { useCompraStore } from "../store/useCompraStore";
 
 
-const ModalCompra = () => {
+const ModalCompra = (producto) => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [metodoPago, setMetodoPago] = useState("");
-
+  const {realizarCompraInd} = useCompraStore()
   const abrirModal = () => {
     setMostrarModal(true);
     setMetodoPago("");
   };
-
+console.log(metodoPago)
   const cerrarModal = () => {
     setMostrarModal(false);
     setMetodoPago("");
@@ -40,7 +41,7 @@ const ModalCompra = () => {
               <button
                 onClick={() => setMetodoPago("debito")}
                 className={`border px-4 py-2 rounded ${
-                  metodoPago === "debito" ? "bg-green-100" : ""
+                  metodoPago === "Debito" ? "bg-green-100" : ""
                 }`}
               >
                 Tarjeta de Débito
@@ -48,7 +49,7 @@ const ModalCompra = () => {
               <button
                 onClick={() => setMetodoPago("credito")}
                 className={`border px-4 py-2 rounded ${
-                  metodoPago === "credito" ? "bg-green-100" : ""
+                  metodoPago === "Credito" ? "bg-green-100" : ""
                 }`}
               >
                 Tarjeta de Crédito
@@ -84,6 +85,7 @@ const ModalCompra = () => {
                   />
                 </div>
                 <button
+                onClick={()=>realizarCompraInd(producto, metodoPago)}
                   type="submit"
                   className="w-full py-3.5 cursor-pointer font-medium bg-green-500 text-white hover:bg-green-600 transition"
                 >
