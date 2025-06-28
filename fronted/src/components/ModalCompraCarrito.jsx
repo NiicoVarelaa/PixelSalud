@@ -3,15 +3,15 @@ import Swal from "sweetalert2";
 import { useCompraStore } from "../store/useCompraStore";
 
 
-const ModalCompra = (producto) => {
+const ModalCompraCarrito = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [metodoPago, setMetodoPago] = useState("");
-  const {realizarCompraInd} = useCompraStore()
+  const {realizarCompraCarrito} = useCompraStore()
   const abrirModal = () => {
     setMostrarModal(true);
     setMetodoPago("");
   };
-console.log(metodoPago)
+
   const cerrarModal = () => {
     setMostrarModal(false);
     setMetodoPago("");
@@ -85,7 +85,7 @@ console.log(metodoPago)
                   />
                 </div>
                 <button
-                onClick={()=>realizarCompraInd(producto, metodoPago)}
+                onClick={()=>realizarCompraCarrito(metodoPago)}
                   type="submit"
                   className="w-full py-3.5 cursor-pointer font-medium bg-green-500 text-white hover:bg-green-600 transition"
                 >
@@ -110,4 +110,4 @@ console.log(metodoPago)
   );
 }
 
-export default ModalCompra
+export default ModalCompraCarrito

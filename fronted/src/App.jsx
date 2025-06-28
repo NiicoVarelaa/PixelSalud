@@ -15,6 +15,7 @@ import RegistroMedico from "./pages/RegistroMedico";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Administrador from "./pages/Administrador";
+import MisCompras from "./pages/MisCompras";
 
 
 const App = () => {
@@ -50,6 +51,7 @@ const App = () => {
           <Route path='/LoginCliente' element={<LoginCliente/>}/>
           <Route path='/registroCliente' element={<RegistroCliente/>}/>
           <Route path="/registroMedico" element={<RegistroMedico />} />
+          <Route path="/MisCompras" element={<MisCompras/>} />
         </Routes>
       </div>
     </div>
