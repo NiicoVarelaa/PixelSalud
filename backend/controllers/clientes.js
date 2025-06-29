@@ -78,7 +78,7 @@ const  getClientes = (req, res) => {
 
 const desloguearCliente = (req, res) => {
   const id = req.params.idCliente;
-  const consulta = `UPDATE Clientes SET logueado = 0 WHERE idCliente = ?`; // Set logueado to 0
+  const consulta = `UPDATE Clientes SET logueado = 0 WHERE idCliente = ?`;
 
   conection.query(consulta, [id], (err, results) => {
     if (err) {
