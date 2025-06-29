@@ -44,7 +44,7 @@ const BannerGrid = () => {
               Y RETIRALOS SIN HACER FILA
             </p>
             <Link
-              to="/404"
+              to="/Error404"
               className="inline-block text-white font-bold py-3 px-6 rounded-full transition duration-300 transform hover:scale-105 cursor-pointer bg-primary-700"
             >
               MÁS INFORMACIÓN
@@ -129,7 +129,7 @@ const BannerGrid = () => {
               ¡Tu Salud es Nuestra Prioridad! Chateá con Nuestros Expertos Ahora.
             </p>
             <Link
-              to="/404"
+              to="/Error404"
               className="inline-block text-white font-bold py-3 px-6 rounded-full transition duration-300 transform hover:scale-105 cursor-pointer bg-primary-700"
             >
               CHATEAR POR WHATSAPP
@@ -148,7 +148,7 @@ const BannerGrid = () => {
               RETIRARLOS EN TU SUCURSAL MÁS CERCANA
             </p>
             <Link
-              to="/404"
+              to="/Error404"
               className="inline-block text-white font-bold py-3 px-6 rounded-full transition duration-300 transform hover:scale-105 cursor-pointer bg-secondary-400"
             >
               BUSCAR SUCURSAL
