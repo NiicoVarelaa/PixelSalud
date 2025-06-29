@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Administrador from "./pages/Administrador";
 import PanelEmpleados from "./pages/PanelEmpleados";
 import MisCompras from "./pages/MisCompras";
+import Error404 from "./pages/Error404";
 
 const App = () => {
   const location = useLocation();
@@ -35,7 +36,12 @@ const App = () => {
       </Routes>
     );
   }
+<<<<<<< HEAD
 
+=======
+ 
+  
+>>>>>>> 334423b68b3794427cff545fd2b7b3b0d7cc6548
   return (
     <div className="bg-gray-50 overflow-x-hidden">
       <ToastContainer position="bottom-right" autoClose={2500} />
@@ -50,8 +56,15 @@ const App = () => {
           <Route path="/productos/:id" element={<Producto />} />
           <Route path="/productos/:categoria?" element={<Productos />} />
           <Route path="/carrito" element={<Carrito />} />
+<<<<<<< HEAD
           <Route path="/Login" element={<Login />} />
           <Route path="/MisCompras" element={<MisCompras />} />
+=======
+          <Route path='/LoginCliente' element={<LoginCliente/>}/>
+          <Route path='/registroCliente' element={<RegistroCliente/>}/>
+          <Route path="/MisCompras" element={<MisCompras/>} />
+          <Route path="*" element={<Error404/>}/>
+>>>>>>> 334423b68b3794427cff545fd2b7b3b0d7cc6548
         </Routes>
       </div>
     </div>
