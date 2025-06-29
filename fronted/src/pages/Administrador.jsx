@@ -2,7 +2,6 @@ import { Routes, Route, Link } from "react-router-dom";
 import AdminProductos from "../components/AdminProductos";
 import AdminEmpleados from "../components/AdminEmpleados";
 import AdminClientes from "../components/AdminClientes";
-import AdminVentasE from "../components/AdminVentasE";
 import AdminVentasO from "../components/AdminVentasO";
 import NavbarAdmin from "../components/NavbarAdmin";
 import AdminCards from "../components/AdminCards";
@@ -36,7 +35,6 @@ const obtenerProductos = async () => {
             <Link to="/admin/productos" className="px-5 py-2 text-lg font-medium transition-transform duration-200 hover:scale-105 hover:bg-primary-700 hover:text-white rounded-full shadow-md">Productos</Link>
             <Link to="/admin/clientes" className="px-5 py-2 text-lg font-medium transition-transform duration-200 hover:scale-105 hover:bg-primary-700 hover:text-white rounded-full shadow-md">Clientes</Link>
             <Link to="/admin/Empleados" className="px-5 py-2 text-lg font-medium transition-transform duration-200 hover:scale-105 hover:bg-primary-700 hover:text-white rounded-full shadow-md">Empleados</Link>
-            <Link to="/admin/ventasE" className="px-5 py-2 text-lg font-medium transition-transform duration-200 hover:scale-105 hover:bg-primary-700 hover:text-white rounded-full shadow-md">Ventas Empleados</Link>
             <Link to="/admin/ventasO" className="px-5 py-2 text-lg font-medium transition-transform duration-200 hover:scale-105 hover:bg-primary-700 hover:text-white rounded-full shadow-md">Ventas Online</Link>
           </nav>
 
@@ -49,7 +47,6 @@ const obtenerProductos = async () => {
             <Route path="productos" element={<AdminProductos productos={productos} obtenerProductos={obtenerProductos} />} />
             <Route path="clientes" element={<AdminClientes/>} />
             <Route path= "empleados" element={<AdminEmpleados/>} />
-            <Route path="ventasE" element={<AdminVentasE />} />
             <Route path="ventasO" element={<AdminVentasO />} />
           </Routes>
         </div>

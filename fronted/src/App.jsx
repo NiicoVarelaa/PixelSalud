@@ -52,7 +52,7 @@ const App = () => {
           <Route path="/carrito" element={<Carrito />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/MisCompras" element={<MisCompras />} />
-          <Route path="*" element={<Error404/>}/>
+          <Route path="*" element={<Error404/>} />
         </Routes>
       </div>
     </div>

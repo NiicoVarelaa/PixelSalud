@@ -95,7 +95,29 @@ const mostrarCompras = async (req, res) => {
   })
 
   };
+
+  const mostrarTodasLasVentas = async (req, res) => {
+  const consulta = `
+    SELECT v.idVentaO, v.fechaPago, v.metodoPago, c.nombreCliente, p.nombreProducto, d.cantidad, d.precioUnitario, v.totalPago
+    FROM VentasOnlines v
+    JOIN Clientes c ON v.idCliente = c.idCliente
+    JOIN DetalleVentaOnline d ON v.idVentaO = d.idVentaO
+    JOIN Productos p ON d.idProducto = p.idProducto
+    ORDER BY v.idVentaO DESC;
+  `;
+
+  conection.query(consulta, (err, results) => {
+    if (err) {
+      console.log("Error al traer todas las ventas", err);
+      return res.status(500).json({ error: "Error al obtener todas las ventas" });
+    }
+    res.status(200).json({ message: "Éxito al traer todas las ventas", results });
+  });
+};
+
 module.exports = {
   createVenta,
-  mostrarCompras
+  mostrarCompras, mostrarTodasLasVentas
 };
+
+
