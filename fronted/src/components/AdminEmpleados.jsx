@@ -10,14 +10,14 @@ const AdminEmpleados = () => {
     nombreEmpleado: "",
     email: "",
     contraEmpleado: "",
-    rolEmpleado: "",
+    rol: "",
   });
 
   const [nuevoEmpleado, setNuevoEmpleado] = useState({
     nombreEmpleado: "",
     email: "",
     contraEmpleado: "",
-    rolEmpleado: "",
+    rol: "",
   });
 
   const obtenerEmpleados = async () => {
@@ -44,7 +44,7 @@ const AdminEmpleados = () => {
       nombreEmpleado: "",
       email: "",
       contraEmpleado: "",
-      rolEmpleado: "",
+      rol: "",
     });
   };
 
@@ -99,7 +99,7 @@ const AdminEmpleados = () => {
         ) : (
           <div className="w-full bg-white p-4 rounded-lg shadow mb-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {["nombreEmpleado", "email", "contraEmpleado", "rolEmpleado"].map((campo) => (
+              {["nombreEmpleado", "email", "contraEmpleado", "rol"].map((campo) => (
                 <input
                   key={campo}
                   name={campo}
@@ -130,7 +130,7 @@ const AdminEmpleados = () => {
                     nombreEmpleado: "",
                     email: "",
                     contraEmpleado: "",
-                    rolEmpleado: "",
+                    rol: "",
                   });
                 }}
                 className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
@@ -211,8 +211,8 @@ const AdminEmpleados = () => {
                   <td className="px-4 py-2">
                     {editandoId === emp.idEmpleado ? (
                       <input
-                        name="rolEmpleado"
-                        value={empleadoEditado.rolEmpleado}
+                        name="rol"
+                        value={empleadoEditado.rol}
                         onChange={(e) =>
                           setEmpleadoEditado({
                             ...empleadoEditado,
@@ -222,7 +222,7 @@ const AdminEmpleados = () => {
                         className="border rounded p-1 w-full"
                       />
                     ) : (
-                      emp.rolEmpleado
+                      emp.rol
                     )}
                   </td>
                   <td className="px-4 py-2 flex gap-2">

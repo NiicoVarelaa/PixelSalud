@@ -11,7 +11,7 @@ const AdminClientes = () => {
     contraCliente: "",
     email: "",
     receta: false,
-    rolCliente: "",
+    rol: "",
   });
 
   const [nuevoCliente, setNuevoCliente] = useState({
@@ -19,7 +19,7 @@ const AdminClientes = () => {
     contraCliente: "",
     email: "",
     receta: false,
-    rolCliente: "",
+    rol: "",
   });
 
   const iniciarEdicion = (cli) => {
@@ -34,7 +34,7 @@ const AdminClientes = () => {
       contraCliente: "",
       email: "",
       receta: false,
-      rolCliente: "",
+      rol: "",
     });
   };
 
@@ -102,7 +102,7 @@ const AdminClientes = () => {
         ) : (
           <div className="w-full bg-white p-4 rounded-lg shadow mb-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {["nombreCliente", "contraCliente", "email", "rolCliente"].map(
+              {["nombreCliente", "contraCliente", "email", "rol"].map(
                 (campo) => (
                   <input
                     key={campo}
@@ -150,7 +150,7 @@ const AdminClientes = () => {
                     contraCliente: "",
                     email: "",
                     receta: false,
-                    rolCliente: "",
+                    rol: "",
                   });
                 }}
                 className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
@@ -232,8 +232,8 @@ const AdminClientes = () => {
                 <td className="px-4 py-2">
                   {editandoId === cli.idCliente ? (
                     <input
-                      name="rolCliente"
-                      value={clienteEditado.rolCliente}
+                      name="rol"
+                      value={clienteEditado.rol}
                       onChange={(e) =>
                         setClienteEditado({
                           ...clienteEditado,
@@ -243,7 +243,7 @@ const AdminClientes = () => {
                       className="border rounded p-1 w-full"
                     />
                   ) : (
-                    cli.rolCliente
+                    cli.rol
                   )}
                 </td>
                 <td className="px-4 py-2">

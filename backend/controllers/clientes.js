@@ -2,13 +2,13 @@ const { conection } = require("../config/database");
 
 // Crear nuevo usuario
 const crearCliente = (req, res) => {
-  const { nombreCliente, contraCliente, email, receta, rolCliente } = req.body;
+  const { nombreCliente, contraCliente, email, receta, rol } = req.body;
 
   const consulta = `INSERT INTO Clientes 
-    (nombreCliente, contraCliente, email, receta, rolCliente)
+    (nombreCliente, contraCliente, email, receta, rol)
     VALUES (?, ?, ?, ?, ?)`;
 
-  conection.query(consulta, [nombreCliente, contraCliente, email, receta, rolCliente], (err, results) => {
+  conection.query(consulta, [nombreCliente, contraCliente, email, receta, rol], (err, results) => {
     if (err) {
       console.error("Error al crear el usuario:", err);
       return res.status(500).json({ error: "Error al crear el usuario" });
