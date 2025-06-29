@@ -3,19 +3,17 @@ import Inicio from "./pages/Inicio";
 import Productos from "./pages/Productos";
 import SobreNosotros from "./pages/SobreNosotros";
 import Contacto from "./pages/Contacto";
-import IniciaSesion from "./pages/IniciaSesion";
 import Registro from "./pages/Registro";
 import Producto from "./pages/Producto";
 import Carrito from "./pages/Carrito";
 import Header from "./components/Header";
-import LoginMedico from "./pages/LoginMedico";
-import LoginCliente from "./pages/LoginCliente";
-import RegistroCliente from "./pages/RegistroCliente";
-import RegistroMedico from "./pages/RegistroMedico";
+import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import Administrador from "./pages/Administrador";
-
+import PanelEmpleados from "./pages/PanelEmpleados";
+import MisCompras from "./pages/MisCompras";
+import Error404 from "./pages/Error404";
 
 const App = () => {
   const location = useLocation();
@@ -23,14 +21,21 @@ const App = () => {
   // agrego el IF y USELOCATION para separar el header del admin
 
   // Si estamos en /admin o /admin/loque sea → mostrar solo admin
- if (location.pathname.startsWith("/admin")) {
+  if (location.pathname.startsWith("/admin")) {
     return (
       <Routes>
-        <Route path="/admin/*" element={<Administrador/>} />
+        <Route path="/admin/*" element={<Administrador />} />
       </Routes>
     );
   }
- 
+
+  if (location.pathname.startsWith("/panelempleados")) {
+    return (
+      <Routes>
+        <Route path="/panelempleados" element={<PanelEmpleados />} />
+      </Routes>
+    );
+  }
   return (
     <div className="bg-gray-50 overflow-x-hidden">
       <ToastContainer position="bottom-right" autoClose={2500} />
@@ -41,15 +46,13 @@ const App = () => {
           <Route path="/productos" element={<Productos />} />
           <Route path="/sobreNosotros" element={<SobreNosotros />} />
           <Route path="/contacto" element={<Contacto />} />
-          <Route path="/iniciaSesion" element={<IniciaSesion />} />
-          <Route path="/registro" element={<Registro />} />
+          <Route path="/Registro" element={<Registro />} />
           <Route path="/productos/:id" element={<Producto />} />
           <Route path="/productos/:categoria?" element={<Productos />} />
           <Route path="/carrito" element={<Carrito />} />
-          <Route path='/LoginMedico' element={<LoginMedico/>}/>
-          <Route path='/LoginCliente' element={<LoginCliente/>}/>
-          <Route path='/registroCliente' element={<RegistroCliente/>}/>
-          <Route path="/registroMedico" element={<RegistroMedico />} />
+          <Route path="/Login" element={<Login />} />
+          <Route path="/MisCompras" element={<MisCompras />} />
+          <Route path="*" element={<Error404/>}/>
         </Routes>
       </div>
     </div>

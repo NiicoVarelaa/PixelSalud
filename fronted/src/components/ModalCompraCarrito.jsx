@@ -3,15 +3,15 @@ import Swal from "sweetalert2";
 import { useCompraStore } from "../store/useCompraStore";
 
 
-const ModalCompra = (producto) => {
+const ModalCompraCarrito = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [metodoPago, setMetodoPago] = useState("");
-  const {realizarCompraInd} = useCompraStore()
+  const {realizarCompraCarrito} = useCompraStore()
   const abrirModal = () => {
     setMostrarModal(true);
     setMetodoPago("");
   };
-console.log(metodoPago)
+
   const cerrarModal = () => {
     setMostrarModal(false);
     setMetodoPago("");
@@ -19,7 +19,7 @@ console.log(metodoPago)
 
   const handlePago = (e) => {
     e.preventDefault();
-    realizarCompraInd(producto, metodoPago)
+    realizarCompraCarrito(metodoPago)
     Swal.fire("Pago exitoso", "Tu compra ha sido procesada", "success");
     cerrarModal();
   };
@@ -65,7 +65,7 @@ console.log(metodoPago)
                   required
                   className="border rounded px-3 py-2"
                 />
-                <input
+                  <input
                   type="Number"
                   placeholder="Número de tarjeta"
                   required
@@ -86,6 +86,7 @@ console.log(metodoPago)
                   />
                 </div>
                 <button
+                
                   type="submit"
                   className="w-full py-3.5 cursor-pointer font-medium bg-green-500 text-white hover:bg-green-600 transition"
                 >
@@ -110,4 +111,4 @@ console.log(metodoPago)
   );
 }
 
-export default ModalCompra
+export default ModalCompraCarrito
