@@ -2,11 +2,10 @@ import { Link } from 'react-router-dom';
 
 const BannerInfo = () => {
   // Define your primary color for consistency
-  const primaryColor = "#00a339"; // Verde
+  const primaryColor = "#00a339"; 
 
   return (
-    <div className="bg-gray-50 py-6"> {/* Background and padding for the entire bar */}
-      {/* Removed 'container mx-auto px-4' to make it full width */}
+    <div className="bg-gray-50 py-6"> 
       <div className="flex flex-col md:flex-row justify-around items-center bg-white rounded-xl shadow-md p-6 space-y-6 md:space-y-0 md:space-x-4">
           
         {/* Cómo comprar? Section */}

@@ -159,7 +159,7 @@ const Navbar = () => {
               )}
             </>
           ) : (
-            <NavLink to="loginCliente">
+            <NavLink to="Login">
               <img
                 src={profileIcon}
                 className="w-5 cursor-pointer"

@@ -60,8 +60,8 @@ const Inicio = () => {
           ))}
         </div>
       </section>
-      <BannerGrid />
 
+      <BannerGrid />
       <BannerInfo />
       <Footer />
     </div>
