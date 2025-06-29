@@ -8,12 +8,6 @@ const MainCarrito = () => {
     useCarritoStore();
     
   console.log(carrito);
-
-
-    const total = carrito.reduce(
-    (acc, producto) => acc + producto.precio * producto.cantidad,
-    0
-  );
   
   const handleDelete = async (id) => {
     Swal.fire({
@@ -34,11 +28,11 @@ const MainCarrito = () => {
       {carrito.length === 0 ? (
         <>
           <h2 className="text-center">No tienes productos en tu carrtio.</h2>
-
+          <br />
           <img
-            src="https://static.vecteezy.com/system/resources/previews/023/526/354/non_2x/cartoon-coronavirus-cell-icon-covid19-virus-vector.jpg"
+            src="https://static.vecteezy.com/system/resources/previews/010/883/288/non_2x/cute-sad-pill-with-wrong-sign-cartoon-character-free-png.png"
             alt=""
-            className="w-150 mx-auto"
+            className="w-100 mx-auto"
           />
         
           <button className="group cursor-pointer flex items-center mt-8 gap-2 text-indigo-500 font-medium">
@@ -61,7 +55,7 @@ const MainCarrito = () => {
           </button>
         </>
       ) : (
-        <div className="flex flex-col md:flex-row py-16 max-w-6xl w-full px-6 mx-auto">
+       <div className="flex flex-col md:flex-row py-16 max-w-6xl w-full px-6 mx-auto gap-10 items-start">
           <div className="flex-1 max-w-4xl">
             <h1 className="text-3xl font-medium mb-6">Tu Carrito 🛒</h1>
 
@@ -73,7 +67,7 @@ const MainCarrito = () => {
             {carrito.map((product) => (
               <div
                 key={product.idProducto}
-                className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 items-center text-sm md:text-base font-medium pt-3"
+                 className="grid grid-cols-[2fr_1fr_1fr] items-center text-sm md:text-base font-medium pt-3 mb-4 bg-white p-4 rounded-xl shadow-sm"
               >
                 <div className="flex items-center md:gap-6 gap-3">
                   <div className=" w-50 h-50 flex items-center justify-center ">
@@ -91,7 +85,7 @@ const MainCarrito = () => {
                       <p>Cantidad:</p>
                       <div className="flex items-center">
                         <button
-                          className="bg-transparent hover:bg-red-500 text-red-600 font-semibold hover:text-white text-sm py-1 px-2 border border-red-500 hover:border-transparent rounded"
+                         className="w-7 h-7 flex items-center justify-center rounded-full border hover:text-white hover:bg-red-500 border-red-500 text-red-600 text-sm transition"
                           onClick={() =>
                             product.cantidad > 1 &&
                             disminuirCantidad(product.idProducto)
@@ -101,7 +95,7 @@ const MainCarrito = () => {
                         </button>
                         <div className="mx-2">{product.cantidad}</div>
                         <button
-                          className="bg-transparent hover:bg-green-500 text-green-600 font-semibold hover:text-white text-sm py-1 px-2 border border-green-500 hover:border-transparent rounded"
+                          className="w-7 h-7 flex items-center justify-center rounded-full border hover:text-white hover:bg-green-500 border-green-500 text-green-600 text-sm transition"
                           onClick={() =>
                             product.stock > product.cantidad &&
                             aumentarCantidad(product.idProducto)

@@ -29,7 +29,7 @@ const BannerInfo = () => {
           </div>
           <div>
             <p className="text-gray-800 font-semibold">¿Cómo comprar?</p>
-            <Link to="/404" className="text-sm font-medium hover:underline" style={{ color: primaryColor }}>
+            <Link to="/Error404" className="text-sm font-medium hover:underline" style={{ color: primaryColor }}>
               Enterate acá <span aria-hidden="true">&rarr;</span>
             </Link>
           </div>
@@ -58,7 +58,7 @@ const BannerInfo = () => {
           </div>
           <div>
             <p className="text-gray-800 font-semibold">Medios de pago</p>
-            <Link to="/404" className="text-sm font-medium hover:underline" style={{ color: primaryColor }}>
+            <Link to="/Error404" className="text-sm font-medium hover:underline" style={{ color: primaryColor }}>
               Ver más <span aria-hidden="true">&rarr;</span>
             </Link>
           </div>
@@ -87,7 +87,7 @@ const BannerInfo = () => {
           </div>
           <div>
             <p className="text-gray-800 font-semibold">Retirá tu pedido gratis</p>
-            <Link to="/404" className="text-sm font-medium hover:underline" style={{ color: primaryColor }}>
+            <Link to="/Error404" className="text-sm font-medium hover:underline" style={{ color: primaryColor }}>
               Ver puntos <span aria-hidden="true">&rarr;</span>
             </Link>
           </div>
