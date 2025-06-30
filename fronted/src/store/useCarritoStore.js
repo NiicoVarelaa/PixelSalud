@@ -44,7 +44,7 @@ export const useCarritoStore = create((set, get) => ({
           icon: "error",
           title: "Error...",
           text: "Debes estar logueado para realizar esta accion!",
-          footer: `<a href="../LoginCliente">¿Quieres iniciar sesion?</a>`,
+          footer: `<a href="../Login">¿Quieres iniciar sesion?</a>`,
         });
         return
       }

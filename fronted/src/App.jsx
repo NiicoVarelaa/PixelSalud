@@ -39,7 +39,6 @@ const App = () => {
   return (
     <div className="bg-gray-50 overflow-x-hidden">
       <ToastContainer position="bottom-right" autoClose={2500} />
-      <Header />
       <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
         <Routes>
           <Route path="/" element={<Inicio />} />

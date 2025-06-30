@@ -9,7 +9,6 @@ import menuIcon from "../assets/iconos/menu_icon.png";
 import logout from "../assets/iconos/logout.png";
 import { getCliente } from "../store/useClienteStore";
 import axios from "axios";
-import { FaSignOutAlt} from "react-icons/fa"; 
 import { IoCloseSharp } from "react-icons/io5";
 
 const Navbar = () => {
@@ -76,7 +75,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex items-center justify-between py-5 font-medium relative px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+    <div className="flex items-center justify-between py-5 font-medium relative">
       <Link to="/">
         <img
           className="w-auto h-9"
@@ -159,7 +158,7 @@ const Navbar = () => {
               )}
             </>
           ) : (
-            <NavLink to="loginCliente">
+            <NavLink to="login">
               <img
                 src={profileIcon}
                 className="w-5 cursor-pointer"
@@ -277,7 +276,7 @@ const Navbar = () => {
             </NavLink>
 
             {/* Opciones de cuenta */}
-            <hr className="my-4 border-t border-gray-200" /> {/* Separador con más margen */}
+            <hr className="my-4 border-t border-gray-200" />
             {loggedInClienteId ? (
               <>
                 <Link
@@ -314,7 +313,7 @@ const Navbar = () => {
               </>
             ) : (
               <NavLink
-                to="loginCliente"
+                to="login"
                 onClick={() => setIsMenuOpen(false)}
                 className="flex items-center gap-3 py-3 px-4 rounded-lg text-lg text-gray-700 hover:bg-gray-100 hover:text-primary-700 transition-colors duration-200"
               >

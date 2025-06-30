@@ -7,6 +7,7 @@ import CardProductos from "../components/CardProductos";
 import BannerPromo from "../components/BannerPromo";
 import BannerGrid from "../components/BannerGrid";
 import BannerInfo from "../components/BannerInfo";
+import Header from "../components/Header";
 
 const Inicio = () => {
   const [productosArriba, setProductosArriba] = useState([]);
@@ -37,6 +38,7 @@ const Inicio = () => {
 
   return (
     <div>
+      <Header />
       <MainBanner />
       <Categorias />
       <section className="mt-12">
