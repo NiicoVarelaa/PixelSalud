@@ -8,14 +8,14 @@ const AdminEmpleados = () => {
 
   const [empleadoEditado, setEmpleadoEditado] = useState({
     nombreEmpleado: "",
-    email: "",
+    emailempleado: "",
     contraEmpleado: "",
     rol: "",
   });
 
   const [nuevoEmpleado, setNuevoEmpleado] = useState({
     nombreEmpleado: "",
-    email: "",
+    emailempleado: "",
     contraEmpleado: "",
     rol: "",
   });
@@ -42,7 +42,7 @@ const AdminEmpleados = () => {
     setEditandoId(null);
     setEmpleadoEditado({
       nombreEmpleado: "",
-      email: "",
+      emailempleado: "",
       contraEmpleado: "",
       rol: "",
     });
@@ -99,7 +99,7 @@ const AdminEmpleados = () => {
         ) : (
           <div className="w-full bg-white p-4 rounded-lg shadow mb-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {["nombreEmpleado", "email", "contraEmpleado", "rol"].map((campo) => (
+              {["nombreEmpleado", "emailempleado", "contraEmpleado", "rol"].map((campo) => (
                 <input
                   key={campo}
                   name={campo}
@@ -128,7 +128,7 @@ const AdminEmpleados = () => {
                   setMostrarFormulario(false);
                   setNuevoEmpleado({
                     nombreEmpleado: "",
-                    email: "",
+                    emailempleado: "",
                     contraEmpleado: "",
                     rol: "",
                   });
@@ -147,7 +147,7 @@ const AdminEmpleados = () => {
           <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
             <tr>
               <th className="px-4 py-3">Nombre</th>
-              <th className="px-4 py-3">Email</th>
+              <th className="px-4 py-3">emailempleado</th>
               <th className="px-4 py-3">Contraseña</th>
               <th className="px-4 py-3">Rol</th>
               <th className="px-4 py-3">Acciones</th>
@@ -177,8 +177,8 @@ const AdminEmpleados = () => {
                   <td className="px-4 py-2">
                     {editandoId === emp.idEmpleado ? (
                       <input
-                        name="email"
-                        value={empleadoEditado.email}
+                        name="emailempleado"
+                        value={empleadoEditado.emailempleado}
                         onChange={(e) =>
                           setEmpleadoEditado({
                             ...empleadoEditado,
@@ -188,7 +188,7 @@ const AdminEmpleados = () => {
                         className="border rounded p-1 w-full"
                       />
                     ) : (
-                      emp.email
+                      emp.emailempleado
                     )}
                   </td>
                   <td className="px-4 py-2">
