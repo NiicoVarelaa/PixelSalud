@@ -13,7 +13,7 @@ export const useCompraStore = create((set) => ({
           icon: "error",
           title: "Error...",
           text: "Debes estar logueado para realizar esta accion!",
-          footer: `<a href="../LoginCliente">¿Quieres iniciar sesion?</a>`,
+          footer: `<a href="../Login">¿Quieres iniciar sesion?</a>`,
         });
         return;
       }
@@ -85,6 +85,9 @@ export const useCompraStore = create((set) => ({
       };
 
       const response = await axios.post("http://localhost:5000/ventaOnline/crear", compra);
+      await axios.delete(`http://localhost:5000/carrito/vaciar/${idCliente}`)
+      useCarritoStore.getState().vaciarCarrito?.(); // Solo si tenés esa función
+
 
       Swal.fire({
         icon: "success",
@@ -93,8 +96,7 @@ export const useCompraStore = create((set) => ({
       });
 
       // Si querés vaciar el carrito luego de la compra:
-      useCarritoStore.getState().vaciarCarrito?.(); // Solo si tenés esa función
-
+      
     } catch (error) {
       console.error("Error al realizar la compra desde el carrito", error);
       Swal.fire({

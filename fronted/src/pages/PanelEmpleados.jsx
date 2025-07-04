@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import NavbarEmpleado from "../components/NavbarEmpleado";
+import { getEmpleado } from "../store/useEmpleadoStore"; // Asegurate de tener esto correctamente
 
 const PanelEmpleados = () => {
   const [formVisible, setFormVisible] = useState(false);
@@ -8,19 +9,16 @@ const PanelEmpleados = () => {
   const [productos, setProductos] = useState([{ idProducto: "", cantidad: "", precio: "" }]);
   const [recetas, setRecetas] = useState([{ idProducto: "", cantidad: "", descripcion: "" }]);
   const [cargarReceta, setCargarReceta] = useState(false);
-  const [totalPago, setTotalPago] = useState(0);
+  const [totalPago, setTotalPago] = useState("");
   const [metodoPago, setMetodoPago] = useState("");
 
   const obtenerVentas = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/ventasEmpleados");
-      if (!res.data) {
-        return
-      }
-      else {
+      const idEmpleado = await getEmpleado();
+      const res = await axios.get(`http://localhost:5000/ventasEmpleados/${idEmpleado}`);
+      if (res.data) {
         setVentas(res.data);
       }
-      
     } catch (error) {
       console.error("Error al obtener ventas:", error);
     }
@@ -51,7 +49,19 @@ const PanelEmpleados = () => {
   };
 
   const handleSubmit = async () => {
+    if (!totalPago || !metodoPago) {
+      alert("Por favor completa el método de pago y el total.");
+      return;
+    }
+
+    const idEmpleado = await getEmpleado();
+    if (!idEmpleado) {
+      alert("Error al obtener el empleado logueado.");
+      return;
+    }
+
     const body = {
+      idEmpleado, 
       totalPago: parseFloat(totalPago),
       metodoPago,
       productos: productos.map(p => ({
@@ -72,6 +82,12 @@ const PanelEmpleados = () => {
       await axios.post("http://localhost:5000/ventasEmpleados/crear", body);
       alert("Venta registrada exitosamente");
       setFormVisible(false);
+      // Limpiar formularios
+      setProductos([{ idProducto: "", cantidad: "", precio: "" }]);
+      setRecetas([{ idProducto: "", cantidad: "", descripcion: "" }]);
+      setTotalPago("");
+      setMetodoPago("");
+      setCargarReceta(false);
       obtenerVentas();
     } catch (error) {
       console.error("Error al registrar la venta:", error);
@@ -112,7 +128,7 @@ const PanelEmpleados = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Precio Total</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Total a Pagar</label>
                 <input
                   type="number"
                   value={totalPago}
@@ -279,4 +295,4 @@ const PanelEmpleados = () => {
   );
 };
 
-export default PanelEmpleados;
+export default PanelEmpleados;

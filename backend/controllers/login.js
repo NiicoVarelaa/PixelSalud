@@ -9,7 +9,7 @@ const login = (req, res) => {
 
   // Buscar en Clientes
   const queryCliente = 'SELECT idCliente AS id, nombreCliente AS nombre, contraCliente, rol FROM Clientes WHERE email = ?';
-  conection.query(queryCliente, [email], (err, resultsCliente) => {
+  conection.query(queryCliente, [email], async (err, resultsCliente) => { 
     if (err) {
       console.error('Error DB:', err);
       return res.status(500).json({ error: 'Error del servidor' });
@@ -21,6 +21,29 @@ const login = (req, res) => {
         return res.status(401).json({ error: 'Contraseña incorrecta' });
       }
 
+      try {
+        // Desloguear a todos los clientes primero 
+        await new Promise((resolve, reject) => {
+            conection.query(`UPDATE Clientes SET logueado = 0`, (updateErr) => {
+                if (updateErr) reject(updateErr);
+                else resolve();
+            });
+        });
+
+        // Loguear al cliente actual
+        await new Promise((resolve, reject) => {
+            conection.query(`UPDATE Clientes SET logueado = 1 WHERE idCliente = ?`, [cliente.id], (updateErr) => {
+                if (updateErr) reject(updateErr);
+                else resolve();
+            });
+        });
+
+        console.log(`Cliente con ID ${cliente.id} logueado y estado actualizado.`);
+      } catch (updateError) {
+          console.error('Error al actualizar el estado de logueado:', updateError);
+          return res.status(500).json({ error: 'Error al actualizar el estado de login' });
+      }
+
       return res.json({
         message: 'Login exitoso',
         id: cliente.id,
@@ -28,10 +51,10 @@ const login = (req, res) => {
         rol: cliente.rol || 'cliente',
       });
     }
-
+    
     // Buscar en Empleados
     const queryEmpleado = 'SELECT idEmpleado AS id, nombreEmpleado AS nombre, contraEmpleado, rol FROM Empleados WHERE emailEmpleado = ?';
-    conection.query(queryEmpleado, [email], (err, resultsEmpleado) => {
+    conection.query(queryEmpleado, [email], async (err, resultsEmpleado) => {
       if (err) {
         console.error('Error DB:', err);
         return res.status(500).json({ error: 'Error del servidor' });
@@ -41,17 +64,44 @@ const login = (req, res) => {
         return res.status(401).json({ error: 'Usuario no encontrado' });
       }
 
-      const empleado = resultsEmpleado[0];
-      if (empleado.contraEmpleado !== contra) {
+      if (resultsEmpleado.length > 0) {
+      const Empleados = resultsEmpleado[0];
+      if (Empleados.contraEmpleado !== contra) {
         return res.status(401).json({ error: 'Contraseña incorrecta' });
       }
 
-      return res.json({
+      try {
+        // Desloguear a todos los Empleados primero 
+        await new Promise((resolve, reject) => {
+            conection.query(`UPDATE Empleados SET logueado = 0`, (updateErr) => {
+                if (updateErr) reject(updateErr);
+                else resolve();
+            });
+        });
+
+        // Loguear al Empleado actual
+        await new Promise((resolve, reject) => {
+            conection.query(`UPDATE Empleados SET logueado = 1 WHERE idEmpleado = ?`, [Empleados.id], (updateErr) => {
+                if (updateErr) reject(updateErr);
+                else resolve();
+            });
+        });
+
+        console.log(`Empleado con ID ${Empleados.id} logueado y estado actualizado.`);
+      } catch (updateError) {
+          console.error('Error al actualizar el estado de logueado:', updateError);
+          return res.status(500).json({ error: 'Error al actualizar el estado de login' });
+      }
+
+       return res.json({
         message: 'Login exitoso',
-        id: empleado.id,
-        nombre: empleado.nombre,
-        rol: empleado.rol || 'empleado',
+        id: Empleados.id,
+        nombre: Empleados.nombre,
+        rol: Empleados.rol || 'empleado',
       });
+    }
+
+     
     });
   });
 };

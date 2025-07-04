@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.post("/ventaOnline/crear", createVenta)
 router.get("/ventaOnline/misCompras/:idCliente", mostrarCompras)
-router.get('/todas', mostrarTodasLasVentas);
+router.get('/ventasOnline/todas', mostrarTodasLasVentas);
 
 
 module.exports = router;

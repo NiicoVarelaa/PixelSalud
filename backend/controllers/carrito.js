@@ -32,6 +32,19 @@ const deleteCarrito = (req, res) => {
     res.json(results);
   });
 };
+// para vaciar el carrito una vez realizada la compra
+const vaciarCarrito = (req,res) =>{
+  const id = req.params.idCliente;
+  const consulta = "delete from carrito where idCliente=?"
+
+  conection.query(consulta, [id], (err,results)=>{
+    if (err) {
+       console.error("Error al vaciar el carrito:", err);
+      return res.status(500).json({ error: "Error al vaciar el carrito" });
+    }
+     return res.status(201).json({ message: "Productos eliminado correctamente" });
+  })
+}
 
 
 const incrementCarrito = (req,res)=>{
@@ -81,5 +94,6 @@ module.exports= {
     getCarrito,
     deleteCarrito, 
     incrementCarrito,
-    decrementCarrito
+    decrementCarrito,
+    vaciarCarrito
 }
