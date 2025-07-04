@@ -4,7 +4,6 @@ const { conection } = require('./config/database');
 const routesProductos = require('./routes/productos');
 const routesCarrito = require("./routes/carrito")
 const routesClientes = require("./routes/clientes")
-const medicoRoutes = require('./routes/medico');
 const registroRouter = require('./routes/registro');
 const loginRoutes = require('./routes/login');
 const routesEmpleados = require("./routes/Empleados");
@@ -31,7 +30,7 @@ app.use("/",ventasEmpleados)
 app.use("/",routesClientes)
 app.use('/', loginRoutes);  
 app.use('/', registroRouter);
-app.use('/', medicoRoutes);
+
 app.use('/', routesEmpleados)
 
 // Conexión a la base de datos
