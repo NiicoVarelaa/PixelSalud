@@ -7,7 +7,6 @@ const crearCliente = (req, res) => {
   const consulta = `INSERT INTO Clientes 
     (nombreCliente, contraCliente, email, rol)
     VALUES (?, ?, ?, ?)`;
-
   conection.query(consulta, [nombreCliente, contraCliente, email, rol], (err, results) => {
     if (err) {
       console.error("Error al crear el usuario:", err);
@@ -94,7 +93,9 @@ const updateCliente = (req, res) => {
 // Desloguear cliente al cerrar sesión
 const desloguearCliente = (req, res) => {
   const id = req.params.idCliente;
+
   const consulta = `UPDATE Clientes SET logueado = 0 WHERE idCliente = ?`; 
+
 
   conection.query(consulta, [id], (err, results) => {
     if (err) {

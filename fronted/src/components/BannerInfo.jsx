@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 
 const BannerInfo = () => {
+
   return (
     <div className="py-6">
+
       <div className="flex flex-col md:flex-row justify-around items-center bg-white rounded-xl shadow-md p-6 space-y-6 md:space-y-0 md:space-x-4">
         <div className="flex flex-col items-center text-center space-y-3 w-full md:w-1/3"> 
           <div 

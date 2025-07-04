@@ -9,14 +9,18 @@ const AdminEmpleados = () => {
 
   const [empleadoEditado, setEmpleadoEditado] = useState({
     nombreEmpleado: "",
+
     emailEmpleado: "",
+
     contraEmpleado: "",
     rol: ""
   });
 
   const [nuevoEmpleado, setNuevoEmpleado] = useState({
     nombreEmpleado: "",
+
     emailEmpleado: "",
+
     contraEmpleado: "",
     rol: ""
   });
@@ -59,7 +63,9 @@ const AdminEmpleados = () => {
     setEditandoId(null);
     setEmpleadoEditado({
       nombreEmpleado: "",
+
       emailEmpleado: "",
+
       contraEmpleado: "",
       rol: ""
     });
@@ -147,6 +153,7 @@ const AdminEmpleados = () => {
           <button onClick={() => setIsModalOpen(true)} className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 shadow-md">
             Agregar Empleado
           </button>
+
         </div>
 
         <div className="bg-white rounded-xl shadow-xl overflow-hidden">
@@ -167,6 +174,7 @@ const AdminEmpleados = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {empleados.map((emp) => (
                   <tr key={emp.idEmpleado} className="hover:bg-gray-50">
+
                     {editandoId === emp.idEmpleado ? (
                       <>
                         {[
