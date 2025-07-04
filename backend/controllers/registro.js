@@ -10,8 +10,8 @@ const registrarCliente = (req, res) => {
   const nombreCompleto = `${nombreCliente} ${apellidoCliente}`.trim();
 
   const query = `
-    INSERT INTO Clientes (nombreCliente, email, contraCliente, receta, rol, logueado)
-    VALUES (?, ?, ?, 0, 'cliente', 0)
+    INSERT INTO Clientes (nombreCliente, email, contraCliente, rol, logueado)
+    VALUES (?, ?, ?, 'cliente', 0)
   `;
 
   conection.query(query, [nombreCompleto, email, contraCliente], (err, result) => {

@@ -18,7 +18,7 @@ const getProductos = (req, res) => {
 // Obtener un producto por ID
 const getProducto = (req, res) => {
 
-    const id = req.params.id;
+    const id = req.params.idProducto;
     const consulta = 'SELECT * FROM Productos WHERE idProducto = ?' ;
 
     conection.query(consulta, [id], (err, results) => {
@@ -56,7 +56,7 @@ const createProducto = (req, res) => {
 // Actualizar un producto
 const updateProducto = (req, res) => {
 
-    const id = req.params.id;
+    const id = req.params.idProducto;
     const { nombreProducto, descripcion, precio, img, categoria ,stock } = req.body;
 
     const consulta = `
@@ -77,7 +77,7 @@ const updateProducto = (req, res) => {
 
 // Eliminar un producto
 const deleteProducto = (req, res) => {
-    const id = req.params.id;
+    const id = req.params.idProducto;
     const consulta = 'DELETE FROM Productos WHERE idProducto = ?';
 
     conection.query(consulta, [id], (err, results) => {

@@ -5,9 +5,9 @@ const router = express.Router();
 
 // Peticiones
 router.get('/productos', getProductos);
-router.get('/productos/:id', getProducto);
-router.delete('/productos/eliminar/:id', deleteProducto);
-router.put('/productos/actualizar/:id', updateProducto);
+router.get('/productos/:idProducto', getProducto);
+router.delete('/productos/eliminar/:idProducto', deleteProducto);
+router.put('/productos/actualizar/:idProducto', updateProducto);
 router.post('/productos/crear', createProducto)
 
 

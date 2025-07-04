@@ -6,9 +6,8 @@ const crearCliente = (req, res) => {
 
   const consulta = `INSERT INTO Clientes 
     (nombreCliente, contraCliente, email, rol)
-    VALUES (?, ?, ?, ?, ?)`;
-
-  conection.query(consulta, [nombreCliente, contraCliente, email,  rol], (err, results) => {
+    VALUES (?, ?, ?, ?)`;
+  conection.query(consulta, [nombreCliente, contraCliente, email, rol], (err, results) => {
     if (err) {
       console.error("Error al crear el usuario:", err);
       return res.status(500).json({ error: "Error al crear el usuario" });
@@ -45,10 +44,11 @@ const actualizarLogueado = (req, res) => {
 
 // Eliminar usuario por ID
 const borrarCliente = (req, res) => {
-  const id = req.params.idCliente;
+  
+  const idCliente = req.params.idCliente;
   const consulta = "DELETE FROM Clientes WHERE idCliente = ?";
 
-  conection.query(consulta, [id], (err, results) => {
+  conection.query(consulta, [idCliente], (err, results) => {
     if (err) {
       console.error("Error al borrar usuario:", err);
       return res.status(500).json({ error: "Error al borrar usuario" });
@@ -76,9 +76,26 @@ const  getClientes = (req, res) => {
   });
 };
 
+const updateCliente = (req, res) => {
+  const idCliente = req.params.idCliente;
+  const { nombreCliente, contraCliente, email, rol } = req.body;
+  const consulta = "UPDATE CLIENTES  SET NOMBRECLIENTE = ?, CONTRACLIENTE = ?, EMAIL = ?, ROL= ? WHERE IDCLIENTE = ?";
+
+  conection.query(consulta,[nombreCliente, contraCliente, email, rol , idCliente], (err, results)=>{
+    if(err){
+      console.error("Error al actulizar el cliente", err)
+      return res.status(500).json({error: "Error al querer actualizar un cliente"})
+    }
+    return res.status(200).json(results)
+  })
+}
+
+// Desloguear cliente al cerrar sesión
 const desloguearCliente = (req, res) => {
   const id = req.params.idCliente;
-  const consulta = `UPDATE Clientes SET logueado = 0 WHERE idCliente = ?`;
+
+  const consulta = `UPDATE Clientes SET logueado = 0 WHERE idCliente = ?`; 
+
 
   conection.query(consulta, [id], (err, results) => {
     if (err) {
@@ -97,5 +114,6 @@ module.exports = {
   actualizarLogueado,
   borrarCliente,
   getClientes,
+  updateCliente,
   desloguearCliente
 };

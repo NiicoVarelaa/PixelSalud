@@ -1,11 +1,12 @@
 // clientes.js
 const express = require("express");
 const {
+  getClientes,
   crearCliente,
   actualizarLogueado,
-  borrarCliente,
-  getClientes,
   desloguearCliente,
+  updateCliente,
+  borrarCliente
 } = require("../controllers/clientes");
 
 const router = express.Router();
@@ -22,8 +23,10 @@ router.put("/clientes/loguear/:idCliente", actualizarLogueado);
 // Corrected logout route
 router.put("/clientes/:idCliente/logout", desloguearCliente);
 
+router.put("/clientes/actualizar/:idCliente", updateCliente)
+
 // Eliminar usuario
-router.delete("/clientes/:idCliente", borrarCliente);
+router.delete("/clientes/eliminar/:idCliente", borrarCliente);
 
 //
 

@@ -7,11 +7,17 @@ import Swal from "sweetalert2";
 
 export const useCarritoStore = create((set, get) => ({
   carrito: [],
-
   sincronizarCarrito: async () => {
     try {
       const idCliente = await getCliente();
-      console.log(idCliente);
+      
+      if (!idCliente) {
+        set({ carrito: [] }); 
+        console.log("No logged-in user found, carrito not synchronized.");
+        return; 
+      }
+
+      console.log("Cliente ID for sync:", idCliente); 
       const carritoResponse = await axios.get(
         `http://localhost:5000/carrito/${idCliente}`
       );
@@ -44,7 +50,7 @@ export const useCarritoStore = create((set, get) => ({
           icon: "error",
           title: "Error...",
           text: "Debes estar logueado para realizar esta accion!",
-          footer: `<a href="../LoginCliente">¿Quieres iniciar sesion?</a>`,
+          footer: `<a href="../Login">¿Quieres iniciar sesion?</a>`,
         });
         return
       }

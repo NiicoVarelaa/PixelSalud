@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import { FaSearch, FaTimes, FaFilter } from "react-icons/fa";
 import { IoChevronDownOutline } from "react-icons/io5";
 import { RiEmotionSadLine } from "react-icons/ri";
+import Header from "../components/Header";
 
 const Productos = () => {
   const [productos, setProductos] = useState([]);
@@ -61,10 +62,13 @@ const Productos = () => {
 
   return (
     <div className="w-full">
+      <Header />
       <section className="w-full mt-8">
         <div className="w-full mb-6 px-0">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
-            <h1 className="text-2xl font-semibold text-gray-800">Nuestros Productos</h1>
+            <h1 className="text-2xl font-semibold text-gray-800">
+              Nuestros Productos
+            </h1>
 
             {/* Contenedor de búsqueda y filtro */}
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
@@ -101,7 +105,9 @@ const Productos = () => {
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className={`flex items-center justify-between w-full py-2 px-3 text-sm text-gray-700 bg-white border ${
-                    dropdownOpen ? "border-primary-600 ring-1 ring-primary-600" : "border-gray-200 hover:border-gray-300"
+                    dropdownOpen
+                      ? "border-primary-600 ring-1 ring-primary-600"
+                      : "border-gray-200 hover:border-gray-300"
                   } rounded-lg transition-all duration-200`}
                 >
                   <div className="flex items-center">
@@ -186,7 +192,9 @@ const Productos = () => {
           <aside className="w-full md:w-56 flex-shrink-0">
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               <div className="p-3 border-b border-gray-200">
-                <h2 className="font-medium text-gray-800 text-sm uppercase">Categorías</h2>
+                <h2 className="font-medium text-gray-800 text-sm uppercase">
+                  Categorías
+                </h2>
               </div>
               <div className="p-1">
                 <button
@@ -223,16 +231,11 @@ const Productos = () => {
           {/* Lista de productos */}
           <div className="flex-1">
             {productosFiltrados.length > 0 ? (
-              <>
-                <div className="mb-3 text-sm text-gray-500">
-                  Mostrando {productosFiltrados.length} productos
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                  {productosFiltrados.map((p) => (
-                    <CardProductos key={p.idProducto} product={p} />
-                  ))}
-                </div>
-              </>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                {productosFiltrados.map((p) => (
+                  <CardProductos key={p.idProducto} product={p} />
+                ))}
+              </div>
             ) : (
               <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
                 <RiEmotionSadLine className="h-10 w-10 mx-auto text-gray-400 mb-3" />
@@ -257,7 +260,6 @@ const Productos = () => {
           </div>
         </div>
       </section>
-
       <Footer />
     </div>
   );

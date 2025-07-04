@@ -1,7 +1,7 @@
 // Navbar.jsx
 import { useState, useEffect, useRef } from "react";
 import { useCarritoStore } from "../store/useCarritoStore";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
 import profileIcon from "../assets/iconos/profile_icon.png";
 import cartIcon from "../assets/iconos/cart_icon.png";
@@ -9,33 +9,37 @@ import menuIcon from "../assets/iconos/menu_icon.png";
 import logout from "../assets/iconos/logout.png";
 import { getCliente } from "../store/useClienteStore";
 import axios from "axios";
-import { FaSignOutAlt} from "react-icons/fa"; 
 import { IoCloseSharp } from "react-icons/io5";
+import { Navigate } from "react-router-dom";
 
 const Navbar = () => {
   const carrito = useCarritoStore((state) => state.carrito);
   const sincronizarCarrito = useCarritoStore(
     (state) => state.sincronizarCarrito
   );
-
+  const navigate = useNavigate()
   const totalItems = carrito.reduce(
     (acc, item) => acc + (item.cantidad || 0),
     0
   );
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [loggedInClienteId, setLoggedInClienteId] = useState(null);
+  const [loggedInClienteId, setLoggedInClienteId] = useState(null); // Estado para el ID del cliente logueado
   const menuRef = useRef(null);
   const profileRef = useRef(null);
 
   useEffect(() => {
+    // Sincroniza el carrito al cargar el componente
     sincronizarCarrito();
 
+    // Función para obtener el ID del cliente logueado
     const fetchClienteId = async () => {
       const id = await getCliente();
-      setLoggedInClienteId(id);
+      setLoggedInClienteId(id); // Actualiza el estado con el ID del cliente o null/undefined
+      console.log("Navbar useEffect: loggedInClienteId actualizado a:", id);
     };
-    fetchClienteId();
+
+    fetchClienteId(); // Llama a la función al montar el componente
 
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -59,16 +63,21 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [sincronizarCarrito]);
+  }, [sincronizarCarrito]); // Dependencia para resincronizar si cambia la función (aunque es constante)
 
   const handleLogout = async () => {
     try {
-      await axios.put(
-        `http://localhost:5000/clientes/${loggedInClienteId}/logout`
-      );
-      setLoggedInClienteId(null);
-      setIsProfileDropdownOpen(false);
-      setIsMenuOpen(false);
+      // Si hay un ID de cliente logueado, se envía la petición de logout
+      if (loggedInClienteId) {
+        await axios.put(
+          `http://localhost:5000/clientes/${loggedInClienteId}/logout`
+        );
+      }
+      setLoggedInClienteId(null); // Limpia el ID del cliente logueado en el estado
+      setIsProfileDropdownOpen(false); // Cierra el dropdown
+      setIsMenuOpen(false); // Cierra el menú móvil
+      navigate("/")
+      
       console.log("Usuario deslogueado correctamente");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
@@ -76,7 +85,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex items-center justify-between py-5 font-medium relative px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+    <div className="flex items-center justify-between py-5 font-medium relative">
       <Link to="/">
         <img
           className="w-auto h-9"
@@ -109,7 +118,8 @@ const Navbar = () => {
 
       <div className="flex items-center gap-6">
         <div className="group relative" ref={profileRef}>
-          {loggedInClienteId ? (
+          {/* Lógica condicional para el icono de perfil/dropdown */}
+          {loggedInClienteId ? ( // Si hay un ID de cliente, muestra el botón para el dropdown
             <>
               <button
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
@@ -117,25 +127,14 @@ const Navbar = () => {
                 aria-label="Abrir menú de perfil"
               >
                 <img
-                src={profileIcon}
-                className="w-5 cursor-pointer"
-                alt="profileIcon"
-              />
+                  src={profileIcon}
+                  className="w-5 cursor-pointer"
+                  alt="profileIcon"
+                />
               </button>
-              {isProfileDropdownOpen && (
+              {isProfileDropdownOpen && ( // Si el dropdown está abierto, lo muestra
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 overflow-hidden">
-                  <Link
-                    to="/mi-perfil"
-                    onClick={() => setIsProfileDropdownOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-primary-700 transition-colors duration-200"
-                  >
-                    <img
-                src={profileIcon}
-                className="w-5 cursor-pointer"
-                alt="profileIcon"
-              />
-                    Mi Perfil
-                  </Link>
+                  
                   <Link
                     to="/MisCompras"
                     onClick={() => setIsProfileDropdownOpen(false)}
@@ -149,17 +148,20 @@ const Navbar = () => {
                     className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-100 hover:text-red-600 transition-colors duration-200 cursor-pointer"
                   >
                     <img
-                src={logout}
-                className="w-5 cursor-pointer"
-                alt="profileIcon"
-              />
+                      src={logout}
+                      className="w-5 cursor-pointer"
+                      alt="profileIcon"
+                    />
                     Cerrar Sesión
                   </button>
                 </div>
               )}
             </>
           ) : (
-            <NavLink to="Login">
+
+            // Si no hay ID de cliente, redirige a la página de login
+            <NavLink to="/login">
+
               <img
                 src={profileIcon}
                 className="w-5 cursor-pointer"
@@ -208,7 +210,7 @@ const Navbar = () => {
           <div className="flex items-center justify-between p-5 border-b border-gray-200">
             <Link to="/" onClick={() => setIsMenuOpen(false)}>
               <img
-                className="w-auto h-8" // Ajustado un poco más pequeño para el móvil
+                className="w-auto h-8"
                 src={LogoPixelSalud}
                 alt="Logo Pixel Salud"
               />
@@ -218,7 +220,7 @@ const Navbar = () => {
               className="p-2 rounded-full cursor-pointer text-gray-600 hover:text-gray-900 transition-colors"
               aria-label="Cerrar menú"
             >
-              <IoCloseSharp className="w-6 h-6" /> 
+              <IoCloseSharp className="w-6 h-6" />
             </button>
           </div>
 
@@ -276,24 +278,13 @@ const Navbar = () => {
               CONTACTO
             </NavLink>
 
-            {/* Opciones de cuenta */}
-            <hr className="my-4 border-t border-gray-200" /> {/* Separador con más margen */}
-            {loggedInClienteId ? (
+            {/* Opciones de cuenta para el menú móvil */}
+            <hr className="my-4 border-t border-gray-200" />
+            {loggedInClienteId ? ( // Si hay un ID de cliente logueado
               <>
+                
                 <Link
-                  to="/mi-perfil"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center gap-3 py-3 px-4 rounded-lg text-lg text-gray-700 hover:bg-gray-100 hover:text-primary-700 transition-colors duration-200"
-                >
-                  <img
-                src={profileIcon}
-                className="w-5 cursor-pointer"
-                alt="profileIcon"
-              />
-                  Mi Perfil
-                </Link>
-                <Link
-                  to="/mis-compras"
+                  to="/MisCompras"
                   onClick={() => setIsMenuOpen(false)}
                   className="flex items-center gap-3 py-3 px-4 rounded-lg text-lg text-gray-700 hover:bg-gray-100 hover:text-primary-700 transition-colors duration-200"
                 >
@@ -305,24 +296,25 @@ const Navbar = () => {
                   className="flex items-center gap-3 w-full text-left py-3 px-4 rounded-lg text-lg text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors duration-200"
                 >
                   <img
-                src={logout}
-                className="w-5 cursor-pointer"
-                alt="profileIcon"
-              />
+                    src={logout}
+                    className="w-5 cursor-pointer"
+                    alt="profileIcon"
+                  />
                   Cerrar Sesión
                 </button>
               </>
             ) : (
+              // Si no hay ID de cliente logueado, muestra el enlace para iniciar sesión
               <NavLink
-                to="loginCliente"
+                to="login"
                 onClick={() => setIsMenuOpen(false)}
                 className="flex items-center gap-3 py-3 px-4 rounded-lg text-lg text-gray-700 hover:bg-gray-100 hover:text-primary-700 transition-colors duration-200"
               >
                 <img
-                src={profileIcon}
-                className="w-5 cursor-pointer"
-                alt="profileIcon"
-              />
+                  src={profileIcon}
+                  className="w-5 cursor-pointer"
+                  alt="profileIcon"
+                />
                 Iniciar Sesión
               </NavLink>
             )}
