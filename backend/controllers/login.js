@@ -1,57 +1,120 @@
-const { conection } = require('../config/database');
+const { conection } = require("../config/database");
 
 const login = (req, res) => {
   const { email, contra } = req.body;
 
   if (!email || !contra) {
-    return res.status(400).json({ error: 'Faltan credenciales' });
+    return res.status(400).json({ error: "Faltan credenciales" });
   }
 
-  // Buscar en Clientes
-  const queryCliente = 'SELECT idCliente AS id, nombreCliente AS nombre, contraCliente, rol FROM Clientes WHERE email = ?';
-  conection.query(queryCliente, [email], (err, resultsCliente) => {
+  const queryCliente =
+    "SELECT idCliente AS id, nombreCliente AS nombre, contraCliente, rol FROM Clientes WHERE email = ?";
+  conection.query(queryCliente, [email], async (err, resultsCliente) => {
     if (err) {
-      console.error('Error DB:', err);
-      return res.status(500).json({ error: 'Error del servidor' });
+      console.error("Error DB:", err);
+      return res.status(500).json({ error: "Error del servidor" });
     }
 
     if (resultsCliente.length > 0) {
       const cliente = resultsCliente[0];
       if (cliente.contraCliente !== contra) {
-        return res.status(401).json({ error: 'Contraseña incorrecta' });
+        return res.status(401).json({ error: "Contraseña incorrecta" });
+      }
+
+      try {
+        await new Promise((resolve, reject) => {
+          conection.query(`UPDATE Clientes SET logueado = 0`, (updateErr) => {
+            if (updateErr) reject(updateErr);
+            else resolve();
+          });
+        });
+
+        await new Promise((resolve, reject) => {
+          conection.query(
+            `UPDATE Clientes SET logueado = 1 WHERE idCliente = ?`,
+            [cliente.id],
+            (updateErr) => {
+              if (updateErr) reject(updateErr);
+              else resolve();
+            }
+          );
+        });
+
+      } catch (updateError) {
+        console.error(
+          "Error al actualizar el estado de logueado:",
+          updateError
+        );
+        return res
+          .status(500)
+          .json({ error: "Error al actualizar el estado de login" });
       }
 
       return res.json({
-        message: 'Login exitoso',
+        message: "Login exitoso",
         id: cliente.id,
         nombre: cliente.nombre,
-        rol: cliente.rol || 'cliente',
+        rol: cliente.rol || "cliente",
       });
     }
 
-    // Buscar en Empleados
-    const queryEmpleado = 'SELECT idEmpleado AS id, nombreEmpleado AS nombre, contraEmpleado, rol FROM Empleados WHERE emailEmpleado = ?';
-    conection.query(queryEmpleado, [email], (err, resultsEmpleado) => {
+    const queryEmpleado =
+      "SELECT idEmpleado AS id, nombreEmpleado AS nombre, contraEmpleado, rol FROM Empleados WHERE emailEmpleado = ?";
+    conection.query(queryEmpleado, [email], async (err, resultsEmpleado) => {
       if (err) {
-        console.error('Error DB:', err);
-        return res.status(500).json({ error: 'Error del servidor' });
+        console.error("Error DB:", err);
+        return res.status(500).json({ error: "Error del servidor" });
       }
 
       if (resultsEmpleado.length === 0) {
-        return res.status(401).json({ error: 'Usuario no encontrado' });
+        return res.status(401).json({ error: "Usuario no encontrado" });
       }
 
-      const empleado = resultsEmpleado[0];
-      if (empleado.contraEmpleado !== contra) {
-        return res.status(401).json({ error: 'Contraseña incorrecta' });
-      }
+      if (resultsEmpleado.length > 0) {
+        const Empleados = resultsEmpleado[0];
+        if (Empleados.contraEmpleado !== contra) {
+          return res.status(401).json({ error: "Contraseña incorrecta" });
+        }
 
-      return res.json({
-        message: 'Login exitoso',
-        id: empleado.id,
-        nombre: empleado.nombre,
-        rol: empleado.rol || 'empleado',
-      });
+        try {
+          await new Promise((resolve, reject) => {
+            conection.query(
+              `UPDATE Empleados SET logueado = 0`,
+              (updateErr) => {
+                if (updateErr) reject(updateErr);
+                else resolve();
+              }
+            );
+          });
+
+          await new Promise((resolve, reject) => {
+            conection.query(
+              `UPDATE Empleados SET logueado = 1 WHERE idEmpleado = ?`,
+              [Empleados.id],
+              (updateErr) => {
+                if (updateErr) reject(updateErr);
+                else resolve();
+              }
+            );
+          });
+
+        } catch (updateError) {
+          console.error(
+            "Error al actualizar el estado de logueado:",
+            updateError
+          );
+          return res
+            .status(500)
+            .json({ error: "Error al actualizar el estado de login" });
+        }
+
+        return res.json({
+          message: "Login exitoso",
+          id: Empleados.id,
+          nombre: Empleados.nombre,
+          rol: Empleados.rol || "empleado",
+        });
+      }
     });
   });
 };

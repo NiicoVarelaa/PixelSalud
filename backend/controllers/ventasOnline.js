@@ -4,7 +4,6 @@ const createVenta = async (req, res) => {
   try {
     const { totalPago, metodoPago, idCliente, productos } = req.body;
 
-    // Validar stock
     for (let i = 0; i < productos.length; i++) {
       const { idProducto, cantidad } = productos[i];
       const stockQuery = "SELECT stock FROM Productos WHERE idProducto = ?";
@@ -23,7 +22,6 @@ const createVenta = async (req, res) => {
       }
     }
 
-    // Insertar venta
     const ventaQuery = `
       INSERT INTO VentasOnlines (totalPago, metodoPago, idCliente)
       VALUES (?, ?, ?)
@@ -43,7 +41,6 @@ const createVenta = async (req, res) => {
         for (let i = 0; i < productos.length; i++) {
           const { idProducto, cantidad, precioUnitario } = productos[i];
 
-          // Insertar detalle de venta
           const detalleQuery = `
           INSERT INTO DetalleVentaOnline (idVentaO, idProducto, cantidad, precioUnitario)
           VALUES (?, ?, ?, ?)
@@ -56,7 +53,6 @@ const createVenta = async (req, res) => {
             }
           );
 
-          // Actualizar stock
           const updateStockQuery = `
           UPDATE Productos
           SET stock = stock - ?
@@ -86,17 +82,15 @@ const mostrarCompras = async (req, res) => {
   const idCliente = req.params.idCliente;
   const consulta =
     "SELECT v.idVentaO, v.fechaPago, v.metodoPago, c.nombreCliente, p.nombreProducto, d.cantidad, d.precioUnitario, v.totalPago FROM VentasOnlines v JOIN Clientes c ON v.idCliente = c.idCliente JOIN DetalleVentaOnline d ON v.idVentaO = d.idVentaO JOIN Productos p ON d.idProducto = p.idProducto Where c.idCliente = ? ;";
-  conection.query(consulta,[idCliente],(err,results)=>{
-    if(err){
-      console.log("Hubo un error a la hora de traer tus compras",err)
-      res.status(500).json({error:"Error al intentar traer las compras"})
+  conection.query(consulta, [idCliente], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: "Error al intentar traer las compras" });
     }
-    res.status(200).json({message:"Exito al traer las compras", results})
-  })
+    res.status(200).json({ message: "Exito al traer las compras", results });
+  });
+};
 
-  };
-
-  const mostrarTodasLasVentas = async (req, res) => {
+const mostrarTodasLasVentas = async (req, res) => {
   const consulta = `
     SELECT v.idVentaO, v.fechaPago, v.metodoPago, c.nombreCliente, p.nombreProducto, d.cantidad, d.precioUnitario, v.totalPago
     FROM VentasOnlines v
@@ -108,16 +102,18 @@ const mostrarCompras = async (req, res) => {
 
   conection.query(consulta, (err, results) => {
     if (err) {
-      console.log("Error al traer todas las ventas", err);
-      return res.status(500).json({ error: "Error al obtener todas las ventas" });
+      return res
+        .status(500)
+        .json({ error: "Error al obtener todas las ventas" });
     }
-    res.status(200).json({ message: "Éxito al traer todas las ventas", results });
+    res
+      .status(200)
+      .json({ message: "Éxito al traer todas las ventas", results });
   });
 };
 
 module.exports = {
   createVenta,
-  mostrarCompras, mostrarTodasLasVentas
+  mostrarCompras,
+  mostrarTodasLasVentas,
 };
-
-

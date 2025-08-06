@@ -4,6 +4,7 @@ import axios from "axios";
 import { useCarritoStore } from "../store/useCarritoStore";
 import ModalCompra from "../components/ModalCompra";
 import Footer from "../components/Footer";
+import Header from "../components/Header";
 
 
 
@@ -30,6 +31,7 @@ const Producto = () => {
   }, []);
   return (
     <>
+    <Header/>
      <div className="max-w-6xl w-full px-6">
       <br />
       <br />

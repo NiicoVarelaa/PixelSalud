@@ -1,10 +1,13 @@
-const {conection} = require('../config/database');
+const { conection } = require("../config/database");
 
 const registrarVentaEmpleado = async (req, res) => {
   try {
-    const { totalPago, metodoPago, productos, recetas } = req.body;
+    const { idEmpleado, totalPago, metodoPago, productos, recetas } = req.body;
 
-    // Validar stock
+    if (!idEmpleado) {
+      return res.status(400).json({ error: "Falta el idEmpleado" });
+    }
+
     for (const producto of productos) {
       const { idProducto, cantidad } = producto;
 
@@ -17,22 +20,29 @@ const registrarVentaEmpleado = async (req, res) => {
       });
 
       if (!stockResult || stockResult.stock < cantidad) {
-        return res.status(400).json({ error: `Stock insuficiente para el producto ${idProducto}` });
+        return res
+          .status(400)
+          .json({ error: `Stock insuficiente para el producto` });
       }
     }
 
-    // Insertar venta
-    const insertVentaQuery = `INSERT INTO VentasEmpleados (totalPago, metodoPago) VALUES (?, ?)`;
+    const consulta = `
+      INSERT INTO VentasEmpleados (idEmpleado, totalPago, metodoPago)
+      VALUES (?, ?, ?)
+    `;
     const resultVenta = await new Promise((resolve, reject) => {
-      conection.query(insertVentaQuery, [totalPago, metodoPago], (err, result) => {
-        if (err) return reject(err);
-        resolve(result);
-      });
+      conection.query(
+        consulta,
+        [idEmpleado, totalPago, metodoPago],
+        (err, result) => {
+          if (err) return reject(err);
+          resolve(result);
+        }
+      );
     });
 
     const idVentaE = resultVenta.insertId;
 
-    // Insertar detalles y actualizar stock
     for (const producto of productos) {
       const { idProducto, cantidad, precioUnitario } = producto;
 
@@ -41,10 +51,14 @@ const registrarVentaEmpleado = async (req, res) => {
           INSERT INTO DetalleVentaEmpleado (idVentaE, idProducto, cantidad, precioUnitario)
           VALUES (?, ?, ?, ?)
         `;
-        conection.query(insertDetalleQuery, [idVentaE, idProducto, cantidad, precioUnitario], (err) => {
-          if (err) return reject(err);
-          resolve();
-        });
+        conection.query(
+          insertDetalleQuery,
+          [idVentaE, idProducto, cantidad, precioUnitario],
+          (err) => {
+            if (err) return reject(err);
+            resolve();
+          }
+        );
       });
 
       await new Promise((resolve, reject) => {
@@ -52,14 +66,17 @@ const registrarVentaEmpleado = async (req, res) => {
           UPDATE Productos SET stock = stock - ?
           WHERE idProducto = ? AND stock >= ?
         `;
-        conection.query(updateStockQuery, [cantidad, idProducto, cantidad], (err) => {
-          if (err) return reject(err);
-          resolve();
-        });
+        conection.query(
+          updateStockQuery,
+          [cantidad, idProducto, cantidad],
+          (err) => {
+            if (err) return reject(err);
+            resolve();
+          }
+        );
       });
     }
 
-    // Insertar recetas si hay
     if (recetas && recetas.length > 0) {
       for (const receta of recetas) {
         const { idProducto, cantidad, descripcion } = receta;
@@ -69,10 +86,14 @@ const registrarVentaEmpleado = async (req, res) => {
             INSERT INTO receta (idProducto, cantidad, descripcion)
             VALUES (?, ?, ?)
           `;
-          conection.query(insertRecetaQuery, [idProducto, cantidad, descripcion || null], (err) => {
-            if (err) return reject(err);
-            resolve();
-          });
+          conection.query(
+            insertRecetaQuery,
+            [idProducto, cantidad, descripcion || null],
+            (err) => {
+              if (err) return reject(err);
+              resolve();
+            }
+          );
         });
       }
     }
@@ -81,7 +102,6 @@ const registrarVentaEmpleado = async (req, res) => {
       message: "Venta presencial registrada correctamente",
       idVentaE,
     });
-
   } catch (error) {
     console.error("Error inesperado:", error);
     res.status(500).json({ error: "Error interno del servidor" });
@@ -91,21 +111,55 @@ const registrarVentaEmpleado = async (req, res) => {
 const obtenerVentasEmpleado = (req, res) => {
   const consulta = `
     SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago,
-           p.nombreProducto, dve.cantidad, dve.precioUnitario, ve.totalPago
+       p.nombreProducto, dve.cantidad, dve.precioUnitario, ve.totalPago,
+       e.nombreEmpleado
     FROM VentasEmpleados ve
-    LEFT JOIN DetalleVentaEmpleado dve ON ve.idVentaE = dve.idVentaE
-    LEFT JOIN Productos p ON dve.idProducto = p.idProducto
+    JOIN DetalleVentaEmpleado dve ON ve.idVentaE = dve.idVentaE
+    JOIN Productos p ON dve.idProducto = p.idProducto
+    JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
     ORDER BY ve.idVentaE DESC;
   `;
 
   conection.query(consulta, (err, results) => {
     if (err) {
       console.error("Error al obtener ventas del empleado:", err.sqlMessage);
-      return res.status(500).json({ error: "Error al obtener ventas del empleado" });
+      return res
+        .status(500)
+        .json({ error: "Error al obtener ventas del empleado" });
     }
 
     res.status(200).json(results);
   });
 };
 
-module.exports = { registrarVentaEmpleado, obtenerVentasEmpleado };
+const obtenerLaVentaDeUnEmpleado = (req, res) => {
+  const idEmpleado = req.params.idEmpleado;
+  const consulta = `
+    SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago,
+       p.nombreProducto, dve.cantidad, dve.precioUnitario, ve.totalPago,
+       e.nombreEmpleado
+    FROM VentasEmpleados ve
+    JOIN DetalleVentaEmpleado dve ON ve.idVentaE = dve.idVentaE
+    JOIN Productos p ON dve.idProducto = p.idProducto
+    JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
+    where e.idEmpleado = ?
+    ORDER BY ve.idVentaE DESC;
+  `;
+
+  conection.query(consulta, [idEmpleado], (err, results) => {
+    if (err) {
+      console.error("Error al obtener ventas del empleado:", err.sqlMessage);
+      return res
+        .status(500)
+        .json({ error: "Error al obtener ventas del empleado" });
+    }
+
+    res.status(200).json(results);
+  });
+};
+
+module.exports = {
+  registrarVentaEmpleado,
+  obtenerVentasEmpleado,
+  obtenerLaVentaDeUnEmpleado,
+};

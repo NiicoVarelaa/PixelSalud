@@ -1,12 +1,14 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { useCompraStore } from "../store/useCompraStore";
+import { useNavigate } from "react-router-dom";
 
 
 const ModalCompra = (producto) => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [metodoPago, setMetodoPago] = useState("");
   const {realizarCompraInd} = useCompraStore()
+  const navigate = useNavigate()
   const abrirModal = () => {
     setMostrarModal(true);
     setMetodoPago("");
@@ -21,7 +23,7 @@ console.log(metodoPago)
     e.preventDefault();
     realizarCompraInd(producto, metodoPago)
     Swal.fire("Pago exitoso", "Tu compra ha sido procesada", "success");
-    cerrarModal();
+    cerrarModal(navigate("/MisCompras"));
   };
 
   return (

@@ -1,37 +1,34 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
 const Error404 = () => {
-
   return (
-    <>
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center bg-gray-50 text-sm">
+      <h1 className="text-[6rem] sm:text-[8rem] font-bold text-primary-700">404</h1>
+      <div className="h-1 w-20 rounded bg-primary-700 my-6"></div>
 
-          <br />
-          <img
-            src="https://cdn.pixabay.com/photo/2021/07/21/12/49/error-6482984_1280.png"
-            alt=""
-            className="w-175 mx-auto"
-          />
-        
-          <button className="group cursor-pointer flex items-center mt-8 gap-2 text-indigo-500 font-medium">
-            <svg
-              width="15"
-              height="11"
-              viewBox="0 0 15 11"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M14.09 5.5H1M6.143 10 1 5.5 6.143 1"
-                stroke="#615fff"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <Link to="/">Volver a inicio</Link>
-          </button>
-        </>
-  )
-}
+      <p className="text-2xl sm:text-3xl font-semibold text-gray-800">Página no encontrada</p>
+      <p className="text-base sm:text-lg mt-4 text-gray-600 max-w-md">
+        Lo sentimos, la página que buscas no existe, ha sido movida o está temporalmente fuera de servicio.
+      </p>
 
-export default Error404
+      <div className="flex flex-wrap justify-center gap-4 mt-8">
+        <Link
+          to="/"
+          className="bg-primary-700 hover:bg-primary-800 text-white px-6 py-2.5 rounded-lg shadow-md transition-all duration-200 active:scale-95"
+          aria-label="Volver al inicio"
+        >
+          Volver al inicio
+        </Link>
+        <Link
+          to="/contacto"
+          className="border border-gray-300 text-gray-700 px-6 py-2.5 rounded-lg hover:bg-gray-100 transition-all duration-200 active:scale-95"
+          aria-label="Contactar soporte"
+        >
+          Contactar soporte
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+export default Error404;
