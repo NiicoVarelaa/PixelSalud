@@ -295,4 +295,4 @@ const PanelEmpleados = () => {
   );
 };
 
-export default PanelEmpleados;
+export default PanelEmpleados;

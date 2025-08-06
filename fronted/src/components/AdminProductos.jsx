@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import Swal from 'sweetalert2';
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminProductos = ({ productos, obtenerProductos }) => {
   const [editandoId, setEditandoId] = useState(null);
@@ -69,7 +72,11 @@ const AdminProductos = ({ productos, obtenerProductos }) => {
     setEditandoId(prod.idProducto);
     setProductoEditado({ 
       ...prod,
+<<<<<<< HEAD
       precio: Number(prod.precio) || "" // Asegurar que el precio sea numérico
+=======
+      precio: Number(prod.precio) || ""
+>>>>>>> Nico
     });
   };
 
@@ -87,7 +94,10 @@ const AdminProductos = ({ productos, obtenerProductos }) => {
 
   const guardarCambios = async () => {
     try {
+<<<<<<< HEAD
       // Convertir precio a número antes de enviar
+=======
+>>>>>>> Nico
       const productoAEnviar = {
         ...productoEditado,
         precio: Number(productoEditado.precio) || 0
@@ -97,14 +107,17 @@ const AdminProductos = ({ productos, obtenerProductos }) => {
         `http://localhost:5000/productos/actualizar/${editandoId}`,
         productoAEnviar
       );
+      toast.success("Producto actualizado correctamente");
       cancelarEdicion();
       obtenerProductos();
     } catch (error) {
       console.error("Error al guardar cambios:", error);
+      toast.error("Error al actualizar el producto");
     }
   };
 
   const eliminarProductos = async (id) => {
+<<<<<<< HEAD
     if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
       try {
         await axios.delete(`http://localhost:5000/productos/eliminar/${id}`);
@@ -112,18 +125,48 @@ const AdminProductos = ({ productos, obtenerProductos }) => {
       } catch (error) {
         console.error("Error al eliminar:", error);
       }
+=======
+  const resultado = await Swal.fire({
+    title: "¿Estás seguro?",
+    text: "¡No podrás revertir esto!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar",
+  });
+
+  if (resultado.isConfirmed) {
+    try {
+      await axios.delete(`http://localhost:5000/productos/eliminar/${id}`);
+      toast.success("Producto eliminado correctamente");
+      obtenerProductos();
+    } catch (error) {
+      console.error("Error al eliminar:", error);
+      toast.error("Error al eliminar el producto");
+>>>>>>> Nico
     }
-  };
+  }
+};
+
 
   const agregarProducto = async () => {
     try {
+<<<<<<< HEAD
       // Convertir precio a número antes de enviar
+=======
+>>>>>>> Nico
       const productoAEnviar = {
         ...nuevoProducto,
         precio: Number(nuevoProducto.precio) || 0
       };
       
       await axios.post("http://localhost:5000/productos/crear", productoAEnviar);
+<<<<<<< HEAD
+=======
+      toast.success("Producto agregado correctamente");
+>>>>>>> Nico
       setIsModalOpen(false);
       setNuevoProducto({
         nombreProducto: "",
@@ -136,11 +179,13 @@ const AdminProductos = ({ productos, obtenerProductos }) => {
       obtenerProductos();
     } catch (error) {
       console.error("Error al agregar producto:", error);
+      toast.error("Error al agregar el producto");
     }
   };
 
   return (
     <div className="min-h-screen bg-white px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+<<<<<<< HEAD
       {/* Modal para agregar producto */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -161,6 +206,41 @@ const AdminProductos = ({ productos, obtenerProductos }) => {
                 </button>
               </div>
 
+=======
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
+      {/* Modal para agregar producto */}
+      {isModalOpen && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center p-4 z-50">
+          <div 
+            ref={modalRef}
+            className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+          >
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-gray-800">Agregar Nuevo Producto</h2>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+>>>>>>> Nico
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">URL de la imagen</label>
@@ -265,7 +345,11 @@ const AdminProductos = ({ productos, obtenerProductos }) => {
                 </div>
               </div>
 
+<<<<<<< HEAD
               <div className="flex justify-end gap-3 pt-4 border-t">
+=======
+              <div className="flex justify-end gap-3 pt-4">
+>>>>>>> Nico
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
@@ -373,9 +457,12 @@ const AdminProductos = ({ productos, obtenerProductos }) => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editandoId === prod.idProducto ? (
                         <div className="relative rounded-md shadow-sm">
+<<<<<<< HEAD
                        {/*    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             
                           </div> */}
+=======
+>>>>>>> Nico
                           <span className="text-gray-500 sm:text-sm">$</span>
                           <input
                             type="number"
@@ -392,9 +479,13 @@ const AdminProductos = ({ productos, obtenerProductos }) => {
                             min="0"
                             step="0.01"
                           />
+<<<<<<< HEAD
                           {/* <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                           </div> */}
                             <span className="text-gray-500 sm:text-sm">ARS</span>
+=======
+                          <span className="text-gray-500 sm:text-sm">ARS</span>
+>>>>>>> Nico
                         </div>
                       ) : (
                         <div className="text-sm text-gray-900">

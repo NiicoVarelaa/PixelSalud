@@ -212,4 +212,8 @@ const NavbarAdmin = () => {
   );
 };
 
+<<<<<<< HEAD
 export default  NavbarAdmin;
+=======
+export default NavbarAdmin;
+>>>>>>> Nico

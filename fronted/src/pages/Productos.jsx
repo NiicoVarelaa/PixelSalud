@@ -93,7 +93,7 @@ const Productos = () => {
                 {busqueda && (
                   <button
                     onClick={() => setBusqueda("")}
-                    className="px-2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="px-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                   >
                     <FaTimes size={16} />
                   </button>
@@ -104,7 +104,7 @@ const Productos = () => {
               <div className="relative w-full sm:w-[200px]">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className={`flex items-center justify-between w-full py-2 px-3 text-sm text-gray-700 bg-white border ${
+                  className={`flex items-center justify-between w-full py-2 px-3 text-sm text-gray-700 cursor-pointer bg-white border ${
                     dropdownOpen
                       ? "border-primary-600 ring-1 ring-primary-600"
                       : "border-gray-200 hover:border-gray-300"
@@ -178,7 +178,7 @@ const Productos = () => {
               {filtro}
               <button
                 onClick={() => setFiltro("todos")}
-                className="ml-2 text-primary-700 transition-colors cursor-pointer"
+                className="ml-2 text-secondary-500 transition-colors cursor-pointer"
               >
                 <FaTimes size={14} />
               </button>
@@ -199,7 +199,7 @@ const Productos = () => {
               <div className="p-1">
                 <button
                   onClick={() => setFiltro("todos")}
-                  className={`w-full text-left px-3 py-2 rounded text-sm flex items-center transition-colors ${
+                  className={`w-full text-left px-3 py-2 rounded text-sm flex items-center transition-colors cursor-pointer ${
                     filtro === "todos"
                       ? "bg-primary-50 text-primary-700 font-medium cursor-pointer"
                       : "text-gray-600 hover:bg-gray-50"
@@ -251,7 +251,7 @@ const Productos = () => {
                     setFiltro("todos");
                     setOrdenPrecio("defecto");
                   }}
-                  className="mt-3 text-primary-600 hover:text-primary-800 text-sm font-medium transition-colors"
+                  className="mt-3 text-primary-600 hover:text-primary-800 text-sm font-medium transition-colors cursor-pointer"
                 >
                   Limpiar filtros
                 </button>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock, FaSignInAlt, FaArrowLeft } from "react-icons/fa"; 
@@ -202,7 +202,7 @@ const Login = () => {
         {/* Enlace a ¿Olvidaste tu contraseña? */}
         <p className="mt-2 text-center text-sm">
           <Link
-            to="/Error404"
+            to="*"
             className="text-primary-700 hover:underline"
           >
             ¿Olvidaste tu contraseña?

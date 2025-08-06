@@ -10,14 +10,11 @@ const getEmpleados = (req, res) => {
 }
 
 const createEmpleado = (req, res) =>{
-
     const {nombreEmpleado, emailEmpleado, contraEmpleado, rol} = req.body
 
     const consulta = "insert into empleados (nombreEmpleado, emailEmpleado, contraEmpleado, rol) values (?,?,?,?);"
 
     conection.query(consulta,[nombreEmpleado,emailEmpleado,contraEmpleado,rol],(err,result)=>{
-
-
         if (err) {
             console.error('Error al crear el empleado:', err);
             return res.status(500).json({ error: 'Error al crear el empleado' });
@@ -29,15 +26,12 @@ const createEmpleado = (req, res) =>{
 
 const updateEmpleado = (req, res) => {
     
-
     const {nombreEmpleado, emailEmpleado, contraEmpleado, rol} = req.body
     const idEmpleado = req.params.idEmpleado
 
     const consulta = "update empleados set nombreEmpleado=?, emailEmpleado=?, contraEmpleado=?, rol=? where idEmpleado=?"
 
     conection.query(consulta, [nombreEmpleado, emailEmpleado, contraEmpleado, rol, idEmpleado], (err,results)=>{
-
-
         if (err) {
             console.error('Error al obtener el empleado:', err);
             return res.status(500).json({ error: 'Error al actulizar el empleado' });

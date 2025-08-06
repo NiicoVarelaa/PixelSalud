@@ -2,14 +2,12 @@ const { conection } = require("../config/database");
 
 const registrarVentaEmpleado = async (req, res) => {
   try {
-
-    const { idEmpleado ,totalPago, metodoPago, productos, recetas } = req.body;
+    const { idEmpleado, totalPago, metodoPago, productos, recetas } = req.body;
 
     if (!idEmpleado) {
       return res.status(400).json({ error: "Falta el idEmpleado" });
     }
 
-    // Validar stock
     for (const producto of productos) {
       const { idProducto, cantidad } = producto;
 
@@ -28,7 +26,6 @@ const registrarVentaEmpleado = async (req, res) => {
       }
     }
 
-    // Insertar venta con idEmpleado
     const consulta = `
       INSERT INTO VentasEmpleados (idEmpleado, totalPago, metodoPago)
       VALUES (?, ?, ?)
@@ -46,7 +43,6 @@ const registrarVentaEmpleado = async (req, res) => {
 
     const idVentaE = resultVenta.insertId;
 
-    // Insertar detalles y actualizar stock
     for (const producto of productos) {
       const { idProducto, cantidad, precioUnitario } = producto;
 
@@ -81,7 +77,6 @@ const registrarVentaEmpleado = async (req, res) => {
       });
     }
 
-    // Insertar recetas si hay
     if (recetas && recetas.length > 0) {
       for (const receta of recetas) {
         const { idProducto, cantidad, descripcion } = receta;
@@ -137,10 +132,8 @@ const obtenerVentasEmpleado = (req, res) => {
   });
 };
 
-
 const obtenerLaVentaDeUnEmpleado = (req, res) => {
-
-const idEmpleado = req.params.idEmpleado
+  const idEmpleado = req.params.idEmpleado;
   const consulta = `
     SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago,
        p.nombreProducto, dve.cantidad, dve.precioUnitario, ve.totalPago,
@@ -165,4 +158,8 @@ const idEmpleado = req.params.idEmpleado
   });
 };
 
-module.exports = { registrarVentaEmpleado, obtenerVentasEmpleado, obtenerLaVentaDeUnEmpleado };
+module.exports = {
+  registrarVentaEmpleado,
+  obtenerVentasEmpleado,
+  obtenerLaVentaDeUnEmpleado,
+};

@@ -7,7 +7,11 @@ import profileIcon from "../assets/iconos/profile_icon.png";
 import logoutIcon from "../assets/iconos/logout.png";
 import closeIcon from "../assets/iconos/cross_icon.png";
 
+<<<<<<< HEAD
 const NavbarAdmin = () => {
+=======
+const NavbarEmpleado = () => {
+>>>>>>> Nico
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -70,7 +74,11 @@ const NavbarAdmin = () => {
   return (
     <div className="py-5 font-medium relative bg-secondary-100 px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
       <div className="flex items-center justify-between w-full mx-auto">
+<<<<<<< HEAD
         <Link to="/">
+=======
+        <Link >
+>>>>>>> Nico
           <img
             className="w-auto h-9"
             src={LogoPixelSalud}
@@ -80,10 +88,17 @@ const NavbarAdmin = () => {
 
         <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
           <NavLink
+<<<<<<< HEAD
             to="/admin"
             className="flex flex-col items-center gap-1 transition transform hover:scale-105 hover:text-green-500 duration-300"
           >
             <p>PANEL DE ADMINISTRACION</p>
+=======
+            
+            className="flex flex-col items-center gap-1 transition transform hover:scale-105 hover:text-green-500 duration-300"
+          >
+            <p>PANEL DE EMPLEADO</p>
+>>>>>>> Nico
           </NavLink>
         </ul>
 
@@ -212,4 +227,8 @@ const NavbarAdmin = () => {
   );
 };
 
+<<<<<<< HEAD
 export default  NavbarAdmin;
+=======
+export default NavbarEmpleado;
+>>>>>>> Nico

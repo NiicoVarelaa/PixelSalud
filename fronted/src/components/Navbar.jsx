@@ -158,10 +158,15 @@ const Navbar = () => {
               )}
             </>
           ) : (
+<<<<<<< HEAD
 
             // Si no hay ID de cliente, redirige a la página de login
             <NavLink to="/login">
 
+=======
+            // Si no hay ID de cliente, redirige a la página de login
+            <NavLink to="/login">
+>>>>>>> Nico
               <img
                 src={profileIcon}
                 className="w-5 cursor-pointer"

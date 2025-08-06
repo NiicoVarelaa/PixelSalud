@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const AdminVentasO = () => {
+const AdminVentasE = () => {
   const [ventas, setVentas] = useState([]);
   const [filtro, setFiltro] = useState("");
   const [ventasFiltradas, setVentasFiltradas] = useState([]);
@@ -11,9 +11,15 @@ const AdminVentasO = () => {
   const obtenerVentas = async () => {
     try {
       setCargando(true);
+<<<<<<< HEAD
       const res = await axios.get("http://localhost:5000/ventasOnline/todas");
       setVentas(res.data.results || []);
       setVentasFiltradas(res.data.results || []);
+=======
+      const res = await axios.get("http://localhost:5000/ventasEmpleados");
+      setVentas(res.data || []);
+      setVentasFiltradas(res.data || []);
+>>>>>>> Nico
     } catch (error) {
       console.error("Error al obtener las ventas", error);
       setVentas([]);
@@ -29,11 +35,17 @@ const AdminVentasO = () => {
 
   useEffect(() => {
     const resultados = ventas.filter((venta) => {
+<<<<<<< HEAD
       if (!venta) return false;
       
       const busqueda = filtro.toLowerCase();
       return (
         (venta.nombreCliente?.toLowerCase() || "").includes(busqueda) ||
+=======
+      const busqueda = filtro.toLowerCase();
+      return (
+        (venta.nombreEmpleado?.toLowerCase() || "").includes(busqueda) ||
+>>>>>>> Nico
         (venta.nombreProducto?.toLowerCase() || "").includes(busqueda) ||
         (venta.metodoPago?.toLowerCase() || "").includes(busqueda) ||
         (venta.fechaPago || "").includes(busqueda)
@@ -47,10 +59,16 @@ const AdminVentasO = () => {
     setOrden({ campo, direccion });
 
     setVentasFiltradas([...ventasFiltradas].sort((a, b) => {
+<<<<<<< HEAD
       if (!a || !b) return 0;
       const valA = a[campo] || "";
       const valB = b[campo] || "";
       
+=======
+      const valA = a[campo] || "";
+      const valB = b[campo] || "";
+
+>>>>>>> Nico
       if (valA < valB) return direccion === "asc" ? -1 : 1;
       if (valA > valB) return direccion === "asc" ? 1 : -1;
       return 0;
@@ -59,16 +77,24 @@ const AdminVentasO = () => {
 
   const formatearFecha = (fecha) => {
     if (!fecha) return "N/A";
+<<<<<<< HEAD
     try {
       return new Date(fecha).toLocaleDateString("es-ES");
     } catch {
       return fecha;
     }
+=======
+    return new Date(fecha).toLocaleDateString("es-ES");
+>>>>>>> Nico
   };
 
   const formatearHora = (hora) => {
     if (!hora || typeof hora !== "string") return "N/A";
+<<<<<<< HEAD
     return hora.length >= 5 ? hora.slice(0, 5) : hora;
+=======
+    return hora.slice(0, 5);
+>>>>>>> Nico
   };
 
   const formatearMoneda = (valor) => {
@@ -83,10 +109,15 @@ const AdminVentasO = () => {
     <div className="min-h-screen bg-white p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+<<<<<<< HEAD
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Ventas realizados online</h1>
           </div>
           
+=======
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Ventas Realizadas por Empleados</h1>
+
+>>>>>>> Nico
           <div className="relative w-full md:w-64">
             <input
               type="text"
@@ -121,6 +152,7 @@ const AdminVentasO = () => {
               <table className="w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
+<<<<<<< HEAD
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
@@ -297,12 +329,23 @@ const AdminVentasO = () => {
                         )}
                       </div>
                     </th>
+=======
+                    <Cabecera titulo="Empleado" campo="nombreEmpleado" ordenarVentas={ordenarVentas} orden={orden} />
+                    <Cabecera titulo="Producto" campo="nombreProducto" ordenarVentas={ordenarVentas} orden={orden} />
+                    <Cabecera titulo="Cantidad" campo="cantidad" ordenarVentas={ordenarVentas} orden={orden} />
+                    <Cabecera titulo="Precio Unit." campo="precioUnitario" ordenarVentas={ordenarVentas} orden={orden} />
+                    <Cabecera titulo="Total" campo="totalPago" ordenarVentas={ordenarVentas} orden={orden} />
+                    <Cabecera titulo="Pago" campo="metodoPago" ordenarVentas={ordenarVentas} orden={orden} />
+                    <Cabecera titulo="Fecha" campo="fechaPago" ordenarVentas={ordenarVentas} orden={orden} />
+                    <Cabecera titulo="Hora" campo="horaPago" ordenarVentas={ordenarVentas} orden={orden} />
+>>>>>>> Nico
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {ventasFiltradas.length > 0 ? (
                     ventasFiltradas.map((venta, index) => (
                       <tr key={index} className="hover:bg-gray-50">
+<<<<<<< HEAD
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
                             {venta?.nombreCliente || "N/A"}
@@ -332,11 +375,23 @@ const AdminVentasO = () => {
                           <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             venta?.metodoPago === "Efectivo" 
                               ? "bg-green-100 text-green-800" 
+=======
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{venta?.nombreEmpleado || "N/A"}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{venta?.nombreProducto || "N/A"}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{venta?.cantidad || 0}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatearMoneda(venta?.precioUnitario)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-primary-600">{formatearMoneda(venta?.totalPago)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            venta?.metodoPago === "Efectivo"
+                              ? "bg-green-100 text-green-800"
+>>>>>>> Nico
                               : "bg-blue-100 text-blue-800"
                           }`}>
                             {venta?.metodoPago || "N/A"}
                           </span>
                         </td>
+<<<<<<< HEAD
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
                             {formatearFecha(venta?.fechaPago)}
@@ -347,6 +402,10 @@ const AdminVentasO = () => {
                             {formatearHora(venta?.horaPago)}
                           </div>
                         </td>
+=======
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatearFecha(venta?.fechaPago)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatearHora(venta?.horaPago)}</td>
+>>>>>>> Nico
                       </tr>
                     ))
                   ) : (
@@ -366,4 +425,30 @@ const AdminVentasO = () => {
   );
 };
 
-export default AdminVentasO;
+// Componente reutilizable para las cabeceras de tabla con orden
+const Cabecera = ({ titulo, campo, ordenarVentas, orden }) => (
+  <th
+    scope="col"
+    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+    onClick={() => ordenarVentas(campo)}
+  >
+    <div className="flex items-center">
+      {titulo}
+      {orden.campo === campo && (
+        <svg
+          className={`ml-1 h-4 w-4 ${orden.direccion === "asc" ? "transform rotate-180" : ""}`}
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+      )}
+    </div>
+  </th>
+);
+
+export default AdminVentasE;

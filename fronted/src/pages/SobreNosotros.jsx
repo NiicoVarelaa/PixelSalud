@@ -154,8 +154,8 @@ const SobreNosotros = () => {
                 ))}
               </div>
             </div>
-
-            {/* Galería con lazy loading */}
+            
+            {/* Nuestro Espacio */}
             <div>
               <h3 className="text-2xl font-semibold text-gray-800 mb-8 text-center">
                 Nuestro Espacio
@@ -179,9 +179,7 @@ const SobreNosotros = () => {
                         </p>
                       </div>
                     </div>
-                    <p className="p-4 text-sm font-medium text-gray-800 text-center sm:hidden group-hover:block transition duration-300">
-                      {img.texto}
-                    </p>
+                    
                   </div>
                 ))}
               </div>

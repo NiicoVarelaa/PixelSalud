@@ -15,6 +15,6 @@ export const getEmpleado = async () => {
     return idEmpleado;
   } catch (error) {
     console.error("Error al obtener el empleado logueado:", error);
-    return null;
-  }
+    return null;
+}
 };

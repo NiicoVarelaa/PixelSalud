@@ -30,6 +30,9 @@ const Contacto = () => {
     }, 1500);
   };
 
+  // Reemplaza la URL del mapa con la nueva ubicación en Tucumán
+  const mapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14238.169376662453!2d-65.22683935!3d-26.83226955!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94225d3ad7f30f1d%3A0xfc6374a441161726!2sSan%20Miguel%20de%20Tucum%C3%A1n%2C%20Tucum%C3%A1n%20Province%2C%20Argentina!5e0!3m2!1sen!2sus!4v1628045091234!5m2!1sen!2sus";
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -154,19 +157,7 @@ const Contacto = () => {
                         contacto@pixelsalud.com
                       </a>
                     </div>
-                  </div>
-
-                  <div className="flex items-start">
-                    <div className="bg-primary-100 p-3 rounded-full mr-4 flex-shrink-0"> 
-                      <FaGlobe className="text-primary-700 text-lg" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-700">Sitio web</h4>
-                      <a href="https://www.pixelsalud.com" className="text-gray-600 hover:text-primary-700 transition-colors">
-                        www.pixelsalud.com
-                      </a>
-                    </div>
-                  </div>
+                  </div>  
 
                   <div className="flex items-start">
                     <div className="bg-primary-100 p-3 rounded-full mr-4 flex-shrink-0">
@@ -183,9 +174,21 @@ const Contacto = () => {
 
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <h4 className="font-medium text-gray-700 mb-3">Ubicación</h4>
-                <div className="bg-gray-100 rounded-lg h-40 flex items-center justify-center text-gray-400">
+                
+
+                <div className="rounded-lg overflow-hidden h-60 w-full shadow-lg border border-gray-200">
+                  <iframe
+                    src={mapUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    title="Ubicación de Pixel Salud en San Miguel de Tucumán"
+                  ></iframe>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
