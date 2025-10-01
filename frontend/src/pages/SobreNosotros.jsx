@@ -10,12 +10,12 @@ import {
 import Header from "../components/Header";
 import MiniBanner from "../components/MiniBanner";
 import Footer from "../components/Footer";
-import ampollas from "../assets/ampollas.jpg";
-import botes from "../assets/botes.jpg";
-import deposito from "../assets/deposito.jpg";
-import higienePersonal from "../assets/higienePersonal.jpg";
-import tienda from "../assets/tienda.jpg";
-import mostrador from "../assets/mostrador.jpg";
+import ampollas from "../assets/ampollas.webp";
+import botes from "../assets/botes.webp";
+import deposito from "../assets/deposito.webp";
+import higienePersonal from "../assets/higienePersonal.webp";
+import tienda from "../assets/tienda.webp";
+import mostrador from "../assets/mostrador.webp";
 
 const SobreNosotros = () => {
   const imagenes = [

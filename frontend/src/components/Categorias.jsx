@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import Fragancias from '../assets/Fragancias.png';
-import Belleza from '../assets/Belleza.png';
+import Fragancias from '../assets/Fragancias.webp';
+import Belleza from '../assets/Belleza.webp';
 import Dermocosmetica from '../assets/Dermocosmetica.webp';
-import MedConReceta from '../assets/MedConReceta.png';
-import MedVentaLibre from '../assets/MedVentaLibre.png';
-import CuidadoPersonal from '../assets/CuidadoPersonal.png';
-import Bebes from '../assets/Bebes.png';
+import MedConReceta from '../assets/MedConReceta.webp';
+import MedVentaLibre from '../assets/MedVentaLibre.webp';
+import CuidadoPersonal from '../assets/CuidadoPersonal.webp';
+import Bebes from '../assets/Bebes.webp';
+import CategoriaCard from './CategoriaCard';
 
 const categories = [
   { text: 'Fragancias', image: Fragancias },
@@ -20,26 +21,21 @@ const categories = [
 const Categorias = () => {
   const navigate = useNavigate();
 
+  const handleCategoryClick = (categoryText) => {
+    navigate(`/productos?categoria=${encodeURIComponent(categoryText)}`);
+    scrollTo(0, 0);
+  };
+
   return (
     <div className='mt-12'>
       <p className='text-2xl md:text-3xl font-medium'>Categorías</p>
       <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-6 mt-6'>
-        {categories.map((categoria, index) => (
-          <div
-            key={index}
-            className="group cursor-pointer py-5 px-3 gap-2 rounded-lg flex flex-col items-center justify-center bg-slate-100 hover:bg-secondary-100 transition-colors"
-            onClick={() => {
-              navigate(`/productos?categoria=${encodeURIComponent(categoria.text)}`);
-              scrollTo(0, 0);
-            }}
-          >
-            <img
-              src={categoria.image}
-              alt={categoria.text}
-              className="transform transition-transform duration-200 max-w-20 group-hover:scale-105"
-            />
-            <p className="text-sm font-medium text-center">{categoria.text}</p>
-          </div>
+        {categories.map((categoria) => (
+          <CategoriaCard
+            key={categoria.text}
+            categoria={categoria}
+            onClick={() => handleCategoryClick(categoria.text)}
+          />
         ))}
       </div>
     </div>

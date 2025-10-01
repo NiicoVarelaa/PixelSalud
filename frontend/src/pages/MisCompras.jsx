@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCliente } from "../store/useClienteStore";
+import { useClienteStore } from "../store/useClienteStore";
 import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -10,7 +10,8 @@ import { Link } from "react-router-dom";
 const MisCompras = () => {
   const [ventasAgrupadas, setVentasAgrupadas] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [cliente, setCliente] = useState(null);
+  const cliente = useClienteStore((state) => state.cliente);
+  const getCliente = useClienteStore((state) => state.getCliente);
   const [expandedOrder, setExpandedOrder] = useState(null);
 
   const ARSformatter = new Intl.NumberFormat("es-AR", {
@@ -23,10 +24,8 @@ const MisCompras = () => {
     const obtenerCompras = async () => {
       try {
         const clienteData = await getCliente();
-        setCliente(clienteData);
-        // --- CÓDIGO CORREGIDO ---
-        const idCliente = clienteData; // Vuelve a la lógica original de tu código
-        // --- FIN DEL CÓDIGO CORREGIDO ---
+        const idCliente = clienteData?.idCliente;
+        if (!idCliente) throw new Error("No hay cliente logueado");
         const respuesta = await axios.get(
           `http://localhost:5000/ventaOnline/misCompras/${idCliente}`
         );
@@ -41,7 +40,7 @@ const MisCompras = () => {
     };
 
     obtenerCompras();
-  }, []);
+  }, [getCliente]);
 
   const agruparVentas = (datos) => {
     const ventas = {};
@@ -75,7 +74,6 @@ const MisCompras = () => {
           productos: [],
         };
       }
-
       ventas[idVentaO].productos.push({
         nombreProducto,
         cantidad: Number(cantidad),

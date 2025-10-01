@@ -53,7 +53,7 @@ const App = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/recuperarContraseña" element={<RecuperarContrasena />} />
-          <Route path="/MisCompras" element={<MisCompras />} />
+          <Route path="/mis-compras" element={<MisCompras />} />
           <Route path="*" element={<Error404/>} />
         </Routes>
       </div>

@@ -1,59 +1,37 @@
-import { useState, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useCarritoStore } from "../store/useCarritoStore";
-import { useCompraStore } from "../store/useCompraStore";
 import { toast } from "react-toastify";
-import Swal from "sweetalert2";
 import {
   FiShoppingBag,
   FiUser,
-  FiMapPin,
-  FiCreditCard,
   FiArrowLeft,
-  FiPlus,
-  FiMinus,
-  FiTag, 
+  FiTag,
 } from "react-icons/fi";
-import { FaCreditCard, FaMoneyBillWave, FaUniversity } from "react-icons/fa";
 import Header from "../components/Header";
-import ModalTarjetaCredito from "../components/ModalTarjetaCredito";
-import ModalTransferencia from "../components/ModalTransferencia";
-import ModalEfectivo from "../components/ModalEfectivo";
-import ModalTipoEntrega from "../components/ModalTipoEntrega";
-import ModalFormularioEnvio from "../components/ModalFormularioEnvio";
+// Importa las dependencias de Mercado Pago
+import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 
-const paymentMethods = [
-  { id: "creditCard", name: "Tarjeta de Crédito", icon: <FaCreditCard /> },
-  { id: "bankTransfer", name: "Transferencia Bancaria", icon: <FaUniversity /> },
-  { id: "cash", name: "Efectivo", icon: <FaMoneyBillWave /> },
-];
+// Inicializa el SDK de Mercado Pago con tu clave pública
+// Reemplaza 'YOUR_PUBLIC_KEY' con tu clave pública real
+initMercadoPago('APP_USR-338dfdb1-f95c-4629-9edb-dbeaeac039d0', { locale: 'es-AR' });
+
 
 const formatPrice = (value) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(value);
 
 const Checkout = () => {
-  const navigate = useNavigate();
-  const { carrito, vaciarCarrito } = useCarritoStore();
-  const { realizarCompraCarrito } = useCompraStore();
+  const { carrito } = useCarritoStore();
   const [isProcessing, setIsProcessing] = useState(false);
-
-  // Estados para los modales
-  const [showCardModal, setShowCardModal] = useState(false);
-  const [showTransferModal, setShowTransferModal] = useState(false);
-  const [showCashModal, setShowCashModal] = useState(false);
-  const [showTipoEntrega, setShowTipoEntrega] = useState(false);
-  const [showFormularioEnvio, setShowFormularioEnvio] = useState(false);
-  const [tempMetodoPago, setTempMetodoPago] = useState(null);
-
-  // Estado del formulario, cupon y selección de pago
-  const [selectedPayment, setSelectedPayment] = useState(null);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
+  // Nuevo estado para guardar el ID de la preferencia de pago
+  const [preferenceId, setPreferenceId] = useState(null);
+  // Estado para disparar la creación de la orden
+  const [shouldCreateOrder, setShouldCreateOrder] = useState(false);
 
-  const [shippingMethod, ] = useState("sucursal");
   const [formData, setFormData] = useState({
     nombre: "",
-    apellido: "",
     email: "",
     telefono: "",
     calle: "",
@@ -68,13 +46,11 @@ const Checkout = () => {
     () => carrito.reduce((acc, prod) => acc + parseFloat(prod.precio) * prod.cantidad, 0),
     [carrito]
   );
-  
   const total = subtotal - appliedDiscount;
 
   const handleApplyDiscount = () => {
-    // Lógica de validación del cupón
-    if (discountCode.toUpperCase() === "DESCUENTO20") {
-      setAppliedDiscount(subtotal * 0.20);
+    if (discountCode.trim().toUpperCase() === "PIXEL2025") {
+      setAppliedDiscount(subtotal * 0.10);
       toast.success("¡Cupón aplicado con éxito!");
     } else {
       setAppliedDiscount(0);
@@ -87,73 +63,55 @@ const Checkout = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handlePurchaseSuccess = () => {
-    Swal.fire({
-      title: "¡Compra exitosa!",
-      text: "Tu pedido ha sido procesado correctamente",
-      icon: "success",
-      confirmButtonText: "Ver mis pedidos",
-      showCancelButton: true,
-      cancelButtonText: "Seguir comprando",
-      allowOutsideClick: false,
-      customClass: {
-        confirmButton: 'px-6 py-2 mr-1 bg-white font-medium text-primary-700 hover:bg-primary-100 transition-all rounded-lg cursor-pointer border border-primary-700 shadow-sm hover:shadow-md border-2',
-        cancelButton: 'px-6 py-2 ml-1 font-medium bg-primary-700 text-white hover:bg-primary-800 transition-all rounded-lg cursor-pointer border border-primary-700 shadow-sm hover:shadow-md',
-      },
-      buttonsStyling: false,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        navigate("/MisCompras");
-      } else {
-        vaciarCarrito();
-        navigate("/productos");
+  const isFormComplete = [
+    formData.nombre,
+    formData.email,
+    formData.telefono,
+    formData.calle,
+    formData.numero,
+    formData.ciudad,
+    formData.estado,
+    formData.codigoPostal,
+  ].every((val) => val && val.trim() !== "");
+
+
+  // Efecto para crear la orden de pago cuando se solicita
+  useEffect(() => {
+    const createOrder = async () => {
+      setIsProcessing(true);
+      try {
+        // Cambia la URL por la de tu backend/ngrok
+        const response = await fetch("http://localhost:5000/mercadopago/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            products: carrito.map((p) => ({ id: p.idProducto, quantity: p.cantidad })),
+            customer_info: {
+              name: formData.nombre,
+              surname: "",
+              email: formData.email,
+            },
+          }),
+        });
+        const data = await response.json();
+        if (data.id) {
+          setPreferenceId(data.id);
+        } else {
+          toast.error("No se pudo iniciar el pago con Mercado Pago.");
+        }
+      } catch {
+        toast.error("Error al conectar con Mercado Pago.");
+      } finally {
+        setIsProcessing(false);
+        setShouldCreateOrder(false);
       }
-    });
-  };
-
-  const procesarCompra = async (metodoPago, tipoEntrega, direccionEnvio = null) => {
-    setIsProcessing(true);
-    try {
-      await realizarCompraCarrito(metodoPago, tipoEntrega, direccionEnvio);
-      handlePurchaseSuccess();
-    } finally {
-      setIsProcessing(false);
+    };
+    if (shouldCreateOrder) {
+      createOrder();
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldCreateOrder]);
 
-  const handleCheckout = () => {
-    if (!selectedPayment) {
-      toast.error("Por favor, selecciona un método de pago.");
-      return;
-    }
-
-    if (shippingMethod === "envio") {
-      const { calle, numero, ciudad, estado, codigoPostal } = formData;
-      if (!calle || !numero || !ciudad || !estado || !codigoPostal) {
-        toast.error("Por favor, completa todos los campos de dirección.");
-        return;
-      }
-    }
-
-    if (selectedPayment === "creditCard") setShowCardModal(true);
-    if (selectedPayment === "bankTransfer") setShowTransferModal(true);
-    if (selectedPayment === "cash") setShowCashModal(true);
-  };
-
-  const handleConfirmPayment = (paymentType) => {
-    setTempMetodoPago(paymentType);
-    if (shippingMethod === "envio") {
-      setShowFormularioEnvio(true);
-    } else {
-      procesarCompra(paymentType, "Sucursal");
-    }
-  };
-
-  const handleConfirmEnvio = (direccion) => {
-    setShowFormularioEnvio(false);
-    procesarCompra(tempMetodoPago, "Envio", direccion);
-  };
-  
   const formatPrecio = (price) => {
     const numericPrice =
       typeof price === "string"
@@ -178,27 +136,21 @@ const Checkout = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Columna principal: Productos, formulario y envío */}
           <div className="lg:flex-1 bg-white p-8 rounded-xl shadow-sm">
-            {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
-            {/* AQUI SE AJUSTA EL ESTILO DEL TITULO PRINCIPAL */}
-            {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
             <div className="px-4 py-5 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 rounded-lg bg-primary-100 text-primary-700">
-                    <FiShoppingBag className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-                      Finalizar Compra
-                    </h2>
-                    <p className="text-gray-500 text-sm">
-                      Revisa tu pedido y completa tus datos de envío.
-                    </p>
-                  </div>
+              <div className="flex items-center space-x-3">
+                <div className="p-2 rounded-lg bg-primary-100 text-primary-700">
+                  <FiShoppingBag className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+                    Finalizar Compra
+                  </h2>
+                  <p className="text-gray-500 text-sm">
+                    Revisa tu pedido y completa tus datos de envío.
+                  </p>
                 </div>
               </div>
             </div>
-
             {/* Lista de Productos */}
             <div className="mb-8 pt-8">
               <div className="hidden md:grid grid-cols-10 gap-4 py-3 px-4 bg-gray-50 border-b border-gray-100">
@@ -262,8 +214,6 @@ const Checkout = () => {
                           )}
                         </div>
                       </div>
-
-                      {/* Cantidad y Subtotal para escritorio */}
                       <div className="hidden md:flex flex-col items-center justify-center md:col-span-3">
                         <div className="flex items-center justify-center">
                           <span className="mx-3 min-w-[2rem] text-center font-medium text-sm">
@@ -271,7 +221,6 @@ const Checkout = () => {
                           </span>
                         </div>
                       </div>
-
                       <div className="hidden md:flex items-center justify-end md:col-span-2 text-right">
                         <span className="font-semibold text-gray-900 text-sm">
                           ${formatPrecio(total)}
@@ -281,7 +230,6 @@ const Checkout = () => {
                   );
                 })}
               </div>
-
               <Link
                 to="/carrito"
                 className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium text-sm transition-colors duration-200 group"
@@ -290,12 +238,8 @@ const Checkout = () => {
                 Volver al carrito
               </Link>
             </div>
-
             {/* Sección de Datos del Usuario y Envío */}
             <div className="mb-8 border-t border-gray-200 pt-8">
-              {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
-              {/* AQUI SE AJUSTA EL ESTILO DEL TITULO DE LA SECCION */}
-              {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
               <div className="flex items-center space-x-3 mb-4">
                 <div className="p-2 rounded-lg bg-primary-100 text-primary-700">
                   <FiUser className="w-5 h-5" />
@@ -407,11 +351,9 @@ const Checkout = () => {
               </div>
             </div>
           </div>
-
-          {/* Columna del Resumen de Compra y Métodos de Pago */}
+          {/* Columna del Resumen de Compra y Pago */}
           <div className="lg:w-96">
             <div className="bg-white rounded-xl shadow-sm overflow-hidden p-4 sticky top-4">
-              {/* Header */}
               <div className="flex items-center space-x-3 mb-4">
                 <div className="p-2 rounded-lg bg-primary-100 text-primary-700">
                   <FiShoppingBag className="w-5 h-5" />
@@ -420,7 +362,6 @@ const Checkout = () => {
                   Resumen del Pedido
                 </h2>
               </div>
-              
               {/* Sección de Cupón de Descuento */}
               <div className="border-t border-gray-200 pt-4 mb-4">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
@@ -443,7 +384,6 @@ const Checkout = () => {
                   </button>
                 </div>
               </div>
-
               {/* Detalles */}
               <div className="space-y-3 mb-4 border-t border-gray-200 pt-4">
                 <div className="flex justify-between">
@@ -457,44 +397,26 @@ const Checkout = () => {
                   </div>
                 )}
               </div>
-
-              {/* Sección de Métodos de Pago */}
+              {/* Botón Mercado Pago */}
               <div className="mb-8">
-                {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
-                {/* AQUI SE AJUSTA EL ESTILO DEL TITULO DE LA SECCION */}
-                {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 rounded-lg bg-primary-100 text-primary-700">
-                    <FiCreditCard className="w-5 h-5" />
+                {!preferenceId ? (
+                  <button
+                    onClick={() => setShouldCreateOrder(true)}
+                    disabled={!isFormComplete || isProcessing}
+                    className={`w-full py-3 px-6 rounded-lg font-bold text-white mt-4 ${
+                      !isFormComplete || isProcessing
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-primary-700 hover:bg-primary-800 cursor-pointer transition-colors"
+                    }`}
+                  >
+                    {isProcessing ? "Procesando..." : "Pagar con Mercado Pago"}
+                  </button>
+                ) : (
+                  <div className="mt-4">
+                    <Wallet initialization={{ preferenceId: preferenceId }} />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Métodos de Pago
-                  </h2>
-                </div>
-                <div className="space-y-3">
-                  {paymentMethods.map((method) => (
-                    <div
-                      key={method.id}
-                      onClick={() => setSelectedPayment(method.id)}
-                      className={`p-3 border rounded-lg cursor-pointer flex items-center justify-between transition-colors ${
-                        selectedPayment === method.id
-                          ? "border-primary-100 bg-primary-100 text-primary-900"
-                          : "border-gray-200 hover:border-primary-100 hover:bg-primary-100 text-primary-900"
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg">{method.icon}</span>
-                        <span>{method.name}</span>
-                      </div>
-                      {selectedPayment === method.id && (
-                        <span className="text-primary-900 font-bold">✓</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                )}
               </div>
-
-              {/* Total */}
               <div className="border-t border-gray-200 pt-4">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-lg font-bold text-gray-900">Total</span>
@@ -502,56 +424,11 @@ const Checkout = () => {
                     {formatPrice(total)}
                   </span>
                 </div>
-                <button
-                  onClick={handleCheckout}
-                  disabled={isProcessing}
-                  className={`w-full py-3 px-6 rounded-lg font-bold text-white ${
-                    isProcessing
-                      ? "bg-primary-700"
-                      : "bg-primary-700 hover:bg-primary-800 cursor-pointer transition-colors"
-                  }`}
-                >
-                  {isProcessing ? "Procesando..." : "Finalizar Compra"}
-                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Modales */}
-      <ModalTarjetaCredito
-        isOpen={showCardModal}
-        onClose={() => setShowCardModal(false)}
-        onConfirm={() => handleConfirmPayment("Tarjeta de Crédito")}
-      />
-      <ModalTransferencia
-        isOpen={showTransferModal}
-        onClose={() => setShowTransferModal(false)}
-        onConfirm={() => handleConfirmPayment("Transferencia Bancaria")}
-      />
-      <ModalEfectivo
-        isOpen={showCashModal}
-        onClose={() => setShowCashModal(false)}
-        onConfirm={() => handleConfirmPayment("Efectivo")}
-      />
-      <ModalTipoEntrega
-        isOpen={showTipoEntrega}
-        onClose={() => setShowTipoEntrega(false)}
-        onSelect={(tipo) => {
-          setShowTipoEntrega(false);
-          if (tipo === "Envio") {
-            setShowFormularioEnvio(true);
-          } else {
-            procesarCompra(tempMetodoPago, "Sucursal");
-          }
-        }}
-      />
-      <ModalFormularioEnvio
-        isOpen={showFormularioEnvio}
-        onClose={() => setShowFormularioEnvio(false)}
-        onConfirm={handleConfirmEnvio}
-      />
     </div>
   );
 };

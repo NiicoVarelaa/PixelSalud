@@ -14,31 +14,24 @@ import "react-toastify/dist/ReactToastify.css";
 import Header from "../components/Header";
 import MiniBanner from "../components/MiniBanner";
 import Footer from "../components/Footer";
-import { getCliente } from "../store/useClienteStore";
+import { useClienteStore } from "../store/useClienteStore";
 import { useNavigate } from "react-router-dom";
 
 const Contacto = () => {
-  const [formData, setFormData] = useState({
-    nombre: "",
-    email: "",
-    mensaje: "",
-  });
+  const cliente = useClienteStore((state) => state.cliente);
+  const getCliente = useClienteStore((state) => state.getCliente);
 
-  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [formData, setFormData] = useState({ nombre: "", email: "", mensaje: "" });
+  const [errors, setErrors] = useState({});
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchCliente = async () => {
-      const clienteId = await getCliente();
-      setIsLoggedIn(!!clienteId);
-    };
-    fetchCliente();
-  }, []);
+    getCliente();
+  }, [getCliente]);
 
+  // Validaciones
   const validarNombre = (nombre) => {
     const trimmedNombre = nombre.trim();
     if (!trimmedNombre) return "El nombre es obligatorio";
@@ -59,7 +52,6 @@ const Contacto = () => {
   const validarEmail = (email) => {
     const trimmedEmail = email.trim();
     if (!trimmedEmail) return "El correo electrónico es obligatorio";
-    // Expresión regular corregida
     const emailRegex =
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     if (!emailRegex.test(trimmedEmail))
@@ -119,7 +111,7 @@ const Contacto = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!isLoggedIn) {
+    if (!cliente) {
       setShowModal(true);
       return;
     }

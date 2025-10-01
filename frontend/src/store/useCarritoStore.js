@@ -1,22 +1,23 @@
 import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { getCliente } from "./useClienteStore";
 import Swal from "sweetalert2";
+import { useClienteStore } from "./useClienteStore";
 
 export const useCarritoStore = create((set, get) => ({
   carrito: [],
+
+  // Sincronizar carrito con el servidor
   sincronizarCarrito: async () => {
     try {
-      const idCliente = await getCliente();
-
-      if (!idCliente) {
+      const cliente = useClienteStore.getState().cliente;
+      if (!cliente) {
         set({ carrito: [] });
-        console.log("No logged-in user found, carrito not synchronized.");
         return;
       }
 
-      console.log("Cliente ID for sync:", idCliente);
+      const idCliente = cliente.idCliente;
+
       const carritoResponse = await axios.get(
         `http://localhost:5000/carrito/${idCliente}`
       );
@@ -24,12 +25,18 @@ export const useCarritoStore = create((set, get) => ({
       const idsProductosCarrito = carritoServidor.map(
         (prods) => prods.idProducto
       );
+
       const getProductos = await axios.get(`http://localhost:5000/productos`);
       const productos = getProductos.data;
 
-      const productosEnCarrito = productos.filter((producto) =>
-        idsProductosCarrito.includes(producto.idProducto)
-      );
+      const productosEnCarrito = productos
+        .filter((producto) => idsProductosCarrito.includes(producto.idProducto))
+        .map((producto) => {
+          const itemServidor = carritoServidor.find(
+            (item) => item.idProducto === producto.idProducto
+          );
+          return { ...producto, cantidad: itemServidor?.cantidad || 1 };
+        });
 
       set({ carrito: productosEnCarrito });
     } catch (error) {
@@ -38,20 +45,23 @@ export const useCarritoStore = create((set, get) => ({
     }
   },
 
+  // Agregar producto
   agregarCarrito: async (producto) => {
     const { carrito } = get();
 
     try {
-      const idCliente = await getCliente();
-      if (!idCliente) {
+      const cliente = useClienteStore.getState().cliente;
+      if (!cliente) {
         Swal.fire({
           icon: "error",
           title: "Error...",
-          text: "Debes estar logueado para realizar esta accion!",
-          footer: `<a href="../Login">¿Quieres iniciar sesion?</a>`,
+          text: "Debes estar logueado para realizar esta acción!",
+          footer: `<a href="../Login">¿Quieres iniciar sesión?</a>`,
         });
         return;
       }
+
+      const idCliente = cliente.idCliente;
 
       const carritoResponse = await axios.get(
         `http://localhost:5000/carrito/${idCliente}`
@@ -81,44 +91,43 @@ export const useCarritoStore = create((set, get) => ({
     }
   },
 
-  // ❌ Elimina completamente un producto del carrito (local)
+  // Elimina producto del carrito
   eliminarDelCarrito: async (id) => {
-  try {
-    const eliminar = await axios.delete(
-      `http://localhost:5000/carrito/eliminar/${id}`
-    );
-    if (eliminar) {
-      // Elimina el producto del carrito en el estado global (zustand)
-      const { carrito } = get();
-      const carritoActualizado = carrito.filter(
-        (producto) => producto.idProducto !== id
+    try {
+      const eliminar = await axios.delete(
+        `http://localhost:5000/carrito/eliminar/${id}`
       );
-      set({ carrito: carritoActualizado }); // Actualiza el estado de zustand
-      toast.success("Producto eliminado correctamente!");
+      if (eliminar) {
+        const { carrito } = get();
+        const carritoActualizado = carrito.filter(
+          (producto) => producto.idProducto !== id
+        );
+        set({ carrito: carritoActualizado });
+        toast.success("Producto eliminado correctamente!");
+      }
+    } catch (error) {
+      console.error("Error al eliminar el producto:", error);
+      toast.error("Hubo un problema al eliminar el producto");
     }
-  } catch (error) {
-    console.error("Error al eliminar el producto:", error);
-    toast.error("Hubo un problema al eliminar el producto");
-  }
-},
+  },
 
-
-  // 🧹 Vacía el carrito completo del estado local y del servidor
+  // Vacía el carrito
   vaciarCarrito: async () => {
     try {
-      const idCliente = await getCliente();
-      if (!idCliente) {
+      const cliente = useClienteStore.getState().cliente;
+      if (!cliente) {
         console.log("No se pudo vaciar el carrito, usuario no logueado.");
         return;
       }
 
-      // ⚠️ Requiere un endpoint en tu backend para vaciar el carrito completo de un cliente
+      const idCliente = cliente.idCliente;
+
       const vaciar = await axios.delete(
         `http://localhost:5000/carrito/vaciar/${idCliente}`
       );
 
       if (vaciar) {
-        set({ carrito: [] }); // Actualiza el estado de zustand
+        set({ carrito: [] });
         toast.success("Carrito vaciado correctamente!");
       }
     } catch (error) {
@@ -127,21 +136,20 @@ export const useCarritoStore = create((set, get) => ({
     }
   },
 
-  // 🔼 Aumenta cantidad de un producto en el carrito
+  // Aumenta cantidad
   aumentarCantidad: async (id) => {
     try {
       const aumento = await axios.put(
         `http://localhost:5000/carrito/aumentar/${id}`
       );
       if (aumento) {
-        // Actualiza el carrito en el estado global (zustand)
         const { carrito } = get();
         const carritoActualizado = carrito.map((producto) =>
           producto.idProducto === id
             ? { ...producto, cantidad: producto.cantidad + 1 }
             : producto
         );
-        set({ carrito: carritoActualizado }); // Actualiza el estado de zustand
+        set({ carrito: carritoActualizado });
         toast.success("Cantidad aumentada correctamente!");
       }
     } catch (error) {
@@ -150,21 +158,20 @@ export const useCarritoStore = create((set, get) => ({
     }
   },
 
-  // 🔽 Disminuye cantidad (si llega a 1, deberías confirmar antes de eliminar si querés)
+  // Disminuye cantidad
   disminuirCantidad: async (id) => {
     try {
       const disminuir = await axios.put(
         `http://localhost:5000/carrito/disminuir/${id}`
       );
       if (disminuir) {
-        // Actualiza el carrito en el estado global (zustand)
         const { carrito } = get();
         const carritoActualizado = carrito.map((producto) =>
           producto.idProducto === id && producto.cantidad > 1
             ? { ...producto, cantidad: producto.cantidad - 1 }
             : producto
         );
-        set({ carrito: carritoActualizado }); // Actualiza el estado de zustand
+        set({ carrito: carritoActualizado });
         toast.success("Cantidad disminuida correctamente!");
       }
     } catch (error) {
