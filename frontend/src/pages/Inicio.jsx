@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import MiniBanner from '../components/MiniBanner';
+import { useEffect } from "react";
+
+import { useProductStore } from "../store/useProductStore"; 
+
 import Header from "../components/Header";
-import MainBanner from "../components/MainBanner";
+import BannerCarrusel from "../components/BannerCarrusel";
 import Categorias from "../components/Categorias";
 import CardProductos from "../components/CardProductos";
 import BannerPromo from "../components/BannerPromo";
@@ -10,62 +11,54 @@ import BannerGrid from "../components/BannerGrid";
 import BannerInfo from "../components/BannerInfo";
 import Footer from "../components/Footer";
 
-
 const Inicio = () => {
-  const [productosArriba, setProductosArriba] = useState([]);
-  const [productosAbajo, setProductosAbajo] = useState([]);
+  const { 
+    productosArriba, 
+    productosAbajo, 
+    error, 
+    fetchProducts 
+  } = useProductStore();
 
   useEffect(() => {
-    const getProducts = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/productos");
-        const todos = res.data;
+    fetchProducts();
+  }, [fetchProducts]); 
 
-        const shuffled = todos.sort(() => 0.5 - Math.random());
-        const arriba = shuffled.slice(0, 7);
-        const usadosIds = new Set(arriba.map((p) => p.idProducto));
-        const abajo = shuffled
-          .filter((p) => !usadosIds.has(p.idProducto))
-          .slice(0, 7);
-
-        setProductosArriba(arriba);
-        setProductosAbajo(abajo);
-      } catch (error) {
-        console.error("Error al traer productos:", error);
-      }
-    };
-
-    getProducts();
-  }, []);
-
+  if (error) {
+    return (
+      <div className="text-center p-20 text-xl font-bold text-red-600">
+        Error al cargar los datos: {error}
+      </div>
+    );
+  }
+  
   return (
-    <div>
-      <MiniBanner />
+    <div> 
       <Header />  
-      <MainBanner />
+      <BannerCarrusel />
       <Categorias />
-      <section className="mt-12">
+      
+      <section className="my-12">
         <p className="text-2xl md:text-3xl font-medium">Recomendados</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-6 mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 mt-6">
           {productosArriba.map((p) => (
             <CardProductos key={p.idProducto} product={p} />
           ))}
         </div>
       </section>
-
+      
       <BannerPromo />
-
-      <section className="mt-12">
+      
+      <section className="mt-12 ">
         <p className="text-2xl md:text-3xl font-medium">
           También podría interesarte
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-6 mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 mt-6">
           {productosAbajo.map((p) => (
             <CardProductos key={p.idProducto} product={p} />
           ))}
         </div>
       </section>
-
+      
       <BannerGrid />
       <BannerInfo />
       <Footer />

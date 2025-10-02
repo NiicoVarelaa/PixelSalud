@@ -18,10 +18,7 @@ import Error404 from "./pages/Error404";
 
 const App = () => {
   const location = useLocation();
-
-  // agrego el IF y USELOCATION para separar el header del admin
-
-  // Si estamos en /admin o /admin/loque sea → mostrar solo admin
+  
   if (location.pathname.startsWith("/admin")) {
     return (
       <Routes>

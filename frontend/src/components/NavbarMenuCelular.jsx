@@ -16,7 +16,7 @@ const NavbarMenuCelular = ({
   navLinks,
   cliente,
   handleLogout,
-  totalItems = 0, // Valor por defecto
+  totalItems = 0, 
 }) => {
   const nombreClienteCapitalizado = cliente?.nombreCliente ? capitalizeName(cliente.nombreCliente) : "Usuario";
 
