@@ -10,7 +10,8 @@ import MiniBanner from "./MiniBanner";
 
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
 
-import { ShoppingCart, Menu, CircleUserRound } from "lucide-react";
+// AÑADIDO: Heart a la importación de lucide-react
+import { ShoppingCart, Menu, CircleUserRound, Heart } from "lucide-react";
 
 const Navbar = () => {
   const { carrito, sincronizarCarrito } = useCarritoStore();
@@ -135,6 +136,21 @@ const Navbar = () => {
               </ul>
 
               <div className="flex items-center gap-4">
+                
+                {/* AÑADIDO: Botón de Favoritos (Corazón) */}
+                {cliente && (
+                  <Link
+                    to="/perfil/favoritos" // RUTA CLAVE: Aquí es donde llevarás al usuario
+                    className="relative p-2 flex items-center justify-center"
+                    aria-label="Ver mis productos favoritos"
+                  >
+                    {/* El corazón tiene un color gris por defecto y se vuelve rojo al hacer hover */}
+                    <Heart strokeWidth={1.5} className="w-7 h-7 text-gray-700 hover:text-red-500 transition-colors" />
+                    {/* Opcional: Podrías añadir un contador de favoritos aquí */}
+                  </Link>
+                )}
+
+                {/* Botón de Carrito (Shopping Cart) */}
                 {cliente && (
                   <Link
                     to="/carrito"

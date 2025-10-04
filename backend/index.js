@@ -1,7 +1,9 @@
 const express = require("express");
+
 const { conection } = require("./config/database");
+
 const cors = require("cors");
-// Importa tus rutas existentes
+
 const routesProductos = require("./routes/productos");
 const routesCarrito = require("./routes/carrito");
 const routesClientes = require("./routes/clientes");
@@ -10,8 +12,7 @@ const loginRoutes = require("./routes/login");
 const routesEmpleados = require("./routes/Empleados");
 const routesOnlines = require("./routes/ventasOnline");
 const ventasEmpleados = require("./routes/VentasEmpleados");
-
-// Importa la nueva ruta de Mercado Pago
+const favoritosRoutes = require('./routes/favoritos');
 const routesMercadoPago = require("./routes/mercadopago"); 
 
 const app = express();
@@ -23,7 +24,6 @@ app.get("/", (req, res) => {
   res.send("Bienvenido a Pixel Salud ❤");
 });
 
-// Usa tus rutas existentes
 app.use("/", routesProductos);
 app.use("/", routesCarrito);
 app.use("/", routesOnlines);
@@ -32,8 +32,7 @@ app.use("/", routesClientes);
 app.use("/", loginRoutes);
 app.use("/", registroRouter);
 app.use("/", routesEmpleados);
-
-// Usa la nueva ruta para Mercado Pago
+app.use('/favoritos', favoritosRoutes); 
 app.use("/mercadopago", routesMercadoPago);
 
 conection.connect((err) => {
