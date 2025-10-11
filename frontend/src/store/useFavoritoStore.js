@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const API_URL = "http://localhost:5000/favoritos"; 
 
@@ -8,31 +8,6 @@ export const useFavoritosStore = create((set, get) => ({
     favoritos: [], 
     isLoading: false,
     error: null,
-
-    toast: {
-        isVisible: false,
-        message: '',
-        type: 'success',
-    },
-    showToast: (message, type = 'success') => {
-        set({ 
-            toast: {
-                isVisible: true,
-                message,
-                type,
-            }
-        });
-        setTimeout(() => {
-            set((state) => ({
-                toast: { ...state.toast, isVisible: false }
-            }));
-        }, 3000);
-    },
-    hideToast: () => {
-        set((state) => ({
-            toast: { ...state.toast, isVisible: false }
-        }));
-    },
 
     getFavoritos: async (idCliente) => {
         if (!idCliente) {
@@ -58,42 +33,58 @@ export const useFavoritosStore = create((set, get) => ({
                     error: "No se pudieron cargar los favoritos.", 
                     isLoading: false 
                  });
-                 get().showToast('Error al cargar la lista de favoritos.', 'error');
+                 toast.error('Error al cargar la lista de favoritos.');
             }
         }
     },
     
     toggleFavorito: async (idCliente, idProducto, productoData) => {
         if (!idCliente) {
-            get().showToast('Debes iniciar sesión para agregar favoritos.', 'error');
+            toast.error('Debes iniciar sesión para agregar favoritos.');
             return;
         }
+
+        const wasFavorite = get().isProductFavorite(idProducto);
+        get().toggleProductoLocal(idProducto, productoData, !wasFavorite);
+        
         try {
             const response = await axios.post(`${API_URL}/toggle`, {
                 idCliente,
                 idProducto
             });
             const { message, isFavorite } = response.data;
-            get().showToast(message, 'success');
-            get().toggleProductoLocal(idProducto, productoData, isFavorite);
+            
+            const currentState = get().isProductFavorite(idProducto);
+            if (currentState !== isFavorite) {
+                get().toggleProductoLocal(idProducto, productoData, isFavorite);
+            }
+            
+            toast.success(message);
         } catch (err) {
             console.error("Error en toggleFavorito:", err);
+            // Revertir el cambio optimista en caso de error
+            get().toggleProductoLocal(idProducto, productoData, wasFavorite);
             const errorMessage = err.response?.data?.message || 'Error al procesar la solicitud de favorito.';
-            get().showToast(errorMessage, 'error');
+            toast.error(errorMessage);
         }
     },
     
     toggleProductoLocal: (idProducto, productoData, isFavorite) => {
         set((state) => {
-            const productoConId = { ...productoData, id: idProducto };
+            const productoConId = { 
+                ...productoData, 
+                id: idProducto, 
+                idProducto: idProducto 
+            };
+            
             if (isFavorite) {
-                const exists = state.favoritos.some(p => p.id === idProducto);
+                const exists = state.favoritos.some(p => p.idProducto === idProducto);
                 if (!exists) {
                     return { favoritos: [productoConId, ...state.favoritos] };
                 }
             } else {
                 return { 
-                    favoritos: state.favoritos.filter(p => p.id !== idProducto) 
+                    favoritos: state.favoritos.filter(p => p.idProducto !== idProducto) 
                 };
             }
             return state; 
@@ -101,6 +92,6 @@ export const useFavoritosStore = create((set, get) => ({
     },
 
     isProductFavorite: (idProducto) => {
-        return get().favoritos.some(p => p.id === idProducto);
+        return get().favoritos.some(p => p.idProducto === idProducto);
     }
 }));

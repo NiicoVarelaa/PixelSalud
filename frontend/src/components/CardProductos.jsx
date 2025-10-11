@@ -1,12 +1,10 @@
-import { useCarritoStore } from "../store/useCarritoStore";
-// Importar el nuevo BotonFavoritos
-import BotonFavorito from "./BotonFavorito"; 
-// Importar Lucide Icons
-import { Minus, Plus } from "lucide-react"; 
 import { Link } from "react-router-dom";
-// Ya no necesitamos importar Heart aquí
 
-// ELIMINAMOS EL COMPONENTE BotonFavoritos SIMULADO DE AQUÍ
+import { useCarritoStore } from "../store/useCarritoStore";
+
+import BotonFavorito from "./BotonFavorito"; 
+
+import { Minus, Plus } from "lucide-react"; 
 
 const CardProductos = ({ product }) => {
   const {
@@ -17,11 +15,9 @@ const CardProductos = ({ product }) => {
     eliminarDelCarrito,
   } = useCarritoStore();
 
-  // Simplificación y mejor legibilidad
   const itemEnCarrito = carrito.find(item => item.idProducto === product.idProducto);
   const cantidadEnCarrito = itemEnCarrito?.cantidad || 0;
 
-  // Handlers simplificados y enfocados
   const handleAgregar = (e) => {
     e.stopPropagation();
     agregarCarrito(product);
@@ -47,7 +43,6 @@ const CardProductos = ({ product }) => {
   return (
     <div className="relative border border-gray-100 rounded-xl bg-white shadow-md transition-all duration-300 hover:shadow-lg hover:border-primary-500 w-full h-full flex flex-col group overflow-hidden">
       
-      {/* Botón de Favoritos REAL - Importado y usado aquí */}
       <BotonFavorito product={product} />
 
       <Link
@@ -86,7 +81,6 @@ const CardProductos = ({ product }) => {
         </div>
       </Link>
 
-      {/* Sección de Botones (Acciones) */}
       <div className="px-4 pb-4">
         {cantidadEnCarrito === 0 ? (
           <button

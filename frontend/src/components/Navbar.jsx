@@ -10,7 +10,6 @@ import MiniBanner from "./MiniBanner";
 
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
 
-// AÑADIDO: Heart a la importación de lucide-react
 import { ShoppingCart, Menu, CircleUserRound, Heart } from "lucide-react";
 
 const Navbar = () => {
@@ -71,8 +70,8 @@ const Navbar = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleLogout = async () => {
@@ -93,13 +92,17 @@ const Navbar = () => {
 
   const capitalizeName = (name) =>
     name
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
 
   return (
     <>
-      <div className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${showBanner ? 'translate-y-0' : '-translate-y-10 shadow-md'}`}>
+      <div
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+          showBanner ? "translate-y-0" : "-translate-y-10 shadow-md"
+        }`}
+      >
         <MiniBanner />
         <div className="bg-white">
           <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
@@ -119,7 +122,9 @@ const Navbar = () => {
                       <div className="flex flex-col items-center gap-1 transition-colors duration-200">
                         <p
                           className={
-                            isActive ? "text-primary-700" : "hover:text-primary-700"
+                            isActive
+                              ? "text-primary-700"
+                              : "hover:text-primary-700"
                           }
                         >
                           {label}
@@ -136,27 +141,29 @@ const Navbar = () => {
               </ul>
 
               <div className="flex items-center gap-4">
-                
-                {/* AÑADIDO: Botón de Favoritos (Corazón) */}
                 {cliente && (
                   <Link
-                    to="/perfil/favoritos" // RUTA CLAVE: Aquí es donde llevarás al usuario
+                    to="/perfil/favoritos"
                     className="relative p-2 flex items-center justify-center"
                     aria-label="Ver mis productos favoritos"
                   >
-                    {/* El corazón tiene un color gris por defecto y se vuelve rojo al hacer hover */}
-                    <Heart strokeWidth={1.5} className="w-7 h-7 text-gray-700 hover:text-red-500 transition-colors" />
-                    {/* Opcional: Podrías añadir un contador de favoritos aquí */}
+                    <Heart
+                      strokeWidth={1.5}
+                      fill="none"
+                      className="w-7 h-7 text-gray-700 hover:text-red-500 hover:fill-red-500 transition-colors duration-100"
+                    />
                   </Link>
                 )}
 
-                {/* Botón de Carrito (Shopping Cart) */}
                 {cliente && (
                   <Link
                     to="/carrito"
                     className="relative p-2 flex items-center justify-center"
                   >
-                    <ShoppingCart strokeWidth={1.5} className="w-7 h-7 text-gray-700" />
+                    <ShoppingCart
+                      strokeWidth={1.5}
+                      className="w-7 h-7 text-gray-700"
+                    />
                     {totalItems > 0 && (
                       <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center bg-primary-700 text-white rounded-full text-xs font-medium">
                         {totalItems}
@@ -169,13 +176,21 @@ const Navbar = () => {
                   {cliente ? (
                     <>
                       <button
-                        onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                        onClick={() =>
+                          setIsProfileDropdownOpen(!isProfileDropdownOpen)
+                        }
                         className="flex items-center gap-2 p-2 transition-colors duration-200 cursor-pointer"
                         aria-label="Abrir menú de perfil"
                       >
                         <NavbarAvatar cliente={cliente} size="tiny" />
                         <span className="hidden sm:block text-sm text-gray-700  hover:text-primary-700 font-semibold transition-colors duration-200">
-                          ¡Hola {cliente.nombreCliente ? capitalizeName(cliente.nombreCliente.split(" ")[0]) : "Mi cuenta"}!
+                          ¡Hola{" "}
+                          {cliente.nombreCliente
+                            ? capitalizeName(
+                                cliente.nombreCliente.split(" ")[0]
+                              )
+                            : "Mi cuenta"}
+                          !
                         </span>
                       </button>
                       {isProfileDropdownOpen && (
@@ -191,7 +206,10 @@ const Navbar = () => {
                       to="/login"
                       className="flex items-center gap-2 p-2"
                     >
-                      <CircleUserRound strokeWidth={1.5} className="w-7 h-7 text-gray-700" />
+                      <CircleUserRound
+                        strokeWidth={1.5}
+                        className="w-7 h-7 text-gray-700"
+                      />
                       <span className="hidden sm:block text-sm text-gray-700">
                         Ingresar
                       </span>

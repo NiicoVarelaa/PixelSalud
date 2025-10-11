@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import NavbarAvatar from "./NavbarAvatar";
 
-import { ChevronDown, User, ShoppingBag, LogOut, Truck } from "lucide-react";
+import { ChevronDown, User, ShoppingBag, LogOut, Truck, Heart } from "lucide-react"; 
 
 const NavbarMenuUsuario = ({
   cliente,
@@ -51,6 +51,15 @@ const NavbarMenuUsuario = ({
         >
           <User size={16} className="text-gray-700 " />
           Mi Perfil
+        </Link>
+        
+        <Link
+          to="/perfil/favoritos"
+          onClick={() => setIsProfileDropdownOpen(false)}
+          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-150 border-t border-gray-100"
+        >
+          <Heart size={16} className="text-gray-700" />
+          Mis Favoritos
         </Link>
 
         <Link

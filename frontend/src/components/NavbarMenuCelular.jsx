@@ -1,6 +1,9 @@
 import { Link, NavLink } from "react-router-dom";
-import { X, ShoppingBag, ShoppingCart, User, LogOut, Truck } from "lucide-react";
+
+import { X, ShoppingBag, ShoppingCart, User, LogOut, Truck, Heart } from "lucide-react"; 
+
 import NavbarAvatar from "./NavbarAvatar";
+
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
 
 const capitalizeName = (name) =>
@@ -94,6 +97,15 @@ const NavbarMenuCelular = ({
                 <User className="w-5 h-5" />
                 Mi Perfil
               </NavLink>
+
+              <Link
+                to="/perfil/favoritos" 
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center gap-3 py-3 px-1 rounded-lg text-base font-medium text-gray-700 hover:text-red-500 transition-colors duration-200"
+              >
+                <Heart className="w-5 h-5" /> 
+                Mis Favoritos
+              </Link>
               
               <Link
                 to="/mis-compras"
