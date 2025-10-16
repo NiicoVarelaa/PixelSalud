@@ -8,6 +8,7 @@ import MiniBanner from "../components/MiniBanner";
 import Header from "../components/Header";
 import CardProductos from "../components/CardProductos";
 import Footer from "../components/Footer";
+import CardSkeleton from "../components/CardSkeleton"; 
 
 const Productos = () => {
   const [productos, setProductos] = useState([]);
@@ -17,22 +18,19 @@ const Productos = () => {
   const [ordenPrecio, setOrdenPrecio] = useState("defecto");
   const [searchFocused, setSearchFocused] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const location = useLocation();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const categoria = params.get("categoria");
-
-    if (categoria) {
-      setFiltro(categoria);
-    } else {
-      setFiltro("todos");
-    }
+    setFiltro(categoria || "todos");
   }, [location.search]);
 
   useEffect(() => {
     const fetchProductos = async () => {
+      setIsLoading(true); 
       try {
         const res = await axios.get("http://localhost:5000/productos");
         setProductos(res.data);
@@ -40,6 +38,8 @@ const Productos = () => {
         setCategorias(categoriasUnicas);
       } catch (err) {
         console.error("Error al traer productos:", err);
+      } finally {
+        setIsLoading(false); 
       }
     };
 
@@ -126,7 +126,6 @@ const Productos = () => {
                   />
                 </button>
 
-                {/* Dropdown personalizado */}
                 {dropdownOpen && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
                     <div
@@ -174,7 +173,6 @@ const Productos = () => {
             </div>
           </div>
 
-          {/* Filtro activo */}
           {filtro !== "todos" && (
             <div className="flex items-center bg-secondary-100 text-gray-800 px-3 py-1 rounded-full text-sm mt-4 w-fit">
               {filtro}
@@ -188,7 +186,6 @@ const Productos = () => {
           )}
         </div>
 
-        {/* Contenedor principal */}
         <div className="flex flex-col md:flex-row gap-5 w-full">
           {/* Filtros laterales */}
           <aside className="w-full md:w-56 flex-shrink-0">
@@ -230,9 +227,15 @@ const Productos = () => {
             </div>
           </aside>
 
-          {/* Lista de productos */}
+          {/* Lista de productos con lógica de carga */}
           <div className="flex-1">
-            {productosFiltrados.length > 0 ? (
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                {Array.from({ length: 10 }).map((_, index) => (
+                  <CardSkeleton key={index} />
+                ))}
+              </div>
+            ) : productosFiltrados.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                 {productosFiltrados.map((p) => (
                   <CardProductos key={p.idProducto} product={p} />

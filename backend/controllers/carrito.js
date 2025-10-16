@@ -44,42 +44,42 @@ const vaciarCarrito = (req, res) => {
       .json({ message: "Productos eliminado correctamente" });
   });
 };
-
 const incrementCarrito = (req, res) => {
-  idProducto = req.params.idProducto;
-  const consulta =
-    "update productos set cantidad = cantidad + 1 where idproducto = ?";
+  const { idProducto, idCliente } = req.body; 
 
-  conection.query(consulta, [idProducto], (err, results) => {
+  const consulta = `
+    UPDATE carrito 
+    SET cantidad = cantidad + 1 
+    WHERE idProducto = ? AND idCliente = ?
+  `;
+
+  conection.query(consulta, [idProducto, idCliente], (err, results) => {
     if (err) {
       console.error("Error al querer aumentar la cantidad", err);
-      return res
-        .status(500)
-        .json({ error: "Error al querer aumentar la cantidad del producto" });
+      return res.status(500).json({ error: "Error al querer aumentar la cantidad del producto en el carrito" });
     }
-    res
-      .status(201)
-      .json({ message: "Se aumento correctamente la cantidad del producto" });
+    res.status(201).json({ message: "Se aumentó correctamente la cantidad del producto en el carrito" });
   });
 };
 
 const decrementCarrito = (req, res) => {
-  idProducto = req.params.idProducto;
-  const consulta =
-    "update productos set cantidad = cantidad - 1 where idproducto = ? ";
+  const { idProducto, idCliente } = req.body;
 
-  conection.query(consulta, [idProducto], (err, results) => {
+  const consulta = `
+    UPDATE carrito 
+    SET cantidad = cantidad - 1 
+    WHERE idProducto = ? AND idCliente = ? AND cantidad > 1
+  `;
+
+  conection.query(consulta, [idProducto, idCliente], (err, results) => {
     if (err) {
       console.error("Error al querer disminuir la cantidad", err);
-      return res
-        .status(500)
-        .json({ error: "Error al querer disminuir la cantidad del producto" });
+      return res.status(500).json({ error: "Error al querer disminuir la cantidad del producto en el carrito" });
     }
-    res
-      .status(201)
-      .json({ message: "Se disminuyo correctamente la cantidad del producto" });
+    res.status(201).json({ message: "Se disminuyó correctamente la cantidad del producto en el carrito" });
   });
 };
+
 
 const addCarrito = (req, res) => {
   const { idProducto, idCliente } = req.body;

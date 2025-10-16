@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+// 1. Importamos el store del carrito para reutilizar su modal
+import { useCarritoStore } from './useCarritoStore';
 
 const API_URL = "http://localhost:5000/favoritos"; 
 
@@ -11,14 +13,13 @@ export const useFavoritosStore = create((set, get) => ({
 
     getFavoritos: async (idCliente) => {
         if (!idCliente) {
-            console.error("No se puede obtener favoritos: ID de Cliente no proporcionada.");
+            set({ favoritos: [] }); // Limpiamos favoritos si no hay cliente
             return;
         }
         set({ isLoading: true, error: null });
         try {
             const response = await axios.get(`${API_URL}/cliente/${idCliente}`);
             const productosFavoritos = response.data.data; 
-
             set({ 
                 favoritos: productosFavoritos, 
                 isLoading: false 
@@ -39,12 +40,14 @@ export const useFavoritosStore = create((set, get) => ({
     },
     
     toggleFavorito: async (idCliente, idProducto, productoData) => {
+        // 2. Si no hay cliente, llamamos a la acción del carrito store para mostrar el modal
         if (!idCliente) {
-            toast.error('Debes iniciar sesión para agregar favoritos.');
+            useCarritoStore.getState().setShowLoginModal(true);
             return;
         }
 
         const wasFavorite = get().isProductFavorite(idProducto);
+        // Actualización optimista de la UI
         get().toggleProductoLocal(idProducto, productoData, !wasFavorite);
         
         try {
@@ -54,17 +57,24 @@ export const useFavoritosStore = create((set, get) => ({
             });
             const { message, isFavorite } = response.data;
             
+            // Si el estado del servidor no coincide con nuestro estado optimista, lo revertimos.
             const currentState = get().isProductFavorite(idProducto);
             if (currentState !== isFavorite) {
                 get().toggleProductoLocal(idProducto, productoData, isFavorite);
             }
             
-            toast.success(message);
+            // 3. Usamos toast.warning si el producto se eliminó, y toast.success si se agregó.
+            if (isFavorite) {
+                toast.success(message);
+            } else {
+                toast.warning(message);
+            }
+
         } catch (err) {
             console.error("Error en toggleFavorito:", err);
-            // Revertir el cambio optimista en caso de error
+            // Si hay un error, revertimos la UI al estado original
             get().toggleProductoLocal(idProducto, productoData, wasFavorite);
-            const errorMessage = err.response?.data?.message || 'Error al procesar la solicitud de favorito.';
+            const errorMessage = err.response?.data?.message || 'Error al procesar la solicitud.';
             toast.error(errorMessage);
         }
     },
