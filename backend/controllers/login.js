@@ -1,47 +1,94 @@
-const util = require("util")
-const bcryptjs= require("bcryptjs")
-const jwt = require("jsonwebtoken")
+const util = require("util");
+const bcryptjs = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { conection } = require("../config/database");
 
+const query = util.promisify(conection.query).bind(conection);
 
-const query = util.promisify(conection.query).bind(conection)
-
-const loginEmp = async(req,res)=>{
+const login = async (req, res) => {
   try {
-    const {emailEmpleado, contrEmpleado} = req.body;
-    if(!emailEmpleado, !contrEmpleado){
-      return res.status(400).json({error: "El campo Email o contrasenia esta vacio"})
+    const { email, contrasenia } = req.body;
+
+    if (!email || !contrasenia) {
+      return res.status(400).json({ error: "El campo email o contraseña está vacío" });
     }
-    const consulta = "select idEmpleado, nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado, rolEmpleado from Empleados where emailEmpleado = ?"
-    const result = await query(consulta, [emailEmpleado])
-    if(result.length===0){
-      return res.status(400).json({msg: "Email y/o contrasenia incorrectos"})
+
+    // Buscar en Empleados
+    const consultaEmp = `
+      SELECT idEmpleado AS id, nombreEmpleado AS nombre, apellidoEmpleado AS apellido, 
+             emailEmpleado AS email, contraEmpleado AS hash, rolEmpleado AS rol,
+             crear_productos, modificar_productos, modificar_ventasE, modificar_ventasO
+      FROM Empleados WHERE emailEmpleado = ?
+    `;
+    const empleados = await query(consultaEmp, [email]);
+
+    let user = null;
+    let tipo = "";
+
+    if (empleados.length > 0) {
+      user = empleados[0];
+      tipo = "empleado";
+    } else {
+
+      // Buscar en Clientes
+      const consultaCli = `
+        SELECT idCliente AS id, nombreCliente AS nombre, apellidoCliente AS apellido, 
+               emailCliente AS email, contrCliente AS hash
+        FROM Clientes WHERE emailCliente = ?
+      `;
+      const clientes = await query(consultaCli, [email]);
+
+      if (clientes.length > 0) {
+        user = clientes[0];
+        tipo = "cliente";
+      }
     }
-    const empleado = result[0]
-    const passCheck = await bcryptjs.compare(contrEmpleado, empleado.contrEmpleado)
-    if(!passCheck){
-      return res.status(400).json({msg: "Email y/o contrasenia incorrectos"})
+
+    if (!user) {
+      return res.status(400).json({ msg: "Email y/o contraseña incorrectos" });
     }
-    const payload ={
-      id:empleado.idEmpleado,
-      role:empleado.rol,
-      crear_productos:empleado.crear_productos,
-      modificar_productos:empleado.modificar_productos,
-      modificar_ventasE:empleado.modificar_ventasE,
-      modificar_ventasO:empleado.modificar_ventasO,
+
+    const passCheck = await bcryptjs.compare(contrasenia, user.hash);
+    if (!passCheck) {
+      return res.status(400).json({ msg: "Email y/o contraseña incorrectos" });
     }
-    const token = jwt.sign(payload, process.env.SECRET_KEY )
-    return res.status(200).json({msg:"Logueado", token})
+
+    const payload = {
+      id: user.id,
+      role: tipo === "empleado" ? user.rol : "cliente",
+      permisos:
+        tipo === "empleado"
+          ? {
+              crear_productos: user.crear_productos,
+              modificar_productos: user.modificar_productos,
+              modificar_ventasE: user.modificar_ventasE,
+              modificar_ventasO: user.modificar_ventasO,
+            }
+          : null,
+    };
+
+  
+    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "8h" });
+
+    return res.status(200).json({
+      msg: "Inicio de sesión exitoso",
+      tipo,
+      token,
+      nombre: user.nombre,
+      apellido: user.apellido,
+      rol: payload.role,
+    });
   } catch (error) {
-     console.error("Error en loguear:", error);
-      res.status(500).json({mensaje:"Server error",error})  
+    console.error("Error en login:", error);
+    res.status(500).json({ mensaje: "Server error", error });
   }
-}
+};
 
 
-module.exports= {
-  loginEmp
-}
+
+
+module.exports = { login };
+
 
 
 
