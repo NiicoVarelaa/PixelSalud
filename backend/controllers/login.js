@@ -1,6 +1,78 @@
+const util = require("util")
+const bcryptjs= require("bcryptjs")
+const jwt = require("jsonwebtoken")
 const { conection } = require("../config/database");
 
-const login = (req, res) => {
+
+const query = util.promisify(conection.query).bind(conection)
+
+const loginEmp = async(req,res)=>{
+  try {
+    const {emailEmpleado, contrEmpleado} = req.body;
+    if(!emailEmpleado, !contrEmpleado){
+      return res.status(400).json({error: "El campo Email o contrasenia esta vacio"})
+    }
+    const consulta = "select idEmpleado, nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado, rolEmpleado from Empleados where emailEmpleado = ?"
+    const result = await query(consulta, [emailEmpleado])
+    if(result.length===0){
+      return res.status(400).json({msg: "Email y/o contrasenia incorrectos"})
+    }
+    const empleado = result[0]
+    const passCheck = await bcryptjs.compare(contrEmpleado, empleado.contrEmpleado)
+    if(!passCheck){
+      return res.status(400).json({msg: "Email y/o contrasenia incorrectos"})
+    }
+    const payload ={
+      id:empleado.idEmpleado,
+      role:empleado.rol,
+      crear_productos:empleado.crear_productos,
+      modificar_productos:empleado.modificar_productos,
+      modificar_ventasE:empleado.modificar_ventasE,
+      modificar_ventasO:empleado.modificar_ventasO,
+    }
+    const token = jwt.sign(payload, process.env.SECRET_KEY )
+    return res.status(200).json({msg:"Logueado", token})
+  } catch (error) {
+     console.error("Error en loguear:", error);
+      res.status(500).json({mensaje:"Server error",error})  
+  }
+}
+
+
+module.exports= {
+  loginEmp
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* const login = (req, res) => {
   const { email, contra } = req.body;
 
   if (!email || !contra) {
@@ -142,4 +214,4 @@ const login = (req, res) => {
   });
 };
 
-module.exports = { login };
+module.exports = { login }; */
