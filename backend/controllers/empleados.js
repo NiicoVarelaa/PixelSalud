@@ -256,7 +256,7 @@ const permisoModifVentaO = (req, res) => {
   });
 };
 
-const quitarModifVenta = (req,res)=>{
+const quitarModifVentaO = (req,res)=>{
     const id = req.params.id;
   const consulta =
     "update empleados set modificar_ventasO = false where idEmpleado = ?";
@@ -276,6 +276,35 @@ const quitarModifVenta = (req,res)=>{
   });  
 }
 
+const darBajaEmpleado = (req, res) => {
+  const id = req.params.id;
+  const consulta = "update empleados set activo = false where idEmpleado=?";
+
+  conection.query(consulta, [id], (err, result) => {
+    if (err) {
+      console.log("Error al eliminar/dar de baja al empleado:", err);
+      return res
+        .status(500)
+        .json({ error: "Error al eliminar/dar de baja al empleado" });
+    }
+    res
+      .status(201)
+      .json({ message: "Empleado dado de baja/eliminado con exito" });
+  });
+};
+
+const reactivarEmpleado = (req, res) => {
+  const id = req.params.id;
+  const consulta = "update empleados set activo = true where idEmpleado=?";
+
+  conection.query(consulta, [id], (err, result) => {
+    if (err) {
+      console.log("Error al reactivar al empleado:", err);
+      return res.status(500).json({ error: "Error al reactivar al empleado" });
+    }
+    res.status(201).json({ message: "Empleado reactivado con exito" });
+  });
+};
 
 module.exports = {
   getEmpleados,
