@@ -64,7 +64,7 @@ const updateEmpleado =  async(req, res) => {
   );
 };
 
-const actualizarLogueado = (req, res) => {
+/* const actualizarLogueado = (req, res) => {
   const id = req.params.idEmpleado;
 
   // Primero deslogueamos a todos
@@ -102,21 +102,7 @@ const desloguearEmpleado = (req, res) => {
     }
     res.status(200).json({ message: "Empleado deslogueado correctamente" });
   });
-};
-
-const deleteEmpleado = (req, res) => {
-  const idEmpleado = req.params.idEmpleado;
-
-  const consulta = "delete from Empleados where idEmpleado=?";
-
-  conection.query(consulta, [idEmpleado], (err, results) => {
-    if (err) {
-      console.error("Error al obtener el empleado:", err);
-      return res.status(500).json({ error: "Error al actualizar el empleado" });
-    }
-    res.status(200).json({ message: "Empleado eliminado correctamente" });
-  });
-};
+}; */
 
 const permisoCrearProductoEmp = (req, res) => {
   const id = req.params.id;
@@ -310,7 +296,14 @@ module.exports = {
   getEmpleados,
   createEmpleado,
   updateEmpleado,
-  deleteEmpleado,
-  actualizarLogueado,
-  desloguearEmpleado,
+  permisoCrearProductoEmp,
+  quitarCrearProductoEmp,
+  permisoModifProducEmp,
+  quitarModifProducEmp,
+  permisoModifVentaE,
+  quitarModifVentaE,
+  permisoModifVentaO,
+  quitarModifVentaO,
+  darBajaEmpleado,
+  reactivarEmpleado
 };
