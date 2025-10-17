@@ -235,6 +235,48 @@ const quitarModifVentaE = (req,res)=>{
   });  
 }
 
+
+const permisoModifVentaO = (req, res) => {
+  const id = req.params.id;
+  const consulta =
+    "update empleados set modificar_ventasO = true where idEmpleado = ?";
+
+  conection.query(consulta, [id], (error, result) => {
+    if (error) {
+      console.log("Error al dar permiso para modificar ventas:", error);
+      return res
+        .status(500)
+        .json({ error: "Error  al dar permiso para modificar ventas" });
+    }
+    res
+      .status(201)
+      .json({
+        message: "Permiso para modificar ventas otorgado correctamente",
+      });
+  });
+};
+
+const quitarModifVenta = (req,res)=>{
+    const id = req.params.id;
+  const consulta =
+    "update empleados set modificar_ventasO = false where idEmpleado = ?";
+
+  conection.query(consulta, [id], (error, result) => {
+    if (error) {
+      console.log("Error al quitar permiso para modificar ventas:", error);
+      return res
+        .status(500)
+        .json({ error: "Error  al quitar permiso para modificar ventas" });
+    }
+    res
+      .status(201)
+      .json({
+        message: "Permiso quitado para modificar ventas correctamente",
+      });
+  });  
+}
+
+
 module.exports = {
   getEmpleados,
   createEmpleado,
