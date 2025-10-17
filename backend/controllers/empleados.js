@@ -1,14 +1,19 @@
+const util = require("util")
 const { conection } = require("../config/database");
 const bcryptjs = require("bcryptjs")
+
+const query = util.promisify(conection.query).bind(conection);
 
 const getEmpleados = (req, res) => {
   const consulta = "select * from Empleados";
 
   conection.query(consulta, (err, results) => {
     if (err) throw err;
-    res.json(results);
+    res.status(200).json({msg:"Empleados traidos con exitos", results} );
   });
 };
+
+
 
 const createEmpleado = async (req, res) => {
   const { nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado } =req.body;
@@ -23,7 +28,7 @@ const createEmpleado = async (req, res) => {
     return res
       .status(409)
       .json({ error: "El usuario que intentas crear, ya se encuentra creado" });
-  } else {
+  } 
     const consulta =
       "insert into empleados (nombreEmpleado, apellidoEmpleado,emailEmpleado, contraEmpleado) values (?,?,?,?);";
 
@@ -38,12 +43,12 @@ const createEmpleado = async (req, res) => {
         res.status(201).json({ message: "Empleado creado correctamente" });
       }
     );
-  }
+  
 };
 
 const updateEmpleado =  async(req, res) => {
   const { nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado} = req.body;
-  const idEmpleado = req.params.idEmpleado;
+  const id = req.params.id;
   let salt = await bcryptjs.genSalt(10);
   let contraEncrip = await bcryptjs.hash(contraEmpleado, salt);
   const consulta =
@@ -51,7 +56,7 @@ const updateEmpleado =  async(req, res) => {
 
   conection.query(
     consulta,
-    [nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEncrip, idEmpleado],
+    [nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEncrip, id],
     (err, results) => {
       if (err) {
         console.error("Error al obtener el empleado:", err);
@@ -59,7 +64,7 @@ const updateEmpleado =  async(req, res) => {
           .status(500)
           .json({ error: "Error al actulizar el empleado" });
       }
-      res.status(200).json(results);
+      res.status(200).json({msg:"Empleado actualizado con exito", results});
     }
   );
 };
