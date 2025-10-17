@@ -154,6 +154,46 @@ const quitarCrearProductoEmp = (req, res) => {
   });
 };
 
+const permisoModifProducEmp = (req, res) => {
+  const id = req.params.id;
+  const consulta =
+    "update empleados set modificar_productos = true where idEmpleado = ?";
+
+  conection.query(consulta, [id], (error, result) => {
+    if (error) {
+      console.log("Error al dar permiso para modificar productos:", error);
+      return res
+        .status(500)
+        .json({ error: "Error  al dar permiso para modificar productos" });
+    }
+    res
+      .status(201)
+      .json({
+        message: "Permiso para modificar productos otorgado correctamente",
+      });
+  });
+};
+
+const quitarModifProducEmp = (req, res) => {
+  const id = req.params.id;
+  const consulta =
+    "update empleados set modificar_productos = false where idEmpleado = ?";
+
+  conection.query(consulta, [id], (error, result) => {
+    if (error) {
+      console.log("Error al quitar permiso para modificar productos:", error);
+      return res
+        .status(500)
+        .json({ error: "Error  al quitar permiso para modificar productos" });
+    }
+    res
+      .status(201)
+      .json({
+        message: "Permiso quitado para modificar productos correctamente",
+      });
+  });
+};
+
 
 module.exports = {
   getEmpleados,
