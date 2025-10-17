@@ -118,6 +118,43 @@ const deleteEmpleado = (req, res) => {
   });
 };
 
+const permisoCrearProductoEmp = (req, res) => {
+  const id = req.params.id;
+  const consulta =
+    "update empleados set crear_productos = true where idEmpleado = ?";
+
+  conection.query(consulta, [id], (error, result) => {
+    if (error) {
+      console.log("Error al dar permiso para crear productos:", error);
+      return res
+        .status(500)
+        .json({ error: "Error  al dar permiso para crear productos" });
+    }
+    res
+      .status(201)
+      .json({ message: "Permiso para crear productos otorgado correctamente" });
+  });
+};
+
+const quitarCrearProductoEmp = (req, res) => {
+  const id = req.params.id;
+  const consulta =
+    "update empleados set crear_productos = false where idEmpleado = ?";
+
+  conection.query(consulta, [id], (error, result) => {
+    if (error) {
+      console.log("Error al quitar permiso para crear productos:", error);
+      return res
+        .status(500)
+        .json({ error: "Error  al quitar permiso para crear productos" });
+    }
+    res
+      .status(201)
+      .json({ message: "Permiso quitado para crear productos correctamente" });
+  });
+};
+
+
 module.exports = {
   getEmpleados,
   createEmpleado,
