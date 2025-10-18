@@ -39,7 +39,7 @@ const CardProductos = ({ product }) => {
   };
 
   return (
-    <div className="relative border-2 border-gray-100 rounded-xl bg-white shadow-md transition-all duration-300 hover:shadow-lg hover:border-primary-700 w-full h-full flex flex-col group overflow-hidden">
+    <div className="relative border-  rounded-xl bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-primary-700 w-full h-full flex flex-col group overflow-hidden">
       <BotonFavorito product={product} />
 
       <Link
@@ -92,7 +92,7 @@ const CardProductos = ({ product }) => {
             aria-label="Agregar al carrito"
             className="flex items-center justify-center gap-2 w-full px-3 py-3 text-sm font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0"
           >
-            Agregar
+            Agregar al carrito
           </button>
         ) : (
           <div className="flex flex-col gap-2 animate-fade-in"> 

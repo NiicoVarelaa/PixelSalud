@@ -1,27 +1,23 @@
 import { useEffect } from "react";
-
-import { useProductStore } from "../store/useProductStore"; 
+import { useProductStore } from "../store/useProductStore";
 
 import Header from "../components/Header";
 import BannerCarrusel from "../components/BannerCarrusel";
 import Categorias from "../components/Categorias";
-import CardProductos from "../components/CardProductos";
+import ProductSection from "../components/ProductSection.jsx";
 import BannerPromo from "../components/BannerPromo";
+import ProductCarousel from "../components/ProductCarousel.jsx";
 import BannerGrid from "../components/BannerGrid";
 import BannerInfo from "../components/BannerInfo";
 import Footer from "../components/Footer";
 
 const Inicio = () => {
-  const { 
-    productosArriba, 
-    productosAbajo, 
-    error, 
-    fetchProducts 
-  } = useProductStore();
+  const { productosArriba, productosAbajo, error, fetchProducts } =
+    useProductStore();
 
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]); 
+  }, [fetchProducts]);
 
   if (error) {
     return (
@@ -30,37 +26,35 @@ const Inicio = () => {
       </div>
     );
   }
-  
+
   return (
-    <div> 
-      <Header />  
+    <div>
+      <Header />
       <BannerCarrusel />
-      <Categorias />
-      
-      <section className="my-12">
-        <p className="text-2xl md:text-3xl font-medium">Recomendados</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 mt-6">
-          {productosArriba.map((p) => (
-            <CardProductos key={p.idProducto} product={p} />
-          ))}
+      <main>
+        <div className="my-16 md:my-20">
+          <Categorias />
         </div>
-      </section>
-      
-      <BannerPromo />
-      
-      <section className="mt-12 ">
-        <p className="text-2xl md:text-3xl font-medium">
-          También podría interesarte
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 mt-6">
-          {productosAbajo.map((p) => (
-            <CardProductos key={p.idProducto} product={p} />
-          ))}
+
+        <ProductSection title="Recomendados" products={productosArriba} />
+
+        <div className="my-16 md:my-20">
+          <BannerPromo />
         </div>
-      </section>
-      
-      <BannerGrid />
-      <BannerInfo />
+
+        <ProductCarousel
+          title="Especial Día de la Madre"
+          products={productosAbajo}
+        />
+
+        <div className="my-16 md:my-20">
+          <BannerGrid />
+        </div>
+
+        <div className="my-16 md:my-20">
+          <BannerInfo />
+        </div>
+      </main>
       <Footer />
     </div>
   );
