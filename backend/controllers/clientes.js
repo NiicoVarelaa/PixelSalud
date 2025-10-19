@@ -1,45 +1,29 @@
 const { conection } = require("../config/database");
 
 const crearCliente = (req, res) => {
-  const { nombreCliente, contraCliente, email, rol } = req.body;
+  // Se agrega apellidoCliente que ahora es requerido en la nueva tabla
+  const { nombreCliente, apellidoCliente, contraCliente, emailCliente, rol } = req.body;
 
+  // Se ajusta la consulta para incluir los nuevos campos y nombres de columna correctos
   const consulta = `INSERT INTO Clientes 
-    (nombreCliente, contraCliente, email, rol)
-    VALUES (?, ?, ?, ?)`;
+    (nombreCliente, apellidoCliente, contraCliente, emailCliente, rol)
+    VALUES (?, ?, ?, ?, ?)`;
 
   conection.query(
     consulta,
-    [nombreCliente, contraCliente, email, rol],
+    [nombreCliente, apellidoCliente, contraCliente, emailCliente, rol],
     (err, results) => {
       if (err) {
-        console.error("Error al crear el usuario:", err);
-        return res.status(500).json({ error: "Error al crear el usuario" });
+        console.error("Error al crear el cliente:", err);
+        // Mensaje de error más específico para emails duplicados
+        if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ error: "El correo electrónico ya está registrado." });
+        }
+        return res.status(500).json({ error: "Error interno al crear el cliente." });
       }
-      res.status(201).json({ message: "Usuario creado correctamente" });
+      res.status(201).json({ message: "Cliente creado correctamente", newId: results.insertId });
     }
   );
-};
-
-const actualizarLogueado = (req, res) => {
-  const id = req.params.idCliente;
-  const desloguear = `UPDATE Clientes SET logueado = 0`;
-  const loguear = `UPDATE Clientes SET logueado = 1 WHERE idCliente = ?`;
-
-  conection.query(desloguear, (err) => {
-    if (err) {
-      console.error("Error al desloguear usuarios:", err);
-      return res.status(500).json({ error: "Error al actualizar logueado" });
-    }
-
-    conection.query(loguear, [id], (err, results) => {
-      if (err) {
-        console.error("Error al loguear al usuario:", err);
-        return res.status(500).json({ error: "Error al actualizar logueado" });
-      }
-
-      res.status(200).json({ message: "Usuario logueado correctamente" });
-    });
-  });
 };
 
 const borrarCliente = (req, res) => {
@@ -48,74 +32,83 @@ const borrarCliente = (req, res) => {
 
   conection.query(consulta, [idCliente], (err, results) => {
     if (err) {
-      console.error("Error al borrar usuario:", err);
-      return res.status(500).json({ error: "Error al borrar usuario" });
+      console.error("Error al borrar cliente:", err);
+      return res.status(500).json({ error: "Error al borrar el cliente." });
     }
 
     if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
+      return res.status(404).json({ error: "Cliente no encontrado." });
     }
 
-    res.status(200).json({ message: "Usuario eliminado correctamente" });
+    res.status(200).json({ message: "Cliente eliminado correctamente." });
   });
 };
 
 const getClientes = (req, res) => {
-  const consulta = "SELECT * FROM Clientes";
+  const consulta = "SELECT idCliente, nombreCliente, apellidoCliente, emailCliente, fecha_registro, hora_registro, rol FROM Clientes";
 
   conection.query(consulta, (err, results) => {
     if (err) {
-      console.error("Error al obtener los usuarios:", err);
-      return res.status(500).json({ error: "Error al obtener los usuarios" });
+      console.error("Error al obtener los clientes:", err);
+      return res.status(500).json({ error: "Error al obtener los clientes." });
     }
     
     res.status(200).json(results);
   });
 };
 
+const getClienteById = (req, res) => {
+    const idCliente = req.params.idCliente;
+    // Seleccionamos todo excepto la contraseña por seguridad
+    const consulta = "SELECT idCliente, nombreCliente, apellidoCliente, emailCliente, fecha_registro, hora_registro, rol FROM Clientes WHERE idCliente = ?";
+
+    conection.query(consulta, [idCliente], (err, results) => {
+        if (err) {
+            console.error("Error al obtener el cliente:", err);
+            return res.status(500).json({ error: "Error al obtener el cliente." });
+        }
+        if (results.length === 0) {
+            return res.status(404).json({ error: "Cliente no encontrado." });
+        }
+        res.status(200).json(results[0]);
+    });
+};
+
+
 const updateCliente = (req, res) => {
   const idCliente = req.params.idCliente;
-  const { nombreCliente, contraCliente, email, rol } = req.body;
-  const consulta =
-    "UPDATE CLIENTES  SET NOMBRECLIENTE = ?, CONTRACLIENTE = ?, EMAIL = ?, ROL= ? WHERE IDCLIENTE = ?";
+  // Se actualizan los nombres de las variables para coincidir con la BD
+  const { nombreCliente, apellidoCliente, contraCliente, emailCliente, rol } = req.body;
+  
+  // Se ajusta la consulta con los nombres de columna correctos
+  const consulta = `UPDATE Clientes SET 
+    nombreCliente = ?, 
+    apellidoCliente = ?, 
+    contraCliente = ?, 
+    emailCliente = ?, 
+    rol = ? 
+    WHERE idCliente = ?`;
 
   conection.query(
     consulta,
-    [nombreCliente, contraCliente, email, rol, idCliente],
+    [nombreCliente, apellidoCliente, contraCliente, emailCliente, rol, idCliente],
     (err, results) => {
       if (err) {
-        console.error("Error al actulizar el cliente", err);
-        return res
-          .status(500)
-          .json({ error: "Error al querer actualizar un cliente" });
+        console.error("Error al actualizar el cliente:", err);
+        return res.status(500).json({ error: "Error al actualizar el cliente." });
       }
-      return res.status(200).json(results);
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ error: "Cliente no encontrado." });
+      }
+      res.status(200).json({ message: "Cliente actualizado correctamente." });
     }
   );
 };
 
-const desloguearCliente = (req, res) => {
-  const id = req.params.idCliente;
-  const consulta = `UPDATE Clientes SET logueado = 0 WHERE idCliente = ?`;
-
-
-  conection.query(consulta, [id], (err, results) => {
-    if (err) {
-      console.error("Error al desloguear al usuario:", err);
-      return res.status(500).json({ error: "Error al desloguear al usuario" });
-    }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-    res.status(200).json({ message: "Usuario deslogueado correctamente" });
-  });
-};
-
 module.exports = {
   crearCliente,
-  actualizarLogueado,
   borrarCliente,
   getClientes,
+  getClienteById,
   updateCliente,
-  desloguearCliente,
 };

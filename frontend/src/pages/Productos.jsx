@@ -1,192 +1,158 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
-import { FaSearch, FaTimes, FaFilter } from "react-icons/fa";
-import { IoChevronDownOutline } from "react-icons/io5";
-import { RiEmotionSadLine } from "react-icons/ri";
-import MiniBanner from "../components/MiniBanner";
+import { Search, X, Filter, ChevronDown, Frown } from "lucide-react";
+
+import { useProductStore } from "../store/useProductStore";
+import { useFiltroStore } from "../store/useFiltroStore";
+
 import Header from "../components/Header";
+import Breadcrumbs from "../components/Breadcrumbs";
+import CardSkeleton from "../components/CardSkeleton";
 import CardProductos from "../components/CardProductos";
 import Footer from "../components/Footer";
-import CardSkeleton from "../components/CardSkeleton"; 
 
 const Productos = () => {
-  const [productos, setProductos] = useState([]);
-  const [filtro, setFiltro] = useState("todos");
-  const [categorias, setCategorias] = useState([]);
-  const [busqueda, setBusqueda] = useState("");
-  const [ordenPrecio, setOrdenPrecio] = useState("defecto");
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const { categorias, isLoading, fetchProducts, productos } = useProductStore();
+  const {
+    filtroCategoria,
+    busqueda,
+    ordenPrecio,
+    setFiltroCategoria,
+    setBusqueda,
+    setOrdenPrecio,
+    limpiarFiltros,
+    getProductosFiltrados,
+  } = useFiltroStore();
+
+  const productosFiltrados = getProductosFiltrados();
 
   const location = useLocation();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+
+  useEffect(() => {
+    if (productos.length === 0) {
+      fetchProducts();
+    }
+  }, [productos.length, fetchProducts]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const categoria = params.get("categoria");
-    setFiltro(categoria || "todos");
-  }, [location.search]);
+    const categoriaURL = params.get("categoria");
+    if (categoriaURL) {
+      setFiltroCategoria(categoriaURL);
+    }
+  }, [location.search, setFiltroCategoria]);
 
-  useEffect(() => {
-    const fetchProductos = async () => {
-      setIsLoading(true); 
-      try {
-        const res = await axios.get("http://localhost:5000/productos");
-        setProductos(res.data);
-        const categoriasUnicas = [...new Set(res.data.map((p) => p.categoria))];
-        setCategorias(categoriasUnicas);
-      } catch (err) {
-        console.error("Error al traer productos:", err);
-      } finally {
-        setIsLoading(false); 
-      }
-    };
-
-    fetchProductos();
-  }, []);
-
-  const productosFiltrados = productos
-    .filter((p) => {
-      if (!p) return false;
-      const categoria = p.categoria || "";
-      const nombre = p.nombreProducto || "";
-      const coincideCategoria = filtro === "todos" || categoria === filtro;
-      const coincideNombre = nombre.toLowerCase().includes(busqueda.toLowerCase());
-      return coincideCategoria && coincideNombre;
-    })
-    .sort((a, b) => {
-      if (ordenPrecio === "menor-precio") return a.precio - b.precio;
-      if (ordenPrecio === "mayor-precio") return b.precio - a.precio;
-      return 0;
-    });
 
   return (
-    <div className="w-full">
-      <MiniBanner />
+    <div>
       <Header />
-      <section className="w-full mt-8">
-        <div className="w-full mb-6 px-0">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
-            <h1 className="text-2xl font-semibold text-gray-800">
-              Nuestros Productos
-            </h1>
+      <section className="w-full my-16 md:my-20 ">        
+        <Breadcrumbs categoria={filtroCategoria} />        
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full mb-6">
+          <h2 className="text-2xl md:text-3xl font-medium text-left text-gray-800">
+            Nuestros Productos
+          </h2>
 
-            {/* Contenedor de búsqueda y filtro */}
-            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-              {/* Barra de búsqueda */}
-              <div
-                className={`relative flex items-center flex-1 ${
-                  searchFocused ? "ring-2 ring-primary-600" : ""
-                } bg-white rounded-lg border border-gray-200 overflow-hidden min-w-[250px] transition-all duration-200`}
-              >
-                <div className="pl-3 text-gray-400">
-                  <FaSearch size={18} />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Buscar productos..."
-                  className="w-full py-2 px-3 outline-none text-gray-700 placeholder-gray-400 text-sm"
-                  value={busqueda}
-                  onChange={(e) => setBusqueda(e.target.value)}
-                  onFocus={() => setSearchFocused(true)}
-                  onBlur={() => setSearchFocused(false)}
-                />
-                {busqueda && (
-                  <button
-                    onClick={() => setBusqueda("")}
-                    className="px-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-                  >
-                    <FaTimes size={16} />
-                  </button>
-                )}
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <div
+              className={`relative flex items-center flex-1 ${
+                searchFocused ? "ring-2 ring-primary-600" : ""
+              } bg-white rounded-lg border border-gray-200 overflow-hidden min-w-[250px] transition-all duration-200`}
+            >
+              <div className="pl-3 text-gray-400">
+                <Search size={18} /> 
               </div>
-
-              {/* Filtro de precio personalizado */}
-              <div className="relative w-full sm:w-[200px]">
+              <input
+                type="text"
+                placeholder="Buscar productos..."
+                className="w-full py-2 px-3 outline-none text-gray-700 placeholder-gray-400 text-sm"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+              />
+              {busqueda && (
                 <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className={`flex items-center justify-between w-full py-2 px-3 text-sm text-gray-700 cursor-pointer bg-white border ${
-                    dropdownOpen
-                      ? "border-primary-600 ring-1 ring-primary-600"
-                      : "border-gray-200 hover:border-gray-300"
-                  } rounded-lg transition-all duration-200`}
+                  onClick={() => setBusqueda("")}
+                  className="px-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                 >
-                  <div className="flex items-center">
-                    <FaFilter className="mr-2 text-gray-400" size={14} />
-                    {ordenPrecio === "defecto" && "Ordenar por"}
-                    {ordenPrecio === "menor-precio" && "Menor precio"}
-                    {ordenPrecio === "mayor-precio" && "Mayor precio"}
-                  </div>
-                  <IoChevronDownOutline
-                    size={16}
-                    className={`text-gray-400 transition-transform duration-200 ${
-                      dropdownOpen ? "transform rotate-180" : ""
-                    }`}
-                  />
+                  <X size={16} />
                 </button>
+              )}
+            </div>
 
-                {dropdownOpen && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-                    <div
-                      className={`px-3 py-2 text-sm cursor-pointer ${
-                        ordenPrecio === "defecto"
-                          ? "bg-primary-50 text-primary-700"
-                          : "hover:bg-gray-50 text-gray-700"
-                      }`}
-                      onClick={() => {
-                        setOrdenPrecio("defecto");
-                        setDropdownOpen(false);
-                      }}
-                    >
-                      Ordenar por
-                    </div>
-                    <div
-                      className={`px-3 py-2 text-sm cursor-pointer ${
-                        ordenPrecio === "menor-precio"
-                          ? "bg-primary-50 text-primary-700"
-                          : "hover:bg-gray-50 text-gray-700"
-                      }`}
-                      onClick={() => {
-                        setOrdenPrecio("menor-precio");
-                        setDropdownOpen(false);
-                      }}
-                    >
-                      Precio: Menor a mayor
-                    </div>
-                    <div
-                      className={`px-3 py-2 text-sm cursor-pointer ${
-                        ordenPrecio === "mayor-precio"
-                          ? "bg-primary-50 text-primary-700"
-                          : "hover:bg-gray-50 text-gray-700"
-                      }`}
-                      onClick={() => {
-                        setOrdenPrecio("mayor-precio");
-                        setDropdownOpen(false);
-                      }}
-                    >
-                      Precio: Mayor a menor
-                    </div>
+            {/* Filtro de precio */}
+            <div className="relative w-full sm:w-[200px]">
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className={`flex items-center justify-between w-full py-2 px-3 text-sm text-gray-700 cursor-pointer bg-white border ${
+                  dropdownOpen
+                    ? "border-primary-600 ring-1 ring-primary-600"
+                    : "border-gray-200 hover:border-gray-300"
+                } rounded-lg transition-all duration-200`}
+              >
+                <div className="flex items-center">
+                  <Filter className="mr-2 text-gray-400" size={14} />
+                  {ordenPrecio === "defecto" && "Ordenar por"}
+                  {ordenPrecio === "menor-precio" && "Menor precio"}
+                  {ordenPrecio === "mayor-precio" && "Mayor precio"}
+                </div>
+                <ChevronDown
+                  size={16}
+                  className={`text-gray-400 transition-transform duration-200 ${
+                    dropdownOpen ? "transform rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {dropdownOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                  <div
+                    className={`px-3 py-2 text-sm cursor-pointer ${
+                      ordenPrecio === "defecto" ? "bg-primary-50 text-primary-700" : "hover:bg-gray-50 text-gray-700"
+                    }`}
+                    onClick={() => { setOrdenPrecio("defecto"); setDropdownOpen(false); }}
+                  >
+                    Ordenar por
                   </div>
-                )}
-              </div>
+                  <div
+                    className={`px-3 py-2 text-sm cursor-pointer ${
+                      ordenPrecio === "menor-precio" ? "bg-primary-50 text-primary-700" : "hover:bg-gray-50 text-gray-700"
+                    }`}
+                    onClick={() => { setOrdenPrecio("menor-precio"); setDropdownOpen(false); }}
+                  >
+                    Precio: Menor a mayor
+                  </div>
+                  <div
+                    className={`px-3 py-2 text-sm cursor-pointer ${
+                      ordenPrecio === "mayor-precio" ? "bg-primary-50 text-primary-700" : "hover:bg-gray-50 text-gray-700"
+                    }`}
+                    onClick={() => { setOrdenPrecio("mayor-precio"); setDropdownOpen(false); }}
+                  >
+                    Precio: Mayor a menor
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-
-          {filtro !== "todos" && (
-            <div className="flex items-center bg-secondary-100 text-gray-800 px-3 py-1 rounded-full text-sm mt-4 w-fit">
-              {filtro}
-              <button
-                onClick={() => setFiltro("todos")}
-                className="ml-2 text-secondary-500 transition-colors cursor-pointer"
-              >
-                <FaTimes size={14} />
-              </button>
-            </div>
-          )}
         </div>
 
-        <div className="flex flex-col md:flex-row gap-5 w-full">
+        {filtroCategoria !== "todos" && (
+          <div className="flex items-center bg-secondary-100 text-gray-800 px-3 py-1 rounded-full text-sm mt-4 w-fit">
+            {filtroCategoria}
+            <button
+              onClick={() => setFiltroCategoria("todos")}
+              className="ml-2 text-secondary-500 transition-colors cursor-pointer"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
+
+        <div className="flex flex-col md:flex-row gap-8 w-full my-8">
           {/* Filtros laterales */}
           <aside className="w-full md:w-56 flex-shrink-0">
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -197,10 +163,10 @@ const Productos = () => {
               </div>
               <div className="p-1">
                 <button
-                  onClick={() => setFiltro("todos")}
+                  onClick={() => setFiltroCategoria("todos")}
                   className={`w-full text-left px-3 py-2 rounded text-sm flex items-center transition-colors cursor-pointer ${
-                    filtro === "todos"
-                      ? "bg-primary-50 text-primary-700 font-medium cursor-pointer"
+                    filtroCategoria === "todos"
+                      ? "bg-primary-50 text-primary-700 font-medium"
                       : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
@@ -213,9 +179,9 @@ const Productos = () => {
                 {categorias.map((cat) => (
                   <button
                     key={cat}
-                    onClick={() => setFiltro(cat)}
+                    onClick={() => setFiltroCategoria(cat)}
                     className={`w-full text-left px-3 py-2 rounded text-sm flex items-center transition-colors ${
-                      filtro === cat
+                      filtroCategoria === cat
                         ? "bg-primary-50 text-primary-700 font-medium"
                         : "text-gray-600 hover:bg-gray-50 cursor-pointer"
                     }`}
@@ -227,38 +193,34 @@ const Productos = () => {
             </div>
           </aside>
 
-          {/* Lista de productos con lógica de carga */}
+          {/* Lista de productos */}
           <div className="flex-1">
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                 {Array.from({ length: 10 }).map((_, index) => (
                   <CardSkeleton key={index} />
                 ))}
               </div>
             ) : productosFiltrados.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                 {productosFiltrados.map((p) => (
                   <CardProductos key={p.idProducto} product={p} />
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
-                <RiEmotionSadLine className="h-10 w-10 mx-auto text-gray-400 mb-3" />
-                <h3 className="text-base font-medium text-gray-700 mb-1">
+              <div className="bg-white rounded-lg border border-gray-200 p-8 text-center w-full">
+                <Frown className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-700 mb-1">
                   No se encontraron productos
                 </h3>
                 <p className="text-gray-500 text-sm">
-                  Prueba con otros términos de búsqueda
+                  Prueba cambiando los filtros o el término de búsqueda.
                 </p>
                 <button
-                  onClick={() => {
-                    setBusqueda("");
-                    setFiltro("todos");
-                    setOrdenPrecio("defecto");
-                  }}
-                  className="mt-3 text-primary-600 hover:text-primary-800 text-sm font-medium transition-colors cursor-pointer"
+                  onClick={limpiarFiltros}
+                  className="mt-4 text-primary-600 hover:text-primary-800 text-sm font-medium transition-colors cursor-pointer"
                 >
-                  Limpiar filtros
+                  Limpiar todos los filtros
                 </button>
               </div>
             )}

@@ -1,27 +1,28 @@
 import { Link, NavLink } from "react-router-dom";
-
-import { X, ShoppingBag, ShoppingCart, User, LogOut, Truck, Heart } from "lucide-react"; 
-
+import { X, ShoppingBag, ShoppingCart, User, LogOut, Truck, Heart } from "lucide-react";
 import NavbarAvatar from "./NavbarAvatar";
-
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
 
 const capitalizeName = (name) =>
   name
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+    ? name
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(" ")
+    : "Usuario";
 
+// 1. Recibe 'user' como prop en lugar de 'cliente'
 const NavbarMenuCelular = ({
   isMenuOpen,
   setIsMenuOpen,
   menuRef,
   navLinks,
-  cliente,
+  user,
   handleLogout,
-  totalItems = 0, 
+  totalItems = 0,
 }) => {
-  const nombreClienteCapitalizado = cliente?.nombreCliente ? capitalizeName(cliente.nombreCliente) : "Usuario";
+  // 2. Usa 'user.nombre' en lugar de 'cliente.nombreCliente'
+  const nombreUsuarioCapitalizado = capitalizeName(user?.nombre);
 
   return (
     <div
@@ -54,15 +55,18 @@ const NavbarMenuCelular = ({
           </button>
         </div>
 
-        {cliente && (
+        {/* 3. La condición ahora se basa en 'user' */}
+        {user && (
           <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
             <div className="flex items-center gap-3">
-              <NavbarAvatar cliente={cliente} size="medium" />
+              {/* 4. Pasa la prop 'user' a NavbarAvatar */}
+              <NavbarAvatar user={user} size="medium" />
               <div>
                 <p className="font-semibold text-gray-900 text-sm">
-                  {nombreClienteCapitalizado} 
+                  {nombreUsuarioCapitalizado}
                 </p>
-                <p className="text-xs text-gray-600">{cliente.email}</p>
+                {/* 5. Usa 'user.email' */}
+                <p className="text-xs text-gray-600">{user.email}</p>
               </div>
             </div>
           </div>
@@ -75,7 +79,9 @@ const NavbarMenuCelular = ({
                 <div className="flex flex-col gap-1 transition-colors duration-200 mb-3 px-1">
                   <p
                     className={
-                      isActive ? "text-primary-700 font-medium" : "hover:text-primary-700 text-gray-700 font-medium"
+                      isActive
+                        ? "text-primary-700 font-medium"
+                        : "hover:text-primary-700 text-gray-700 font-medium"
                     }
                   >
                     {label}
@@ -87,7 +93,8 @@ const NavbarMenuCelular = ({
 
           <hr className="my-4 border-t border-gray-200" />
 
-          {cliente ? (
+          {/* 6. La condición para mostrar los links de usuario ahora usa 'user' */}
+          {user ? (
             <>
               <NavLink
                 to="/perfil"
@@ -99,11 +106,11 @@ const NavbarMenuCelular = ({
               </NavLink>
 
               <Link
-                to="/perfil/favoritos" 
+                to="/perfil/favoritos"
                 onClick={() => setIsMenuOpen(false)}
                 className="flex items-center gap-3 py-3 px-1 rounded-lg text-base font-medium text-gray-700 hover:text-red-500 transition-colors duration-200"
               >
-                <Heart className="w-5 h-5" /> 
+                <Heart className="w-5 h-5" />
                 Mis Favoritos
               </Link>
               
@@ -130,7 +137,7 @@ const NavbarMenuCelular = ({
               <Link
                 to="/carrito"
                 onClick={() => setIsMenuOpen(false)}
-                className="flex items-center justify-between py-3 px-1 rounded-lg text-base font-semibold bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors duration-200 mb-2" 
+                className="flex items-center justify-between py-3 px-1 rounded-lg text-base font-semibold bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors duration-200 mb-2"
               >
                 <span className="flex items-center gap-3">
                   <ShoppingCart className="w-5 h-5" />
@@ -141,7 +148,7 @@ const NavbarMenuCelular = ({
                 </span>
               </Link>
 
-              <hr className="my-4 border-t border-gray-200" /> 
+              <hr className="my-4 border-t border-gray-200" />
 
               <button
                 onClick={handleLogout}

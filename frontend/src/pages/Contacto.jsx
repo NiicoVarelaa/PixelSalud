@@ -7,20 +7,19 @@ import {
   FaAt,
   FaClock,
   FaExclamationTriangle,
-  FaTimes, // Importamos el ícono de la X
+  FaTimes,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 import Header from "../components/Header";
 import MiniBanner from "../components/MiniBanner";
 import Footer from "../components/Footer";
-import { useClienteStore } from "../store/useClienteStore";
+import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 
 const Contacto = () => {
-  const cliente = useClienteStore((state) => state.cliente);
-  const getCliente = useClienteStore((state) => state.getCliente);
-
+  const { user } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ nombre: "", email: "", mensaje: "" });
   const [errors, setErrors] = useState({});
@@ -28,49 +27,16 @@ const Contacto = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getCliente();
-  }, [getCliente]);
-
-  // Validaciones
-  const validarNombre = (nombre) => {
-    const trimmedNombre = nombre.trim();
-    if (!trimmedNombre) return "El nombre es obligatorio";
-    if (trimmedNombre.length < 2)
-      return "El nombre debe tener al menos 2 caracteres";
-    if (trimmedNombre.length > 50)
-      return "El nombre no puede tener más de 50 caracteres";
-    const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
-    if (!nombreRegex.test(trimmedNombre))
-      return "El nombre solo puede contener letras y espacios";
-    if (/\s{3,}/.test(trimmedNombre))
-      return "No se permiten múltiples espacios consecutivos";
-    if (/^\s+$/.test(trimmedNombre))
-      return "El nombre no puede contener solo espacios";
-    return "";
-  };
-
-  const validarEmail = (email) => {
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) return "El correo electrónico es obligatorio";
-    const emailRegex =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-    if (!emailRegex.test(trimmedEmail))
-      return "Por favor ingresa un correo electrónico válido";
-    if (trimmedEmail.length > 254)
-      return "El correo electrónico es demasiado largo";
-    if (/\s/.test(trimmedEmail))
-      return "El correo electrónico no puede contener espacios";
-    const dominiosInvalidos = [
-      "test.com",
-      "example.com",
-      "fake.com",
-      "invalid.com",
-    ];
-    const dominio = trimmedEmail.split("@")[1]?.toLowerCase();
-    if (dominiosInvalidos.includes(dominio))
-      return "Por favor usa un correo electrónico válido";
-    return "";
-  };
+    if (user) {
+      setFormData({
+        nombre: user.nombre || "",
+        email: user.email || "",
+        mensaje: "",
+      });
+    } else {
+      setFormData({ nombre: "", email: "", mensaje: "" });
+    }
+  }, [user]);
 
   const validarMensaje = (mensaje) => {
     const trimmedMensaje = mensaje.trim();
@@ -90,61 +56,42 @@ const Contacto = () => {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    let error = "";
-    switch (name) {
-      case "nombre":
-        error = validarNombre(value);
-        break;
-      case "email":
-        error = validarEmail(value);
-        break;
-      case "mensaje":
-        error = validarMensaje(value);
-        break;
-      default:
-        break;
-    }
-    setErrors((prev) => ({ ...prev, [name]: error }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!cliente) {
+    if (!user) {
       setShowModal(true);
       return;
     }
 
-    const nombreError = validarNombre(formData.nombre);
-    const emailError = validarEmail(formData.email);
     const mensajeError = validarMensaje(formData.mensaje);
-
-    const newErrors = {
-      nombre: nombreError,
-      email: emailError,
-      mensaje: mensajeError,
-    };
-    setErrors(newErrors);
-
-    if (nombreError || emailError || mensajeError) {
+    if (mensajeError) {
+      setErrors({ mensaje: mensajeError });
       toast.error("Por favor corrige los errores en el formulario");
       return;
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setFormData({ nombre: "", email: "", mensaje: "" });
+    try {
+      await axios.post("http://localhost:5000/mensajes/crear", {
+        idCliente: user.id,
+        asunto: `Consulta de ${user.nombre}`,
+        mensaje: formData.mensaje,
+      });
+      
+      setFormData(prev => ({ ...prev, mensaje: "" }));
       setErrors({});
-      setIsSubmitting(false);
       toast.success("¡Mensaje enviado correctamente!");
-    }, 1500);
+
+    } catch (error) {
+      console.error("Error al enviar el mensaje:", error);
+      toast.error("No se pudo enviar el mensaje. Inténtalo de nuevo.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  const mapUrl =
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14238.169376662453!2d-65.22683935!3d-26.83226955!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94225d3ad7f30f1d%3A0xfc6374a441161726!2sSan%20Miguel%20de%20Tucum%C3%A1n%2C%20Tucum%C3%A1n%20Province%2C%20Argentina!5e0!3m2!1sen!2sus!4v1628045091234!5m2!1sen!2sus";
-
-  // Función para cerrar el modal si se hace clic fuera
+  
+  const mapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3560.751939871542!2d-65.20793688495086!3d-26.81603598316744!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94225d3ad7f30f61%3A0x880ef21f4358844!2sPlaza%20Independencia!5e0!3m2!1ses-419!2sar!4v1615832094258!5m2!1ses-419!2sar";
+  
   const handleOutsideClick = (e) => {
     if (e.target.id === "modal-backdrop") {
       setShowModal(false);
@@ -179,7 +126,7 @@ const Contacto = () => {
                       htmlFor="nombre"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Nombre *
+                      Nombre
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
@@ -190,23 +137,15 @@ const Contacto = () => {
                         id="nombre"
                         name="nombre"
                         value={formData.nombre}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
+                        readOnly={!!user}
                         className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
                           errors.nombre
                             ? "border-red-500 focus:ring-red-500"
                             : "border-gray-300 focus:ring-primary-600"
-                        }`}
-                        placeholder="Ingresa tu nombre completo"
-                        maxLength="50"
+                        } ${!user ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                        placeholder="Inicia sesión para autocompletar"
                       />
                     </div>
-                    {errors.nombre && (
-                      <div className="flex items-center mt-1 text-red-600 text-sm">
-                        <FaExclamationTriangle className="mr-1 text-xs" />
-                        <span>{errors.nombre}</span>
-                      </div>
-                    )}
                   </div>
 
                   {/* Email Input */}
@@ -215,7 +154,7 @@ const Contacto = () => {
                       htmlFor="email"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Correo electrónico *
+                      Correo electrónico
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
@@ -226,23 +165,15 @@ const Contacto = () => {
                         id="email"
                         name="email"
                         value={formData.email}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
+                        readOnly={!!user}
                         className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
                           errors.email
                             ? "border-red-500 focus:ring-red-500"
                             : "border-gray-300 focus:ring-primary-600"
-                        }`}
-                        placeholder="ejemplo@correo.com"
-                        maxLength="254"
+                        } ${!user ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                        placeholder="Inicia sesión para autocompletar"
                       />
                     </div>
-                    {errors.email && (
-                      <div className="flex items-center mt-1 text-red-600 text-sm">
-                        <FaExclamationTriangle className="mr-1 text-xs" />
-                        <span>{errors.email}</span>
-                      </div>
-                    )}
                   </div>
 
                   {/* Mensaje Input */}
@@ -266,7 +197,6 @@ const Contacto = () => {
                         rows="5"
                         value={formData.mensaje}
                         onChange={handleChange}
-                        onBlur={handleBlur}
                         className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent resize-none transition-colors ${
                           errors.mensaje
                             ? "border-red-500 focus:ring-red-500"

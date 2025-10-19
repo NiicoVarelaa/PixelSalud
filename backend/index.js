@@ -13,7 +13,8 @@ const routesEmpleados = require("./routes/Empleados");
 const routesOnlines = require("./routes/ventasOnline");
 const ventasEmpleados = require("./routes/VentasEmpleados");
 const favoritosRoutes = require('./routes/favoritos');
-const routesMercadoPago = require("./routes/mercadopago"); 
+const routesMercadoPago = require("./routes/mercadopago");
+const mensajesRoutes = require('./routes/mensajes'); 
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/", registroRouter);
 app.use("/", routesEmpleados);
 app.use('/favoritos', favoritosRoutes); 
 app.use("/mercadopago", routesMercadoPago);
+app.use('/mensajes', mensajesRoutes);
 
 conection.connect((err) => {
   if (err) {

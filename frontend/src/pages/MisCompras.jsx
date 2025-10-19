@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
-import { useClienteStore } from "../store/useClienteStore";
+import { useAuthStore } from "../store/useAuthStore";
 import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { FaShoppingCart, FaBoxOpen, FaTruck, FaStore } from "react-icons/fa";
 import { FiClock, FiCheckCircle, FiXCircle, FiTruck } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const MisCompras = () => {
   const [ventasAgrupadas, setVentasAgrupadas] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const cliente = useClienteStore((state) => state.cliente);
-  const getCliente = useClienteStore((state) => state.getCliente);
+  const { user } = useAuthStore();
   const [expandedOrder, setExpandedOrder] = useState(null);
+  const navigate = useNavigate();
 
   const ARSformatter = new Intl.NumberFormat("es-AR", {
     style: "currency",
@@ -21,13 +21,16 @@ const MisCompras = () => {
   });
 
   useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
     const obtenerCompras = async () => {
+      setCargando(true);
       try {
-        const clienteData = await getCliente();
-        const idCliente = clienteData?.idCliente;
-        if (!idCliente) throw new Error("No hay cliente logueado");
         const respuesta = await axios.get(
-          `http://localhost:5000/ventaOnline/misCompras/${idCliente}`
+          `http://localhost:5000/ventaOnline/misCompras/${user.id}`
         );
         const agrupadas = agruparVentas(respuesta.data.results);
         agrupadas.sort((a, b) => b.idVentaO - a.idVentaO);
@@ -40,91 +43,68 @@ const MisCompras = () => {
     };
 
     obtenerCompras();
-  }, [getCliente]);
+  }, [user, navigate]);
 
   const agruparVentas = (datos) => {
     const ventas = {};
-
     datos.forEach((fila) => {
       const {
-        idVentaO,
-        fechaPago,
-        horaPago,
-        metodoPago,
-        totalPago,
-        estado,
-        tipoEntrega,
-        direccionEnvio,
-        nombreProducto,
-        cantidad,
-        precioUnitario,
-        img,
+        idVentaO, fechaPago, horaPago, metodoPago, totalPago, estado,
+        tipoEntrega, direccionEnvio, nombreProducto, cantidad, precioUnitario, img,
       } = fila;
-
       if (!ventas[idVentaO]) {
         ventas[idVentaO] = {
-          idVentaO,
-          fechaPago,
-          horaPago,
-          metodoPago,
-          totalPago: Number(totalPago),
-          estado,
-          tipoEntrega,
-          direccionEnvio,
-          productos: [],
+          idVentaO, fechaPago, horaPago, metodoPago, totalPago: Number(totalPago),
+          estado, tipoEntrega, direccionEnvio, productos: [],
         };
       }
       ventas[idVentaO].productos.push({
-        nombreProducto,
-        cantidad: Number(cantidad),
-        precioUnitario: Number(precioUnitario),
-        img,
+        nombreProducto, cantidad: Number(cantidad), precioUnitario: Number(precioUnitario), img,
       });
     });
-
     return Object.values(ventas);
   };
 
   function formatearFechaConDia(fecha) {
     if (!fecha) return "";
     const date = new Date(fecha);
-    const opciones = {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
+    const opciones = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
     const fechaFormateada = date.toLocaleDateString("es-AR", opciones);
     return fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1);
   }
 
   const getStatusIcon = (estado) => {
     switch (estado) {
-      case "Pendiente":
-        return <FiClock className="text-yellow-600" />;
-      case "Enviado":
-        return <FiTruck className="text-blue-600" />;
-      case "Entregado":
-      case "Retirado":
-        return <FiCheckCircle className="text-green-600" />;
-      case "Cancelado":
-        return <FiXCircle className="text-red-600" />;
-      default:
-        return <FiClock className="text-gray-500" />;
+      case "Pendiente": return <FiClock className="text-yellow-600" />;
+      case "Enviado": return <FiTruck className="text-blue-600" />;
+      case "Entregado": case "Retirado": return <FiCheckCircle className="text-green-600" />;
+      case "Cancelado": return <FiXCircle className="text-red-600" />;
+      default: return <FiClock className="text-gray-500" />;
     }
   };
 
   const getDeliveryIcon = (tipoEntrega) => {
     switch (tipoEntrega) {
-      case "Envio":
-        return <FaTruck className="text-blue-500" />;
-      case "Sucursal":
-        return <FaStore className="text-orange-500" />;
-      default:
-        return <FaTruck className="text-gray-500" />;
+      case "Envio": return <FaTruck className="text-blue-500" />;
+      case "Sucursal": return <FaStore className="text-orange-500" />;
+      default: return <FaTruck className="text-gray-500" />;
     }
   };
 
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Header />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-lg text-gray-700 font-medium">Redirigiendo a inicio de sesión...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+  
   if (cargando) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
@@ -189,13 +169,11 @@ const MisCompras = () => {
             </div>
           </div>
 
-          {cliente && (
-            <div className="mb-6 p-4 bg-white rounded-lg shadow-sm">
-              <p className="text-gray-700">
-                <span className="font-semibold">Cliente:</span> {cliente.nombreCliente}
-              </p>
-            </div>
-          )}
+          <div className="mb-6 p-4 bg-white rounded-lg shadow-sm">
+            <p className="text-gray-700">
+              <span className="font-semibold">Cliente:</span> {user.nombre}
+            </p>
+          </div>
 
           <div className="space-y-4">
             {ventasAgrupadas.map((venta) => (
@@ -268,7 +246,6 @@ const MisCompras = () => {
 
                 {expandedOrder === venta.idVentaO && (
                   <div className="px-5 pb-5 pt-2 border-t border-gray-100 bg-gray-50">
-                    {/* Vista para escritorio */}
                     <div className="hidden sm:block overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-white">
@@ -325,7 +302,6 @@ const MisCompras = () => {
                       </table>
                     </div>
                     
-                    {/* Vista para móvil */}
                     <div className="sm:hidden space-y-4">
                       {venta.productos.map((prod, index) => (
                         <div key={index} className="flex items-start gap-4 p-3 bg-white rounded-lg shadow-sm">

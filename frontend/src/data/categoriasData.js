@@ -10,7 +10,7 @@ export const CATEGORIAS_DATA = [
   { text: 'Fragancias', image: Fragancias, link: 'Fragancias' },
   { text: 'Belleza', image: Belleza, link: 'Belleza' },
   { text: 'Dermocosmética', image: Dermocosmetica, link: 'Dermocosmética' },
-  { text: 'Medicamentos con Receta', image: MedConReceta, link: 'Medicamentos con Receta' },
+  { text: 'Medicamentos con Receta', image: MedConReceta, link: 'Medicamentos con Receta', isNew: true },
   { text: 'Medicamentos Venta Libre', image: MedVentaLibre, link: 'Medicamentos venta Libre' },
   { text: 'Cuidado Personal', image: CuidadoPersonal, link: 'Cuidado Personal' },
   { text: 'Bebés y Niños', image: Bebes, link: 'Bebes y Niños' },

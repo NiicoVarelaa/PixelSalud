@@ -20,7 +20,7 @@ const ProductCarousel = ({ title, products }) => {
   return (
     <section className="my-16 md:my-20 bg-pink-100 p-6 md:p-8 rounded-xl overflow-hidden">
       <div>
-        <h2 className="text-2xl md:text-3xl font-medium mb-8 text-center lg:text-left">
+        <h2 className="text-2xl md:text-3xl font-medium mb-8 text-center lg:text-left text-gray-800">
           {title}
         </h2>
         <div className="flex flex-col lg:flex-row gap-6 items-stretch">

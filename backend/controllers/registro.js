@@ -1,33 +1,43 @@
 const { conection } = require("../config/database");
+const bcrypt = require('bcrypt'); // Importa la librería
 
-const registrarCliente = (req, res) => {
-  
+const registrarCliente = async (req, res) => { // La función ahora es 'async'
   const { nombreCliente, apellidoCliente, email, contraCliente } = req.body;
 
   if (!nombreCliente || !apellidoCliente || !email || !contraCliente) {
-    return res.status(400).json({ mensaje: "Faltan campos requeridos" });
+    return res.status(400).json({ error: "Todos los campos son obligatorios." });
   }
 
-  const query = `
-    INSERT INTO Clientes (nombreCliente, apellidoCliente, email, contraCliente, rol, logueado)
-    VALUES (?, ?, ?, ?, 'cliente', 0)
-    --           ^        ^ <-- ¡NUEVA COLUMNA!
-  `;
+  try {
+    // Hashea la contraseña
+    const saltRounds = 10;
+    const contraHasheada = await bcrypt.hash(contraCliente, saltRounds);
 
-  conection.query(
-    query,
-    [nombreCliente, apellidoCliente, email, contraCliente],
-    (err, result) => {
-      if (err) {
-        console.error("Error al registrar cliente:", err);
-        if (err.code === 'ER_DUP_ENTRY') {
-            return res.status(409).json({ mensaje: "El correo electrónico ya está registrado." });
+    const query = `
+      INSERT INTO Clientes (nombreCliente, apellidoCliente, emailCliente, contraCliente)
+      VALUES (?, ?, ?, ?)
+    `;
+
+    // Guarda la contraseña hasheada
+    conection.query(
+      query,
+      [nombreCliente, apellidoCliente, email, contraHasheada],
+      (err, result) => {
+        if (err) {
+          console.error("Error al registrar cliente:", err);
+          if (err.code === 'ER_DUP_ENTRY') {
+              return res.status(409).json({ error: "El correo electrónico ya está registrado." });
+          }
+          return res.status(500).json({ error: "Error interno del servidor al registrar el cliente." });
         }
-        return res.status(500).json({ mensaje: "Error del servidor" });
+        res.status(201).json({ message: "Cliente registrado exitosamente", idCliente: result.insertId });
       }
-      res.json({ mensaje: "Cliente registrado exitosamente" });
-    }
-  );
+    );
+
+  } catch (hashError) {
+      console.error("Error al hashear la contraseña:", hashError);
+      return res.status(500).json({ error: "Error interno al procesar el registro." });
+  }
 };
 
 module.exports = {

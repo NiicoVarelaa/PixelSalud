@@ -2,6 +2,7 @@ const CardCategorias = ({ categoria, onClick }) => {
   return (
     <div
       className="
+        relative                      
         group cursor-pointer 
         py-6 px-4                     
         rounded-xl 
@@ -14,6 +15,21 @@ const CardCategorias = ({ categoria, onClick }) => {
       "
       onClick={onClick}
     >
+      {categoria.isNew && (
+        <div 
+          className="
+            absolute top-2 right-2
+            bg-secondary-100 px-3 py-1               
+            border-2 border-blue-500         
+            rounded-full
+            text-blue-500 font-bold text-sm  
+            z-10                             
+          "
+        >
+          ¡NUEVO!
+        </div>
+      )}
+
       <img
         src={categoria.image}
         alt={categoria.text}

@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+// 1. Importa el store de autenticación unificado
+import { useAuthStore } from "../store/useAuthStore";
 import NavbarEmpleado from "../components/NavbarEmpleado";
-import { getEmpleado } from "../store/useEmpleadoStore"; // Asegurate de tener esto correctamente
+import { toast } from "react-toastify";
 
 const PanelEmpleados = () => {
+  // 2. Obtiene el usuario del store de autenticación
+  const { user } = useAuthStore();
+  const navigate = useNavigate();
+
   const [formVisible, setFormVisible] = useState(false);
   const [ventas, setVentas] = useState([]);
   const [productos, setProductos] = useState([{ idProducto: "", cantidad: "", precio: "" }]);
@@ -13,20 +20,29 @@ const PanelEmpleados = () => {
   const [metodoPago, setMetodoPago] = useState("");
 
   const obtenerVentas = async () => {
+    // 3. Usa el ID del usuario del store, si existe
+    if (!user?.id) return;
     try {
-      const idEmpleado = await getEmpleado();
-      const res = await axios.get(`http://localhost:5000/ventasEmpleados/${idEmpleado}`);
+      const res = await axios.get(`http://localhost:5000/ventasEmpleados/${user.id}`);
       if (res.data) {
         setVentas(res.data);
       }
     } catch (error) {
       console.error("Error al obtener ventas:", error);
+      toast.error("No se pudieron cargar las ventas.");
     }
   };
 
+  // 4. El useEffect ahora depende de 'user' para recargar los datos si cambia el usuario
   useEffect(() => {
+    // Protección de la ruta: si no hay usuario o no es empleado, redirige
+    if (!user || user.rol !== 'empleado') {
+        toast.error("Acceso no autorizado.");
+        navigate('/login'); // Redirige a la página de login
+        return;
+    }
     obtenerVentas();
-  }, []);
+  }, [user, navigate]);
 
   const agregarProducto = () => {
     setProductos([...productos, { idProducto: "", cantidad: "", precio: "" }]);
@@ -50,18 +66,17 @@ const PanelEmpleados = () => {
 
   const handleSubmit = async () => {
     if (!totalPago || !metodoPago) {
-      alert("Por favor completa el método de pago y el total.");
+      toast.warn("Por favor completa el método de pago y el total.");
       return;
     }
-
-    const idEmpleado = await getEmpleado();
-    if (!idEmpleado) {
-      alert("Error al obtener el empleado logueado.");
+    // 5. Obtiene el idEmpleado directamente del store
+    if (!user?.id) {
+      toast.error("No se pudo identificar al empleado. Inicia sesión de nuevo.");
       return;
     }
 
     const body = {
-      idEmpleado, 
+      idEmpleado: user.id, 
       totalPago: parseFloat(totalPago),
       metodoPago,
       productos: productos.map(p => ({
@@ -80,7 +95,7 @@ const PanelEmpleados = () => {
 
     try {
       await axios.post("http://localhost:5000/ventasEmpleados/crear", body);
-      alert("Venta registrada exitosamente");
+      toast.success("Venta registrada exitosamente");
       setFormVisible(false);
       // Limpiar formularios
       setProductos([{ idProducto: "", cantidad: "", precio: "" }]);
@@ -88,12 +103,21 @@ const PanelEmpleados = () => {
       setTotalPago("");
       setMetodoPago("");
       setCargarReceta(false);
-      obtenerVentas();
+      obtenerVentas(); // Recarga la lista de ventas
     } catch (error) {
       console.error("Error al registrar la venta:", error);
-      alert("Error al registrar la venta");
+      toast.error("Error al registrar la venta");
     }
   };
+
+  // Si el usuario aún no se ha cargado o no es un empleado, no renderiza el panel.
+  if (!user || user.rol !== 'empleado') {
+      return (
+          <div className="flex justify-center items-center h-screen">
+              <p>Redirigiendo...</p>
+          </div>
+      );
+  }
 
   return (
     <>

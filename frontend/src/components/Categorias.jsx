@@ -14,7 +14,7 @@ const Categorias = () => {
 
   return (
     <div>
-      <h2 className="text-2xl md:text-3xl font-medium mb-8 text-center lg:text-left">CATEGORÍAS</h2>
+      <h2 className="text-2xl md:text-3xl font-medium mb-8 text-center lg:text-left text-gray-800">CATEGORÍAS</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4 sm:gap-6 mt-6">
         {CATEGORIAS_DATA.map((categoria) => (
           <CardCategorias
