@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+
 import Layout from "./components/Layout";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -28,7 +29,7 @@ const App = () => {
         <Route path="/" element={<Layout />}>
           <Route index element={<Inicio />} />
           <Route path="productos" element={<Productos />} />
-          <Route path="productos/:id" element={<Producto />} />
+          <Route path="productos/:idProducto" element={<Producto />} />
           <Route path="productos/:categoria?" element={<Productos />} />
           <Route path="sobreNosotros" element={<SobreNosotros />} />
           <Route path="contacto" element={<Contacto />} />
