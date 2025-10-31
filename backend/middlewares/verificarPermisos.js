@@ -11,10 +11,10 @@ const verificarRol =(rolesPermitidos)=>{
 const verificarPermisos = (permisoRequerido)=>{
     return (req, res , next)=>{
         if (!req.user || !req.user.permisos || !req.user.permisos[permisoRequerido]) {
-            return res.status(403).json({msg:`Acceso prohibido. Se requiere el permiso: [${permisoRequerido}]`})
+            return res.status(403).json({msg:`Acceso prohibido. Se requiere el permiso: ${permisoRequerido}`})
         }
+        next();
     }
-    next();
 }
 
 module.exports = {

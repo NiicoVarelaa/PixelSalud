@@ -16,7 +16,7 @@ const login = async (req, res) => {
     // Buscar en Empleados
     const consultaEmp = `
       SELECT idEmpleado AS id, nombreEmpleado AS nombre, apellidoEmpleado AS apellido, 
-             emailEmpleado AS email, contraEmpleado AS hash, rolEmpleado AS rol,
+             emailEmpleado AS email, contraEmpleado AS hash, rol,
              crear_productos, modificar_productos, modificar_ventasE, modificar_ventasO
       FROM Empleados WHERE emailEmpleado = ?
     `;
