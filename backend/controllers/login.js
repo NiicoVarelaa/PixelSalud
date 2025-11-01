@@ -10,39 +10,69 @@ const login = async (req, res) => {
     const { email, contrasenia } = req.body;
 
     if (!email || !contrasenia) {
-      return res.status(400).json({ error: "El campo email o contraseña está vacío" });
+      return res
+        .status(400)
+        .json({ error: "El campo email o contraseña está vacío" });
     }
 
-    // Buscar en Empleados
+    const consultaAdmin = `
+      SELECT idAdmin AS id, nombreAdmin AS nombre, apellidoAdmin AS apellido, 
+             emailAdmin AS email, contraAdmin AS hash, rol
+      FROM Admins WHERE emailAdmin = ? AND activo = TRUE
+    `;
+
+    const consultaMedico = `
+      SELECT idMedico AS id, nombreMedico AS nombre, apellidoMedico AS apellido, 
+             emailMedico AS email, contraMedico AS hash
+             /* Asumiendo que no tiene columna 'rol' */
+      FROM Medicos WHERE emailMedico = ?
+    `;
+
     const consultaEmp = `
       SELECT idEmpleado AS id, nombreEmpleado AS nombre, apellidoEmpleado AS apellido, 
-             emailEmpleado AS email, contraEmpleado AS hash, rol,
-             crear_productos, modificar_productos, modificar_ventasE, modificar_ventasO
-      FROM Empleados WHERE emailEmpleado = ?
+             emailEmpleado AS email, contraEmpleado AS hash, rol
+      FROM Empleados WHERE emailEmpleado = ? AND activo = TRUE
     `;
-    const empleados = await query(consultaEmp, [email]);
+
+    const consultaCli = `
+      SELECT idCliente AS id, nombreCliente AS nombre, apellidoCliente AS apellido, 
+             emailCliente AS email, contrCliente AS hash, rol
+      FROM Clientes WHERE emailCliente = ?
+    `;
 
     let user = null;
-    let tipo = "";
+    let tipo = ""; 
 
-    if (empleados.length > 0) {
-      user = empleados[0];
-      tipo = "empleado";
+
+
+    // 1. Buscar en Admins
+    const admins = await query(consultaAdmin, [email]);
+    if (admins.length > 0) {
+      user = admins[0];
+      tipo = "admin";
     } else {
-
-      // Buscar en Clientes
-      const consultaCli = `
-        SELECT idCliente AS id, nombreCliente AS nombre, apellidoCliente AS apellido, 
-               emailCliente AS email, contrCliente AS hash
-        FROM Clientes WHERE emailCliente = ?
-      `;
-      const clientes = await query(consultaCli, [email]);
-
-      if (clientes.length > 0) {
-        user = clientes[0];
-        tipo = "cliente";
+      
+      const medicos = await query(consultaMedico, [email]);
+      if (medicos.length > 0) {
+        user = medicos[0];
+        tipo = "medico";
+      } else {
+        
+        const empleados = await query(consultaEmp, [email]);
+        if (empleados.length > 0) {
+          user = empleados[0];
+          tipo = "empleado";
+        } else {
+         
+          const clientes = await query(consultaCli, [email]);
+          if (clientes.length > 0) {
+            user = clientes[0];
+            tipo = "cliente";
+          }
+        }
       }
     }
+
 
     if (!user) {
       return res.status(400).json({ msg: "Email y/o contraseña incorrectos" });
@@ -53,30 +83,54 @@ const login = async (req, res) => {
       return res.status(400).json({ msg: "Email y/o contraseña incorrectos" });
     }
 
+
+    let permisos = null;
+    if (tipo === "admin") {
+      const consultaPermisos = "SELECT * FROM Permisos WHERE idAdmin = ?";
+      const permisosData = await query(consultaPermisos, [user.id]);
+      if (permisosData.length > 0) {
+        permisos = {
+          crear_productos: permisosData[0].crear_productos,
+          modificar_productos: permisosData[0].modificar_productos,
+          modificar_ventasE: permisosData[0].modificar_ventasE,
+          modificar_ventasO: permisosData[0].modificar_ventasO,
+          ver_ventasTotalesE: permisosData[0].ver_ventasTotalesE,
+          ver_ventasTotalesO: permisosData[0].ver_ventasTotalesO
+        };
+      }
+    } else if (tipo === "empleado") {
+      const consultaPermisos = "SELECT * FROM Permisos WHERE idEmpleado = ?";
+      const permisosData = await query(consultaPermisos, [user.id]);
+      if (permisosData.length > 0) {
+        permisos = {
+          crear_productos: permisosData[0].crear_productos,
+          modificar_productos: permisosData[0].modificar_productos,
+          modificar_ventasE: permisosData[0].modificar_ventasE,
+          modificar_ventasO: permisosData[0].modificar_ventasO,
+          ver_ventasTotalesE: permisosData[0].ver_ventasTotalesE,
+          ver_ventasTotalesO: permisosData[0].ver_ventasTotalesO
+        };
+      }
+    }
+    
+    const role = user.rol ? user.rol : tipo;
+
     const payload = {
       id: user.id,
-      role: tipo === "empleado" ? user.rol : "cliente",
-      permisos:
-        tipo === "empleado"
-          ? {
-              crear_productos: user.crear_productos,
-              modificar_productos: user.modificar_productos,
-              modificar_ventasE: user.modificar_ventasE,
-              modificar_ventasO: user.modificar_ventasO,
-            }
-          : null,
+      role: role,
+      permisos: permisos, 
     };
 
-  
-    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "8h" });
+    
+    const token = jwt.sign(payload, process.env.SECRET_KEY);
 
     return res.status(200).json({
       msg: "Inicio de sesión exitoso",
-      tipo,
+      tipo, 
       token,
       nombre: user.nombre,
       apellido: user.apellido,
-      rol: payload.role,
+      rol: payload.role, 
     });
   } catch (error) {
     console.error("Error en login:", error);
@@ -84,11 +138,7 @@ const login = async (req, res) => {
   }
 };
 
-
-
-
 module.exports = { login };
-
 
 
 
