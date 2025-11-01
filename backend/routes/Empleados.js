@@ -3,34 +3,20 @@ const {
   getEmpleados,
   createEmpleado,
   updateEmpleado,
-/*   permisoCrearProductoEmp,
-  quitarCrearProductoEmp,
-  permisoModifProducEmp,
-  quitarModifProducEmp,
-  permisoModifVentaE,
-  quitarModifVentaE,
-  permisoModifVentaO,
-  quitarModifVentaO, */
   reactivarEmpleado,
   darBajaEmpleado
 
 } = require("../controllers/empleados");
+const auth = require("../middlewares/auth")
+const {verificarRol}= require("../middlewares/verificarPermisos")
 
 const router = express.Router();
 
 router.get("/Empleados", getEmpleados);
-router.post("/Empleados/crear", createEmpleado);
-router.put("/empleados/actualizar/:id", updateEmpleado)
-/* router.put("/empleados/crearProdSi/:id", permisoCrearProductoEmp)
-router.put("/empleados/crearProdNo/:id", quitarCrearProductoEmp)
-router.put("/empleados/modificarProdSi/:id",permisoModifProducEmp)
-router.put("/empleados/modificarProdNo/:id",quitarModifProducEmp)
-router.put("/empleados/modificarVentaESi/:id",permisoModifVentaE)
-router.put("/empleados/modificarVentaENo/:id",quitarModifVentaE)
-router.put("/empleados/modificarVentaOSi/:id",permisoModifVentaO)
-router.put("/empleados/modificarVentaONo/:id",quitarModifVentaO) */
-router.put("/empleados/baja/:id",darBajaEmpleado)
-router.put("/empleados/reactivar/:id",reactivarEmpleado)
+router.post("/Empleados/crear",auth,verificarRol(["admin"]), createEmpleado);
+router.put("/empleados/actualizar/:id",auth,verificarRol(["admin"]), updateEmpleado)
+router.put("/empleados/baja/:id",auth,verificarRol(["admin"]),darBajaEmpleado)
+router.put("/empleados/reactivar/:id",auth,verificarRol(["admin"]),reactivarEmpleado)
 
 
 module.exports = router;

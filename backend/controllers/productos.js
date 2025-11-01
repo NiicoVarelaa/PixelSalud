@@ -29,11 +29,14 @@ const getProducto = (req, res) => {
 };
 
 const getProductoBajado = (req, res)=>{
-  const consulta = "select * from productos where activo = false"
+  const consulta = "select * from Productos where activo = false;"
   conection.query(consulta, (error, result)=>{
     if (error) {
        console.error("Error al obtener productos dados de baja:", error);
       return res.status(500).json({ error: "Error al obtener productos dados de baja" });
+    }
+    if (result.length === 0) {
+        return res.status(404).json({ error: "Producto dado de baja no encontrados" });
     }
     res.json(result);
   })
