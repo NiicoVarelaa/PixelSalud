@@ -20,43 +20,16 @@ const crearCliente = (req, res) => {
   );
 };
 
-const actualizarLogueado = (req, res) => {
-  const id = req.params.idCliente;
-  const desloguear = `UPDATE Clientes SET logueado = 0`;
-  const loguear = `UPDATE Clientes SET logueado = 1 WHERE idCliente = ?`;
+const getClienteBajados = (req, res) => {
+  const consulta = "SELECT * FROM Clientes where activo = false";
 
-  conection.query(desloguear, (err) => {
+  conection.query(consulta, (err, results) => {
     if (err) {
-      console.error("Error al desloguear usuarios:", err);
-      return res.status(500).json({ error: "Error al actualizar logueado" });
+      console.error("Error al obtener los usuarios bajados:", err);
+      return res.status(500).json({ error: "Error al obtener los usuarios bajados" });
     }
-
-    conection.query(loguear, [id], (err, results) => {
-      if (err) {
-        console.error("Error al loguear al usuario:", err);
-        return res.status(500).json({ error: "Error al actualizar logueado" });
-      }
-
-      res.status(200).json({ message: "Usuario logueado correctamente" });
-    });
-  });
-};
-
-const borrarCliente = (req, res) => {
-  const idCliente = req.params.idCliente;
-  const consulta = "DELETE FROM Clientes WHERE idCliente = ?";
-
-  conection.query(consulta, [idCliente], (err, results) => {
-    if (err) {
-      console.error("Error al borrar usuario:", err);
-      return res.status(500).json({ error: "Error al borrar usuario" });
-    }
-
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    res.status(200).json({ message: "Usuario eliminado correctamente" });
+    
+    res.status(200).json(results);
   });
 };
 
@@ -72,6 +45,21 @@ const getClientes = (req, res) => {
     res.status(200).json(results);
   });
 };
+
+const getCliente = (req, res)=>{
+  const id = req.params.id
+  const consulta = "select * from clientes where idCliente =?"
+   conection.query(consulta, [id], (err, results) => {
+    if (err) {
+      console.error("Error al obtener el cliente:", err);
+      return res.status(500).json({ error: "Error al obtener el cliente" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Cliente no encontrado" });
+    }
+    res.json(results[0]);
+  });
+}
 
 const updateCliente = (req, res) => {
   const idCliente = req.params.idCliente;
@@ -94,28 +82,37 @@ const updateCliente = (req, res) => {
   );
 };
 
-const desloguearCliente = (req, res) => {
-  const id = req.params.idCliente;
-  const consulta = `UPDATE Clientes SET logueado = 0 WHERE idCliente = ?`;
-
-
-  conection.query(consulta, [id], (err, results) => {
+const darBajaCliente = (req, res)=>{
+  const id = req.params.id
+  const consulta = "update clientes set activo = false where idCliente =?"
+   conection.query(consulta, [id], (err, result) => {
     if (err) {
-      console.error("Error al desloguear al usuario:", err);
-      return res.status(500).json({ error: "Error al desloguear al usuario" });
+      console.log("Error al dar baja/eliminar al cliente:", err);
+      return res.status(500).json({ error: "Error al dar baja/eliminar al cliente" });
     }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-    res.status(200).json({ message: "Usuario deslogueado correctamente" });
+    res.status(201).json({ message: "Cliente dado de baja/eliminado con exito" });
   });
-};
+}
+
+const activarCliente = (req, res)=>{
+  const id = req.params.id
+  const consulta = "update clientes set activo = true where idCliente =?"
+   conection.query(consulta, [id], (err, result) => {
+    if (err) {
+      console.log("Error al reactivar al cliente:", err);
+      return res.status(500).json({ error: "Error al reactivar al cliente" });
+    }
+    res.status(201).json({ message: "Cliente reactivado con exito" });
+  });
+}
 
 module.exports = {
-  crearCliente,
-  actualizarLogueado,
-  borrarCliente,
   getClientes,
+  getClienteBajados,
+  getCliente,
+  crearCliente,
   updateCliente,
-  desloguearCliente,
+  darBajaCliente,
+  activarCliente
+
 };

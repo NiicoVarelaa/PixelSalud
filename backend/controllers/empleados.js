@@ -103,14 +103,6 @@ module.exports = {
   getEmpleados,
   createEmpleado,
   updateEmpleado,
-/*   permisoCrearProductoEmp,
-  quitarCrearProductoEmp,
-  permisoModifProducEmp,
-  quitarModifProducEmp,
-  permisoModifVentaE,
-  quitarModifVentaE,
-  permisoModifVentaO,
-  quitarModifVentaO, */
   darBajaEmpleado,
   reactivarEmpleado
 };
