@@ -9,12 +9,14 @@ const {
 } = require("../controllers/carrito");
 
 const router = express.Router();
+const auth = require("../middlewares/auth")
+const { verificarRol }= require("../middlewares/verificarPermisos")
 
-router.get("/carrito/:idCliente", getCarrito);
-router.post("/carrito/agregar", addCarrito);
-router.put("/carrito/aumentar", incrementCarrito); 
-router.put("/carrito/disminuir", decrementCarrito);
-router.delete("/carrito/eliminar/:idProducto", deleteCarrito);
-router.delete("/carrito/vaciar/:idCliente", vaciarCarrito);
+router.get("/carrito/:idCliente", auth, verificarRol(["cliente"]), getCarrito);
+router.post("/carrito/agregar",auth, verificarRol(["cliente"]), addCarrito);
+router.put("/carrito/aumentar",auth, verificarRol(["cliente"]), incrementCarrito); 
+router.put("/carrito/disminuir",auth, verificarRol(["cliente"]), decrementCarrito);
+router.delete("/carrito/eliminar/:idProducto",auth, verificarRol(["cliente"]), deleteCarrito);
+router.delete("/carrito/vaciar/:idCliente",auth, verificarRol(["cliente"]), vaciarCarrito);
 
 module.exports = router;
