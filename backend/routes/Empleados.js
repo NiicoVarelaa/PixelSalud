@@ -14,7 +14,7 @@ const {verificarRol}= require("../middlewares/verificarPermisos")
 
 const router = express.Router();
 
-router.get("/Empleados", getEmpleados);
+router.get("/Empleados",auth,verificarRol(["admin"]), getEmpleados);
 router.get("/Empleados/Bajados",auth,verificarRol(["admin"]),getEmpleadosBajados)
 router.get("/Empleados/:id",auth,verificarRol(["admin", "empleado"]),getEmpleado)
 router.post("/Empleados/crear",auth,verificarRol(["admin"]), createEmpleado);
