@@ -16,27 +16,27 @@ const login = async (req, res) => {
     }
 
     const consultaAdmin = `
-      SELECT idAdmin AS id, nombreAdmin AS nombre, apellidoAdmin AS apellido, 
-             emailAdmin AS email, contraAdmin AS hash, rol
+      SELECT idAdmin AS id, nombreAdmin AS nombre, 
+             emailAdmin AS email, contraAdmin AS contra, rol
       FROM Admins WHERE emailAdmin = ? AND activo = TRUE
     `;
 
     const consultaMedico = `
       SELECT idMedico AS id, nombreMedico AS nombre, apellidoMedico AS apellido, 
-             emailMedico AS email, contraMedico AS hash
+             emailMedico AS email, contraMedico AS contra
              /* Asumiendo que no tiene columna 'rol' */
       FROM Medicos WHERE emailMedico = ?
     `;
 
     const consultaEmp = `
       SELECT idEmpleado AS id, nombreEmpleado AS nombre, apellidoEmpleado AS apellido, 
-             emailEmpleado AS email, contraEmpleado AS hash, rol
+             emailEmpleado AS email, contraEmpleado AS contra, rol
       FROM Empleados WHERE emailEmpleado = ? AND activo = TRUE
     `;
 
     const consultaCli = `
       SELECT idCliente AS id, nombreCliente AS nombre, apellidoCliente AS apellido, 
-             emailCliente AS email, contrCliente AS hash, rol
+             emailCliente AS email, contrCliente AS contra, rol
       FROM Clientes WHERE emailCliente = ?
     `;
 
@@ -45,7 +45,7 @@ const login = async (req, res) => {
 
 
 
-    // 1. Buscar en Admins
+ 
     const admins = await query(consultaAdmin, [email]);
     if (admins.length > 0) {
       user = admins[0];
@@ -78,7 +78,7 @@ const login = async (req, res) => {
       return res.status(400).json({ msg: "Email y/o contraseña incorrectos" });
     }
 
-    const passCheck = await bcryptjs.compare(contrasenia, user.hash);
+    const passCheck = await bcryptjs.compare(contrasenia, user.contra);
     if (!passCheck) {
       return res.status(400).json({ msg: "Email y/o contraseña incorrectos" });
     }
@@ -86,7 +86,7 @@ const login = async (req, res) => {
 
     let permisos = null;
     if (tipo === "admin") {
-      const consultaPermisos = "SELECT * FROM Permisos WHERE idAdmin = ?";
+      const consultaPermisos = "SELECT * FROM Permisos WHERE idAdmin = ? AND idEmpleado IS NULL";
       const permisosData = await query(consultaPermisos, [user.id]);
       if (permisosData.length > 0) {
         permisos = {
@@ -99,7 +99,7 @@ const login = async (req, res) => {
         };
       }
     } else if (tipo === "empleado") {
-      const consultaPermisos = "SELECT * FROM Permisos WHERE idEmpleado = ?";
+      const consultaPermisos = "SELECT * FROM Permisos WHERE idEmpleado = ? AND idAdmin IS NULL";
       const permisosData = await query(consultaPermisos, [user.id]);
       if (permisosData.length > 0) {
         permisos = {
