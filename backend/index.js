@@ -15,6 +15,7 @@ const routesOnlines = require("./routes/ventasOnline");
 const ventasEmpleados = require("./routes/VentasEmpleados");
 const favoritosRoutes = require('./routes/favoritos');
 const routesMercadoPago = require("./routes/mercadopago"); 
+const routesPermisos = require("./routes/permisos")
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/", registroRouter);
 app.use("/", routesEmpleados);
 app.use('/favoritos', favoritosRoutes); 
 app.use("/mercadopago", routesMercadoPago);
+app.use("/",routesPermisos)
 
 conection.connect((err) => {
   if (err) {
