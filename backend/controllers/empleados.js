@@ -14,6 +14,31 @@ const getEmpleados = (req, res) => {
 };
 
 
+const getEmpleadosBajados = (req, res)=>{
+  const consulta = "select * from empleados where activo = false"
+   conection.query(consulta, (err, results) => {
+    if (err) {
+      console.error("Error al obtener los empleados dados de baja:", err);
+      return res.status(500).json({ error: "Error al obtener los empleados dados de baja" });
+    }
+    
+    res.status(200).json(results);
+  });
+}
+
+const getEmpleado = (req, res)=>{
+  const id = req.params.id
+  const consulta = "select * from empleados where idEmpleado=?"
+  conection.query(consulta,[id],(err,results)=>{
+    if (err) {
+      console.error("Error al obtener empleado:", err);
+      return res.status(500).json({ error: "Error al obtener empleado" });
+    }
+    
+    res.status(200).json(results);
+  })
+}
+
 
 const createEmpleado = async (req, res) => {
   const { nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado } =req.body;
@@ -101,6 +126,8 @@ const reactivarEmpleado = (req, res) => {
 
 module.exports = {
   getEmpleados,
+  getEmpleadosBajados,
+  getEmpleado,
   createEmpleado,
   updateEmpleado,
   darBajaEmpleado,
