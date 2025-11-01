@@ -1,6 +1,18 @@
 const { conection } = require("../config/database");
 
 
+const getPermisosEmp = (req, res)=>{
+    const consulta = "select * from permisos"
+ conection.query(consulta, (err, results) => {
+    if (err) {
+      console.error("Error al obtener Permisos:", err);
+      return res.status(500).json({ error: "Error al obtener Permisos" });
+    }
+    res.json(results);
+  });
+}
+
+
 const crearPermisosEmp = (req, res)=>{
     const idEmpleado = req.params.id
     const {crear_productos, modificar_productos, modificar_ventasE, modifcar_ventasO, ver_ventasTotalesE, ver_ventasTotalesO} = req.body
@@ -19,7 +31,7 @@ const crearPermisosEmp = (req, res)=>{
 const updatePermisosEmp = (req, res)=>{
     const idEmpleado = req.params.id
     const {crear_productos, modificar_productos, modificar_ventasE, modificar_ventasO, ver_ventasTotalesE, ver_ventasTotalesO} = req.body
-    const consulta = "update permisos set crear_productos=?, modificar_productos=?, modificar_ventasE=?, modifcar_ventasO=?, ver_ventasTotalesE=?, ver_ventasTotalesO=?, idAdmin=NULL where idEmpleado =?"
+    const consulta = "update permisos set crear_productos=?, modificar_productos=?, modificar_ventasE=?, modificar_ventasO=?, ver_ventasTotalesE=?, ver_ventasTotalesO=?, idAdmin=NULL where idEmpleado =?"
 
     conection.query(consulta,[crear_productos, modificar_productos, modificar_ventasE, modificar_ventasO, ver_ventasTotalesE, ver_ventasTotalesO, idEmpleado], (error, result)=>{
         if (error) {
@@ -33,6 +45,7 @@ const updatePermisosEmp = (req, res)=>{
 }
 
 module.exports ={
+    getPermisosEmp,
     crearPermisosEmp,
     updatePermisosEmp
 }
