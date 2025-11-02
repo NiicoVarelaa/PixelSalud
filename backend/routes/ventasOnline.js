@@ -14,6 +14,6 @@ const {verificarRol, verificarPermisos}= require("../middlewares/verificarPermis
 router.get("/ventaOnline/misCompras/:idCliente",auth,verificarRol(["admin","cliente"]), mostrarCompras);
 router.get("/ventasOnline/todas",auth,verificarRol(["admin","empleado"]),verificarPermisos("ver_ventasTotalesO"), mostrarTodasLasVentas);
 router.post("/ventaOnline/crear",auth,verificarRol(["cliente"]), registrarVentaOnline);
-router.put("/ventaOnline/estado", actualizarEstadoVenta);
+router.put("/ventaOnline/estado", actualizarEstadoVenta);/* Sacar */
 
 module.exports = router;

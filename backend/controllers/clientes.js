@@ -1,15 +1,30 @@
+const util = require("util")
 const { conection } = require("../config/database");
+const bcryptjs = require("bcryptjs")
+const query = util.promisify(conection.query).bind(conection);
 
-const crearCliente = (req, res) => {
-  const { nombreCliente, contraCliente, email, rol } = req.body;
+const crearCliente =  async (req, res) => {
+  const { nombreCliente,apellidoCliente, contraCliente, emailCliente, dni  } = req.body;
+
+  let salt = await bcryptjs.genSalt(10);
+  let contraEncrip = await bcryptjs.hash(contraCliente, salt);
+
+  const exist = "select * from clientes where emailCliente =?"
+
+  const clienteExist = await query(exist, [emailCliente]);
+  if (clienteExist[0]) {
+    return res
+      .status(409)
+      .json({ error: "El usuario que intentas crear, ya se encuentra creado" });
+  } 
 
   const consulta = `INSERT INTO Clientes 
-    (nombreCliente, contraCliente, email, rol)
-    VALUES (?, ?, ?, ?)`;
+    (nombreCliente, apellidoCliente, contraCliente, emailCliente, dni )
+    VALUES (?, ?, ?, ?, ?)`;
 
   conection.query(
     consulta,
-    [nombreCliente, contraCliente, email, rol],
+    [nombreCliente, apellidoCliente, contraEncrip, emailCliente, dni],
     (err, results) => {
       if (err) {
         console.error("Error al crear el usuario:", err);
@@ -28,7 +43,9 @@ const getClienteBajados = (req, res) => {
       console.error("Error al obtener los usuarios bajados:", err);
       return res.status(500).json({ error: "Error al obtener los usuarios bajados" });
     }
-    
+    if (results.length===0) {
+      return res.status(404).json({error:"No hay clientes dados de baja"})
+    }
     res.status(200).json(results);
   });
 };
@@ -41,7 +58,9 @@ const getClientes = (req, res) => {
       console.error("Error al obtener los usuarios:", err);
       return res.status(500).json({ error: "Error al obtener los usuarios" });
     }
-    
+    if (results.length===0) {
+      return res.status(404).json({error:"No hay clientes creados"})
+    }
     res.status(200).json(results);
   });
 };
@@ -61,15 +80,19 @@ const getCliente = (req, res)=>{
   });
 }
 
-const updateCliente = (req, res) => {
+const updateCliente = async (req, res) => {
   const idCliente = req.params.idCliente;
-  const { nombreCliente, contraCliente, email, rol } = req.body;
+  const {  nombreCliente,apellidoCliente, contraCliente, emailCliente, dni  } = req.body;
+
+   let salt = await bcryptjs.genSalt(10);
+  let contraEncrip = await bcryptjs.hash(contraCliente, salt);
+  
   const consulta =
-    "UPDATE CLIENTES  SET NOMBRECLIENTE = ?, CONTRACLIENTE = ?, EMAIL = ?, ROL= ? WHERE IDCLIENTE = ?";
+    "UPDATE CLIENTES  SET NOMBRECLIENTE = ?, APELLIDOCLIENTE=?, CONTRACLIENTE = ?, EMAILCLIENTE = ?, DNI= ? WHERE IDCLIENTE = ?";
 
   conection.query(
     consulta,
-    [nombreCliente, contraCliente, email, rol, idCliente],
+    [nombreCliente,apellidoCliente, contraEncrip, emailCliente, dni , idCliente],
     (err, results) => {
       if (err) {
         console.error("Error al actulizar el cliente", err);
@@ -77,7 +100,7 @@ const updateCliente = (req, res) => {
           .status(500)
           .json({ error: "Error al querer actualizar un cliente" });
       }
-      return res.status(200).json(results);
+       res.status(200).json({msg:"Empleado actualizado con exito", results});
     }
   );
 };

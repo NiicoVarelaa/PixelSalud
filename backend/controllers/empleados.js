@@ -21,7 +21,9 @@ const getEmpleadosBajados = (req, res)=>{
       console.error("Error al obtener los empleados dados de baja:", err);
       return res.status(500).json({ error: "Error al obtener los empleados dados de baja" });
     }
-    
+    if (results.length === 0) {
+        return res.status(404).json({ error: "No hay empleados dados de baja" });
+    }
     res.status(200).json(results);
   });
 }
@@ -48,11 +50,11 @@ const createEmpleado = async (req, res) => {
 
   const exist = "select * from empleados where emailEmpleado=?";
 
-  const clienteExist = await query(exist, [emailEmpleado]);
-  if (clienteExist[0]) {
+  const EmpleadoExist = await query(exist, [emailEmpleado]);
+  if (EmpleadoExist[0]) {
     return res
       .status(409)
-      .json({ error: "El usuario que intentas crear, ya se encuentra creado" });
+      .json({ error: "El Empleado que intentas crear, ya se encuentra creado" });
   } 
     const consulta =
       "insert into empleados (nombreEmpleado, apellidoEmpleado,emailEmpleado, contraEmpleado) values (?,?,?,?);";
