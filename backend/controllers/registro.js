@@ -3,21 +3,21 @@ const bcryptjs = require("bcryptjs")
 
 const registrarCliente = async (req, res) => {
   
-  const { nombreCliente, apellidoCliente, emailCliente, contraCliente } = req.body;
+  const { nombreCliente, apellidoCliente,  contraCliente, emailCliente, dni} = req.body;
 
-  if (!nombreCliente || !apellidoCliente || !emailCliente || !contraCliente) {
+  if (!nombreCliente || !apellidoCliente || !contraCliente || !emailCliente || !dni) {
     return res.status(400).json({ mensaje: "Faltan campos requeridos" });
   }
   let salt = await bcryptjs.genSalt(10);
   let contraEncrip = await bcryptjs.hash(contraCliente, salt);
 
   const query = `
-    INSERT INTO Clientes (nombreCliente, apellidoCliente, emailCliente, contraCliente)
-    VALUES (?, ?, ?, ?)`;
+    INSERT INTO Clientes (nombreCliente, apellidoCliente, contraCliente, emailCliente, dni)
+    VALUES (?, ?, ?, ?, ?)`;
 
   conection.query(
     query,
-    [nombreCliente, apellidoCliente, emailCliente, contraEncrip],
+    [nombreCliente, apellidoCliente, contraEncrip, emailCliente, dni],
     (err, result) => {
       if (err) {
         console.error("Error al registrar cliente:", err);
