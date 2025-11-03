@@ -16,6 +16,7 @@ const ventasEmpleados = require("./routes/VentasEmpleados");
 const favoritosRoutes = require('./routes/favoritos');
 const routesMercadoPago = require("./routes/mercadopago"); 
 const routesPermisos = require("./routes/permisos")
+const routesMedicos = require("./routes/medicos")
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use("/", routesEmpleados);
 app.use('/favoritos', favoritosRoutes); 
 app.use("/mercadopago", routesMercadoPago);
 app.use("/",routesPermisos)
+app.use("/",routesMedicos)
 
 conection.connect((err) => {
   if (err) {
