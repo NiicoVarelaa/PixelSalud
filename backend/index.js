@@ -1,3 +1,4 @@
+require("dotenv").config()
 const express = require("express");
 
 const { conection } = require("./config/database");
@@ -13,7 +14,9 @@ const routesEmpleados = require("./routes/Empleados");
 const routesOnlines = require("./routes/ventasOnline");
 const ventasEmpleados = require("./routes/VentasEmpleados");
 const favoritosRoutes = require('./routes/favoritos');
-const routesMercadoPago = require("./routes/mercadopago");
+const routesMercadoPago = require("./routes/mercadopago"); 
+const routesPermisos = require("./routes/permisos")
+const routesMedicos = require("./routes/medicos")
 const mensajesRoutes = require('./routes/mensajes'); 
 
 const app = express();
@@ -35,6 +38,8 @@ app.use("/", registroRouter);
 app.use("/", routesEmpleados);
 app.use('/favoritos', favoritosRoutes); 
 app.use("/mercadopago", routesMercadoPago);
+app.use("/",routesPermisos)
+app.use("/",routesMedicos)
 app.use('/mensajes', mensajesRoutes);
 
 conection.connect((err) => {

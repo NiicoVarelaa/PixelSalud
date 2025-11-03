@@ -1,34 +1,27 @@
 const express = require("express");
 const {
   getClientes,
-
-  // Se añade getClienteById
-  getClienteById, 
+  getClienteBajados,
+  getCliente,
   crearCliente,
   updateCliente,
-  borrarCliente,
-  
-  // Se eliminan actualizarLogueado y desloguearCliente porque ya no existen en el controlador
+  darBajaCliente,
+  activarCliente
 } = require("../controllers/clientes");
+const auth = require("../middlewares/auth")
+const { verificarRol }= require("../middlewares/verificarPermisos")
 
 const router = express.Router();
 
-// --- Rutas Recomendadas (Estilo RESTful) ---
 
-// GET /api/clientes -> Obtiene todos los clientes
-router.get("/clientes", getClientes);
 
-// GET /api/clientes/123 -> Obtiene el cliente con ID 123
-router.get("/clientes/:idCliente", getClienteById);
-
-// POST /api/clientes -> Crea un nuevo cliente
-router.post("/clientes", crearCliente);
-
-// PUT /api/clientes/123 -> Actualiza el cliente con ID 123
-router.put("/clientes/:idCliente", updateCliente);
-
-// DELETE /api/clientes/123 -> Elimina el cliente con ID 123
-router.delete("/clientes/:idCliente", borrarCliente);
+router.get("/clientes",auth,verificarRol(["admin"]), getClientes);
+router.get("/clientes/bajados",auth,verificarRol(["admin"]),getClienteBajados)
+router.get("/clientes/:id",auth,verificarRol(["admin", "cliente"]),getCliente)
+router.post("/clientes/crear", crearCliente);
+router.put("/clientes/actualizar/:idCliente",auth,verificarRol(["admin", "cliente"]), updateCliente);
+router.put("/clientes/darBaja/:id",auth,verificarRol(["admin", "cliente"]), darBajaCliente)
+router.put("/clientes/activar/:id",auth,verificarRol(["admin", "cliente"]),activarCliente)
 
 
 module.exports = router;
