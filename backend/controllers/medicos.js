@@ -75,4 +75,66 @@ const createMedico = async (req, res)=>{
 }
 
 
-const 
+const updateMedico = async (req, res)=>{
+    const id = req.params.id
+    const {nombreMedico, apellidoMedico, emailMedico, contraMedico} = req.body;
+
+    let salt = await bcryptjs.genSalt(10);
+    let contraEncrip = await bcryptjs.hash(contraMedico, salt);
+
+    const consulta = "update medicos set nombreMedio = ?, apellidoMedico = ?, emailMedico = ?, contraMedico = ? where idMedico=?"
+
+    conection.query(consulta, [nombreMedico, apellidoMedico, emailMedico, contraEncrip, id],(error,results)=>{
+        if (error) {
+        console.error("Error al obtener el Medico:", error);
+        return res
+          .status(500)
+          .json({ error: "Error al actulizar el Medico" });
+      }
+      res.status(200).json({msg:"Medico actualizado con exito", results});
+    })
+}
+
+const darBajaMedico = (req,res)=>{
+    const id= req.params.id
+    const consulta = "update medicos set activo = false where idMedico = ?"
+
+    conection.query(consulta,[id],(error,results)=>{
+        if (error) {
+      console.log("Error al eliminar/dar de baja al medico:", error);
+      return res
+        .status(500)
+        .json({ error: "Error al eliminar/dar de baja al medico" });
+    }
+    res
+      .status(201)
+      .json({ message: "Medico dado de baja/eliminado con exito" });
+    })
+}
+
+const reactivarMedico = (req,res)=>{
+    const id= req.params.id
+    const consulta = "update medicos set activo = true where idMedico = ?"
+
+    conection.query(consulta,[id],(error,results)=>{
+        if (error) {
+      console.log("Error al reactivar al medico:", error);
+      return res
+        .status(500)
+        .json({ error: "Error al reactivar al medico" });
+    }
+    res
+      .status(201)
+      .json({ message: "Medico dado de reactivado con exito" });
+    })
+}
+
+module.exports = {
+    getMedicos,
+    getMedicoBajados,
+    getMedico,
+    createMedico,
+    updateMedico,
+    darBajaMedico,
+    reactivarMedico
+}
