@@ -1,20 +1,23 @@
 import { useState, useEffect, useRef } from "react";
+// 1. Importa el store del carrito y el NUEVO store de autenticación
 import { useCarritoStore } from "../store/useCarritoStore";
-import { useClienteStore } from "../store/useClienteStore";
+import { useAuthStore } from "../store/useAuthStore"; // Se cambia el store
 import { Link, NavLink, useNavigate } from "react-router-dom";
 
+// Componentes (no cambian)
 import NavbarAvatar from "./NavbarAvatar";
 import NavbarMenuUsuario from "./NavbarMenuUsuario";
 import NavbarMenuCelular from "./NavbarMenuCelular";
 import MiniBanner from "./MiniBanner";
 
+// Assets e Íconos (no cambian)
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
-
 import { ShoppingCart, Menu, CircleUserRound, Heart } from "lucide-react";
 
 const Navbar = () => {
+  // 2. Obtiene los datos y acciones de los stores actualizados
   const { carrito, sincronizarCarrito } = useCarritoStore();
-  const { cliente, getCliente, logoutCliente } = useClienteStore();
+  const { user, logoutUser } = useAuthStore(); // Se usa 'user' y 'logoutUser'
   const navigate = useNavigate();
 
   const totalItems = (carrito || []).reduce(
@@ -29,13 +32,14 @@ const Navbar = () => {
   const menuRef = useRef(null);
   const profileRef = useRef(null);
 
+  // Sincroniza el carrito cuando el usuario cambia (login/logout)
   useEffect(() => {
     sincronizarCarrito();
-  }, [cliente, sincronizarCarrito]);
+  }, [user, sincronizarCarrito]); // La dependencia ahora es 'user'
 
+  // 3. El useEffect para 'getCliente' se elimina. ¡Ya no es necesario!
+  // Zustand se encarga de cargar el usuario desde localStorage automáticamente.
   useEffect(() => {
-    getCliente();
-
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsMenuOpen(false);
@@ -59,7 +63,7 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [getCliente]);
+  }, []); // El array de dependencias ahora está vacío
 
   useEffect(() => {
     const handleScroll = () => {
@@ -74,10 +78,9 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLogout = async () => {
-    if (cliente?.idCliente) {
-      await logoutCliente(cliente.idCliente);
-    }
+  // 4. Se simplifica la función de logout
+  const handleLogout = () => {
+    logoutUser(); // Simplemente llama a la acción del store
     setIsProfileDropdownOpen(false);
     setIsMenuOpen(false);
     navigate("/");
@@ -141,7 +144,8 @@ const Navbar = () => {
               </ul>
 
               <div className="flex items-center gap-4">
-                {cliente && (
+                {/* 5. La lógica condicional ahora usa 'user' en lugar de 'cliente' */}
+                {user && (
                   <Link
                     to="/perfil/favoritos"
                     className="relative p-2 flex items-center justify-center"
@@ -155,7 +159,7 @@ const Navbar = () => {
                   </Link>
                 )}
 
-                {cliente && (
+                {user && (
                   <Link
                     to="/carrito"
                     className="relative p-2 flex items-center justify-center"
@@ -173,7 +177,7 @@ const Navbar = () => {
                 )}
 
                 <div className="group relative" ref={profileRef}>
-                  {cliente ? (
+                  {user ? ( // Se verifica 'user'
                     <>
                       <button
                         onClick={() =>
@@ -182,12 +186,12 @@ const Navbar = () => {
                         className="flex items-center gap-2 p-2 transition-colors duration-200 cursor-pointer"
                         aria-label="Abrir menú de perfil"
                       >
-                        <NavbarAvatar cliente={cliente} size="tiny" />
+                        <NavbarAvatar user={user} size="tiny" /> {/* Prop 'user' */}
                         <span className="hidden sm:block text-sm text-gray-700  hover:text-primary-700 font-semibold transition-colors duration-200">
                           ¡Hola{" "}
-                          {cliente.nombreCliente
+                          {user.nombre
                             ? capitalizeName(
-                                cliente.nombreCliente.split(" ")[0]
+                                user.nombre.split(" ")[0]
                               )
                             : "Mi cuenta"}
                           !
@@ -195,7 +199,7 @@ const Navbar = () => {
                       </button>
                       {isProfileDropdownOpen && (
                         <NavbarMenuUsuario
-                          cliente={cliente}
+                          user={user} // Prop 'user'
                           handleLogout={handleLogout}
                           setIsProfileDropdownOpen={setIsProfileDropdownOpen}
                         />
@@ -236,7 +240,7 @@ const Navbar = () => {
             isMenuOpen={isMenuOpen}
             setIsMenuOpen={setIsMenuOpen}
             menuRef={menuRef}
-            cliente={cliente}
+            user={user}
             handleLogout={handleLogout}
             navLinks={navLinks}
             totalItems={totalItems}

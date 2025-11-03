@@ -1,8 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaSignInAlt, FaArrowLeft } from "react-icons/fa"; 
-import { toast } from "react-toastify"; 
+import { FaEnvelope, FaLock, FaSignInAlt, FaArrowLeft } from "react-icons/fa";
+import { toast } from "react-toastify";
+// 1. Importa tu nuevo store de autenticación
+import { useAuthStore } from "../store/useAuthStore"; // Asegúrate de que la ruta sea correcta
 
 const Login = () => {
   const [user, setUser] = useState({
@@ -12,6 +14,8 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  // 2. Obtén la acción 'loginUser' de tu store
+  const { loginUser } = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,10 +26,23 @@ const Login = () => {
         contra: user.password,
       });
 
-      console.log("Login exitoso:", response.data);
-      toast.success("¡Inicio de sesión exitoso!");
+      const { usuario } = response.data;
 
-      const rol = response.data.rol?.toLowerCase();
+      if (!usuario || !usuario.rol) {
+        toast.warn("No se pudo reconocer el rol del usuario.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 3. Guarda la información del usuario en el estado global (Zustand)
+      loginUser(usuario);
+      // Capitaliza la primera letra del nombre
+      const nombreCapitalizado =
+        usuario.nombre.charAt(0).toUpperCase() + usuario.nombre.slice(1);
+      toast.success(`¡Bienvenido, ${nombreCapitalizado}!`);
+
+      // 4. Redirige según el rol obtenido del objeto 'usuario'
+      const rol = usuario.rol.toLowerCase();
 
       if (rol === "cliente") {
         navigate("/");
@@ -33,8 +50,6 @@ const Login = () => {
         navigate("/panelempleados");
       } else if (rol === "admin") {
         navigate("/admin");
-      } else {
-        toast.warn("Rol no reconocido");
       }
     } catch (error) {
       if (error.response) {
@@ -50,9 +65,7 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
-      
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 transform transition-all duration-300 hover:shadow-2xl">
-        {/* Encabezado */}
         <div className="flex items-center mb-6">
           <button
             type="button"
@@ -71,7 +84,6 @@ const Login = () => {
           Accede a tu cuenta para continuar
         </p>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Campo de Correo Electrónico */}
           <div className="relative">
             <label className="sr-only" htmlFor="email">
               Correo electrónico
@@ -88,7 +100,6 @@ const Login = () => {
               required
             />
           </div>
-          {/* Campo de Contraseña */}
           <div className="relative">
             <label className="sr-only" htmlFor="password">
               Contraseña
@@ -149,7 +160,6 @@ const Login = () => {
               )}
             </button>
           </div>
-          {/* Botón de Iniciar Sesión */}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -189,7 +199,6 @@ const Login = () => {
             )}
           </button>
         </form>
-        {/* Enlace a Registro */}
         <p className="mt-6 text-center text-sm text-gray-600">
           ¿No tienes una cuenta?{" "}
           <Link
@@ -199,7 +208,6 @@ const Login = () => {
             Regístrate aquí
           </Link>
         </p>
-        {/* Enlace a ¿Olvidaste tu contraseña? */}
         <p className="mt-2 text-center text-sm">
           <Link
             to="/recuperarContraseña"

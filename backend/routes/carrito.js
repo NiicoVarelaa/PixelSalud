@@ -1,11 +1,11 @@
 const express = require("express");
 const {
-  addCarrito,
   getCarrito,
-  deleteCarrito,
+  addCarrito,
+  deleteProductoDelCarrito, 
+  vaciarCarrito,
   incrementCarrito,
   decrementCarrito,
-  vaciarCarrito,
 } = require("../controllers/carrito");
 
 const router = express.Router();
@@ -16,7 +16,7 @@ router.get("/carrito/:idCliente", auth, verificarRol(["cliente"]), getCarrito);
 router.post("/carrito/agregar",auth, verificarRol(["cliente"]), addCarrito);
 router.put("/carrito/aumentar",auth, verificarRol(["cliente"]), incrementCarrito); 
 router.put("/carrito/disminuir",auth, verificarRol(["cliente"]), decrementCarrito);
-router.delete("/carrito/eliminar/:idProducto",auth, verificarRol(["cliente"]), deleteCarrito);
+router.delete("/carrito/eliminar/:idProducto",auth, verificarRol(["cliente"]), deleteProductoDelCarrito);
 router.delete("/carrito/vaciar/:idCliente",auth, verificarRol(["cliente"]), vaciarCarrito);
 
 module.exports = router;

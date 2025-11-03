@@ -23,4 +23,5 @@ router.put("/clientes/actualizar/:idCliente",auth,verificarRol(["admin", "client
 router.put("/clientes/darBaja/:id",auth,verificarRol(["admin", "cliente"]), darBajaCliente)
 router.put("/clientes/activar/:id",auth,verificarRol(["admin", "cliente"]),activarCliente)
 
+
 module.exports = router;

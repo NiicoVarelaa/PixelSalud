@@ -3,8 +3,9 @@ import NavbarAvatar from "./NavbarAvatar";
 
 import { ChevronDown, User, ShoppingBag, LogOut, Truck, Heart } from "lucide-react"; 
 
+// 1. Recibe 'user' como prop en lugar de 'cliente'
 const NavbarMenuUsuario = ({
-  cliente,
+  user,
   handleLogout,
   setIsProfileDropdownOpen,
 }) => {
@@ -14,8 +15,9 @@ const NavbarMenuUsuario = ({
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
-
-  const nombreCompleto = capitalizeName(cliente?.nombreCliente || "Usuario");
+  
+  // 2. Usa 'user.nombre' en lugar de 'cliente.nombreCliente'
+  const nombreCompleto = capitalizeName(user?.nombre || "Usuario");
 
   return (
     <div className="absolute right-0 mt-4 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden transition-all duration-200 ease-in-out transform origin-top-right">
@@ -33,12 +35,14 @@ const NavbarMenuUsuario = ({
         </div>
         
         <div className="flex items-center gap-3">
-          <NavbarAvatar cliente={cliente} size="medium" />
+          {/* 3. Pasa la prop 'user' a NavbarAvatar */}
+          <NavbarAvatar user={user} size="medium" />
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-gray-900 text-sm truncate">
               {nombreCompleto}
             </p>
-            <p className="text-xs text-gray-600 truncate">{cliente.email}</p>
+            {/* 4. Usa 'user.email' */}
+            <p className="text-xs text-gray-600 truncate">{user?.email}</p>
           </div>
         </div>
       </div>

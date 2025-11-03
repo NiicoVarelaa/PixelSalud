@@ -1,30 +1,25 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link, NavLink } from "react-router-dom";
-import axios from "axios";
-import { getEmpleado } from "../store/useEmpleadoStore";
+// 1. Importa el store de autenticación unificado
+import { useAuthStore } from "../store/useAuthStore";
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
 import profileIcon from "../assets/iconos/profile_icon.png";
 import logoutIcon from "../assets/iconos/logout.png";
 import closeIcon from "../assets/iconos/cross_icon.png";
+import { Menu } from "lucide-react"; // Usamos un ícono más estándar
 
 const NavbarAdmin = () => {
   const navigate = useNavigate();
+  // 2. Obtiene el usuario y la función de logout del store
+  const { user, logoutUser } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [loggedInEmpleadoId, setLoggedInEmpleadoId] = useState(null);
   const menuRef = useRef(null);
   const profileRef = useRef(null);
 
-  // Al montar: obtener si hay empleado logueado + listeners de clic fuera/ESC
+  // 3. El useEffect para buscar el empleado logueado se elimina.
+  // Este useEffect ahora solo maneja los clics fuera del menú.
   useEffect(() => {
-    const fetchEmpleadoId = async () => {
-      const id = await getEmpleado();
-      setLoggedInEmpleadoId(id);
-      console.log("Empleado logueado:", id);
-    };
-
-    fetchEmpleadoId();
-
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsMenuOpen(false);
@@ -50,22 +45,16 @@ const NavbarAdmin = () => {
     };
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      if (loggedInEmpleadoId) {
-        await axios.put(
-          `http://localhost:5000/Empleados/${loggedInEmpleadoId}/desloguear`
-        );
-      }
-      setLoggedInEmpleadoId(null);
-      setIsProfileDropdownOpen(false);
-      setIsMenuOpen(false);
-      navigate("/login");
-      console.log("Empleado deslogueado correctamente");
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
+  // 4. Se simplifica enormemente la función de logout
+  const handleLogout = () => {
+    logoutUser(); // Llama a la acción del store
+    setIsProfileDropdownOpen(false);
+    setIsMenuOpen(false);
+    navigate("/login"); // Redirige al login
   };
+
+  // Verificamos si el usuario es admin o empleado para mostrar el contenido
+  const isAuthorized = user && (user.rol === 'admin' || user.rol === 'empleado');
 
   return (
     <div className="py-5 font-medium relative bg-secondary-100 px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
@@ -78,18 +67,22 @@ const NavbarAdmin = () => {
           />
         </Link>
 
-        <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
-          <NavLink
-            to="/admin"
-            className="flex flex-col items-center gap-1 transition transform hover:scale-105 hover:text-green-500 duration-300"
-          >
-            <p>PANEL DE ADMINISTRACION</p>
-          </NavLink>
-        </ul>
+        {/* Los links de navegación ahora dependen de si el usuario está autorizado */}
+        {isAuthorized && (
+           <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
+             <NavLink
+              to="/admin"
+              className="flex flex-col items-center gap-1 transition transform hover:scale-105 hover:text-green-500 duration-300"
+            >
+              <p>PANEL DE ADMINISTRACION</p>
+            </NavLink>
+          </ul>
+        )}
 
         <div className="flex items-center gap-6">
           <div className="group relative" ref={profileRef}>
-            {loggedInEmpleadoId ? (
+            {/* 5. La condición ahora se basa en 'isAuthorized' */}
+            {isAuthorized ? (
               <>
                 <button
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
@@ -128,6 +121,14 @@ const NavbarAdmin = () => {
               </NavLink>
             )}
           </div>
+          {/* Botón para menú móvil */}
+          <button
+            onClick={() => setIsMenuOpen(true)}
+            className="sm:hidden"
+            aria-label="Abrir menú"
+          >
+            <Menu className="w-6 h-6 text-gray-700" />
+          </button>
         </div>
       </div>
 
@@ -135,11 +136,11 @@ const NavbarAdmin = () => {
       <div
         className={`fixed inset-0 z-50 transition-opacity duration-300 ${
           isMenuOpen
-            ? "opacity-100 backdrop-blur-sm"
+            ? "opacity-100"
             : "opacity-0 pointer-events-none"
         }`}
       >
-        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm transition duration-300"></div>
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
 
         <div
           ref={menuRef}
@@ -179,7 +180,7 @@ const NavbarAdmin = () => {
           </nav>
 
           <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
-            {loggedInEmpleadoId ? (
+            {isAuthorized ? (
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-3 w-full text-left py-3 px-4 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors duration-200"

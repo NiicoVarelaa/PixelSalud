@@ -51,12 +51,12 @@ const getClienteBajados = (req, res) => {
 };
 
 const getClientes = (req, res) => {
-  const consulta = "SELECT * FROM Clientes";
+  const consulta = "SELECT idCliente, nombreCliente, apellidoCliente, emailCliente, fecha_registro, hora_registro, rol FROM Clientes";
 
   conection.query(consulta, (err, results) => {
     if (err) {
-      console.error("Error al obtener los usuarios:", err);
-      return res.status(500).json({ error: "Error al obtener los usuarios" });
+      console.error("Error al obtener los clientes:", err);
+      return res.status(500).json({ error: "Error al obtener los clientes." });
     }
     if (results.length===0) {
       return res.status(404).json({error:"No hay clientes creados"})
@@ -95,10 +95,8 @@ const updateCliente = async (req, res) => {
     [nombreCliente,apellidoCliente, contraEncrip, emailCliente, dni , idCliente],
     (err, results) => {
       if (err) {
-        console.error("Error al actulizar el cliente", err);
-        return res
-          .status(500)
-          .json({ error: "Error al querer actualizar un cliente" });
+        console.error("Error al actualizar el cliente:", err);
+        return res.status(500).json({ error: "Error al actualizar el cliente." });
       }
        res.status(200).json({msg:"Empleado actualizado con exito", results});
     }
@@ -137,5 +135,4 @@ module.exports = {
   updateCliente,
   darBajaCliente,
   activarCliente
-
 };

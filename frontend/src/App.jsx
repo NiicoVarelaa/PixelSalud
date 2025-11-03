@@ -1,5 +1,7 @@
 import { Route, Routes } from "react-router-dom";
+
 import Layout from "./components/Layout";
+import ScrollToTop from "./components/ScrollToTop";
 
 import Inicio from "./pages/Inicio";
 import Productos from "./pages/Productos";
@@ -21,28 +23,31 @@ import PerfilFavoritos from "./pages/PerfilFavoritos";
 
 const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Inicio />} />
-        <Route path="productos" element={<Productos />} />
-        <Route path="productos/:id" element={<Producto />} />
-        <Route path="productos/:categoria?" element={<Productos />} />
-        <Route path="sobreNosotros" element={<SobreNosotros />} />
-        <Route path="contacto" element={<Contacto />} />
-        <Route path="registro" element={<Registro />} />
-        <Route path="carrito" element={<Carrito />} />
-        <Route path="checkout" element={<Checkout />} />
-        <Route path="login" element={<Login />} />
-        <Route path="recuperarContraseña" element={<RecuperarContrasena />} />
-        <Route path="perfil" element={<Perfil />} />
-        <Route path="perfil/favoritos" element={<PerfilFavoritos />} />
-        <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
-        <Route path="mis-compras" element={<MisCompras />} />
-      </Route>
-      <Route path="/admin/*" element={<Administrador />} />
-      <Route path="/panelempleados" element={<PanelEmpleados />} />
-      <Route path="*" element={<Error404 />} />
-    </Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Inicio />} />
+          <Route path="productos" element={<Productos />} />
+          <Route path="productos/:idProducto" element={<Producto />} />
+          <Route path="productos/:categoria?" element={<Productos />} />
+          <Route path="sobreNosotros" element={<SobreNosotros />} />
+          <Route path="contacto" element={<Contacto />} />
+          <Route path="registro" element={<Registro />} />
+          <Route path="carrito" element={<Carrito />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="login" element={<Login />} />
+          <Route path="recuperarContraseña" element={<RecuperarContrasena />} />
+          <Route path="perfil" element={<Perfil />} />
+          <Route path="perfil/favoritos" element={<PerfilFavoritos />} />
+          <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
+          <Route path="mis-compras" element={<MisCompras />} />
+        </Route>
+        <Route path="/admin/*" element={<Administrador />} />
+        <Route path="/panelempleados" element={<PanelEmpleados />} />
+        <Route path="*" element={<Error404 />} />
+      </Routes>
+    </>
   );
 };
 

@@ -71,9 +71,202 @@ a.active hr {
     display: block;
 }
 
+
+
 @media screen and (min-width: 1600px) {
   .full-width-over-1600 {
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
 }
+
+.products-offer-swiper {
+  padding: 10px 5px 40px !important;
+}
+
+.products-offer-swiper .swiper-pagination {
+  bottom: 15px !important;
+}
+
+.products-offer-swiper .custom-bullet {
+  background: #cbd5e1;
+  opacity: 0.7;
+  width: 8px;
+  height: 8px;
+  transition: all 0.3s ease;
+}
+
+.products-offer-swiper .custom-bullet.swiper-pagination-bullet-active {
+  background: #00a339;
+  opacity: 1;
+  width: 24px;
+  border-radius: 4px;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-offer-card:focus-within {
+  outline: 2px solid #00a339;
+  outline-offset: 2px;
+}
+
+button, a, .icon-card {
+  transition: all 0.3s ease;
+}
+
+
+/* === Animaciones personalizadas para CardCategorias === */
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.animate-ping {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .CardCategorias,
+  .animate-ping {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Estados focus para mejor accesibilidad */
+.CardCategorias:focus {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* Mejoras para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .CardCategorias-dark {
+    background: var(--color-gray-800);
+    border-color: var(--color-gray-700);
+  }
+  
+  .CardCategorias-dark:hover {
+    border-color: var(--color-primary-400);
+  }
+}
+
+/* Soporte para touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .CardCategorias {
+    border-width: 1px;
+    padding: 1rem;
+  }
+  
+  .CardCategorias:active {
+    transform: scale(0.98);
+    background-color: var(--color-primary-50);
+  }
+}
+
+
+/* === Animaciones personalizadas para BannerInfo === */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+.feature-card {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+}
+
+.gradient-border {
+  position: relative;
+  background: linear-gradient(45deg, var(--color-primary-500), var(--color-secondary-500), var(--color-primary-500));
+  background-size: 400% 400%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-card,
+  .float-animation,
+  .gradient-border {
+    animation: none;
+    transition: none;
+  }
+}
+
+.feature-card:focus-within {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .banner-info-dark {
+    background: linear-gradient(135deg, var(--color-gray-900) 0%, var(--color-gray-800) 100%);
+  }
+}
+
+
+/* ========================================================= */
+/* === Estilos para Controles de Carrusel (Ofertas Flash) === */
+/* ========================================================= */
+
+.flash-offers-controls .swiper-pagination {
+  /* Anulamos cualquier posicionamiento absoluto que pueda haber heredado */
+  position: relative !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  transform: none !important;
+  width: auto !important;
+}
+
+.flash-offers-controls .swiper-pagination-bullet {
+  /* Heredamos el estilo del otro carrusel para consistencia */
+  background: #cbd5e1; /* gray-300 */
+  opacity: 0.7;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px !important; /* Ajuste para espaciado correcto */
+  transition: all 0.3s ease;
+  border-radius: 9999px; /* Aseguramos que sea redondo si el otro CSS lo cambia */
+}
+
+.flash-offers-controls .swiper-pagination-bullet-active {
+  /* Heredamos el estilo del otro carrusel para consistencia */
+  background: #00a339; /* color-primary-700 */
+  opacity: 1;
+  width: 24px;
+  border-radius: 4px;
+}
+
+
+/* ========================================================= */
+/* === Estilos para === */
+/* ========================================================= */
