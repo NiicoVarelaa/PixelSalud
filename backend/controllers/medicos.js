@@ -1,5 +1,5 @@
 const util = require("util")
-const conection = require("../config/database")
+const {conection}= require("../config/database")
 const bcryptjs = require("bcryptjs")
 
 const query = util.promisify(conection.query).bind(conection);
@@ -19,8 +19,8 @@ const getMedicos = (req, res)=>{
 }
 
 const getMedicoBajados = (req, res)=>{
-    const consulta = "select * from where activo = false"
-       conection.query(consulta, [id], (err, results) => {
+    const consulta = "select * from medicos where activo = false"
+       conection.query(consulta, (err, results) => {
     if (err) {
       console.error("Error al obtener los medicos:", err);
       return res.status(500).json({ error: "Error al obtener los medicos" });
@@ -82,7 +82,7 @@ const updateMedico = async (req, res)=>{
     let salt = await bcryptjs.genSalt(10);
     let contraEncrip = await bcryptjs.hash(contraMedico, salt);
 
-    const consulta = "update medicos set nombreMedio = ?, apellidoMedico = ?, emailMedico = ?, contraMedico = ? where idMedico=?"
+    const consulta = "update medicos set nombreMedico = ?, apellidoMedico = ?, emailMedico = ?, contraMedico = ? where idMedico=?"
 
     conection.query(consulta, [nombreMedico, apellidoMedico, emailMedico, contraEncrip, id],(error,results)=>{
         if (error) {
