@@ -1,30 +1,26 @@
 const express = require("express");
 const {
   getEmpleados,
-  deleteEmpleado,
-  updateEmpleado,
+  getEmpleadosBajados,
+  getEmpleado,
   createEmpleado,
-  // 1. Se eliminan las importaciones de las funciones obsoletas
+  updateEmpleado,
+  reactivarEmpleado,
+  darBajaEmpleado
+
 } = require("../controllers/empleados");
+const auth = require("../middlewares/auth")
+const {verificarRol}= require("../middlewares/verificarPermisos")
 
 const router = express.Router();
 
-// --- RUTAS ESTANDARIZADAS (Estilo RESTful) ---
+router.get("/Empleados",auth,verificarRol(["admin"]), getEmpleados);
+router.get("/Empleados/Bajados",auth,verificarRol(["admin"]),getEmpleadosBajados)
+router.get("/Empleados/:id",auth,verificarRol(["admin", "empleado"]),getEmpleado)
+router.post("/Empleados/crear",auth,verificarRol(["admin"]), createEmpleado);
+router.put("/empleados/actualizar/:id",auth,verificarRol(["admin"]), updateEmpleado)
+router.put("/empleados/baja/:id",auth,verificarRol(["admin"]),darBajaEmpleado)
+router.put("/empleados/reactivar/:id",auth,verificarRol(["admin"]),reactivarEmpleado)
 
-// GET /api/empleados -> Obtiene todos los empleados
-router.get("/empleados", getEmpleados);
-
-// POST /api/empleados -> Crea un nuevo empleado
-router.post("/empleados", createEmpleado);
-
-// PUT /api/empleados/123 -> Actualiza el empleado con ID 123
-router.put("/empleados/:idEmpleado", updateEmpleado);
-
-// DELETE /api/empleados/123 -> Elimina el empleado con ID 123
-router.delete("/empleados/:idEmpleado", deleteEmpleado);
-
-// 2. Se eliminan las rutas para loguear y desloguear que ya no se usan
-// router.put("/Empleados/loguear/:idEmpleado", actualizarLogueado);
-// router.put("/Empleados/:idEmpleado/desloguear", desloguearEmpleado);
 
 module.exports = router;

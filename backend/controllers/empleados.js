@@ -1,127 +1,137 @@
+const util = require("util")
 const { conection } = require("../config/database");
-const bcrypt = require('bcrypt'); // Importamos bcrypt para hashear contraseñas
+const bcryptjs = require("bcryptjs")
 
-// --- OBTENER TODOS LOS EMPLEADOS (DE FORMA SEGURA) ---
+const query = util.promisify(conection.query).bind(conection);
+
 const getEmpleados = (req, res) => {
-    // Se seleccionan todos los campos EXCEPTO la contraseña por seguridad.
-    const consulta = `
-        SELECT 
-            idEmpleado, nombreEmpleado, apellidoEmpleado, emailEmpleado, 
-            fecha_registro, hora_registro, rol, activo, 
-            crear_productos, modificar_productos, modificar_ventasE, modificar_ventasO 
-        FROM Empleados
-    `;
+  const consulta = "select * from Empleados";
 
-    conection.query(consulta, (err, results) => {
-        if (err) {
-            console.error('Error al obtener empleados:', err);
-            return res.status(500).json({ error: 'Error al obtener los empleados.' });
-        }
-        res.status(200).json(results);
-    });
+  conection.query(consulta, (err, results) => {
+    if (err) throw err;
+    res.status(200).json({msg:"Empleados traidos con exitos", results} );
+  });
 };
 
-// --- CREAR UN NUEVO EMPLEADO (CON CONTRASEÑA HASHEADA) ---
-const createEmpleado = async (req, res) => {
-    // Se incluyen todos los campos de la nueva tabla
-    const {
-        nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado, rol,
-        crear_productos, modificar_productos, modificar_ventasE, modificar_ventasO
-    } = req.body;
 
-    if (!nombreEmpleado || !apellidoEmpleado || !emailEmpleado || !contraEmpleado) {
-        return res.status(400).json({ error: 'Los campos nombre, apellido, email y contraseña son obligatorios.' });
+const getEmpleadosBajados = (req, res)=>{
+  const consulta = "select * from empleados where activo = false"
+   conection.query(consulta, (err, results) => {
+    if (err) {
+      console.error("Error al obtener los empleados dados de baja:", err);
+      return res.status(500).json({ error: "Error al obtener los empleados dados de baja" });
     }
-
-    try {
-        // Hasheamos la contraseña antes de guardarla
-        const saltRounds = 10;
-        const contraHasheada = await bcrypt.hash(contraEmpleado, saltRounds);
-
-        const consulta = `
-            INSERT INTO Empleados 
-            (nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado, rol, crear_productos, modificar_productos, modificar_ventasE, modificar_ventasO) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-
-        conection.query(
-            consulta,
-            [nombreEmpleado, apellidoEmpleado, emailEmpleado, contraHasheada, rol || 'empleado', crear_productos, modificar_productos, modificar_ventasE, modificar_ventasO],
-            (err, result) => {
-                if (err) {
-                    console.error('Error al crear el empleado:', err);
-                    if (err.code === 'ER_DUP_ENTRY') {
-                        return res.status(409).json({ error: 'El correo electrónico ya está registrado.' });
-                    }
-                    return res.status(500).json({ error: 'Error al crear el empleado.' });
-                }
-                res.status(201).json({ message: 'Empleado creado correctamente', newId: result.insertId });
-            }
-        );
-    } catch (hashError) {
-        console.error("Error al hashear la contraseña:", hashError);
-        return res.status(500).json({ error: "Error interno al procesar la contraseña." });
+    if (results.length === 0) {
+        return res.status(404).json({ error: "No hay empleados dados de baja" });
     }
-};
+    res.status(200).json(results);
+  });
+}
 
-// --- ACTUALIZAR UN EMPLEADO ---
-const updateEmpleado = async (req, res) => {
-    const idEmpleado = req.params.idEmpleado;
-    const {
-        nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado, rol, activo,
-        crear_productos, modificar_productos, modificar_ventasE, modificar_ventasO
-    } = req.body;
-
-    let contraHasheada;
-    if (contraEmpleado) {
-        // Solo hasheamos y actualizamos la contraseña si se proporciona una nueva
-        const saltRounds = 10;
-        contraHasheada = await bcrypt.hash(contraEmpleado, saltRounds);
+const getEmpleado = (req, res)=>{
+  const id = req.params.id
+  const consulta = "select * from empleados where idEmpleado=?"
+  conection.query(consulta,[id],(err,results)=>{
+    if (err) {
+      console.error("Error al obtener empleado:", err);
+      return res.status(500).json({ error: "Error al obtener empleado" });
     }
-
-    // Se construye la consulta dinámicamente para actualizar solo los campos necesarios
-    const fields = {
-        nombreEmpleado, apellidoEmpleado, emailEmpleado, 
-        ...(contraHasheada && { contraEmpleado: contraHasheada }), // Añade la contraseña solo si se cambió
-        rol, activo, crear_productos, modificar_productos, modificar_ventasE, modificar_ventasO
-    };
     
-    const consulta = "UPDATE Empleados SET ? WHERE idEmpleado = ?";
+    res.status(200).json(results);
+  })
+}
 
-    conection.query(consulta, [fields, idEmpleado], (err, results) => {
+
+const createEmpleado = async (req, res) => {
+  const { nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado } =req.body;
+
+  let salt = await bcryptjs.genSalt(10);
+  let contraEncrip = await bcryptjs.hash(contraEmpleado, salt);
+
+  const exist = "select * from empleados where emailEmpleado=?";
+
+  const EmpleadoExist = await query(exist, [emailEmpleado]);
+  if (EmpleadoExist[0]) {
+    return res
+      .status(409)
+      .json({ error: "El Empleado que intentas crear, ya se encuentra creado" });
+  } 
+    const consulta =
+      "insert into empleados (nombreEmpleado, apellidoEmpleado,emailEmpleado, contraEmpleado) values (?,?,?,?);";
+
+    conection.query(
+      consulta,
+      [nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEncrip],
+      (err, result) => {
         if (err) {
-            console.error('Error al actualizar el empleado:', err);
-            return res.status(500).json({ error: 'Error al actualizar el empleado.' });
+          console.error("Error al crear el empleado:", err);
+          return res.status(500).json({ error: "Error al crear el empleado" });
         }
-        if (results.affectedRows === 0) {
-            return res.status(404).json({ error: 'Empleado no encontrado.' });
-        }
-        res.status(200).json({ message: 'Empleado actualizado correctamente.' });
-    });
+        res.status(201).json({ message: "Empleado creado correctamente" });
+      }
+    );
+  
 };
 
-// --- ELIMINAR UN EMPLEADO ---
-const deleteEmpleado = (req, res) => {
-    const idEmpleado = req.params.idEmpleado;
-    const consulta = "DELETE FROM Empleados WHERE idEmpleado = ?";
+const updateEmpleado =  async(req, res) => {
+  const { nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado} = req.body;
+  const id = req.params.id;
+  let salt = await bcryptjs.genSalt(10);
+  let contraEncrip = await bcryptjs.hash(contraEmpleado, salt);
+  const consulta =
+    "update empleados set nombreEmpleado=?, apellidoEmpleado=?, emailEmpleado=?, contraEmpleado=? where idEmpleado=?";
 
-    conection.query(consulta, [idEmpleado], (err, results) => {
-        if (err) {
-            console.error('Error al eliminar el empleado:', err);
-            return res.status(500).json({ error: 'Error al eliminar el empleado.' });
-        }
-        if (results.affectedRows === 0) {
-            return res.status(404).json({ error: 'Empleado no encontrado.' });
-        }
-        res.status(200).json({ message: 'Empleado eliminado correctamente.' });
-    });
+  conection.query(
+    consulta,
+    [nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEncrip, id],
+    (err, results) => {
+      if (err) {
+        console.error("Error al obtener el empleado:", err);
+        return res
+          .status(500)
+          .json({ error: "Error al actulizar el empleado" });
+      }
+      res.status(200).json({msg:"Empleado actualizado con exito", results});
+    }
+  );
 };
 
-// Se eliminan las funciones 'actualizarLogueado' y 'desloguearEmpleado' por ser obsoletas.
+const darBajaEmpleado = (req, res) => {
+  const id = req.params.id;
+  const consulta = "update empleados set activo = false where idEmpleado=?";
+
+  conection.query(consulta, [id], (err, result) => {
+    if (err) {
+      console.log("Error al eliminar/dar de baja al empleado:", err);
+      return res
+        .status(500)
+        .json({ error: "Error al eliminar/dar de baja al empleado" });
+    }
+    res
+      .status(201)
+      .json({ message: "Empleado dado de baja/eliminado con exito" });
+  });
+};
+
+const reactivarEmpleado = (req, res) => {
+  const id = req.params.id;
+  const consulta = "update empleados set activo = true where idEmpleado=?";
+
+  conection.query(consulta, [id], (err, result) => {
+    if (err) {
+      console.log("Error al reactivar al empleado:", err);
+      return res.status(500).json({ error: "Error al reactivar al empleado" });
+    }
+    res.status(201).json({ message: "Empleado reactivado con exito" });
+  });
+};
 
 module.exports = {
-    getEmpleados,
-    createEmpleado,
-    updateEmpleado,
-    deleteEmpleado
+  getEmpleados,
+  getEmpleadosBajados,
+  getEmpleado,
+  createEmpleado,
+  updateEmpleado,
+  darBajaEmpleado,
+  reactivarEmpleado
 };

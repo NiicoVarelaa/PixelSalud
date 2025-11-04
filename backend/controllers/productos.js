@@ -53,6 +53,22 @@ const getProductos = (req, res) => {
   });
 };
 
+
+const getProductoBajado = (req, res)=>{
+  const consulta = "select * from Productos where activo = false;"
+  conection.query(consulta, (error, result)=>{
+    if (error) {
+       console.error("Error al obtener productos dados de baja:", error);
+      return res.status(500).json({ error: "Error al obtener productos dados de baja" });
+    }
+    if (result.length === 0) {
+        return res.status(404).json({ error: "Producto dado de baja no encontrados" });
+    }
+    res.json(result);
+  })
+}
+
+
 /**
  * Obtiene un único producto con precio actualizado y flag de oferta.
  * ¡Consulta corregida para evitar ONLY_FULL_GROUP_BY!
@@ -197,16 +213,35 @@ const updateProducto = (req, res) => {
   );
 };
 
-const deleteProducto = (req, res) => {
-  const id = req.params.idProducto;
-  const consulta = "DELETE FROM Productos WHERE idProducto = ?";
+const darBajaProducto = (req, res) => {
+  const id = req.params.id;
+  const consulta = "update productos set activo = false where idProducto=?";
 
-  conection.query(consulta, [id], (err, results) => {
+  conection.query(consulta, [id], (err, result) => {
     if (err) {
       console.error("Error al obtener el producto:", err);
       return res.status(500).json({ error: "Error al eliminar el producto" });
     }
-    res.status(200).json({ message: "Producto eliminado correctamente" });
+    res
+      .status(201)
+      .json({ message: "Productos dado de baja/eliminado con exito" });
+  });
+};
+
+const activarProducto = (req, res) => {
+  const id = req.params.id;
+  const consulta = "update productos set activo = true where idProducto=?";
+
+  conection.query(consulta, [id], (err, result) => {
+    if (err) {
+      console.log("Error al activar de baja al producto:", err);
+      return res
+        .status(500)
+        .json({ error: "Error al activar de baja al producto" });
+    }
+    res
+      .status(201)
+      .json({ message: "Productos activado con exito" });
   });
 };
 
@@ -427,9 +462,11 @@ const getCyberMondayOffers = (req, res) => {
 module.exports = {
   getProductos,
   getProducto,
+  getProductoBajado,
   createProducto,
+  darBajaProducto,
+  activarProducto,
   updateProducto,
-  deleteProducto,
   getOfertasDestacadas, 
   createOferta,
   getOfertas,
