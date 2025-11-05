@@ -26,7 +26,15 @@ const Login = () => {
         contra: user.password,
       });
 
-      const { usuario } = response.data;
+      const { token, rol, nombre, apellido, tipo } = response.data;
+
+      // Creamos un objeto usuario compatible con tu store
+      const usuario = {
+        nombre,
+        apellido,
+        rol,
+        tipo,
+      };
 
       if (!usuario || !usuario.rol) {
         toast.warn("No se pudo reconocer el rol del usuario.");
@@ -35,20 +43,23 @@ const Login = () => {
       }
 
       // 3. Guarda la información del usuario en el estado global (Zustand)
-      loginUser(usuario);
+      loginUser(usuario, token);
+
+      console.log("Token guardado:", token);
+console.log("Token en localStorage:", localStorage.getItem("token"));
       // Capitaliza la primera letra del nombre
       const nombreCapitalizado =
         usuario.nombre.charAt(0).toUpperCase() + usuario.nombre.slice(1);
       toast.success(`¡Bienvenido, ${nombreCapitalizado}!`);
 
       // 4. Redirige según el rol obtenido del objeto 'usuario'
-      const rol = usuario.rol.toLowerCase();
+      const rolUsuario = usuario.rol.toLowerCase();
 
-      if (rol === "cliente") {
+      if (rolUsuario === "cliente") {
         navigate("/");
-      } else if (rol === "empleado") {
+      } else if (rolUsuario === "empleado") {
         navigate("/panelempleados");
-      } else if (rol === "admin") {
+      } else if (rolUsuario === "admin") {
         navigate("/admin");
       }
     } catch (error) {
@@ -61,7 +72,10 @@ const Login = () => {
     } finally {
       setIsSubmitting(false);
     }
+    
   };
+
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
@@ -163,9 +177,8 @@ const Login = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full bg-primary-700 text-white py-3 rounded-lg hover:bg-primary-800 transition duration-300 font-semibold flex items-center justify-center space-x-2 shadow-md hover:shadow-lg cursor-pointer ${
-              isSubmitting ? "opacity-75 cursor-not-allowed" : ""
-            }`}
+            className={`w-full bg-primary-700 text-white py-3 rounded-lg hover:bg-primary-800 transition duration-300 font-semibold flex items-center justify-center space-x-2 shadow-md hover:shadow-lg cursor-pointer ${isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+              }`}
           >
             {isSubmitting ? (
               <>
