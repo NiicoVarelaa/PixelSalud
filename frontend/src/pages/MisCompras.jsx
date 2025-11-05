@@ -22,7 +22,7 @@ const MisCompras = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -49,17 +49,37 @@ const MisCompras = () => {
     const ventas = {};
     datos.forEach((fila) => {
       const {
-        idVentaO, fechaPago, horaPago, metodoPago, totalPago, estado,
-        tipoEntrega, direccionEnvio, nombreProducto, cantidad, precioUnitario, img,
+        idVentaO,
+        fechaPago,
+        horaPago,
+        metodoPago,
+        totalPago,
+        estado,
+        tipoEntrega,
+        direccionEnvio,
+        nombreProducto,
+        cantidad,
+        precioUnitario,
+        img,
       } = fila;
       if (!ventas[idVentaO]) {
         ventas[idVentaO] = {
-          idVentaO, fechaPago, horaPago, metodoPago, totalPago: Number(totalPago),
-          estado, tipoEntrega, direccionEnvio, productos: [],
+          idVentaO,
+          fechaPago,
+          horaPago,
+          metodoPago,
+          totalPago: Number(totalPago),
+          estado,
+          tipoEntrega,
+          direccionEnvio,
+          productos: [],
         };
       }
       ventas[idVentaO].productos.push({
-        nombreProducto, cantidad: Number(cantidad), precioUnitario: Number(precioUnitario), img,
+        nombreProducto,
+        cantidad: Number(cantidad),
+        precioUnitario: Number(precioUnitario),
+        img,
       });
     });
     return Object.values(ventas);
@@ -68,26 +88,40 @@ const MisCompras = () => {
   function formatearFechaConDia(fecha) {
     if (!fecha) return "";
     const date = new Date(fecha);
-    const opciones = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+    const opciones = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
     const fechaFormateada = date.toLocaleDateString("es-AR", opciones);
     return fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1);
   }
 
   const getStatusIcon = (estado) => {
     switch (estado) {
-      case "Pendiente": return <FiClock className="text-yellow-600" />;
-      case "Enviado": return <FiTruck className="text-blue-600" />;
-      case "Entregado": case "Retirado": return <FiCheckCircle className="text-green-600" />;
-      case "Cancelado": return <FiXCircle className="text-red-600" />;
-      default: return <FiClock className="text-gray-500" />;
+      case "Pendiente":
+        return <FiClock className="text-yellow-600" />;
+      case "Enviado":
+        return <FiTruck className="text-blue-600" />;
+      case "Entregado":
+      case "Retirado":
+        return <FiCheckCircle className="text-green-600" />;
+      case "Cancelado":
+        return <FiXCircle className="text-red-600" />;
+      default:
+        return <FiClock className="text-gray-500" />;
     }
   };
 
   const getDeliveryIcon = (tipoEntrega) => {
     switch (tipoEntrega) {
-      case "Envio": return <FaTruck className="text-blue-500" />;
-      case "Sucursal": return <FaStore className="text-orange-500" />;
-      default: return <FaTruck className="text-gray-500" />;
+      case "Envio":
+        return <FaTruck className="text-blue-500" />;
+      case "Sucursal":
+        return <FaStore className="text-orange-500" />;
+      default:
+        return <FaTruck className="text-gray-500" />;
     }
   };
 
@@ -97,25 +131,31 @@ const MisCompras = () => {
         <Header />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
-            <p className="text-lg text-gray-700 font-medium">Redirigiendo a inicio de sesión...</p>
+            <p className="text-lg text-gray-700 font-medium">
+              Redirigiendo a inicio de sesión...
+            </p>
           </div>
         </main>
         <Footer />
       </div>
     );
   }
-  
+
   if (cargando) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-gray-50 my-16">
         <Header />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <div className="inline-block animate-pulse">
               <FaShoppingCart className="h-16 w-16 text-primary-500 mb-4" />
             </div>
-            <p className="text-lg text-gray-700 font-medium">Cargando tus compras...</p>
-            <p className="text-sm text-gray-500 mt-2">Esto puede tomar unos segundos</p>
+            <p className="text-lg text-gray-700 font-medium">
+              Cargando tus compras...
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Esto puede tomar unos segundos
+            </p>
           </div>
         </main>
         <Footer />
@@ -125,7 +165,7 @@ const MisCompras = () => {
 
   if (ventasAgrupadas.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-gray-50 my-16">
         <Header />
         <main className="flex-grow flex items-center justify-center px-4">
           <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-sm">
@@ -138,9 +178,9 @@ const MisCompras = () => {
             <p className="mt-2 text-gray-500">
               Cuando realices tu primera compra, aparecerá aquí tu historial.
             </p>
-            <Link to="/productos" className="mt-6 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-              Comenzar a comprar
-            </Link>
+            <div className="mt-6 text-primary-600 font-medium hover:underline">
+              <Link to="/productos">Comenzar a comprar</Link>
+            </div>
           </div>
         </main>
         <Footer />
@@ -183,7 +223,11 @@ const MisCompras = () => {
               >
                 <button
                   className="w-full px-5 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left"
-                  onClick={() => setExpandedOrder(expandedOrder === venta.idVentaO ? null : venta.idVentaO)}
+                  onClick={() =>
+                    setExpandedOrder(
+                      expandedOrder === venta.idVentaO ? null : venta.idVentaO
+                    )
+                  }
                 >
                   <div className="flex-1">
                     <div className="flex items-center flex-wrap gap-2">
@@ -195,51 +239,92 @@ const MisCompras = () => {
                       </div>
                       <span
                         className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                          ${venta.estado === "Pendiente" ? "bg-yellow-100 text-yellow-800" : ""}
-                          ${venta.estado === "Enviado" ? "bg-blue-100 text-blue-800" : ""}
-                          ${venta.estado === "Entregado" || venta.estado === "Retirado"
-                            ? "bg-green-100 text-green-800"
-                            : ""}
-                          ${venta.estado === "Cancelado" ? "bg-red-100 text-red-800" : ""}
+                          ${
+                            venta.estado === "Pendiente"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : ""
+                          }
+                          ${
+                            venta.estado === "Enviado"
+                              ? "bg-blue-100 text-blue-800"
+                              : ""
+                          }
+                          ${
+                            venta.estado === "Entregado" ||
+                            venta.estado === "Retirado"
+                              ? "bg-green-100 text-green-800"
+                              : ""
+                          }
+                          ${
+                            venta.estado === "Cancelado"
+                              ? "bg-red-100 text-red-800"
+                              : ""
+                          }
                         `}
                       >
                         {venta.estado}
                       </span>
                     </div>
-                    
+
                     <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
                       <div className="flex items-center gap-1">
-                        <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <svg
+                          className="h-4 w-4 text-gray-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
                         </svg>
                         {formatearFechaConDia(venta.fechaPago)}
-                        {venta.horaPago && <span> • {venta.horaPago.slice(0, 5)}</span>}
+                        {venta.horaPago && (
+                          <span> • {venta.horaPago.slice(0, 5)}</span>
+                        )}
                       </div>
-                      
+
                       <div className="flex items-center gap-1">
-                        <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        <svg
+                          className="h-4 w-4 text-gray-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                          />
                         </svg>
                         {venta.metodoPago}
                       </div>
-                      
+
                       <div className="flex items-center gap-1">
                         {getDeliveryIcon(venta.tipoEntrega)}
                         {venta.tipoEntrega}
-                        {venta.tipoEntrega === "Envio" && venta.direccionEnvio && (
-                          <span className="ml-1 truncate max-w-[150px] sm:max-w-full">• {venta.direccionEnvio}</span>
-                        )}
+                        {venta.tipoEntrega === "Envio" &&
+                          venta.direccionEnvio && (
+                            <span className="ml-1 truncate max-w-[150px] sm:max-w-full">
+                              • {venta.direccionEnvio}
+                            </span>
+                          )}
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-col items-end sm:items-end mt-2 sm:mt-0">
                     <p className="text-sm text-gray-500">Total de la orden</p>
                     <p className="text-xl font-bold text-primary-600">
                       {ARSformatter.format(venta.totalPago)}
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
-                      {venta.productos.length} producto{venta.productos.length !== 1 ? "s" : ""}
+                      {venta.productos.length} producto
+                      {venta.productos.length !== 1 ? "s" : ""}
                     </p>
                   </div>
                 </button>
@@ -301,10 +386,13 @@ const MisCompras = () => {
                         </tbody>
                       </table>
                     </div>
-                    
+
                     <div className="sm:hidden space-y-4">
                       {venta.productos.map((prod, index) => (
-                        <div key={index} className="flex items-start gap-4 p-3 bg-white rounded-lg shadow-sm">
+                        <div
+                          key={index}
+                          className="flex items-start gap-4 p-3 bg-white rounded-lg shadow-sm"
+                        >
                           <div className="flex-shrink-0">
                             {prod.img ? (
                               <img
@@ -319,15 +407,28 @@ const MisCompras = () => {
                             )}
                           </div>
                           <div className="flex-1">
-                            <h4 className="text-sm font-semibold text-gray-800">{prod.nombreProducto}</h4>
+                            <h4 className="text-sm font-semibold text-gray-800">
+                              {prod.nombreProducto}
+                            </h4>
                             <p className="text-xs text-gray-500 mt-1">
-                              Cantidad: <span className="font-medium text-gray-700">{prod.cantidad}</span>
+                              Cantidad:{" "}
+                              <span className="font-medium text-gray-700">
+                                {prod.cantidad}
+                              </span>
                             </p>
                             <p className="text-xs text-gray-500">
-                              Precio: <span className="font-medium text-gray-700">{ARSformatter.format(prod.precioUnitario)}</span>
+                              Precio:{" "}
+                              <span className="font-medium text-gray-700">
+                                {ARSformatter.format(prod.precioUnitario)}
+                              </span>
                             </p>
                             <p className="text-xs text-gray-500">
-                              Subtotal: <span className="font-medium text-gray-900">{ARSformatter.format(prod.cantidad * prod.precioUnitario)}</span>
+                              Subtotal:{" "}
+                              <span className="font-medium text-gray-900">
+                                {ARSformatter.format(
+                                  prod.cantidad * prod.precioUnitario
+                                )}
+                              </span>
                             </p>
                           </div>
                         </div>

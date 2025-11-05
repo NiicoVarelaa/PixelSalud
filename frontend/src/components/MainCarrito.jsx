@@ -23,12 +23,17 @@ const MainCarrito = () => {
     disminuirCantidad,
     aumentarCantidad,
     vaciarCarrito,
+    sincronizarCarrito,
   } = useCarritoStore();
   const [highlightChanges, setHighlightChanges] = useState({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showEmptyCartModal, setShowEmptyCartModal] = useState(false);
+
+  useEffect(() => {
+    sincronizarCarrito();
+  }, [sincronizarCarrito]); 
 
   useEffect(() => {
     if (Object.keys(highlightChanges).length > 0) {

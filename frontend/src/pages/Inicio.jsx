@@ -10,6 +10,7 @@ import ProductCarousel from "../components/ProductCarousel.jsx";
 import BannerGrid from "../components/BannerGrid";
 import Footer from "../components/Footer";
 import TrustedBrand from "../components/TrustedBrand.jsx";
+import WhatsAppButton from "../components/WhatsAppButton.jsx";
 
 const Inicio = () => {
   const { productosArriba, productosAbajo, error, fetchProducts } =
@@ -56,6 +57,7 @@ const Inicio = () => {
         </div>
       </main>
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 };

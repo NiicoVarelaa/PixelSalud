@@ -3,7 +3,6 @@ import NavbarAvatar from "./NavbarAvatar";
 
 import { ChevronDown, User, ShoppingBag, LogOut, Truck, Heart } from "lucide-react"; 
 
-// 1. Recibe 'user' como prop en lugar de 'cliente'
 const NavbarMenuUsuario = ({
   user,
   handleLogout,
@@ -16,7 +15,6 @@ const NavbarMenuUsuario = ({
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   
-  // 2. Usa 'user.nombre' en lugar de 'cliente.nombreCliente'
   const nombreCompleto = capitalizeName(user?.nombre || "Usuario");
 
   return (
@@ -35,13 +33,11 @@ const NavbarMenuUsuario = ({
         </div>
         
         <div className="flex items-center gap-3">
-          {/* 3. Pasa la prop 'user' a NavbarAvatar */}
           <NavbarAvatar user={user} size="medium" />
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-gray-900 text-sm truncate">
               {nombreCompleto}
             </p>
-            {/* 4. Usa 'user.email' */}
             <p className="text-xs text-gray-600 truncate">{user?.email}</p>
           </div>
         </div>
@@ -72,15 +68,6 @@ const NavbarMenuUsuario = ({
           className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-150 border-t border-gray-100"
         >
           <ShoppingBag size={16} className="text-gray-700" />
-          Mis Compras
-        </Link>
-        
-        <Link
-          to="/mis-pedidos"
-          onClick={() => setIsProfileDropdownOpen(false)}
-          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-150 border-t border-gray-100"
-        >
-          <Truck size={16} className="text-gray-700" /> 
           Mis Pedidos
         </Link>
 
