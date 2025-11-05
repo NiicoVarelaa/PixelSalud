@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 // 1. Importamos el nuevo ícono FiX
-import { FiLogIn, FiX } from 'react-icons/fi';
+import { FiX } from 'react-icons/fi';
 import { MdLogin } from "react-icons/md";
 
 const ModalLogin = ({ isOpen, onClose }) => {

@@ -55,9 +55,11 @@ const ProductInfo = ({ product, precioOriginal }) => {
   };
 
   const discountPercentage =
-    precioOriginal > product.precio
-      ? Math.round(((precioOriginal - product.precio) / precioOriginal) * 100)
-      : 0;
+  precioOriginal > product.precio
+    ? Math.round(
+        ((parseFloat(precioOriginal) - parseFloat(product.precio)) / parseFloat(precioOriginal)) * 100 //
+      )
+    : 0;
 
   const getStockBadgeColor = (stock) => {
     if (stock === 0) return "bg-red-100 border-red-300 text-red-800";

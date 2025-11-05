@@ -75,7 +75,7 @@ const Producto = () => {
   return (
     <>
       <Header />
-      <main className="my-8 lg:my-12">
+      <main className="my-12">
         <div>
           <Breadcrumbs categoria={producto.categoria} />
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-16">

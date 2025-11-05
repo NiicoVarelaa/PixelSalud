@@ -1,12 +1,13 @@
 import { create } from 'zustand';
-import axios from 'axios';
+// Reemplazamos axios por nuestro cliente configurado
+import apiClient from '../utils/apiClient'; 
 import { toast } from 'react-toastify';
+
 // 1. Importa el store de autenticación como única fuente de verdad sobre el usuario
 import { useAuthStore } from './useAuthStore';
 // Importamos el store del carrito SÓLO para usar su modal de login
 import { useCarritoStore } from './useCarritoStore';
 
-const API_URL = "http://localhost:5000/favoritos"; 
 
 export const useFavoritosStore = create((set, get) => ({
     // ESTADO
@@ -18,7 +19,7 @@ export const useFavoritosStore = create((set, get) => ({
 
     /**
      * Obtiene y carga los productos favoritos del usuario logueado.
-     * Ya no necesita recibir el idCliente, lo obtiene del AuthStore.
+     * Usa la ruta segura: GET /favoritos
      */
     getFavoritos: async () => {
         const user = useAuthStore.getState().user;
@@ -30,13 +31,16 @@ export const useFavoritosStore = create((set, get) => ({
 
         set({ isLoading: true, error: null });
         try {
-            const response = await axios.get(`${API_URL}/cliente/${user.id}`);
+            // 1. CAMBIO CLAVE: Usamos apiClient y la ruta segura (sin ID en la URL)
+            const response = await apiClient.get('/favoritos'); 
+            
             set({ 
                 favoritos: response.data, 
                 isLoading: false 
             });
         } catch (err) {
             console.error("Error al cargar favoritos:", err);
+            // El interceptor de apiClient manejará los errores 401
             set({ 
                 error: "No se pudieron cargar los favoritos.", 
                 isLoading: false 
@@ -47,7 +51,7 @@ export const useFavoritosStore = create((set, get) => ({
     
     /**
      * Agrega o elimina un producto de la lista de favoritos.
-     * Ya no necesita recibir el idCliente.
+     * Usa la ruta segura: POST /favoritos/toggle
      */
     toggleFavorito: async (idProducto, productoData) => {
         const user = useAuthStore.getState().user;
@@ -63,8 +67,9 @@ export const useFavoritosStore = create((set, get) => ({
         get()._toggleProductoLocal(idProducto, productoData, !wasFavorite);
         
         try {
-            const response = await axios.post(`${API_URL}/toggle`, {
-                idCliente: user.id,
+            // 2. CAMBIO CLAVE: Usamos apiClient y SOLO enviamos idProducto
+            const response = await apiClient.post('/favoritos/toggle', {
+                // idCliente ya no se envía en el cuerpo; el backend lo toma de req.user.id (JWT)
                 idProducto
             });
             
@@ -93,7 +98,6 @@ export const useFavoritosStore = create((set, get) => ({
     
     /**
      * Función interna para manejar la lógica de agregar/quitar del estado local.
-     * (Renombrada con '_' para indicar que es para uso interno del store).
      */
     _toggleProductoLocal: (idProducto, productoData, isFavorite) => {
         set((state) => {
