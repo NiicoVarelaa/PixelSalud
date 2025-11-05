@@ -10,12 +10,14 @@ import {
   FiMinus,
   FiHelpCircle,
   FiArrowRight,
+  FiTag,
+  FiAlertCircle,
+  FiShoppingCart,
+  FiArrowLeftCircle
 } from "react-icons/fi";
-import { HiOutlineExclamation, HiOutlineShoppingCart } from "react-icons/hi";
-import { BsArrowLeftCircle } from "react-icons/bs";
-import { MdDeleteForever } from "react-icons/md";
+import Breadcrumbs from "./Breadcrumbs";
 
-const MainCarrito = () => {
+const MainCarrito = ({ breadcrumbsCategoria }) => {
   const navigate = useNavigate();
   const {
     carrito,
@@ -33,7 +35,7 @@ const MainCarrito = () => {
 
   useEffect(() => {
     sincronizarCarrito();
-  }, [sincronizarCarrito]); 
+  }, [sincronizarCarrito]);
 
   useEffect(() => {
     if (Object.keys(highlightChanges).length > 0) {
@@ -98,7 +100,22 @@ const MainCarrito = () => {
   };
 
   const handleProceedToCheckout = () => {
-    navigate('/checkout');
+    navigate("/checkout");
+  };
+
+  // Función para verificar si hay descuento real
+  const hasRealDiscount = (product) => {
+    // Verificar si el producto está en oferta Y tiene un porcentaje de descuento mayor a 0
+    const hasDiscount = product.enOferta && 
+                       product.porcentajeDescuento && 
+                       product.porcentajeDescuento > 0;
+    
+    // También verificar si hay diferencia entre precio regular y precio final
+    const hasPriceDifference = product.precioRegular && 
+                              product.precioFinal && 
+                              product.precioFinal < product.precioRegular;
+    
+    return hasDiscount || hasPriceDifference;
   };
 
   return (
@@ -114,7 +131,7 @@ const MainCarrito = () => {
         >
           <div className="flex flex-col items-center bg-white shadow-lg rounded-xl py-6 px-5 md:w-[460px] w-full max-w-[370px] border border-gray-200">
             <div className="flex items-center justify-center p-4 bg-red-100 rounded-full">
-              <MdDeleteForever className="w-6 h-6 text-red-600" />
+              <FiTrash2 className="w-6 h-6 text-red-600" />
             </div>
             <h2 className="text-gray-900 font-semibold mt-4 text-xl">
               ¿Vaciar carrito?
@@ -149,7 +166,7 @@ const MainCarrito = () => {
         <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
           <div className="max-w-md transform transition-all duration-300 hover:scale-105">
             <div className="w-48 h-48 mx-auto flex items-center justify-center text-gray-300">
-              <HiOutlineShoppingCart className="w-full h-full opacity-80 hover:opacity-100 transition-opacity" />
+              <FiShoppingCart className="w-full h-full opacity-80 hover:opacity-100 transition-opacity" />
             </div>
             <h2 className="text-2xl font-medium text-gray-700 mt-6">
               Tu carrito está vacío
@@ -161,13 +178,14 @@ const MainCarrito = () => {
               to="/productos"
               className="inline-flex items-center px-4 py-3 bg-gradient-to-r from-green-600 to-green-600 hover:from-green-700 hover:to-green-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
             >
-              <BsArrowLeftCircle className="h-5 w-5 mr-2" />
+              <FiArrowLeftCircle className="h-5 w-5 mr-2" />
               Descubrir productos
             </Link>
           </div>
         </div>
       ) : (
-        <div className="py-12">
+        <div className="my-12">
+          <Breadcrumbs categoria={breadcrumbsCategoria} />
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="lg:flex-1">
               <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -213,12 +231,21 @@ const MainCarrito = () => {
 
                 <div className="divide-y divide-gray-100">
                   {carrito.map((product) => {
+                    const priceToUse =
+                      product.precioFinal ||
+                      product.precioRegular ||
+                      product.precio;
+
                     const price =
-                      typeof product.precio === "number"
-                        ? product.precio
-                        : parseFloat(product.precio);
+                      typeof priceToUse === "number"
+                        ? priceToUse
+                        : parseFloat(priceToUse);
+
                     const total = price * product.cantidad;
                     const isHighlighted = highlightChanges[product.idProducto];
+                    
+                    // Verificar si realmente tiene descuento
+                    const showDiscountBadge = hasRealDiscount(product);
 
                     return (
                       <div
@@ -239,15 +266,12 @@ const MainCarrito = () => {
                               src={product.img}
                               alt={product.nombreProducto}
                             />
-                            {product.descuento && (
-                              <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                -{product.descuento}%
-                              </span>
-                            )}
+                            
                           </div>
                           <div className="flex-1">
                             <h3 className="font-medium text-gray-900 line-clamp-2">
                               {product.nombreProducto}
+                              
                             </h3>
                             {product.color && (
                               <div className="flex items-center mt-1">
@@ -268,6 +292,7 @@ const MainCarrito = () => {
                               <FiTrash2 className="h-3.5 w-3.5 mr-1" />
                               Eliminar
                             </button>
+                            
                             {showDeleteModal && (
                               <div
                                 className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4"
@@ -279,7 +304,7 @@ const MainCarrito = () => {
                               >
                                 <div className="flex flex-col items-center bg-white shadow-lg rounded-xl py-6 px-5 md:w-[460px] w-full max-w-[370px] border border-gray-200">
                                   <div className="flex items-center justify-center p-4 bg-red-100 rounded-full">
-                                    <MdDeleteForever className="w-6 h-6 text-red-600" />
+                                    <FiTrash2 className="w-6 h-6 text-red-600" />
                                   </div>
                                   <h2 className="text-gray-900 font-semibold mt-4 text-xl">
                                     ¿Eliminar este producto?
@@ -367,6 +392,12 @@ const MainCarrito = () => {
                             <span className="font-semibold text-gray-900 text-sm mt-1">
                               ${formatPrice(total)}
                             </span>
+                            {showDiscountBadge && (
+                              <span className="mt-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full inline-flex items-center">
+                                <FiTag className="w-3 h-3 mr-1" />
+                                -{product.porcentajeDescuento}% OFF
+                              </span>
+                            )}
                           </div>
                         </div>
 
@@ -415,10 +446,16 @@ const MainCarrito = () => {
                           )}
                         </div>
 
-                        <div className="hidden md:flex items-center justify-end md:col-span-2 text-right">
+                        <div className="hidden md:flex flex-col items-end justify-center md:col-span-2 text-right">
                           <span className="font-semibold text-gray-900 text-sm">
                             ${formatPrice(total)}
                           </span>
+                          {showDiscountBadge && (
+                            <span className="mt-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full inline-flex items-center">
+                              <FiTag className="w-3 h-3 mr-1" />
+                              -{product.porcentajeDescuento}% OFF
+                            </span>
+                          )}
                         </div>
                       </div>
                     );
@@ -446,7 +483,7 @@ const MainCarrito = () => {
 
               <div className="mt-8 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <HiOutlineExclamation className="text-orange-400 mr-2 h-5 w-5" />
+                  <FiAlertCircle className="text-orange-400 mr-2 h-5 w-5" />
                   ¿Necesitas ayuda?
                 </h3>
                 <div className="flex items-start">
@@ -458,7 +495,10 @@ const MainCarrito = () => {
                       Si tienes dudas sobre tu compra o necesitas asistencia,
                       nuestro equipo está disponible 24/7.
                     </p>
-                    <Link to="/contacto" className="mt-2 text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center transition-colors cursor-pointer group">
+                    <Link
+                      to="/contacto"
+                      className="mt-2 text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center transition-colors cursor-pointer group"
+                    >
                       Contactar soporte
                       <FiArrowRight className="ml-2 h-4 w-4 inline transition-transform duration-200 group-hover:translate-x-1" />
                     </Link>

@@ -20,6 +20,7 @@ import Error404 from "./pages/Error404";
 import Perfil from "./pages/Perfil";
 import PerfilDirecciones from "./pages/PerfilDirecciones";
 import PerfilFavoritos from "./pages/PerfilFavoritos";
+import DashboardCliente from "../src/components/DashboardCliente";
 
 const App = () => {
   return (
@@ -38,10 +39,12 @@ const App = () => {
           <Route path="checkout" element={<Checkout />} />
           <Route path="login" element={<Login />} />
           <Route path="recuperarContraseña" element={<RecuperarContrasena />} />
-          <Route path="perfil" element={<Perfil />} />
-          <Route path="perfil/favoritos" element={<PerfilFavoritos />} />
+          <Route path="/perfil" element={<DashboardCliente />}>
+            <Route index element={<Perfil />} />
+            <Route path="favoritos" element={<PerfilFavoritos />} />
+            <Route path="mis-compras" element={<MisCompras />} />
+          </Route>
           <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
-          <Route path="mis-compras" element={<MisCompras />} />
         </Route>
         <Route path="/admin/*" element={<Administrador />} />
         <Route path="/panelempleados" element={<PanelEmpleados />} />
