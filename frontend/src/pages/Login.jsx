@@ -63,11 +63,11 @@ const Login = () => {
 
       const rol = (usuario.rol || "").toString().toLowerCase();
 
-      if (rolUsuario === "cliente") {
+      if (rol === "cliente") {
         navigate("/");
-      } else if (rolUsuario === "empleado") {
+      } else if (rol === "empleado") {
         navigate("/panelempleados");
-      } else if (rolUsuario === "admin") {
+      } else if (rol === "admin") {
         navigate("/admin");
       } else {
         navigate("/");
