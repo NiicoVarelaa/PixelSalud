@@ -1,111 +1,115 @@
 const { conection } = require("../config/database");
 
-const registrarVentaEmpleado = async (req, res) => {
-  try {
+const registrarVentaEmpleado = (req, res) => {
     const { idEmpleado, totalPago, metodoPago, productos, recetas } = req.body;
 
-    if (!idEmpleado) {
-      return res.status(400).json({ error: "Falta el idEmpleado" });
+    if (!idEmpleado || !productos || productos.length === 0) {
+        return res.status(400).json({ error: "Faltan datos obligatorios" });
     }
 
-    for (const producto of productos) {
-      const { idProducto, cantidad } = producto;
-
-      const stockQuery = "SELECT stock FROM Productos WHERE idProducto = ?";
-      const stockResult = await new Promise((resolve, reject) => {
-        conection.query(stockQuery, [idProducto], (err, results) => {
-          if (err) return reject(err);
-          resolve(results[0]);
-        });
-      });
-
-      if (!stockResult || stockResult.stock < cantidad) {
-        return res
-          .status(400)
-          .json({ error: `Stock insuficiente para el producto` });
-      }
-    }
-
-    const consulta = `
-      INSERT INTO VentasEmpleados (idEmpleado, totalPago, metodoPago)
-      VALUES (?, ?, ?)
-    `;
-    const resultVenta = await new Promise((resolve, reject) => {
-      conection.query(
-        consulta,
-        [idEmpleado, totalPago, metodoPago],
-        (err, result) => {
-          if (err) return reject(err);
-          resolve(result);
+    // 1. Iniciar Transacción
+    conection.beginTransaction((err) => {
+        if (err) {
+            console.error("Error al iniciar transacción:", err);
+            return res.status(500).json({ error: "Error al iniciar venta" });
         }
-      );
-    });
 
-    const idVentaE = resultVenta.insertId;
-
-    for (const producto of productos) {
-      const { idProducto, cantidad, precioUnitario } = producto;
-
-      await new Promise((resolve, reject) => {
-        const insertDetalleQuery = `
-          INSERT INTO DetalleVentaEmpleado (idVentaE, idProducto, cantidad, precioUnitario)
-          VALUES (?, ?, ?, ?)
-        `;
-        conection.query(
-          insertDetalleQuery,
-          [idVentaE, idProducto, cantidad, precioUnitario],
-          (err) => {
-            if (err) return reject(err);
-            resolve();
-          }
-        );
-      });
-
-      await new Promise((resolve, reject) => {
-        const updateStockQuery = `
-          UPDATE Productos SET stock = stock - ?
-          WHERE idProducto = ? AND stock >= ?
-        `;
-        conection.query(
-          updateStockQuery,
-          [cantidad, idProducto, cantidad],
-          (err) => {
-            if (err) return reject(err);
-            resolve();
-          }
-        );
-      });
-    }
-
-    if (recetas && recetas.length > 0) {
-      for (const receta of recetas) {
-        const { idProducto, cantidad, descripcion } = receta;
-
-        await new Promise((resolve, reject) => {
-          const insertRecetaQuery = `
-            INSERT INTO receta (idProducto, cantidad, descripcion)
-            VALUES (?, ?, ?)
-          `;
-          conection.query(
-            insertRecetaQuery,
-            [idProducto, cantidad, descripcion || null],
-            (err) => {
-              if (err) return reject(err);
-              resolve();
+        let i = 0;
+        // Función flecha recursiva para verificar stock
+        const verificarStock = () => {
+            if (i < productos.length) {
+                const prod = productos[i];
+                conection.query('SELECT stock, nombreProducto FROM Productos WHERE idProducto = ? FOR UPDATE', [prod.idProducto], (err, results) => {
+                    if (err) {
+                        return conection.rollback(() => {
+                            console.error("Error verificando stock:", err);
+                            res.status(500).json({ error: "Error al verificar stock" });
+                        });
+                    }
+                    if (results.length === 0 || results[0].stock < prod.cantidad) {
+                        return conection.rollback(() => {
+                            res.status(400).json({ error: `Stock insuficiente para: ${results[0]?.nombreProducto || 'Producto desconocido'}` });
+                        });
+                    }
+                    // Siguiente producto
+                    i++;
+                    verificarStock();
+                });
+            } else {
+                // Todo el stock verificado, procedemos a insertar la venta
+                insertarVenta();
             }
-          );
-        });
-      }
-    }
+        };
 
-    res.status(201).json({
-      message: "Venta presencial registrada correctamente",
-      idVentaE,
+        const insertarVenta = () => {
+            conection.query('INSERT INTO VentasEmpleados (idEmpleado, totalPago, metodoPago) VALUES (?, ?, ?)', 
+                [idEmpleado, totalPago, metodoPago], 
+                (err, resultVenta) => {
+                    if (err) {
+                        return conection.rollback(() => {
+                             console.error("Error insertando venta:", err);
+                             res.status(500).json({ error: "Error al registrar venta" });
+                        });
+                    }
+                    // Una vez insertada la venta, insertamos sus detalles
+                    insertarDetalles(resultVenta.insertId);
+                }
+            );
+        };
+
+        const insertarDetalles = (idVentaE) => {
+            let j = 0;
+            // Función flecha recursiva para insertar detalles y actualizar stock
+            const procesarDetalle = () => {
+                if (j < productos.length) {
+                    const prod = productos[j];
+                    // 1. Insertar detalle
+                    conection.query('INSERT INTO DetalleVentaEmpleado (idVentaE, idProducto, cantidad, precioUnitario) VALUES (?, ?, ?, ?)',
+                        [idVentaE, prod.idProducto, prod.cantidad, prod.precioUnitario],
+                        (err) => {
+                            if (err) {
+                                return conection.rollback(() => {
+                                    console.error("Error insertando detalle:", err);
+                                    res.status(500).json({ error: "Error al registrar detalles" });
+                                });
+                            }
+                            // 2. Actualizar stock
+                            conection.query('UPDATE Productos SET stock = stock - ? WHERE idProducto = ?',
+                                [prod.cantidad, prod.idProducto],
+                                (err) => {
+                                     if (err) {
+                                        return conection.rollback(() => {
+                                            console.error("Error actualizando stock:", err);
+                                            res.status(500).json({ error: "Error al actualizar stock" });
+                                        });
+                                     }
+                                     // Siguiente detalle
+                                     j++;
+                                     procesarDetalle();
+                                }
+                            );
+                        }
+                    );
+                } else {
+                    // ¡Todo listo! Confirmamos la transacción
+                    conection.commit((err) => {
+                        if (err) {
+                             return conection.rollback(() => {
+                                 console.error("Error en commit:", err);
+                                 res.status(500).json({ error: "Error finalizando venta" });
+                             });
+                        }
+                        res.status(201).json({ message: "Venta registrada con éxito", idVentaE });
+                    });
+                }
+            };
+            // Iniciamos el loop de detalles
+            procesarDetalle();
+        };
+
+        // Arrancamos el proceso con la primera verificación
+        verificarStock();
     });
-  } catch (error) {
-    console.error("Error inesperado:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
 };
 
 const obtenerVentasEmpleado = (req, res) => {
@@ -127,7 +131,9 @@ const obtenerVentasEmpleado = (req, res) => {
         .status(500)
         .json({ error: "Error al obtener ventas del empleado" });
     }
-
+    if (results.length === 0) {
+      return res.status(200).json({msg:"No hay ventas realizadas aun"})
+    }
     res.status(200).json(results);
   });
 };
@@ -153,7 +159,9 @@ const obtenerLaVentaDeUnEmpleado = (req, res) => {
         .status(500)
         .json({ error: "Error al obtener ventas del empleado" });
     }
-
+     if (results.length === 0) {
+      return res.status(200).json({msg:"El empleado no realizo ninguna venta aun"})
+    }
     res.status(200).json(results);
   });
 };
