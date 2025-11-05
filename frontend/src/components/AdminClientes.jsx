@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from 'sweetalert2';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuthStore } from "../store/useAuthStore";
 
 const AdminClientes = () => {
   const [clientes, setClientes] = useState([]);
@@ -13,14 +14,14 @@ const AdminClientes = () => {
   const [clienteEditado, setClienteEditado] = useState({
     nombreCliente: "",
     contraCliente: "",
-    email: "",
+    emailCliente: "",
     rol: ""
   });
 
   const [nuevoCliente, setNuevoCliente] = useState({
     nombreCliente: "",
     contraCliente: "",
-    email: "",
+    emailCliente: "",
     rol: ""
   });
 
@@ -53,14 +54,20 @@ const AdminClientes = () => {
     setClienteEditado({
       nombreCliente: "",
       contraCliente: "",
-      email: "",
+      emailCliente: "",
       rol: ""
     });
   };
 
   const obtenerClientes = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/clientes");
+      const token = useAuthStore.getState().token
+
+      const res = await axios.get("http://localhost:5000/clientes",{
+        headers:{
+          Authorization: `Bearer ${token}`
+        },
+      });
       setClientes(res.data);
     } catch (error) {
       console.error("Error al obtener Clientes", error);
@@ -123,7 +130,7 @@ const AdminClientes = () => {
       setNuevoCliente({
         nombreCliente: "",
         contraCliente: "",
-        email: "",
+        emailCliente: "",
         rol: ""
       });
       obtenerClientes();
@@ -179,11 +186,11 @@ const AdminClientes = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">emailCliente</label>
                   <input
-                    type="email"
-                    name="email"
-                    value={nuevoCliente.email}
+                    type="emailCliente"
+                    name="emailCliente"
+                    value={nuevoCliente.emailCliente}
                     onChange={(e) => setNuevoCliente({ ...nuevoCliente, [e.target.name]: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="correo@ejemplo.com"
@@ -244,7 +251,7 @@ const AdminClientes = () => {
                 <tr>
                   <th className="px-6 py-3 text-xs font-semibold text-gray-700 uppercase">Nombre</th>
                   <th className="px-6 py-3 text-xs font-semibold text-gray-700 uppercase">Contraseña</th>
-                  <th className="px-6 py-3 text-xs font-semibold text-gray-700 uppercase">Email</th>
+                  <th className="px-6 py-3 text-xs font-semibold text-gray-700 uppercase">emailCliente</th>
                   <th className="px-6 py-3 text-xs font-semibold text-gray-700 uppercase">Rol</th>
                   <th className="px-6 py-3 text-xs font-semibold text-gray-700 uppercase text-right">Acciones</th>
                 </tr>
@@ -279,13 +286,13 @@ const AdminClientes = () => {
                     <td className="px-6 py-4">
                       {editandoId === cli.idCliente ? (
                         <input
-                          name="email"
-                          value={clienteEditado.email}
+                          name="emailCliente"
+                          value={clienteEditado.emailCliente}
                           onChange={(e) => setClienteEditado({ ...clienteEditado, [e.target.name]: e.target.value })}
                           className="w-full border border-gray-300 rounded px-2 py-1"
                         />
                       ) : (
-                        cli.email
+                        cli.emailCliente
                       )}
                     </td>
                     <td className="px-6 py-4">

@@ -83,7 +83,9 @@ const Checkout = () => {
         // Cambia la URL por la de tu backend/ngrok
         const response = await fetch("http://localhost:5000/mercadopago/create-order", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+           headers: {
+    'Content-Type': 'application/json',
+  },
           body: JSON.stringify({
             products: carrito.map((p) => ({ id: p.idProducto, quantity: p.cantidad })),
             customer_info: {
