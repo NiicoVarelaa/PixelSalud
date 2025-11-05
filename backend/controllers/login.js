@@ -37,7 +37,7 @@ const login = async (req, res) => {
 
     const consultaCli = `
       SELECT idCliente AS id, nombreCliente AS nombre, apellidoCliente AS apellido, 
-             emailCliente AS email, contrCliente AS contra, rol
+             emailCliente AS email, contraCliente AS contra, rol
       FROM Clientes WHERE emailCliente = ?
     `;
 
@@ -78,6 +78,7 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({ msg: "Email y/o contraseña incorrectos" });
     }
+    console.log("Login - user encontrado:", user);
 
     const passCheck = await bcryptjs.compare(contrasenia, user.contra);
     if (!passCheck) {
@@ -129,8 +130,10 @@ const login = async (req, res) => {
       msg: "Inicio de sesión exitoso",
       tipo, 
       token,
+      id: user.id,
+      email: user.email,
       nombre: user.nombre,
-      apellido: user.apellido,
+      apellido: user.apellido || "",
       rol: payload.role, 
     });
   } catch (error) {

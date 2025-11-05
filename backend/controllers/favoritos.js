@@ -1,19 +1,15 @@
-// controllers/favoritos.js
 const { conection } = require("../config/database");
 
-// ===========================================
-// FUNCIÓN 1: AGREGAR O ELIMINAR UN PRODUCTO A/DE FAVORITOS (Toggle)
-// ===========================================
 const toggleFavorito = (req, res) => {
-    const { idCliente, idProducto } = req.body;
+    const idCliente = req.user.id;    
+    const { idProducto } = req.body; 
 
-    if (!idCliente || !idProducto) {
+    if (!idProducto) {
         return res.status(400).json({
-            message: "Faltan datos: ID de Cliente (idCliente) y ID de Producto (idProducto) son requeridos."
+            message: "Faltan datos: ID de Producto (idProducto) es requerido."
         });
     }
 
-    // 1. Verificar si el producto ya está en favoritos
     const checkQuery = 'SELECT idFavorito FROM Favoritos WHERE idCliente = ? AND idProducto = ?';
     conection.query(checkQuery, [idCliente, idProducto], (err, rows) => {
         if (err) {
@@ -22,7 +18,6 @@ const toggleFavorito = (req, res) => {
         }
 
         if (rows.length > 0) {
-            // Ya existe → eliminar
             const idFavorito = rows[0].idFavorito;
             const deleteQuery = 'DELETE FROM Favoritos WHERE idFavorito = ?';
             conection.query(deleteQuery, [idFavorito], (err2) => {
@@ -37,9 +32,8 @@ const toggleFavorito = (req, res) => {
             });
 
         } else {
-            // No existe → insertar
             const insertQuery = 'INSERT INTO Favoritos (idCliente, idProducto) VALUES (?, ?)';
-            conection.query(insertQuery, [idCliente, idProducto], (err3, result) => {
+            conection.query(insertQuery, [idCliente, idProducto], (err3, result) => { 
                 if (err3) {
                     console.error("Error al agregar favorito:", err3);
                     return res.status(500).json({ message: 'Error al agregar favorito.' });
@@ -54,12 +48,9 @@ const toggleFavorito = (req, res) => {
     });
 };
 
-// ===========================================
-// FUNCIÓN 2: OBTENER TODOS LOS PRODUCTOS FAVORITOS DE UN CLIENTE
-// ===========================================
 const obtenerFavoritosPorCliente = (req, res) => {
-    const { idCliente } = req.params;
-
+    const idCliente = req.user.id; 
+    
     const query = `
         SELECT 
             f.idFavorito,
@@ -75,7 +66,7 @@ const obtenerFavoritosPorCliente = (req, res) => {
         JOIN 
             Productos p ON f.idProducto = p.idProducto
         WHERE 
-            f.idCliente = ?
+            f.idCliente = ?  
         ORDER BY 
             f.fechaAgregado DESC;
     `;
@@ -86,7 +77,6 @@ const obtenerFavoritosPorCliente = (req, res) => {
             return res.status(500).json({ message: 'Error al obtener favoritos.' });
         }
         
-        // Se devuelve siempre un array, incluso si está vacío.
         return res.status(200).json(favoritos);
     });
 };

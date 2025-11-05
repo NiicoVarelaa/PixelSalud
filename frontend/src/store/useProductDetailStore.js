@@ -14,18 +14,15 @@ export const useProductDetailStore = create((set) => ({
 
   // Acción corregida y reorganizada
   fetchProductDetail: async (id) => {
-    // 1. Inicia el estado de carga.
     set({ isLoading: true, error: null });
     console.log(`[STORE] Iniciando búsqueda para el producto ID: ${id}`);
 
     try {
-      // 2. BUSCA EL PRODUCTO PRINCIPAL PRIMERO. Esto es lo más importante.
       console.log("[STORE] Pidiendo producto principal a la API...");
       const res = await axios.get(`${API_URL}/${id}`);
       const productoData = res.data;
       console.log("[STORE] ¡Producto principal recibido!", productoData);
 
-      // 3. Una vez que tienes el producto, busca los relacionados.
       let allProducts = useProductStore.getState().productos;
       if (allProducts.length === 0) {
         console.log("[STORE] Lista de productos vacía, buscando todos los productos...");
@@ -41,7 +38,17 @@ export const useProductDetailStore = create((set) => ({
 
       // 4. Calcula el precio original (si aplica).
       const discountPercentage = 0.20;
-      const precioOriginalCalculado = productoData.precio / (1 - discountPercentage);
+      
+      // *** CORRECCIÓN CLAVE: Convertir el precio a un número de punto flotante ***
+      const precioNumerico = parseFloat(productoData.precio); 
+      
+      let precioOriginalCalculado = null;
+      
+      // Solo calcula si el precio es un número válido
+      if (!isNaN(precioNumerico) && precioNumerico > 0) {
+          precioOriginalCalculado = precioNumerico / (1 - discountPercentage);
+      }
+      // Si el precio ya viene con descuento, este cálculo es el precio antes del descuento del 20%.
 
       // 5. Actualiza el estado con TODOS los datos y finaliza la carga.
       set({
@@ -52,7 +59,6 @@ export const useProductDetailStore = create((set) => ({
       });
 
     } catch (err) {
-      // Si algo falla en CUALQUIER paso, captura el error y finaliza la carga.
       console.error("[STORE] Error detallado al buscar el producto:", err);
       set({
         error: "No se pudo cargar la información del producto.",

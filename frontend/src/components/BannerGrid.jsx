@@ -8,7 +8,7 @@ import {
 import { useProductStore } from "../store/useProductStore"; 
 
 import ReservationCard from "./ReservationCard";
-import WhatsAppCard from "./WhatsAppCard";       
+import LoyaltyCard from "./LoyaltyCard";  
 import PrescriptionCard from "./PrescriptionCard"; 
 import IconCard from "./IconCard";
 
@@ -36,7 +36,7 @@ const BannerGrid = () => {
           textColor="text-gray-600"
           animation="hover:scale-105 hover:-translate-y-1 transition-all duration-300"
         />
-        <WhatsAppCard />        
+        <LoyaltyCard />        
         <PrescriptionCard />
         <IconCard
           icon={<ShoppingBasket className="h-7 w-7" />}

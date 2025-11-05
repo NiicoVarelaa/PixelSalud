@@ -10,7 +10,7 @@ const IconCard = ({
 }) => {
   return (
     <div 
-      className={`bg-white rounded-xl shadow-lg overflow-hidden flex flex-col h-full ${animation} hover:shadow-xl cursor-default`}
+      className={`bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col h-full ${animation} hover:shadow-xl cursor-default`}
       onClick={onClick}
     >
       <div className="p-6 flex-1 flex flex-col">

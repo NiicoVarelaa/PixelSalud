@@ -4,27 +4,46 @@ import { persist } from "zustand/middleware";
 export const useAuthStore = create(
   persist(
     (set) => ({
-      // ESTADO: 'user' puede ser un cliente, empleado, admin, o null si nadie está logueado.
       user: null,
+      token: null, // Estado para guardar el token JWT
 
-      // ACCIÓN: Se llama desde el componente Login cuando el inicio de sesión es exitoso.
-      loginUser: (userData) => {
-        console.log("Guardando usuario en el store:", userData);
-        set({ user: userData });
+      // ACCIÓN DE LOGIN ACTUALIZADA
+      loginUser: (data) => {
+        console.log("Data completa recibida en login:", data);
+        console.log("Guardando data de login en el store:", data);
+        set({
+          user: {
+            id: data.id || data.idCliente,
+            nombre: data.nombre,
+            apellido: data.apellido,
+            email: data.email,
+            rol: data.rol,
+            tipo: data.tipo,
+          },
+          token: data.token, // GUARDAMOS EL TOKEN
+        });
       },
 
-      // ACCIÓN: Se llama desde el botón de "Cerrar Sesión".
-      // Ya no necesita una llamada a la API.
+      // ACCIÓN DE LOGOUT
       logoutUser: () => {
-        console.log("Cerrando sesión y limpiando el store.");
-        set({ user: null });
+        console.log("Cerrando sesión, limpiando usuario y token.");
+        set({
+          user: null,
+          token: null, // LIMPIAMOS EL TOKEN
+        });
       },
     }),
     {
-      // CONFIGURACIÓN: El store se guardará en localStorage bajo el nombre 'auth-storage'.
+      // CONFIGURACIÓN DE PERSISTENCIA
       name: "auth-storage",
-      // Solo guardamos el objeto 'user'.
-      partialize: (state) => ({ user: state.user }),
+
+      // 1. Especificamos el mecanismo de almacenamiento: sessionStorage
+      getStorage: () => sessionStorage,
+      // 2. Definimos qué partes del estado queremos persistir
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+      }),
     }
   )
 );
