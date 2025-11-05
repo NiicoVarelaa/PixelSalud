@@ -1,63 +1,70 @@
-import { create } from 'zustand';
-import axios from 'axios';
+// useProductStore.js
+import { create } from "zustand";
+import axios from "axios";
 
-const API_URL = "http://localhost:5000/productos";
+// 🚨 Nuevo Endpoint para el Cyber Monday
+const API_URL_ALL = "http://localhost:5000/productos"; 
+const API_URL_CYBER_MONDAY = "http://localhost:5000/productos/ofertas/cyber-monday"; 
+// La lógica de getOfertasDestacadas, aunque existe, no se usará aquí
+// en favor del endpoint específico de Cyber Monday.
+
 const PRODUCTS_PER_SECTION = 6;
-const PROMO_CATEGORY = "Dermocosmética";
-const PROMO_PRODUCTS_COUNT = 10;
-
+// const PROMO_CATEGORY = "Dermocosmética"; // Ya no necesario para productosAbajo
+// const PROMO_PRODUCTS_COUNT = 10; // Ya no necesario
 
 export const useProductStore = create((set) => ({
-    // --- ESTADO ORIGINAL (NO SE TOCA) ---
-    productosArriba: [],
-    productosAbajo: [],
-    
-    // --- NUEVO ESTADO (AÑADIDO) ---
-    productos: [],   // Array con TODOS los productos
-    categorias: [],  // Array con todas las categorías únicas
+  productosArriba: [],
+  productosAbajo: [],
+  productos: [],
+  categorias: [],
+  isLoading: false,
+  error: null,
 
-    // --- ESTADO EXISTENTE ---
-    isLoading: false,
-    error: null,
+  fetchProducts: async () => {
+    set({ isLoading: true, error: null });
 
-    fetchProducts: async () => {
-        set({ isLoading: true, error: null });
+    try {
+      // Llamada 1: Traer TODOS los productos (para productosArriba, lista completa y categorías)
+      const [resAll, resCyber] = await Promise.all([
+          axios.get(API_URL_ALL),
+          axios.get(API_URL_CYBER_MONDAY) // Llamada 2: Traer SOLO las ofertas de Cyber Monday
+      ]);
+      
+      const todos = resAll.data; 
+      // 🚨 ASIGNACIÓN CLAVE: Ahora productosAbajo usa los datos del endpoint optimizado
+      const cyberOffers = resCyber.data; 
 
-        try {
-            const res = await axios.get(API_URL);
-            const todos = res.data;
+      // 2. Lógica de la sección superior (Productos Arriba) - SIN CAMBIOS
+      const productosDisponiblesArriba = todos.filter(
+        (p) => p.categoria !== "Medicamentos con Receta"
+      );
 
-            // --- LÓGICA ORIGINAL (NO SE TOCA) ---
-            const productosDisponiblesArriba = todos.filter(
-                (p) => p.categoria !== "Medicamentos con Receta"
-            );
-            const shuffledArriba = [...productosDisponiblesArriba].sort(() => Math.random() - 0.5);
-            const arriba = shuffledArriba.slice(0, PRODUCTS_PER_SECTION);
+      const shuffledArriba = [...productosDisponiblesArriba].sort(
+        () => Math.random() - 0.5
+      );
+      const arriba = shuffledArriba.slice(0, PRODUCTS_PER_SECTION);
 
-            const productosPromocion = todos.filter(
-                (p) => p.categoria === PROMO_CATEGORY
-            );
-            const abajo = productosPromocion.slice(0, PROMO_PRODUCTS_COUNT);
-            
-            // --- LÓGICA NUEVA (AÑADIDA) ---
-            const categoriasUnicas = [...new Set(todos.map((p) => p.categoria))];
+      // 3. Lógica de la sección inferior (productosAbajo) - CAMBIADA
+      //    Ahora usa los datos del endpoint optimizado y no requiere filtro ni slice.
+      //    Nota: El endpoint de Cyber Monday ya filtra y trae productos en oferta.
+      const abajo = cyberOffers; 
 
-            set({ 
-                // Estado original
-                productosArriba: arriba, 
-                productosAbajo: abajo, 
-                // Nuevo estado
-                productos: todos,
-                categorias: categoriasUnicas,
-                // Estado existente
-                isLoading: false 
-            });
-        } catch (error) {
-            console.error("Error al traer productos:", error);
-            set({ 
-                error: "No se pudieron cargar los productos. Intenta más tarde.", 
-                isLoading: false 
-            });
-        }
-    },
+      // 4. Obtener categorías únicas - SIN CAMBIOS
+      const categoriasUnicas = [...new Set(todos.map((p) => p.categoria))];
+
+      set({
+        productosArriba: arriba,
+        productosAbajo: abajo, // <--- LISTO: Ahora trae los productos del Cyber Monday
+        productos: todos,
+        categorias: categoriasUnicas,
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error("Error al traer productos:", error);
+      set({
+        error: "No se pudieron cargar los productos. Intenta más tarde.",
+        isLoading: false,
+      });
+    }
+  },
 }));

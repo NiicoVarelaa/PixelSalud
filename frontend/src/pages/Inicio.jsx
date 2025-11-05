@@ -8,8 +8,9 @@ import ProductSection from "../components/ProductSection.jsx";
 import BannerPromo from "../components/BannerPromo";
 import ProductCarousel from "../components/ProductCarousel.jsx";
 import BannerGrid from "../components/BannerGrid";
-import BannerInfo from "../components/BannerInfo";
 import Footer from "../components/Footer";
+import TrustedBrand from "../components/TrustedBrand.jsx";
+import WhatsAppButton from "../components/WhatsAppButton.jsx";
 
 const Inicio = () => {
   const { productosArriba, productosAbajo, error, fetchProducts } =
@@ -43,7 +44,7 @@ const Inicio = () => {
         </div>
 
         <ProductCarousel
-          title="Especial Día de la Madre"
+          title="Cyber Monday Ofertas"
           products={productosAbajo}
         />
 
@@ -52,10 +53,11 @@ const Inicio = () => {
         </div>
 
         <div className="my-16 md:my-20">
-          <BannerInfo />
+          <TrustedBrand />
         </div>
       </main>
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 };

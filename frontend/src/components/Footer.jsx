@@ -1,9 +1,22 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import axios from "axios";
-import { FaTwitter, FaFacebookF, FaInstagram, FaGithub } from "react-icons/fa";
+// Se elimina la importación de axios y la función getCliente
+// import axios from "axios"; 
+
+// 1. Importamos el store de autenticación
+import { useAuthStore } from "../store/useAuthStore";
+
+// 2. Importamos los íconos de Lucide
+import { 
+  Twitter, 
+  Facebook, 
+  Instagram, 
+  Github,
+} from "lucide-react"; 
+
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
 import { Link, NavLink } from "react-router-dom";
+// Importaciones de imágenes (se mantienen)
 import cyberMonday from "../assets/footerImagenes/cyberMonday.webp";
 import hotSale from "../assets/footerImagenes/hotSale.webp";
 import dataFiscal from "../assets/footerImagenes/dataFiscal.webp";
@@ -11,42 +24,35 @@ import cace from "../assets/footerImagenes/cace.webp";
 import vtex from "../assets/footerImagenes/vtex.webp";
 import cruce from "../assets/footerImagenes/cruce.webp";
 
-const getCliente = async () => {
-  try {
-    const usuariosResponse = await axios.get("http://localhost:5000/clientes");
-    const usuarios = usuariosResponse.data;
-    const usuarioLogueado = usuarios.find((user) => user.logueado === 1);
-    return usuarioLogueado || null;
-  } catch (error) {
-    console.error("Error al obtener el usuario logueado: " + error);
-    return null;
-  }
-};
 
 const Footer = () => {
+  const { user } = useAuthStore(); // 3. Obtenemos el usuario de Zustand
+
   const [email, setEmail] = useState("");
   const [usuarioEmail, setUsuarioEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
 
+  // 4. useEffect actualizado: Leer el estado de suscripción y el email del usuario
   useEffect(() => {
-    const fetchUserEmail = async () => {
-      const cliente = await getCliente();
+    // Si el usuario está logueado, su email es user.email o user.emailCliente
+    const currentEmail = user?.email || ""; 
 
-      if (cliente) {
-        setUsuarioEmail(cliente.email);
+    if (currentEmail) {
+        setUsuarioEmail(currentEmail);
+        
+        // Verifica el estado de suscripción en localStorage
         const isAlreadySubscribed = localStorage.getItem(
-          `subscribed_${cliente.email}`
+          `subscribed_${currentEmail}`
         );
         setIsSubscribed(isAlreadySubscribed === "true");
-      } else {
+    } else {
+        // Usuario deslogueado
         setUsuarioEmail("");
         setIsSubscribed(false);
         setEmail(""); 
-      }
-    };
+    }
+  }, [user]); // Se ejecuta cada vez que el estado del usuario cambia (login/logout)
 
-    fetchUserEmail();
-  });
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
@@ -66,6 +72,18 @@ const Footer = () => {
       return;
     }
 
+    // Lógica para enviar la suscripción al backend (OPCIONAL: si tienes un endpoint de suscripción)
+    /*
+    try {
+        await apiClient.post("/suscripcion", { email: usuarioEmail });
+        toast.success("¡Gracias por suscribirte!");
+    } catch (error) {
+        toast.error("Error al suscribirte.");
+        return;
+    }
+    */
+    
+    // Si no hay endpoint, se mantiene la lógica local:
     toast.success("¡Gracias por suscribirte!");
     setIsSubscribed(true);
     setEmail("");
@@ -77,7 +95,8 @@ const Footer = () => {
     <div>
       <section className="py-10 sm:pt-16 lg:pt-24">
         <div>
-          <div className="grid grid-cols-2 md:col-span-3 lg:grid-cols-6 gap-y-16 gap-x-12">
+          <div className="grid grid-cols-2 md:col-span-3 lg:grid-cols-6 gap-y-16 gap-x-12 px-4 sm:px-6 lg:px-8"> 
+            
             {/* Logo y redes */}
             <div className="col-span-2 md:col-span-3 lg:col-span-2 lg:pr-8">
               <NavLink to="/">
@@ -93,12 +112,13 @@ const Footer = () => {
                 salud. Gracias por confiar en nosotros.
               </p>
               <ul className="flex items-center space-x-3 mt-9">
+                {/* ÍCONOS LUCIDE */}
                 <li>
                   <Link
                     to="/error404"
                     className="flex items-center justify-center text-white transition-all duration-200 bg-primary-700 rounded-full w-7 h-7 hover:bg-primary-800"
                   >
-                    <FaTwitter className="w-4 h-4" />
+                    <Twitter className="w-4 h-4" />
                   </Link>
                 </li>
                 <li>
@@ -106,7 +126,7 @@ const Footer = () => {
                     to="/error404"
                     className="flex items-center justify-center text-white transition-all duration-200 bg-primary-700 rounded-full w-7 h-7 hover:bg-primary-800"
                   >
-                    <FaFacebookF className="w-4 h-4" />
+                    <Facebook className="w-4 h-4" />
                   </Link>
                 </li>
                 <li>
@@ -114,7 +134,7 @@ const Footer = () => {
                     to="/error404"
                     className="flex items-center justify-center text-white transition-all duration-200 bg-primary-700 rounded-full w-7 h-7 hover:bg-primary-800"
                   >
-                    <FaInstagram className="w-4 h-4" />
+                    <Instagram className="w-4 h-4" />
                   </Link>
                 </li>
                 <li>
@@ -122,7 +142,7 @@ const Footer = () => {
                     to="/error404"
                     className="flex items-center justify-center text-white transition-all duration-200 bg-primary-700 rounded-full w-7 h-7 hover:bg-primary-800"
                   >
-                    <FaGithub className="w-4 h-4" />
+                    <Github className="w-4 h-4" />
                   </Link>
                 </li>
               </ul>
@@ -251,7 +271,7 @@ const Footer = () => {
 
           <hr className="mt-16 mb-10 border-gray-200" />
 
-          <div className="flex justify-between gap-6 sm:flex-row">
+          <div className="flex justify-between gap-6 sm:flex-row px-4 sm:px-6 lg:px-8">
             <div>
               <p className="text-sm text-gray-600">
                 © {new Date().getFullYear()} Todos los derechos reservados Pixel

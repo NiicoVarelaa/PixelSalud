@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Search, X, Filter, ChevronDown, Frown } from "lucide-react";
 
 import { useProductStore } from "../store/useProductStore";
@@ -12,7 +12,6 @@ import CardProductos from "../components/CardProductos";
 import Footer from "../components/Footer";
 
 const Productos = () => {
-
   const { categorias, isLoading, fetchProducts, productos } = useProductStore();
   const {
     filtroCategoria,
@@ -28,6 +27,7 @@ const Productos = () => {
   const productosFiltrados = getProductosFiltrados();
 
   const location = useLocation();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
 
@@ -37,46 +37,91 @@ const Productos = () => {
     }
   }, [productos.length, fetchProducts]);
 
+  // --- Sincronización de filtros con la query string ---
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const categoriaURL = params.get("categoria");
-    if (categoriaURL) {
-      setFiltroCategoria(categoriaURL);
-    }
-  }, [location.search, setFiltroCategoria]);
+    const categoriaURL = params.get("categoria") ?? "todos";
+    const busquedaURL = params.get("busqueda") ?? "";
+    const ordenURL = params.get("orden") ?? "defecto";
 
+    setFiltroCategoria(categoriaURL);
+    setBusqueda(busquedaURL);
+    setOrdenPrecio(ordenURL);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+
+  const updateQueryParam = (key, value) => {
+    const params = new URLSearchParams(location.search);
+
+    if (!value || value === "todos" || value === "defecto") {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
+
+    const search = params.toString();
+    navigate(
+      {
+        pathname: location.pathname,
+        search: search ? `?${search}` : "",
+      },
+      { replace: true }
+    );
+  };
+
+  const setCategoriaYSync = (cat) => {
+    setFiltroCategoria(cat);
+    updateQueryParam("categoria", cat);
+  };
+
+  const setBusquedaYSync = (value) => {
+    setBusqueda(value);
+    updateQueryParam("busqueda", value);
+  };
+
+  const setOrdenYSync = (value) => {
+    setOrdenPrecio(value);
+    updateQueryParam("orden", value);
+  };
+
+  const limpiarYQuitarQuery = () => {
+    limpiarFiltros();
+    navigate({ pathname: location.pathname, search: "" }, { replace: true });
+  };
 
   return (
     <div>
       <Header />
-      <section className="w-full my-16 md:my-20 ">        
-        <Breadcrumbs categoria={filtroCategoria} />        
+      <section className="w-full my-12">
+        <Breadcrumbs categoria={filtroCategoria} />
+
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full mb-6">
           <h2 className="text-2xl md:text-3xl font-medium text-left text-gray-800">
             Nuestros Productos
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            {/* Buscador */}
             <div
               className={`relative flex items-center flex-1 ${
                 searchFocused ? "ring-2 ring-primary-600" : ""
               } bg-white rounded-lg border border-gray-200 overflow-hidden min-w-[250px] transition-all duration-200`}
             >
               <div className="pl-3 text-gray-400">
-                <Search size={18} /> 
+                <Search size={18} />
               </div>
               <input
                 type="text"
                 placeholder="Buscar productos..."
                 className="w-full py-2 px-3 outline-none text-gray-700 placeholder-gray-400 text-sm"
                 value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
+                onChange={(e) => setBusquedaYSync(e.target.value)}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
               />
               {busqueda && (
                 <button
-                  onClick={() => setBusqueda("")}
+                  onClick={() => setBusquedaYSync("")}
                   className="px-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                 >
                   <X size={16} />
@@ -114,7 +159,7 @@ const Productos = () => {
                     className={`px-3 py-2 text-sm cursor-pointer ${
                       ordenPrecio === "defecto" ? "bg-primary-50 text-primary-700" : "hover:bg-gray-50 text-gray-700"
                     }`}
-                    onClick={() => { setOrdenPrecio("defecto"); setDropdownOpen(false); }}
+                    onClick={() => { setOrdenYSync("defecto"); setDropdownOpen(false); }}
                   >
                     Ordenar por
                   </div>
@@ -122,7 +167,7 @@ const Productos = () => {
                     className={`px-3 py-2 text-sm cursor-pointer ${
                       ordenPrecio === "menor-precio" ? "bg-primary-50 text-primary-700" : "hover:bg-gray-50 text-gray-700"
                     }`}
-                    onClick={() => { setOrdenPrecio("menor-precio"); setDropdownOpen(false); }}
+                    onClick={() => { setOrdenYSync("menor-precio"); setDropdownOpen(false); }}
                   >
                     Precio: Menor a mayor
                   </div>
@@ -130,7 +175,7 @@ const Productos = () => {
                     className={`px-3 py-2 text-sm cursor-pointer ${
                       ordenPrecio === "mayor-precio" ? "bg-primary-50 text-primary-700" : "hover:bg-gray-50 text-gray-700"
                     }`}
-                    onClick={() => { setOrdenPrecio("mayor-precio"); setDropdownOpen(false); }}
+                    onClick={() => { setOrdenYSync("mayor-precio"); setDropdownOpen(false); }}
                   >
                     Precio: Mayor a menor
                   </div>
@@ -144,7 +189,7 @@ const Productos = () => {
           <div className="flex items-center bg-secondary-100 text-gray-800 px-3 py-1 rounded-full text-sm mt-4 w-fit">
             {filtroCategoria}
             <button
-              onClick={() => setFiltroCategoria("todos")}
+              onClick={() => setCategoriaYSync("todos")}
               className="ml-2 text-secondary-500 transition-colors cursor-pointer"
             >
               <X size={14} />
@@ -163,7 +208,7 @@ const Productos = () => {
               </div>
               <div className="p-1">
                 <button
-                  onClick={() => setFiltroCategoria("todos")}
+                  onClick={() => setCategoriaYSync("todos")}
                   className={`w-full text-left px-3 py-2 rounded text-sm flex items-center transition-colors cursor-pointer ${
                     filtroCategoria === "todos"
                       ? "bg-primary-50 text-primary-700 font-medium"
@@ -179,7 +224,7 @@ const Productos = () => {
                 {categorias.map((cat) => (
                   <button
                     key={cat}
-                    onClick={() => setFiltroCategoria(cat)}
+                    onClick={() => setCategoriaYSync(cat)}
                     className={`w-full text-left px-3 py-2 rounded text-sm flex items-center transition-colors ${
                       filtroCategoria === cat
                         ? "bg-primary-50 text-primary-700 font-medium"
@@ -193,7 +238,6 @@ const Productos = () => {
             </div>
           </aside>
 
-          {/* Lista de productos */}
           <div className="flex-1">
             {isLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
@@ -217,7 +261,7 @@ const Productos = () => {
                   Prueba cambiando los filtros o el término de búsqueda.
                 </p>
                 <button
-                  onClick={limpiarFiltros}
+                  onClick={limpiarYQuitarQuery}
                   className="mt-4 text-primary-600 hover:text-primary-800 text-sm font-medium transition-colors cursor-pointer"
                 >
                   Limpiar todos los filtros

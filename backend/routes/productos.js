@@ -1,18 +1,61 @@
 const express = require("express");
 const {
+  // Rutas de Productos
   getProductos,
   getProducto,
-  deleteProducto,
-  updateProducto,
+  getProductoBajado,
   createProducto,
-} = require("../controllers/productos");
+  updateProducto,
+  darBajaProducto,
+  activarProducto,
+  getOfertasDestacadas,
+
+  // Rutas de Ofertas (CRUD)
+  createOferta,
+  getOfertas,
+  getOferta,
+  updateOferta,
+  deleteOferta,
+  ofertaCyberMonday,
+  getCyberMondayOffers,
+} = require("../controllers/productos"); // Importa todas las funciones necesarias
+
+const auth = require("../middlewares/auth")
+const {verificarPermisos, verificarRol }= require("../middlewares/verificarPermisos")
 
 const router = express.Router();
 
 router.get("/productos", getProductos);
+router.get("/productos/bajados", auth,verificarRol(["admin","empleado"]), getProductoBajado);
 router.get("/productos/:idProducto", getProducto);
-router.delete("/productos/eliminar/:idProducto", deleteProducto);
-router.put("/productos/actualizar/:idProducto", updateProducto);
-router.post("/productos/crear", createProducto);
+router.post("/productos/crear", auth,verificarRol(["admin","empleado"]),verificarPermisos("crear_productos"), createProducto);
+router.put("/productos/actualizar/:idProducto",auth,verificarRol(["admin","empleado"]),verificarPermisos("modificar_productos"), updateProducto);
+router.put("/productos/darBaja/:id",auth,verificarRol(["admin", "empleado"]), verificarPermisos("modificar_productos"),darBajaProducto)
+router.put("/productos/activar/:id", auth, verificarRol(["admin", "empleado"]), verificarPermisos("modificar_productos"),activarProducto)
+
+
+// ------------------------------------------------------------------
+// --- RUTAS CRUD DE OFERTAS (Administración de Promociones) ---
+// ------------------------------------------------------------------
+router.get("/productos/ofertas-destacadas", getOfertasDestacadas);
+// POST: Crear una nueva oferta
+router.post("/ofertas/crear",auth, verificarRol(["admin"]), createOferta);
+
+// GET: Obtener todas las ofertas (para el panel de administración)
+router.get("/ofertas", getOfertas);
+
+// GET: Obtener una oferta específica por ID
+router.get("/ofertas/:idOferta", getOferta);
+
+// PUT: Actualizar los detalles de una oferta (cambiar porcentaje, fechas, o desactivar 'esActiva')
+router.put("/ofertas/actualizar/:idOferta",auth, verificarRol(["admin"]), updateOferta);
+
+// DELETE: Eliminar una oferta
+router.delete("/ofertas/eliminar/:idOferta",auth,verificarRol(["admin"]), deleteOferta);
+
+// POST: Crea la oferta masiva de Cyber Monday
+router.post("/ofertas/crear-cyber-monday",auth,verificarRol(["admin"]), ofertaCyberMonday);
+router.get("/productos/ofertas/cyber-monday", getCyberMondayOffers);
+
 
 module.exports = router;
