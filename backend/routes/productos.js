@@ -18,6 +18,7 @@ const {
   deleteOferta,
   ofertaCyberMonday,
   getCyberMondayOffers,
+  buscarProductos
 } = require("../controllers/productos"); // Importa todas las funciones necesarias
 
 const auth = require("../middlewares/auth")
@@ -32,7 +33,7 @@ router.post("/productos/crear", auth,verificarRol(["admin","empleado"]),verifica
 router.put("/productos/actualizar/:idProducto",auth,verificarRol(["admin","empleado"]),verificarPermisos("modificar_productos"), updateProducto);
 router.put("/productos/darBaja/:id",auth,verificarRol(["admin", "empleado"]), verificarPermisos("modificar_productos"),darBajaProducto)
 router.put("/productos/activar/:id", auth, verificarRol(["admin", "empleado"]), verificarPermisos("modificar_productos"),activarProducto)
-
+router.get('/productos/buscar', buscarProductos);
 
 // ------------------------------------------------------------------
 // --- RUTAS CRUD DE OFERTAS (Administración de Promociones) ---
