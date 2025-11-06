@@ -5,4 +5,11 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    allowedHosts: [
+      'localhost', 
+      '127.0.0.1', 
+      'histomorphological-alonzo-figuratively.ngrok-free.dev' 
+    ]
+  }
 })

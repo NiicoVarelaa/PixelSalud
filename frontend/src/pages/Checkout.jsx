@@ -23,7 +23,6 @@ let mercadoPagoInitialized = false;
 const initializeMercadoPago = async () => {
   if (!mercadoPagoInitialized && window.MercadoPago) {
     try {
-      // Nota: El import de '@mercadopago/sdk-react' es asíncrono en el archivo original
       const { initMercadoPago } = await import("@mercadopago/sdk-react");
       initMercadoPago("APP_USR-338dfdb1-f95c-4629-9edb-dbeaeac039d0", {
         locale: "es-AR",

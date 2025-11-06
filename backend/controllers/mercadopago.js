@@ -13,7 +13,7 @@ const verifyToken = (req, res, next) => {
   try {
     const authHeader = req.header("Authorization") || req.header("auth");
     const token = authHeader?.replace("Bearer ", "");
-    
+
     if (!token) {
       return res.status(401).json({ message: "Token requerido" });
     }
@@ -70,17 +70,18 @@ const createVentaOnline = (ventaData) => {
       preferenceId,
       totalPago,
       customerInfo,
-      estado = 'pendiente'
+      estado = "pendiente",
+      externalReference, // 👈 ACEPTAR externalReference
     } = ventaData;
 
     const sql = `
-      INSERT INTO VentasOnlines (idCliente, totalPago, metodoPago, estado, fechaPago, horaPago)
-      VALUES (?, ?, 'Mercado Pago', ?, CURRENT_DATE, CURRENT_TIME)
+      INSERT INTO VentasOnlines (idCliente, totalPago, metodoPago, estado, fechaPago, horaPago, externalReference) 
+      VALUES (?, ?, 'Mercado Pago', ?, CURRENT_DATE, CURRENT_TIME, ?) 
     `;
 
     conection.query(
       sql,
-      [idCliente, totalPago, estado],
+      [idCliente, totalPago, estado, externalReference],
       (error, results) => {
         if (error) {
           return reject(error);
@@ -100,11 +101,11 @@ const createDetalleVentaOnline = (idVentaO, items) => {
     }
 
     // Normaliza los campos por si vienen con id o idProducto
-    const values = items.map(item => [
+    const values = items.map((item) => [
       idVentaO,
       item.idProducto ?? item.id, // acepta ambos
       item.quantity,
-      item.unit_price
+      item.unit_price,
     ]);
 
     const sql = `
@@ -121,10 +122,9 @@ const createDetalleVentaOnline = (idVentaO, items) => {
   });
 };
 
-
 // Función para actualizar stock de productos
 const updateProductStock = (items) => {
-  const promises = items.map(item => {
+  const promises = items.map((item) => {
     return new Promise((resolve, reject) => {
       const sql = `
         UPDATE Productos 
@@ -153,12 +153,26 @@ exports.createOrder = [
   verifyToken,
   async (req, res) => {
     const { products, customer_info, discount = 0 } = req.body;
-    const userId = req.user.id; // Obtenido del JWT
+    const userId = req.user.id;
+    
+    // Limpiar y validar URLs
+    const frontendUrl = process.env.FRONTEND_URL?.trim();
+    const backendUrl = process.env.BACKEND_URL?.trim();
+    const isProduction = frontendUrl && !frontendUrl.includes('localhost');
+    
+    if (!frontendUrl || !frontendUrl.startsWith("http")) {
+      console.error("FRONTEND_URL inválida:", process.env.FRONTEND_URL);
+      return res.status(500).json({
+        success: false,
+        message: "Error de configuración del servidor",
+        error: "FRONTEND_URL no está configurada correctamente",
+      });
+    }
 
     if (!products || products.length === 0) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "No se proporcionaron productos para la compra." 
+        message: "No se proporcionaron productos para la compra.",
       });
     }
 
@@ -166,7 +180,7 @@ exports.createOrder = [
     if (!customer_info || !customer_info.email) {
       return res.status(400).json({
         success: false,
-        message: "Información del cliente incompleta."
+        message: "Información del cliente incompleta.",
       });
     }
 
@@ -182,19 +196,19 @@ exports.createOrder = [
       if (dbProducts.length !== products.length) {
         return res.status(400).json({
           success: false,
-          message: "Algunos productos no fueron encontrados."
+          message: "Algunos productos no fueron encontrados.",
         });
       }
 
       // Verificar stock disponible
       const stockErrors = [];
-      dbProducts.forEach(product => {
+      dbProducts.forEach((product) => {
         const requestedQuantity = productQuantities[product.idProducto];
         if (product.stock < requestedQuantity) {
           stockErrors.push({
             product: product.nombreProducto,
             available: product.stock,
-            requested: requestedQuantity
+            requested: requestedQuantity,
           });
         }
       });
@@ -203,7 +217,7 @@ exports.createOrder = [
         return res.status(400).json({
           success: false,
           message: "Stock insuficiente para algunos productos",
-          errors: stockErrors
+          errors: stockErrors,
         });
       }
 
@@ -224,39 +238,51 @@ exports.createOrder = [
           quantity: quantity,
           picture_url: product.img,
           category_id: product.categoria || "general",
-          currency_id: "ARS"
+          currency_id: "ARS",
         };
       });
 
       const total = Math.max(subtotal - discount, 0);
-
+      const externalReference = `venta_${userId}_${Date.now()}`;
       const preference = new Preference(client);
 
+      // Construir el body de la preferencia
       const preferenceBody = {
         items,
         payer: {
-          name: customer_info.name || '',
-          surname: customer_info.surname || '',
+          name: customer_info.name || "",
+          surname: customer_info.surname || "",
           email: customer_info.email,
           phone: {
-            number: customer_info.phone?.replace(/\D/g, '') || '',
+            number: customer_info.phone?.replace(/\D/g, "") || "",
           },
           address: {
-            street_name: customer_info.address?.street_name || '',
-            street_number: customer_info.address?.street_number || '',
-            zip_code: customer_info.address?.zip_code || '',
-          }
+            street_name: customer_info.address?.street_name || "",
+            street_number: customer_info.address?.street_number || "",
+            zip_code: customer_info.address?.zip_code || "",
+          },
         },
         back_urls: {
-          success: `${process.env.FRONTEND_URL}/checkout/success`,
-          failure: `${process.env.FRONTEND_URL}/checkout/failure`,
-          pending: `${process.env.FRONTEND_URL}/checkout/pending`,
+          success: `${frontendUrl}/checkout/success`,
+          failure: `${frontendUrl}/checkout/failure`,
+          pending: `${frontendUrl}/checkout/pending`,
         },
-        auto_return: "approved",
         statement_descriptor: "PIXELSTORE",
-        external_reference: `venta_${userId}_${Date.now()}`,
-        notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhook`,
+        external_reference: externalReference,
+        notification_url: `${backendUrl}/mercadopago/notifications`,
       };
+
+      // Solo agregar auto_return si NO es localhost
+      if (isProduction) {
+        preferenceBody.auto_return = "approved";
+      }
+
+      console.log("DEBUG - Configuración:");
+      console.log("FRONTEND_URL:", frontendUrl);
+      console.log("BACKEND_URL:", backendUrl);
+      console.log("Es producción:", isProduction);
+      console.log("Auto return:", preferenceBody.auto_return || "disabled");
+      console.log("Back URLs:", preferenceBody.back_urls);
 
       console.log("Creating Mercado Pago preference for user:", userId);
 
@@ -270,83 +296,123 @@ exports.createOrder = [
         preferenceId: response.id,
         totalPago: total,
         customerInfo: customer_info,
-        estado: 'pendiente'
+        estado: "pendiente",
+        externalReference: externalReference,
       });
 
       // Crear detalles de la venta
       await createDetalleVentaOnline(idVentaO, items);
 
-      res.json({ 
+      res.json({
         success: true,
         id: response.id,
         idVentaO: idVentaO,
         init_point: response.init_point,
-        total: total
+        total: total,
       });
-
     } catch (error) {
       console.error("Error al crear la orden de Mercado Pago:", error);
-      res.status(500).json({ 
+      res.status(500).json({
         success: false,
         message: "Error al crear la orden",
-        error: error.message 
+        error: error.message,
       });
     }
-  }
+  },
 ];
 
 // Webhook para recibir notificaciones de pago
 exports.receiveWebhook = async (req, res) => {
+  console.log("\n=== WEBHOOK RECIBIDO ===");
+  console.log("Timestamp:", new Date().toISOString());
+  console.log("Headers:", JSON.stringify(req.headers, null, 2));
+  console.log("Body:", JSON.stringify(req.body, null, 2));
+  
   try {
-    const { type, data } = req.body;
+    const { type, data, action } = req.body;
+    
+    console.log("Type:", type);
+    console.log("Data:", data);
+    console.log("Action:", action);
 
-    if (type === "payment") {
-      const paymentId = data.id;
+    // SIEMPRE responder 200 OK primero para que MP no reintente
+    res.status(200).send("OK");
+    console.log("✅ Respuesta 200 OK enviada a MercadoPago");
+
+    // Detectar webhooks de prueba de MercadoPago
+    const paymentId = data?.id;
+    if (paymentId === "123456" || paymentId === 123456 || paymentId === "12345678") {
+      console.log("⚠️ WEBHOOK DE PRUEBA detectado - No se procesará");
+      console.log("✅ Endpoint funcionando correctamente - Prueba exitosa");
+      return;
+    }
+
+    // Si es una notificación de pago REAL
+    if (type === "payment" && paymentId) {
+      console.log(`📋 Procesando pago REAL ID: ${paymentId}`);
       
-      const payment = new Payment(client);
-      const paymentDetails = await payment.get({ id: paymentId });
+      try {
+        // Obtener detalles del pago desde MercadoPago
+        const payment = new Payment(client);
+        console.log("🔍 Consultando API de MercadoPago...");
+        
+        const paymentDetails = await payment.get({ id: paymentId });
+        
+        console.log("📦 Detalles del pago recibidos:");
+        console.log("  - Status:", paymentDetails.status);
+        console.log("  - External Reference:", paymentDetails.external_reference);
+        console.log("  - Transaction Amount:", paymentDetails.transaction_amount);
 
-      console.log(`Webhook received - Payment ID: ${paymentId}, Status: ${paymentDetails.status}`);
+        const externalReference = paymentDetails.external_reference;
+        
+        if (!externalReference) {
+          console.error("❌ No se encontró external_reference en el pago");
+          return;
+        }
 
-      // Extraer información de la referencia externa
-      const externalReference = paymentDetails.external_reference;
-      const [_, userId, timestamp] = externalReference.split('_');
+        // PAGO APROBADO
+        if (paymentDetails.status === "approved") {
+          console.log(`✅ PAGO APROBADO - Referencia: ${externalReference}`);
+          
+          const findVentaSql = `
+            SELECT vo.idVentaO, vo.idCliente, vo.estado
+            FROM VentasOnlines vo
+            WHERE vo.externalReference = ?
+          `;
 
-      if (paymentDetails.status === "approved") {
-        // Buscar la venta por el ID del cliente y timestamp
-        const findVentaSql = `
-          SELECT vo.idVentaO, vo.idCliente 
-          FROM VentasOnlines vo
-          WHERE vo.idCliente = ? 
-          AND vo.estado = 'pendiente'
-          ORDER BY vo.fechaPago DESC, vo.horaPago DESC 
-          LIMIT 1
-        `;
+          conection.query(findVentaSql, [externalReference], async (error, results) => {
+            if (error) {
+              console.error("❌ Error buscando venta:", error);
+              return;
+            }
 
-        conection.query(findVentaSql, [userId], async (error, results) => {
-          if (error) {
-            console.error("Error finding venta:", error);
-            return;
-          }
-
-          if (results.length > 0) {
-            const venta = results[0];
+            console.log(`📊 Ventas encontradas: ${results.length}`);
             
-            // Actualizar venta como aprobada
-            const updateVentaSql = `
-              UPDATE VentasOnlines 
-              SET estado = 'retirado', 
-                  metodoPago = 'Mercado Pago - Aprobado'
-              WHERE idVentaO = ?
-            `;
+            if (results.length > 0) {
+              const venta = results[0];
+              console.log(`📄 Venta encontrada: ID=${venta.idVentaO}, Estado=${venta.estado}`);
+              
+              if (venta.estado !== 'pendiente') {
+                console.log(`⚠️ Venta ${venta.idVentaO} ya procesada anteriormente`);
+                return;
+              }
+              
+              const updateVentaSql = `
+                UPDATE VentasOnlines 
+                SET estado = 'retirado', 
+                    metodoPago = 'Mercado Pago - Aprobado'
+                WHERE idVentaO = ?
+              `;
 
-            conection.query(updateVentaSql, [venta.idVentaO], async (updateError) => {
-              if (updateError) {
-                console.error("Error updating venta:", updateError);
-              } else {
-                console.log(`Venta ${venta.idVentaO} actualizada como retirado`);
+              conection.query(updateVentaSql, [venta.idVentaO], async (updateError) => {
+                if (updateError) {
+                  console.error("❌ Error actualizando venta:", updateError);
+                  return;
+                }
                 
-                // Obtener detalles de la venta para actualizar stock
+                console.log(`✅ Venta ${venta.idVentaO} actualizada a 'retirado'`);
+                
+                // Obtener detalles para actualizar stock
                 const getDetallesSql = `
                   SELECT idProducto, cantidad 
                   FROM DetalleVentaOnline 
@@ -355,71 +421,87 @@ exports.receiveWebhook = async (req, res) => {
 
                 conection.query(getDetallesSql, [venta.idVentaO], async (detalleError, detalles) => {
                   if (detalleError) {
-                    console.error("Error getting detalles:", detalleError);
+                    console.error("❌ Error obteniendo detalles:", detalleError);
                     return;
                   }
 
-                  try {
-                    // Actualizar stock de productos
-                    await updateProductStock(detalles);
-                    console.log(`Stock actualizado para venta ${venta.idVentaO}`);
-                    
-                    // Aquí puedes agregar lógica adicional:
-                    // - Enviar email de confirmación
-                    // - Limpiar carrito del usuario
-                    // - Notificar al administrador
+                  console.log(`📦 Productos a actualizar (${detalles.length}):`, detalles);
 
+                  try {
+                    await updateProductStock(detalles);
+                    console.log(`✅ Stock actualizado exitosamente para venta ${venta.idVentaO}`);
                   } catch (stockError) {
-                    console.error("Error updating stock:", stockError);
+                    console.error("❌ Error actualizando stock:", stockError);
                   }
                 });
+              });
+            } else {
+              console.log(`⚠️ No se encontró venta con referencia: ${externalReference}`);
+            }
+          });
+          
+        // PAGO RECHAZADO
+        } else if (paymentDetails.status === "rejected") {
+          console.log(`❌ PAGO RECHAZADO - Referencia: ${externalReference}`);
+          
+          const findVentaSql = `
+            SELECT vo.idVentaO, vo.estado
+            FROM VentasOnlines vo
+            WHERE vo.externalReference = ?
+          `;
+
+          conection.query(findVentaSql, [externalReference], (error, results) => { 
+            if (error) {
+              console.error("❌ Error buscando venta rechazada:", error);
+              return;
+            }
+
+            if (results.length > 0) {
+              const venta = results[0];
+              
+              if (venta.estado !== 'pendiente') {
+                console.log(`⚠️ Venta ${venta.idVentaO} ya procesada`);
+                return;
               }
-            });
-          }
-        });
-      } else if (paymentDetails.status === "rejected") {
-        // Buscar y actualizar venta como cancelada
-        const findVentaSql = `
-          SELECT vo.idVentaO 
-          FROM VentasOnlines vo
-          WHERE vo.idCliente = ? 
-          AND vo.estado = 'pendiente'
-          ORDER BY vo.fechaPago DESC, vo.horaPago DESC 
-          LIMIT 1
-        `;
+              
+              const updateVentaSql = `
+                UPDATE VentasOnlines 
+                SET estado = 'cancelado'
+                WHERE idVentaO = ?
+              `;
 
-        conection.query(findVentaSql, [userId], (error, results) => {
-          if (error) {
-            console.error("Error finding venta for rejection:", error);
-            return;
-          }
-
-          if (results.length > 0) {
-            const venta = results[0];
-            
-            const updateVentaSql = `
-              UPDATE VentasOnlines 
-              SET estado = 'cancelado'
-              WHERE idVentaO = ?
-            `;
-
-            conection.query(updateVentaSql, [venta.idVentaO], (updateError) => {
-              if (updateError) {
-                console.error("Error updating rejected venta:", updateError);
-              } else {
-                console.log(`Venta ${venta.idVentaO} actualizada como cancelado`);
-              }
-            });
-          }
-        });
+              conection.query(updateVentaSql, [venta.idVentaO], (updateError) => {
+                if (updateError) {
+                  console.error("❌ Error actualizando venta rechazada:", updateError);
+                } else {
+                  console.log(`✅ Venta ${venta.idVentaO} marcada como 'cancelado'`);
+                }
+              });
+            }
+          });
+          
+        } else {
+          console.log(`ℹ️ Estado del pago: ${paymentDetails.status} - Sin acción inmediata`);
+        }
+        
+      } catch (paymentError) {
+        console.error("❌ ERROR obteniendo detalles del pago:");
+        console.error("  Message:", paymentError.message);
+        if (paymentError.message === "Payment not found") {
+          console.log("ℹ️ El pago no existe en MercadoPago (posible prueba)");
+        }
       }
+    } else {
+      console.log(`ℹ️ Tipo de notificación: ${type} - No requiere procesamiento`);
     }
 
-    res.status(200).send("OK");
   } catch (error) {
-    console.error("Error processing webhook:", error);
-    res.status(500).send("Error processing webhook");
+    console.error("❌ ERROR CRÍTICO en receiveWebhook:");
+    console.error("  Message:", error.message);
+    console.error("  Stack:", error.stack);
   }
+  
+  console.log("=== FIN WEBHOOK ===\n");
 };
 
 // Obtener historial de ventas del usuario
@@ -428,7 +510,7 @@ exports.getUserOrders = [
   async (req, res) => {
     try {
       const userId = req.user.id;
-      
+
       const sql = `
         SELECT 
           vo.idVentaO,
@@ -454,14 +536,14 @@ exports.getUserOrders = [
           console.error("Error fetching user orders:", error);
           return res.status(500).json({
             success: false,
-            message: "Error al obtener las ventas"
+            message: "Error al obtener las ventas",
           });
         }
 
         // Agrupar productos por venta
         const ventasMap = new Map();
-        
-        results.forEach(row => {
+
+        results.forEach((row) => {
           if (!ventasMap.has(row.idVentaO)) {
             ventasMap.set(row.idVentaO, {
               idVentaO: row.idVentaO,
@@ -470,16 +552,16 @@ exports.getUserOrders = [
               horaPago: row.horaPago,
               metodoPago: row.metodoPago,
               estado: row.estado,
-              productos: []
+              productos: [],
             });
           }
-          
+
           ventasMap.get(row.idVentaO).productos.push({
             idProducto: row.idProducto,
             nombreProducto: row.nombreProducto,
             cantidad: row.cantidad,
             precioUnitario: row.precioUnitario,
-            img: row.img
+            img: row.img,
           });
         });
 
@@ -487,17 +569,17 @@ exports.getUserOrders = [
 
         res.json({
           success: true,
-          ventas: ventas
+          ventas: ventas,
         });
       });
     } catch (error) {
       console.error("Error in getUserOrders:", error);
       res.status(500).json({
         success: false,
-        message: "Error interno del servidor"
+        message: "Error interno del servidor",
       });
     }
-  }
+  },
 ];
 
 // Función para limpiar carrito después de una compra exitosa
@@ -506,29 +588,29 @@ exports.clearUserCart = [
   async (req, res) => {
     try {
       const userId = req.user.id;
-      
+
       const sql = `DELETE FROM Carrito WHERE idCliente = ?`;
-      
+
       conection.query(sql, [userId], (error) => {
         if (error) {
           console.error("Error clearing cart:", error);
           return res.status(500).json({
             success: false,
-            message: "Error al limpiar el carrito"
+            message: "Error al limpiar el carrito",
           });
         }
 
         res.json({
           success: true,
-          message: "Carrito limpiado exitosamente"
+          message: "Carrito limpiado exitosamente",
         });
       });
     } catch (error) {
       console.error("Error in clearUserCart:", error);
       res.status(500).json({
         success: false,
-        message: "Error interno del servidor"
+        message: "Error interno del servidor",
       });
     }
-  }
+  },
 ];
