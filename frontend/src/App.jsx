@@ -21,6 +21,28 @@ import Perfil from "./pages/Perfil";
 import PerfilDirecciones from "./pages/PerfilDirecciones";
 import PerfilFavoritos from "./pages/PerfilFavoritos";
 import DashboardCliente from "../src/components/DashboardCliente";
+import AdminProductos from "./components/AdminProductos";
+import AdminVentasE from "./components/AdminVentasE";
+import AdminVentasO from "./components/AdminVentasO";
+import AdminClientes from "./components/AdminClientes";
+import AdminEmpleados from "./components/AdminEmpleados";
+import AdminMenu from "./components/AdminMenu";
+import MedicosMenu from "./components/MedicosMenu";
+import Receta from "./components/Receta";
+import CrearReceta from "./components/CrearReceta";
+import PanelMedicos from "./components/PanelMedicos";
+import MenuProductos from "./components/MenuProductos";
+import OpcionesProductos from "./components/OpcionesProductos";
+import AdminOfertas from "./components/AdminOfertas";
+import AdminProductosActivos from "./components/AdminProductosActivos";
+import AdminProductosBaja from "./components/AdminProductosBaja";
+import MenuEmpleados from "./components/MenuEmpleados";
+import OpcionesEmpleados from "./components/OpcionesEmpleados";
+import MenuVentas from "./components/MenuVentas";
+import OpcionesVentas from "./components/OpcionesVentas";
+import MenuClientes from "./components/MenuClientes";
+import OpcionesClientes from "./components/OpcionesClientes";
+
 
 const App = () => {
   return (
@@ -46,7 +68,42 @@ const App = () => {
           </Route>
           <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
         </Route>
-        <Route path="/admin/*" element={<Administrador />} />
+
+        <Route path="/admin/*" element={<Administrador />}>
+          <Route index element={<AdminMenu />} />
+
+          <Route path="MenuProductos/*" element={<MenuProductos />}>
+            <Route index element={<OpcionesProductos />} />
+            <Route path="productos" element={<AdminProductos />} />
+            <Route path="ofertas" element={<AdminOfertas />} />
+            <Route path="productosActivos" element={<AdminProductosActivos />} />
+            <Route path="productosBaja" element={<AdminProductosBaja />} />
+          </Route>
+
+          <Route path="MenuClientes/*" element={<MenuClientes />}>
+            <Route index element={<OpcionesClientes />} />
+            <Route path="clientes" element={<AdminClientes />} />
+          </Route>
+
+          <Route path="MenuEmpleados/*" element={<MenuEmpleados />}>
+            <Route index element={<OpcionesEmpleados />} />
+            <Route path="empleados" element={<AdminEmpleados />} />
+          </Route>
+
+          <Route path="MenuVentas/*" element={<MenuVentas />}>
+            <Route index element={<OpcionesVentas />} />
+            <Route path="VentasE" element={<AdminVentasE />} />
+            <Route path="ventasO" element={<AdminVentasO />} />
+          </Route>
+
+        </Route>
+
+        <Route path="/PanelMedicos/*" element={<PanelMedicos />}>
+          <Route index element={<MedicosMenu />} />
+          <Route path="Receta" element={<Receta />} />
+          <Route path="CrearReceta" element={<CrearReceta />} />
+        </Route>
+
         <Route path="/panelempleados" element={<PanelEmpleados />} />
         <Route path="*" element={<Error404 />} />
       </Routes>
