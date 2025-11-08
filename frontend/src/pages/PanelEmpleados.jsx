@@ -17,12 +17,12 @@ const VistaInicialCards = ({ onNavegar, user }) => {
       {/* 3. Título centrado con el nombre del empleado */}
       <h1 className="text-4xl font-bold text-gray-800 text-center">
         {/* Usamos 'nombreEmpleado' o 'nombre', con un fallback por si acaso */}
-        Bienvenido, {user?.nombreEmpleado || user?.nombre || "Empleado"}
+        Bienvenido {user?.nombreEmpleado || user?.nombre || "Empleado"} !!
       </h1>
 
       {/* 4. Subtítulo centrado */}
       <p className="text-lg text-gray-600 text-center mt-2 mb-12">
-        Selecciona qué deseas ver/hacer hoy
+        Selecciona una opcion.
       </p>
 
       {/* 5. Contenedor de Cards (el 'gap-8' da la distancia que pediste) */}

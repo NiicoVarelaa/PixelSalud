@@ -113,13 +113,10 @@ const registrarVentaEmpleado = (req, res) => {
 };
 
 const obtenerVentasEmpleado = (req, res) => {
-  const consulta = `
-    SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado, -- ¡Agregado ve.estado!
-       p.nombreProducto, dve.cantidad, dve.precioUnitario, ve.totalPago,
-       e.nombreEmpleado
+  // Asegúrate de que no haya NINGÚN espacio antes del `SELECT`
+  const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado,
+           ve.totalPago, e.nombreEmpleado
     FROM VentasEmpleados ve
-    JOIN DetalleVentaEmpleado dve ON ve.idVentaE = dve.idVentaE
-    JOIN Productos p ON dve.idProducto = p.idProducto
     JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
     ORDER BY ve.idVentaE DESC;
   `;
@@ -127,10 +124,12 @@ const obtenerVentasEmpleado = (req, res) => {
   conection.query(consulta, (err, results) => {
     if (err) {
       console.error("Error al obtener ventas del empleado:", err.sqlMessage);
-      return res.status(500).json({ error: "Error al obtener ventas" });
+      return res
+        .status(500)
+        .json({ error: "Error al obtener ventas del empleado" });
     }
     if (results.length === 0) {
-      return res.status(200).json({ msg: "No hay ventas realizadas aun" });
+      return res.status(200).json({msg:"No hay ventas realizadas aun"})
     }
     res.status(200).json(results);
   });
@@ -138,13 +137,10 @@ const obtenerVentasEmpleado = (req, res) => {
 
 const obtenerLaVentaDeUnEmpleado = (req, res) => {
   const idEmpleado = req.params.idEmpleado;
-  const consulta = `
-    SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado, -- ¡Agregado ve.estado!
-       p.nombreProducto, dve.cantidad, dve.precioUnitario, ve.totalPago,
-       e.nombreEmpleado
+  // Asegúrate de que no haya NINGÚN espacio antes del `SELECT`
+  const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado,
+           ve.totalPago, e.nombreEmpleado
     FROM VentasEmpleados ve
-    JOIN DetalleVentaEmpleado dve ON ve.idVentaE = dve.idVentaE
-    JOIN Productos p ON dve.idProducto = p.idProducto
     JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
     WHERE e.idEmpleado = ?
     ORDER BY ve.idVentaE DESC;
@@ -153,10 +149,12 @@ const obtenerLaVentaDeUnEmpleado = (req, res) => {
   conection.query(consulta, [idEmpleado], (err, results) => {
     if (err) {
       console.error("Error al obtener ventas del empleado:", err.sqlMessage);
-      return res.status(500).json({ error: "Error al obtener ventas del empleado" });
+      return res
+        .status(500)
+        .json({ error: "Error al obtener ventas del empleado" });
     }
     if (results.length === 0) {
-      return res.status(200).json({ msg: "El empleado no realizo ninguna venta aun" });
+      return res.status(200).json({msg:"El empleado no realizo ninguna venta aun"})
     }
     res.status(200).json(results);
   });
@@ -187,8 +185,7 @@ const obtenerDetalleVentaEmpleado = (req, res) => {
 };
 
 const obtenerVentasAnuladas = (req, res) => {
-    const consulta = `
-        SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.totalPago, ve.estado,
+    const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.totalPago, ve.estado,
                e.nombreEmpleado
         FROM VentasEmpleados ve
         JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
@@ -207,8 +204,7 @@ const obtenerVentasAnuladas = (req, res) => {
 
 
 const obtenerVentasCompletadas = (req, res) => {
-    const consulta = `
-        SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.totalPago, ve.estado,
+    const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.totalPago, ve.estado,
                e.nombreEmpleado
         FROM VentasEmpleados ve
         JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
