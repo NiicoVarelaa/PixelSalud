@@ -162,6 +162,30 @@ const obtenerLaVentaDeUnEmpleado = (req, res) => {
   });
 };
 
+
+const obtenerDetalleVentaEmpleado = (req, res) => {
+  const { idVentaE } = req.params;
+
+  // Esta consulta SÍ necesita el JOIN
+  const consulta = `
+    SELECT p.nombreProducto, dve.cantidad, dve.precioUnitario
+    FROM DetalleVentaEmpleado dve
+    JOIN Productos p ON dve.idProducto = p.idProducto
+    WHERE dve.idVentaE = ?
+  `;
+
+  conection.query(consulta, [idVentaE], (err, results) => {
+    if (err) {
+      console.error("Error al obtener detalle de venta:", err.sqlMessage);
+      return res.status(500).json({ error: "Error al obtener detalles" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Detalles no encontrados para esta venta" });
+    }
+    res.status(200).json(results); // Devuelve el array de productos
+  });
+};
+
 const obtenerVentasAnuladas = (req, res) => {
     const consulta = `
         SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.totalPago, ve.estado,
@@ -327,6 +351,7 @@ module.exports = {
   registrarVentaEmpleado,
   obtenerVentasEmpleado,
   obtenerLaVentaDeUnEmpleado,
+  obtenerDetalleVentaEmpleado,
   obtenerVentasAnuladas,
   obtenerVentasCompletadas,
   updateVenta,

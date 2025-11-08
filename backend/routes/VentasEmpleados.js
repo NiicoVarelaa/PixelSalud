@@ -3,6 +3,7 @@ const {
   registrarVentaEmpleado,
   obtenerVentasEmpleado,
   obtenerLaVentaDeUnEmpleado,
+  obtenerDetalleVentaEmpleado,
   obtenerVentasAnuladas,
   obtenerVentasCompletadas,
   updateVenta,
@@ -15,6 +16,7 @@ const {verificarRol, verificarPermisos}= require("../middlewares/verificarPermis
 
 router.get("/ventasEmpleados",auth, verificarRol(["admin", "empleado"]),verificarPermisos("ver_ventasTotalesE"), obtenerVentasEmpleado);
 router.get("/ventasEmpleados/completas",auth,verificarRol(["admin" , "empleado"]), verificarPermisos("ver_ventasTotalesE"), obtenerVentasCompletadas)
+router.get("/ventasEmpleados/detalle/:idVentaE", auth, verificarRol(["admin", "empleado"]), obtenerDetalleVentaEmpleado);
 router.get("/ventasEmpleados/anuladas",auth,verificarRol(["admin" , "empleado"]), verificarPermisos("ver_ventasTotalesE"), obtenerVentasAnuladas)
 router.get("/ventasEmpleados/:idEmpleado", auth, verificarRol(["admin", "empleado"]),obtenerLaVentaDeUnEmpleado);
 router.post("/ventasEmpleados/crear", auth, verificarRol(["admin", "empleado"]), registrarVentaEmpleado);

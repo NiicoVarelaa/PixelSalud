@@ -3,11 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { toast } from "react-toastify";
 import NavbarEmpleado from "../components/NavbarEmpleado";
-
-// --- COMPONENTES DE LAS VISTAS ---
+import EmpleadoListaVentas from "../components/EmpleadoListaVentas"; // ¡Asegurate que esta ruta sea correcta!
 import EmpleadoRealizarVenta from "../components/EmpleadoRealizarVenta";
-// import EmpleadoMisVentas from "../components/EmpleadoMisVentas";
-// import EmpleadoProductos from "../components/EmpleadoProductos";
 
 // ===================================================================
 // --- VISTA INICIAL (Las Cards) ---
@@ -106,7 +103,22 @@ const PanelEmpleados = () => {
           />
         );
       case "misVentas":
-        return <EmpleadoMisVentas onVolver={handleVolver} />;
+        return (
+          <EmpleadoListaVentas
+            onVolver={handleVolver}
+            endpoint={`/ventasEmpleados/${user.id}`} // Le pasa la URL para "Mis Ventas"
+            title="Mis Ventas Personales"
+          />
+        );
+      // ...
+      case "ventasTotales":
+        return (
+          <EmpleadoListaVentas
+            onVolver={handleVolver}
+            endpoint="/ventasEmpleados" // Le pasa la URL para "Ventas Totales"
+            title="Ventas Totales (Admin)"
+          />
+        );
 
       case "productos":
         return (
