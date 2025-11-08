@@ -3,8 +3,8 @@ import apiClient from '../utils/apiClient';
 import { useAuthStore } from '../store/useAuthStore';
 import Swal from 'sweetalert2';
 
-// Recibe props del padre (PanelEmpleados)
-const EmpleadoListaVentas = ({ onVolver, endpoint, title }) => {
+// 1. Recibe la prop 'onEditar'
+const EmpleadoListaVentas = ({ onVolver, endpoint, title, onEditar }) => {
   
   const { user } = useAuthStore();
   const permisos = user?.permisos || {};
@@ -13,6 +13,7 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // --- Lógica de Carga ---
   const cargarVentas = async () => {
     setLoading(true);
     setError(null);
@@ -37,9 +38,7 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title }) => {
 
   
   // --- Funciones de Botones ---
-
   const handleAnular = (idVentaE) => {
-    // ... (esta función queda igual que antes)
     Swal.fire({
       title: '¿Estás seguro?',
       text: `¡Vas a anular la venta #${idVentaE}!`,
@@ -54,7 +53,7 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title }) => {
         try {
           await apiClient.put(`/ventasEmpleados/anular/${idVentaE}`);
           Swal.fire('¡Anulada!', `La venta #${idVentaE} ha sido anulada.`, 'success');
-          cargarVentas(); // Recargamos
+          cargarVentas();
         } catch (err) {
           Swal.fire('Error', err.response?.data?.error || 'No se pudo anular.', 'error');
         }
@@ -62,63 +61,33 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title }) => {
     });
   };
 
-  const handleEditar = (idVentaE) => {
-    // ... (esta función queda igual que antes)
-    Swal.fire('Editar Venta (En Desarrollo)', `Aquí se abriría el formulario para editar la venta #${idVentaE}.`, 'info');
-  };
-
-  // =======================================================
-  // --- ¡NUEVA FUNCIÓN PARA VER EL DETALLE! ---
-  // =======================================================
   const handleVerDetalle = async (idVentaE) => {
-    Swal.fire({
-      title: 'Cargando detalle...',
-      text: `Buscando productos de la venta #${idVentaE}`,
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-
+    Swal.fire({ title: 'Cargando detalle...', didOpen: () => Swal.showLoading() });
     try {
-      // 1. Llamamos a la nueva ruta del backend
       const response = await apiClient.get(`/ventasEmpleados/detalle/${idVentaE}`);
-      const detalles = response.data; // Esto es un array de productos
-
-      // 2. Formateamos los productos en HTML para el modal
+      const detalles = response.data;
       let htmlDetalle = '<ul class="text-left list-disc list-inside mt-4">';
       detalles.forEach(prod => {
-        htmlDetalle += `<li class="mb-2">
-          (${prod.cantidad}x) <strong>${prod.nombreProducto}</strong> - 
-          $${prod.precioUnitario} c/u
-        </li>`;
+        htmlDetalle += `<li class="mb-2">(${prod.cantidad}x) <strong>${prod.nombreProducto}</strong> - $${prod.precioUnitario} c/u</li>`;
       });
       htmlDetalle += '</ul>';
-
-      // 3. Mostramos el modal de éxito con los detalles
-      Swal.fire({
-        title: `Detalle de Venta #${idVentaE}`,
-        html: htmlDetalle,
-        icon: 'info',
-        confirmButtonText: 'Cerrar'
-      });
-
+      Swal.fire({ title: `Detalle de Venta #${idVentaE}`, html: htmlDetalle, icon: 'info' });
     } catch (err) {
-      console.error("Error al ver detalle:", err.response?.data || err.message);
-      Swal.fire(
-        'Error',
-        err.response?.data?.error || 'No se pudo cargar el detalle.',
-        'error'
-      );
+      Swal.fire('Error', err.response?.data?.error || 'No se pudo cargar el detalle.', 'error');
     }
   };
 
+  // 2. ¡Función 'handleEditar' actualizada!
+  const handleEditar = (idVentaE) => {
+    onEditar(idVentaE); // Llama a la prop del padre
+  };
 
-  // --- Renderizado Condicional de Contenido ---
+
+  // --- Renderizado Condicional ---
   const renderContenido = () => {
-    if (loading) return <div className="text-center p-12">Cargando ventas...</div>;
+    if (loading) return <div className="text-center p-12 text-gray-500">Cargando ventas...</div>;
     if (error) return <div className="text-center p-12 text-red-600">{error}</div>;
-    if (ventas.length === 0) return <div className="text-center p-12">No se encontraron ventas.</div>;
+    if (ventas.length === 0) return <div className="text-center p-12 text-gray-500">No se encontraron ventas.</div>;
 
     return (
       <div className="overflow-x-auto bg-white rounded-xl shadow-md">
@@ -126,7 +95,6 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title }) => {
           <thead className="bg-gray-100 border-b border-gray-200">
             <tr>
               <th className="p-3 text-left text-xs font-semibold text-gray-600 uppercase">ID</th>
-              {/* ¡Nueva columna de Detalle! */}
               <th className="p-3 text-center text-xs font-semibold text-gray-600 uppercase">Detalle</th>
               <th className="p-3 text-left text-xs font-semibold text-gray-600 uppercase">Fecha</th>
               <th className="p-3 text-left text-xs font-semibold text-gray-600 uppercase">Empleado</th>
@@ -141,29 +109,28 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title }) => {
             {ventas.map((venta) => (
               <tr key={venta.idVentaE} className={`hover:bg-gray-50 ${venta.estado === 'anulada' ? 'bg-red-50 opacity-60' : ''}`}>
                 <td className="p-3 text-sm text-gray-700">#{venta.idVentaE}</td>
-                
-                {/* --- ¡Nuevo Botón de Detalle! --- */}
                 <td className="p-3 text-center">
                   <button 
                     onClick={() => handleVerDetalle(venta.idVentaE)}
                     className="p-1.5 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition"
                     title="Ver detalle de productos"
                   >
-                    {/* Ícono de Ojo (SVG) */}
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                   </button>
                 </td>
-                {/* --- Fin del Botón --- */}
-
                 <td className="p-3 text-sm text-gray-700">{venta.fechaPago} {venta.horaPago}</td>
                 <td className="p-3 text-sm text-gray-700">{venta.nombreEmpleado}</td>
                 <td className="p-3 text-sm text-gray-900 font-medium text-right">${venta.totalPago}</td>
+                
+                {/* --- ¡AQUÍ ESTÁ LA LÍNEA CORREGIDA! --- */}
                 <td className="p-3 text-center">
-                  <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                      venta.estado === 'completada' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      venta.estado === 'completada' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
                   }`}>
                     {venta.estado}
                   </span>
@@ -202,11 +169,11 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title }) => {
   // --- Renderizado Principal ---
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto w-full">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-gray-800">{title}</h1>
         <button 
             onClick={onVolver} 
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
+            className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
         >
             ⬅ Volver al Panel
         </button>

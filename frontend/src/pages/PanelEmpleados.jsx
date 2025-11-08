@@ -5,10 +5,10 @@ import { toast } from "react-toastify";
 import NavbarEmpleado from "../components/NavbarEmpleado";
 
 // --- Importamos TODAS las vistas que este panel puede mostrar ---
-import VistaInicialCardsEmpleado from "../components/VistiaInicialCardsEmpleado"; // ¡El nuevo componente!
+import VistaInicialCardsEmpleado from "../components/VistiaInicialCardsEmpleado";
 import EmpleadoRealizarVenta from "../components/EmpleadoRealizarVenta";
 import EmpleadoListaVentas from "../components/EmpleadoListaVentas";
-// import EmpleadoProductos from "../components/EmpleadoProductos"; // (Para el futuro)
+import EmpleadoEditarVenta from "../components/EmpleadoEditarVenta"; // <-- 1. Importa el componente (aunque aún no exista)
 
 // ===================================================================
 // --- COMPONENTE PADRE (Controlador) ---
@@ -17,25 +17,35 @@ const PanelEmpleados = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   
-  // Estado que controla qué vista mostramos: 'inicio' (cards) o 'venta', etc.
   const [vistaActual, setVistaActual] = useState('inicio');
 
-  // Protección de la ruta (esto ya lo tenías bien)
+  // 2. ¡NUEVO ESTADO! Para saber QUÉ venta estamos editando.
+  const [idVentaAEditar, setIdVentaAEditar] = useState(null);
+
+  // Protección de la ruta
   useEffect(() => {
     if (!user || user.rol !== 'empleado') {
         toast.error("Acceso no autorizado.");
-        navigate('/login'); // Redirige si no es empleado
+        navigate('/login');
         return;
     }
   }, [user, navigate]);
 
-  // Función para volver al menú de cards (se la pasamos a los hijos)
+  // --- Funciones de Navegación ---
   const handleVolver = () => setVistaActual('inicio');
+  
+  const navegarA = (vista) => {
+    setIdVentaAEditar(null); // Limpiamos el ID al navegar a cualquier otra vista
+    setVistaActual(vista);
+  };
 
-  // Función para cambiar de vista (se la pasamos a las cards)
-  const navegarA = (vista) => setVistaActual(vista);
+  // 3. ¡NUEVA FUNCIÓN! Se la pasamos a la lista
+  const iniciarEdicion = (idVenta) => {
+    setIdVentaAEditar(idVenta); // 1. Guardamos el ID
+    setVistaActual('editarVenta'); // 2. Cambiamos a la vista de edición
+  };
 
-  // Si el usuario aún no cargó (ej: F5), muestra "Cargando..."
+  // Si el usuario no existe, muestra "Cargando"
   if (!user) {
       return (
           <div className="flex justify-center items-center h-screen">
@@ -44,7 +54,7 @@ const PanelEmpleados = () => {
       );
   }
 
-  // Función que decide qué componente renderizar
+  // 4. Función que decide qué componente renderizar (ACTUALIZADA)
   const renderizarVista = () => {
     switch (vistaActual) {
       case 'venta':
@@ -54,12 +64,12 @@ const PanelEmpleados = () => {
                />;
       
       case 'misVentas':
-        // Le pasamos la prop 'onEditar' VACÍA por ahora (la usaremos después)
+        // 5. ¡AQUÍ! Le pasamos la nueva función 'onEditar'
         return <EmpleadoListaVentas 
                   onVolver={handleVolver}
                   endpoint={`/ventasEmpleados/${user.id}`}
                   title="Mis Ventas Personales"
-                  onEditar={() => {}} // TODO: Implementar navegación a Editar
+                  onEditar={iniciarEdicion}
                />;
         
       case 'productos':
@@ -74,16 +84,29 @@ const PanelEmpleados = () => {
         );
       
       case 'ventasTotales':
+         // 5. ¡AQUÍ TAMBIÉN! Le pasamos la nueva función 'onEditar'
          return <EmpleadoListaVentas 
                   onVolver={handleVolver}
                   endpoint="/ventasEmpleados"
-                  title="Ventas Totales (Admin)"
-                  onEditar={() => {}} // TODO: Implementar navegación a Editar
+                  title="Ventas Totales"
+                  onEditar={iniciarEdicion}
+               />;
+
+      // --- ¡NUEVA VISTA! ---
+      case 'editarVenta':
+        // Si no hay ID, volvemos al inicio (seguridad)
+        if (!idVentaAEditar) {
+          setVistaActual('inicio');
+          return null;
+        }
+        return <EmpleadoEditarVenta
+                  onVolver={handleVolver}  // Para volver a la lista
+                  idVentaE={idVentaAEditar} // ¡Le pasamos el ID!
                />;
 
       case 'inicio':
       default:
-        // Renderiza las cards y les pasa el 'user' y la función para navegar
+        // Renderiza las cards (este componente ya está limpio)
         return <VistaInicialCardsEmpleado onNavegar={navegarA} user={user} />;
     }
   };

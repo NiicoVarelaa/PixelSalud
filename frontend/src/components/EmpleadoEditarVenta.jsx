@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2'; 
-import apiClient from '../apiClient'; 
+import apiClient from '../utils/apiClient'; 
 
 const EmpleadoEditarVenta = ({ onVolver, idVentaE }) => {
   

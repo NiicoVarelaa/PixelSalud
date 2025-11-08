@@ -65,7 +65,7 @@ const VistaInicialCardsEmpleado = ({ onNavegar, user }) => {
             >
               <span className="text-6xl">📊</span>
               <h2 className="text-2xl font-semibold mt-4 text-gray-800 group-hover:text-purple-600">Ventas Totales</h2>
-              <p className="text-gray-500 mt-1">Ver ventas de todos (Admin).</p>
+              <p className="text-gray-500 mt-1">Ver ventas de todos.</p>
             </div>
         )}
         
