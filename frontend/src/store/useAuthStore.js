@@ -2,49 +2,36 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export const useAuthStore = create(
-  persist(
-    (set) => ({
-      user: null,
-      token: null, // Estado para guardar el token JWT
+  persist(
+    (set) => ({
+      user: null,
+      token: null, 
+      loginUser: (data) => {
+        console.log("Data completa recibida en login:", data); // <-- ¡Este log ahora te va a mostrar los permisos!
+        set({
+          user: {
+            id: data.id || data.idCliente,
+            nombre: data.nombre,
+            apellido: data.apellido,
+            email: data.email,
+            rol: data.rol,
+            permisos: data.permisos, // <-- ¡LA LÍNEA MÁGICA!
+            tipo: data.tipo,
+          },
+          token: data.token,
+        });
+      },
+      logoutUser: () => {
+        set({ user: null, token: null });
+      },
+    }),
+    {
+      name: "auth-storage",
+      // Si querés que sea en Local Storage (para que no se borre al cerrar la pestaña), dejalo así:
+      // getStorage: () => localStorage, // (o borrá la línea 'getStorage' entera, que es el default)
 
-      // ACCIÓN DE LOGIN ACTUALIZADA
-      loginUser: (data) => {
-        console.log("Data completa recibida en login:", data);
-        console.log("Guardando data de login en el store:", data);
-        set({
-          user: {
-            id: data.id || data.idCliente,
-            nombre: data.nombre,
-            apellido: data.apellido,
-            email: data.email,
-            rol: data.rol,
-            permisos: data.permisos,
-            tipo: data.tipo,
-          },
-          token: data.token, // GUARDAMOS EL TOKEN
-        });
-      },
-
-      // ACCIÓN DE LOGOUT
-      logoutUser: () => {
-        console.log("Cerrando sesión, limpiando usuario y token.");
-        set({
-          user: null,
-          token: null, // LIMPIAMOS EL TOKEN
-        });
-      },
-    }),
-    {
-      // CONFIGURACIÓN DE PERSISTENCIA
-      name: "auth-storage",
-
-      // 1. Especificamos el mecanismo de almacenamiento: sessionStorage
+      // Si querés que SÍ se borre al cerrar (como decía tu código), dejalo así:
       getStorage: () => sessionStorage,
-      // 2. Definimos qué partes del estado queremos persistir
-      partialize: (state) => ({
-        user: state.user,
-        token: state.token,
-      }),
-    }
-  )
+    }
+  )
 );
