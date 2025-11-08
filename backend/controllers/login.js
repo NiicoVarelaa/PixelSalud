@@ -135,6 +135,7 @@ const login = async (req, res) => {
       nombre: user.nombre,
       apellido: user.apellido || "",
       rol: payload.role, 
+      permisos: permisos
     });
   } catch (error) {
     console.error("Error en login:", error);

@@ -19,6 +19,7 @@ export const useAuthStore = create(
             email: data.email,
             rol: data.rol,
             tipo: data.tipo,
+            permisos: data.permisos
           },
           token: data.token, // GUARDAMOS EL TOKEN
         });
