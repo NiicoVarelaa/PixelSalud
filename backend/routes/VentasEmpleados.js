@@ -7,7 +7,8 @@ const {
   obtenerVentasAnuladas,
   obtenerVentasCompletadas,
   updateVenta,
-  anularVenta
+  anularVenta,
+  obtenerVentaPorId
 } = require("../controllers/VentasEmpleados");
 
 const router = express.Router();
@@ -22,5 +23,6 @@ router.get("/ventasEmpleados/:idEmpleado", auth, verificarRol(["admin", "emplead
 router.post("/ventasEmpleados/crear", auth, verificarRol(["admin", "empleado"]), registrarVentaEmpleado);
 router.put("/ventasEmpleados/actualizar/:idVentaE",auth,verificarRol(["admin" , "empleado"]), verificarPermisos("modificar_ventasE"), updateVenta)
 router.put("/ventasEmpleados/anular/:idVentaE",auth,verificarRol(["admin" , "empleado"]), verificarPermisos("modificar_ventasE"), anularVenta)
+router.get("/ventasEmpleados/venta/:idVentaE", auth, verificarRol(["admin", "empleado"]), obtenerVentaPorId);
 
 module.exports = router;

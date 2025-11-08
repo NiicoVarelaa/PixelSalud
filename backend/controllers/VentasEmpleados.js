@@ -164,9 +164,9 @@ const obtenerLaVentaDeUnEmpleado = (req, res) => {
 const obtenerDetalleVentaEmpleado = (req, res) => {
   const { idVentaE } = req.params;
 
-  // Esta consulta SÍ necesita el JOIN
+  // ¡LA CORRECCIÓN! Agregamos 'dve.idProducto' al SELECT.
   const consulta = `
-    SELECT p.nombreProducto, dve.cantidad, dve.precioUnitario
+    SELECT dve.idProducto, p.nombreProducto, dve.cantidad, dve.precioUnitario
     FROM DetalleVentaEmpleado dve
     JOIN Productos p ON dve.idProducto = p.idProducto
     WHERE dve.idVentaE = ?
@@ -178,9 +178,9 @@ const obtenerDetalleVentaEmpleado = (req, res) => {
       return res.status(500).json({ error: "Error al obtener detalles" });
     }
     if (results.length === 0) {
-      return res.status(404).json({ error: "Detalles no encontrados para esta venta" });
+      return res.status(404).json({ error: "Detalles no encontrados" });
     }
-    res.status(200).json(results); // Devuelve el array de productos
+    res.status(200).json(results);
   });
 };
 
@@ -343,6 +343,29 @@ const anularVenta = (req, res) => {
 };
 
 
+const obtenerVentaPorId = (req, res) => {
+  const { idVentaE } = req.params;
+
+  // Una consulta simple para traer la cabecera de UNA venta
+  const consulta = `
+    SELECT idVentaE, totalPago, metodoPago, estado
+    FROM VentasEmpleados
+    WHERE idVentaE = ?
+  `;
+
+  conection.query(consulta, [idVentaE], (err, results) => {
+    if (err) {
+      console.error("Error al obtener venta por ID:", err.sqlMessage);
+      return res.status(500).json({ error: "Error al obtener venta" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Venta no encontrada" });
+    }
+    res.status(200).json(results[0]); // Devuelve solo el objeto
+  });
+};
+
+
 module.exports = {
   registrarVentaEmpleado,
   obtenerVentasEmpleado,
@@ -351,5 +374,6 @@ module.exports = {
   obtenerVentasAnuladas,
   obtenerVentasCompletadas,
   updateVenta,
-  anularVenta
+  anularVenta,
+  obtenerVentaPorId
 };

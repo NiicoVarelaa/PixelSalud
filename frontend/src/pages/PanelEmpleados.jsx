@@ -3,81 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { toast } from "react-toastify";
 import NavbarEmpleado from "../components/NavbarEmpleado";
-import EmpleadoListaVentas from "../components/EmpleadoListaVentas"; // ¡Asegurate que esta ruta sea correcta!
+
+// --- Importamos TODAS las vistas que este panel puede mostrar ---
+import VistaInicialCardsEmpleado from "../components/VistiaInicialCardsEmpleado"; // ¡El nuevo componente!
 import EmpleadoRealizarVenta from "../components/EmpleadoRealizarVenta";
-
-// ===================================================================
-// --- VISTA INICIAL (Las Cards) ---
-// ===================================================================
-// 1. Recibimos el 'user' como prop
-const VistaInicialCards = ({ onNavegar, user }) => {
-  
-  // ¡Aquí leemos los permisos!
-  // (user.permisos ahora SÍ existe gracias a todos los arreglos)
-  const permisos = user?.permisos || {};
-
-  return (
-    <div className="flex flex-col items-center justify-center h-full p-6">
-      
-      <h1 className="text-4xl font-bold text-gray-800 text-center">
-        Bienvenido, {user?.nombreEmpleado || user?.nombre || 'Empleado'}
-      </h1>
-      
-      <p className="text-lg text-gray-600 text-center mt-2 mb-12">
-        Selecciona qué deseas ver/hacer hoy
-      </p>
-      
-      {/* ¡El grid ahora está listo para 4 cards! */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        
-        {/* Card 1: Realizar Venta */}
-        <div 
-          onClick={() => onNavegar('venta')}
-          className="group p-8 bg-white rounded-xl shadow-lg cursor-pointer transition transform hover:scale-105 hover:shadow-xl hover:bg-blue-50"
-        >
-          <span className="text-6xl">🛒</span>
-          <h2 className="text-2xl font-semibold mt-4 text-gray-800 group-hover:text-blue-600">Realizar Venta</h2>
-          <p className="text-gray-500 mt-1">Iniciar un nuevo ticket.</p>
-        </div>
-
-        {/* Card 2: Mis Ventas */}
-        <div 
-          onClick={() => onNavegar('misVentas')}
-          className="group p-8 bg-white rounded-xl shadow-lg cursor-pointer transition transform hover:scale-105 hover:shadow-xl hover:bg-green-50"
-        >
-          <span className="text-6xl">👤</span>
-          <h2 className="text-2xl font-semibold mt-4 text-gray-800 group-hover:text-green-600">Mis Ventas</h2>
-          <p className="text-gray-500 mt-1">Ver mi historial personal.</p>
-        </div>
-
-        {/* Card 3: Productos */}
-        <div 
-          onClick={() => onNavegar('productos')}
-          className="group p-8 bg-white rounded-xl shadow-lg cursor-pointer transition transform hover:scale-105 hover:shadow-xl hover:bg-yellow-50"
-        >
-          <span className="text-6xl">📦</span>
-          <h2 className="text-2xl font-semibold mt-4 text-gray-800 group-hover:text-yellow-600">Productos</h2>
-          <p className="text-gray-500 mt-1">Ver y gestionar stock.</p>
-        </div>
-        
-        {/* ======================================= */}
-        {/* === ¡¡¡AQUÍ ESTÁ LA 4ta CARD!!! === */}
-        {/* ======================================= */}
-        {permisos.ver_ventasTotalesE && (
-            <div 
-              onClick={() => onNavegar('ventasTotales')}
-              className="group p-8 bg-white rounded-xl shadow-lg cursor-pointer transition transform hover:scale-105 hover:shadow-xl hover:bg-purple-50"
-            >
-              <span className="text-6xl">📊</span>
-              <h2 className="text-2xl font-semibold mt-4 text-gray-800 group-hover:text-purple-600">Ventas Totales</h2>
-              <p className="text-gray-500 mt-1">Ver ventas de todos (Admin).</p>
-            </div>
-        )}
-        
-      </div>
-    </div>
-  );
-};
+import EmpleadoListaVentas from "../components/EmpleadoListaVentas";
+// import EmpleadoProductos from "../components/EmpleadoProductos"; // (Para el futuro)
 
 // ===================================================================
 // --- COMPONENTE PADRE (Controlador) ---
@@ -85,80 +16,85 @@ const VistaInicialCards = ({ onNavegar, user }) => {
 const PanelEmpleados = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const [vistaActual, setVistaActual] = useState("inicio");
+  
+  // Estado que controla qué vista mostramos: 'inicio' (cards) o 'venta', etc.
+  const [vistaActual, setVistaActual] = useState('inicio');
 
+  // Protección de la ruta (esto ya lo tenías bien)
   useEffect(() => {
-    if (!user || user.rol !== "empleado") {
-      toast.error("Acceso no autorizado.");
-      navigate("/login");
-      return;
+    if (!user || user.rol !== 'empleado') {
+        toast.error("Acceso no autorizado.");
+        navigate('/login'); // Redirige si no es empleado
+        return;
     }
   }, [user, navigate]);
 
-  const handleVolver = () => setVistaActual("inicio");
+  // Función para volver al menú de cards (se la pasamos a los hijos)
+  const handleVolver = () => setVistaActual('inicio');
+
+  // Función para cambiar de vista (se la pasamos a las cards)
   const navegarA = (vista) => setVistaActual(vista);
 
+  // Si el usuario aún no cargó (ej: F5), muestra "Cargando..."
   if (!user) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p>Cargando...</p>
-      </div>
-    );
+      return (
+          <div className="flex justify-center items-center h-screen">
+              <p>Cargando...</p>
+          </div>
+      );
   }
 
+  // Función que decide qué componente renderizar
   const renderizarVista = () => {
     switch (vistaActual) {
-      case "venta":
-        return (
-          <EmpleadoRealizarVenta
-            onVolver={handleVolver}
-            onVentaExitosa={() => navegarA("misVentas")} // <--- ¡Esta línea es nueva!
-          />
+      case 'venta':
+        return <EmpleadoRealizarVenta 
+                  onVolver={handleVolver} 
+                  onVentaExitosa={() => navegarA('misVentas')} 
+               />;
+      
+      case 'misVentas':
+        // Le pasamos la prop 'onEditar' VACÍA por ahora (la usaremos después)
+        return <EmpleadoListaVentas 
+                  onVolver={handleVolver}
+                  endpoint={`/ventasEmpleados/${user.id}`}
+                  title="Mis Ventas Personales"
+                  onEditar={() => {}} // TODO: Implementar navegación a Editar
+               />;
+        
+      case 'productos':
+         return (
+            <div className="p-6 max-w-7xl mx-auto w-full">
+                <h1 className="text-3xl font-bold text-gray-800">Gestión de Productos</h1>
+                <p className="mt-2 text-gray-600">(Componente en desarrollo...)</p>
+                <button onClick={handleVolver} className="mt-6 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                    ⬅ Volver al Panel
+                </button>
+            </div>
         );
-      case "misVentas":
-        return (
-          <EmpleadoListaVentas
-            onVolver={handleVolver}
-            endpoint={`/ventasEmpleados/${user.id}`} // Le pasa la URL para "Mis Ventas"
-            title="Mis Ventas Personales"
-          />
-        );
-      // ...
-      case "ventasTotales":
-        return (
-          <EmpleadoListaVentas
-            onVolver={handleVolver}
-            endpoint="/ventasEmpleados" // Le pasa la URL para "Ventas Totales"
-            title="Ventas Totales (Admin)"
-          />
-        );
+      
+      case 'ventasTotales':
+         return <EmpleadoListaVentas 
+                  onVolver={handleVolver}
+                  endpoint="/ventasEmpleados"
+                  title="Ventas Totales (Admin)"
+                  onEditar={() => {}} // TODO: Implementar navegación a Editar
+               />;
 
-      case "productos":
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl">Gestión de Productos (Próximamente)</h1>
-            <button
-              onClick={handleVolver}
-              className="mt-4 px-4 py-2 bg-gray-200 rounded"
-            >
-              Volver
-            </button>
-          </div>
-        );
-
-      case "inicio":
+      case 'inicio':
       default:
-        // 6. ¡Importante! Le pasamos el 'user' a la vista de cards
-        return <VistaInicialCards onNavegar={navegarA} user={user} />;
+        // Renderiza las cards y les pasa el 'user' y la función para navegar
+        return <VistaInicialCardsEmpleado onNavegar={navegarA} user={user} />;
     }
   };
 
+  // Renderizado final: Navbar + la vista que toque
   return (
-    // 7. Hacemos que el contenedor principal sea una columna flex
     <div className="flex flex-col min-h-screen bg-gray-100">
       <NavbarEmpleado />
-      {/* 8. Este 'main' ocupa el resto de la pantalla y permite centrar el contenido */}
-      <main className="flex-1">{renderizarVista()}</main>
+      <main className="flex-1"> 
+        {renderizarVista()}
+      </main>
     </div>
   );
 };
