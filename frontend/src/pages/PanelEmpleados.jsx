@@ -3,26 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { toast } from "react-toastify";
 import NavbarEmpleado from "../components/NavbarEmpleado";
-
-// --- Importamos TODAS las vistas que este panel puede mostrar ---
 import VistaInicialCardsEmpleado from "../components/VistiaInicialCardsEmpleado";
 import EmpleadoRealizarVenta from "../components/EmpleadoRealizarVenta";
 import EmpleadoListaVentas from "../components/EmpleadoListaVentas";
-import EmpleadoEditarVenta from "../components/EmpleadoEditarVenta"; // <-- 1. Importa el componente (aunque aún no exista)
+import EmpleadoEditarVenta from "../components/EmpleadoEditarVenta"; 
 
-// ===================================================================
-// --- COMPONENTE PADRE (Controlador) ---
-// ===================================================================
+
 const PanelEmpleados = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   
   const [vistaActual, setVistaActual] = useState('inicio');
-
-  // 2. ¡NUEVO ESTADO! Para saber QUÉ venta estamos editando.
   const [idVentaAEditar, setIdVentaAEditar] = useState(null);
 
-  // Protección de la ruta
   useEffect(() => {
     if (!user || user.rol !== 'empleado') {
         toast.error("Acceso no autorizado.");
@@ -31,7 +24,6 @@ const PanelEmpleados = () => {
     }
   }, [user, navigate]);
 
-  // --- Funciones de Navegación ---
   const handleVolver = () => setVistaActual('inicio');
   
   const navegarA = (vista) => {
