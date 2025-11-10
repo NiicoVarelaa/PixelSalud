@@ -6,7 +6,7 @@ const Carrito = () => {
   return (
     <div>
       <Header />
-      <MainCarrito/>
+      <MainCarrito breadcrumbsCategoria="carrito"/>
       <Footer/>
     </div>
   )

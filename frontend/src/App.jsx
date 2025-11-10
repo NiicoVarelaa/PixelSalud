@@ -20,6 +20,7 @@ import Error404 from "./pages/Error404";
 import Perfil from "./pages/Perfil";
 import PerfilDirecciones from "./pages/PerfilDirecciones";
 import PerfilFavoritos from "./pages/PerfilFavoritos";
+import DashboardCliente from "../src/components/DashboardCliente";
 import AdminProductos from "./components/AdminProductos";
 import AdminVentasE from "./components/AdminVentasE";
 import AdminVentasO from "./components/AdminVentasO";
