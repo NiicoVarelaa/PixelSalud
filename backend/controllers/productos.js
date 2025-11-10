@@ -213,6 +213,21 @@ const updateProducto = (req, res) => {
   );
 };
 
+const updateProductosActivo = (req, res) => {
+  const id = req.params.idProducto
+  const {activo} = req.body
+
+  const consulta = `UPDATE Productos SET Activo = ? WHERE idProducto = ?`
+
+  conection.query(consulta,[activo, id],(err,results)=>{
+    if(err){
+      console.error("error al cambiar estado del producto")
+      return res.status(500).json({error: "error al cambiar de estado"})
+    }
+    res.status(200).json({message: "estado actualizado correctamente"})
+  })
+}
+
 const darBajaProducto = (req, res) => {
   const id = req.params.id;
   const consulta = "update productos set activo = false where idProducto=?";
@@ -341,7 +356,6 @@ const updateOferta = (req, res) => {
         SET idProducto = ?, porcentajeDescuento = ?, fechaInicio = ?, fechaFin = ?, esActiva = ?
         WHERE idOferta = ?
     `;
-
     conection.query(
         consulta,
         [idProducto, porcentajeDescuento, fechaInicio, fechaFin, esActiva, id],
@@ -354,6 +368,21 @@ const updateOferta = (req, res) => {
         }
     );
 };
+
+const updateOfertaEsActiva = (req,res) => {
+  const id = req.params.idOferta
+  const {esActiva} = req.body
+
+  const consulta = `UPDATE ofertas SET esActiva = ? WHERE idOferta = ?`
+
+  conection.query(consulta, [esActiva, id], (err,results) =>{
+    if(err){
+      console.error("error al cambiar estado de oferta", err)
+      return res.status(500).json({error: "error al cambiar estado"})
+    }
+    res.status(200).json({message: "estado actualizado correctamente"})
+  })
+}
 
 const deleteOferta = (req, res) => {
     const id = req.params.idOferta;
@@ -498,11 +527,13 @@ module.exports = {
   darBajaProducto,
   activarProducto,
   updateProducto,
+  updateProductosActivo,
   getOfertasDestacadas, 
   createOferta,
   getOfertas,
   getOferta,
   updateOferta,
+  updateOfertaEsActiva,
   deleteOferta,
   ofertaCyberMonday,
   getCyberMondayOffers,
