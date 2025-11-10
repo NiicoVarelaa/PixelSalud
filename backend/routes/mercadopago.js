@@ -8,6 +8,5 @@ const {verificarRol} = require("../middlewares/verificarPermisos")
 router.post("/create-order",auth,verificarRol(["cliente"]), mercadoPagoController.createOrder);
 
 // Ruta POST para recibir las notificaciones (IPN)
-router.post("/notifications",auth,verificarRol(["cliente"]), mercadoPagoController.receiveWebhook);
-
+router.post("/notifications", mercadoPagoController.receiveWebhook);
 module.exports = router;

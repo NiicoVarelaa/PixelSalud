@@ -21,6 +21,7 @@ const PerfilFavoritos = () => {
   }, [user, getFavoritos, navigate]);
 
 
+  
   if (isLoading || !user) { 
     return (
        <div>
