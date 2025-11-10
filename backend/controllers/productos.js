@@ -487,6 +487,37 @@ const getCyberMondayOffers = (req, res) => {
     });
 };
 
+const buscarProductos = (req, res) => {
+    // Obtenemos el término de búsqueda de la URL (ej: /buscar?term=aspirina)
+    const { term } = req.query;
+
+    // Si no hay término o es muy corto, devolvemos lista vacía para no sobrecargar
+    if (!term || term.length < 3) {
+        return res.status(200).json([]);
+    }
+
+    // Consulta SQL:
+    // 1. LOWER(...) para que no importen mayúsculas/minúsculas.
+    // 2. LIKE ? para búsquedas parciales.
+    // 3. activo = 1 y stock > 0 para solo mostrar lo vendible.
+    // 4. LIMIT 10 para que no traiga mil productos de golpe.
+    const consulta = `
+      SELECT idProducto, nombreProducto, precio, stock, categoria, requiereReceta 
+      FROM Productos 
+      WHERE LOWER(nombreProducto) LIKE LOWER(?) AND activo = 1 AND stock > 0
+      LIMIT 10
+    `;
+
+    conection.query(consulta, [`%${term}%`], (err, results) => {
+        if (err) {
+            console.error("Error buscando productos:", err);
+            return res.status(500).json({ error: "Error al buscar productos" });
+        }
+        // Devolvemos el array de resultados (puede estar vacío si no encontró nada)
+        res.status(200).json(results);
+    });
+};
+
 
 module.exports = {
   getProductos,
@@ -506,4 +537,5 @@ module.exports = {
   deleteOferta,
   ofertaCyberMonday,
   getCyberMondayOffers,
+  buscarProductos
 };

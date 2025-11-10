@@ -56,15 +56,32 @@ const obtenerFavoritosPorCliente = (req, res) => {
             f.idFavorito,
             p.idProducto, 
             p.nombreProducto, 
-            p.precio, 
+            p.precio AS precioRegular,
             p.img,
             p.stock,
             p.categoria, 
-            f.fechaAgregado
+            f.fechaAgregado,
+            o.porcentajeDescuento,
+            -- Calcular el precio final (con descuento si hay oferta activa)
+            CASE
+                WHEN o.idOferta IS NOT NULL 
+                THEN p.precio * (1 - o.porcentajeDescuento / 100)
+                ELSE p.precio
+            END AS precioFinal,
+            -- Campo booleano para saber si está en oferta
+            CASE
+                WHEN o.idOferta IS NOT NULL 
+                THEN TRUE
+                ELSE FALSE
+            END AS enOferta
         FROM 
             Favoritos f
         JOIN 
             Productos p ON f.idProducto = p.idProducto
+        LEFT JOIN 
+            ofertas o ON p.idProducto = o.idProducto
+            AND o.esActiva = 1 
+            AND NOW() BETWEEN o.fechaInicio AND o.fechaFin 
         WHERE 
             f.idCliente = ?  
         ORDER BY 
@@ -80,7 +97,6 @@ const obtenerFavoritosPorCliente = (req, res) => {
         return res.status(200).json(favoritos);
     });
 };
-
 module.exports = {
     toggleFavorito,
     obtenerFavoritosPorCliente

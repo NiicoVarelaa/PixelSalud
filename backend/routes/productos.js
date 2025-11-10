@@ -29,13 +29,13 @@ const router = express.Router();
 
 router.get("/productos", getProductos);
 router.get("/productos/bajados", auth,verificarRol(["admin","empleado"]), getProductoBajado);
-router.get("/productos/:idProducto", getProducto);
+router.get('/productos/buscar', buscarProductos);
 router.post("/productos/crear", auth,verificarRol(["admin","empleado"]),verificarPermisos("crear_productos"), createProducto);
+router.get("/productos/:idProducto", getProducto);
 router.put("/productos/actualizar/:idProducto",auth,verificarRol(["admin","empleado"]),verificarPermisos("modificar_productos"), updateProducto);
 router.put("/productos/actualizar/activo/:idProducto", updateProductosActivo)
 router.put("/productos/darBaja/:id",auth,verificarRol(["admin", "empleado"]), verificarPermisos("modificar_productos"),darBajaProducto)
 router.put("/productos/activar/:id", auth, verificarRol(["admin", "empleado"]), verificarPermisos("modificar_productos"),activarProducto)
-
 
 // ------------------------------------------------------------------
 // --- RUTAS CRUD DE OFERTAS (Administración de Promociones) ---

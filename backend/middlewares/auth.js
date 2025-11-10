@@ -1,19 +1,19 @@
-const jwt = require ("jsonwebtoken")
+const jwt = require("jsonwebtoken")
 
 const auth = async (req, res , next)=>{
     try {
-        const token = req.header("auth")?.replace("Bearer ", "")
-        
+        const authHeader = req.header("auth") || req.header("authorization");
+        console.log('Headers recibidos:', req.headers);
+        console.log('Auth header:', authHeader);
+
+        const token = authHeader?.replace("Bearer ", "");
         if(!token){
             return res.status(401).json({msg: "Token ausente, acceso denegado"})
         }
 
         const payload = jwt.verify(token, process.env.SECRET_KEY)
         req.user = payload;
-        if (payload) {
-         
-            next()
-        }
+        next()
         
     } catch (error) {
         console.error("Error en middleware auth:", error.name)
