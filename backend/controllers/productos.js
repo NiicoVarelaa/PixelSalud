@@ -213,6 +213,21 @@ const updateProducto = (req, res) => {
   );
 };
 
+const updateProductosActivo = (req, res) => {
+  const id = req.params.idProducto
+  const {activo} = req.body
+
+  const consulta = `UPDATE Productos SET Activo = ? WHERE idProducto = ?`
+
+  conection.query(consulta,[activo, id],(err,results)=>{
+    if(err){
+      console.error("error al cambiar estado del producto")
+      return res.status(500).json({error: "error al cambiar de estado"})
+    }
+    res.status(200).json({message: "estado actualizado correctamente"})
+  })
+}
+
 const darBajaProducto = (req, res) => {
   const id = req.params.id;
   const consulta = "update productos set activo = false where idProducto=?";
@@ -341,7 +356,6 @@ const updateOferta = (req, res) => {
         SET idProducto = ?, porcentajeDescuento = ?, fechaInicio = ?, fechaFin = ?, esActiva = ?
         WHERE idOferta = ?
     `;
-
     conection.query(
         consulta,
         [idProducto, porcentajeDescuento, fechaInicio, fechaFin, esActiva, id],
@@ -354,6 +368,21 @@ const updateOferta = (req, res) => {
         }
     );
 };
+
+const updateOfertaEsActiva = (req,res) => {
+  const id = req.params.idOferta
+  const {esActiva} = req.body
+
+  const consulta = `UPDATE ofertas SET esActiva = ? WHERE idOferta = ?`
+
+  conection.query(consulta, [esActiva, id], (err,results) =>{
+    if(err){
+      console.error("error al cambiar estado de oferta", err)
+      return res.status(500).json({error: "error al cambiar estado"})
+    }
+    res.status(200).json({message: "estado actualizado correctamente"})
+  })
+}
 
 const deleteOferta = (req, res) => {
     const id = req.params.idOferta;
@@ -458,6 +487,37 @@ const getCyberMondayOffers = (req, res) => {
     });
 };
 
+const buscarProductos = (req, res) => {
+    // Obtenemos el término de búsqueda de la URL (ej: /buscar?term=aspirina)
+    const { term } = req.query;
+
+    // Si no hay término o es muy corto, devolvemos lista vacía para no sobrecargar
+    if (!term || term.length < 3) {
+        return res.status(200).json([]);
+    }
+
+    // Consulta SQL:
+    // 1. LOWER(...) para que no importen mayúsculas/minúsculas.
+    // 2. LIKE ? para búsquedas parciales.
+    // 3. activo = 1 y stock > 0 para solo mostrar lo vendible.
+    // 4. LIMIT 10 para que no traiga mil productos de golpe.
+    const consulta = `
+      SELECT idProducto, nombreProducto, precio, stock, categoria, requiereReceta 
+      FROM Productos 
+      WHERE LOWER(nombreProducto) LIKE LOWER(?) AND activo = 1 AND stock > 0
+      LIMIT 10
+    `;
+
+    conection.query(consulta, [`%${term}%`], (err, results) => {
+        if (err) {
+            console.error("Error buscando productos:", err);
+            return res.status(500).json({ error: "Error al buscar productos" });
+        }
+        // Devolvemos el array de resultados (puede estar vacío si no encontró nada)
+        res.status(200).json(results);
+    });
+};
+
 
 module.exports = {
   getProductos,
@@ -467,12 +527,15 @@ module.exports = {
   darBajaProducto,
   activarProducto,
   updateProducto,
+  updateProductosActivo,
   getOfertasDestacadas, 
   createOferta,
   getOfertas,
   getOferta,
   updateOferta,
+  updateOfertaEsActiva,
   deleteOferta,
   ofertaCyberMonday,
   getCyberMondayOffers,
+  buscarProductos
 };

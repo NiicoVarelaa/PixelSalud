@@ -1,31 +1,27 @@
-import { useState } from "react";
+
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { 
   User, 
   Heart, 
   ShoppingBag, 
-  LogOut,
-  Menu,
-  X
+  LogOut
 } from "lucide-react";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 
 const DashboardCliente = () => {
-  const { user, logout } = useAuthStore();
+  const { user, logoutUser } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
     { path: "/perfil", label: "Mi Perfil", icon: User },
-    { path: "/perfil/favoritos", label: "Mis Favoritos", icon: Heart },
     { path: "/perfil/mis-compras", label: "Mis Compras", icon: ShoppingBag },
+    { path: "/perfil/favoritos", label: "Mis Favoritos", icon: Heart },
   ];
 
   const handleLogout = () => {
-    logout();
+    logoutUser();
     navigate("/");
   };
 
@@ -34,104 +30,73 @@ const DashboardCliente = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      {/* Mobile menu button */}
-      <div className="lg:hidden bg-white border-b">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-gray-800">Mi Cuenta</h1>
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-          >
-            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </div>
-
-      <div className="flex flex-1">
-        {/* Sidebar - Mobile Overlay */}
-        {sidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        {/* Sidebar */}
-        <div className={`
-          fixed lg:static inset-y-0 left-0 z-50
-          w-64 bg-white border-r border-gray-200 transform
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0 transition-transform duration-300 ease-in-out
-          flex flex-col
-        `}>
-          {/* User Info */}
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                <User className="w-6 h-6 text-primary-600" />
-              </div>
-              <div>
-                <h2 className="font-semibold text-gray-800">
-                  {user?.nombreCliente} {user?.apellidoCliente}
-                </h2>
-                <p className="text-sm text-gray-600">{user?.emailCliente}</p>
-              </div>
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+      <Header />      
+      <div className="flex flex-1 mt-4 overflow-hidden">
+        <div className="md:w-64 w-16 border-r border-gray-200 bg-white flex flex-col transition-all duration-300 h-full">
+          <div className="flex items-center px-4 gap-3 py-4 border-b border-gray-200">
+            <div className="w-10 h-10 bg-primary-700 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+              <User className="w-5 h-5 text-white" />
+            </div>
+            <div className="md:block hidden min-w-0 flex-1">
+              <h2 className="font-semibold text-gray-800 text-sm">
+                Bienvenido
+              </h2>
+              <p className="text-xs text-gray-600 truncate">
+                {user?.nombre} {user?.apellido}
+              </p>
             </div>
           </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 p-4">
-            <ul className="space-y-2">
+          <nav className="flex-1 py-4">
+            <ul className="space-y-1">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <li key={item.path}>
                     <Link
                       to={item.path}
-                      onClick={() => setSidebarOpen(false)}
                       className={`
-                        flex items-center space-x-3 px-4 py-3 rounded-lg
-                        transition-all duration-200 font-medium
+                        flex items-center py-3 px-4 gap-3 transition-all duration-200
                         ${isActive(item.path)
-                          ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-700'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          ? "border-r-4 md:border-r-[6px] bg-primary-50 border-primary-500 text-primary-600"
+                          : "hover:bg-primary-100/50 border-white text-gray-600 hover:text-gray-700"
                         }
                       `}
                     >
-                      <Icon size={20} />
-                      <span>{item.label}</span>
+                      <Icon 
+                        size={20} 
+                        className="flex-shrink-0"
+                      />
+                      <span className="md:block hidden text-center font-medium">
+                        {item.label}
+                      </span>
                     </Link>
                   </li>
                 );
               })}
             </ul>
           </nav>
-
-          {/* Logout Button */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-100 mt-auto">
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-3 px-4 py-3 w-full text-left 
-                       text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+              className={`
+                flex items-center py-3 px-4 gap-3 w-full text-left transition-all duration-200 cursor-pointer
+                hover:bg-red-50 text-red-600 hover:text-red-700 rounded-lg
+              `}
             >
-              <LogOut size={20} />
-              <span className="font-medium">Cerrar Sesión</span>
+              <LogOut size={20} className="flex-shrink-0" />
+              <span className="md:block hidden font-medium">Cerrar Sesión</span>
             </button>
           </div>
         </div>
-
-        {/* Main Content */}
-        <main className="flex-1 bg-gray-50 min-h-screen">
-          <div className="container mx-auto p-4 lg:p-8">
-            <Outlet />
+        <main className="flex-1 overflow-hidden">
+          <div className="p-4 lg:p-8 h-full overflow-auto">
+            <div className="bg-gray-50 h-full">
+              <Outlet />
+            </div>
           </div>
         </main>
       </div>
-      
-      <Footer />
     </div>
   );
 };

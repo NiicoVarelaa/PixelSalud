@@ -1,21 +1,28 @@
 const { conection } = require("../config/database");
 
 
-
-const mostrarCompras = async (req, res) => {
-  const idCliente = req.params.idCliente;
+const getUserOrders = async (req, res) => { 
+  // ❌ ANTES: const idCliente = req.params.idCliente;
+  // ✅ AHORA: El middleware de auth lo inyectará en req.user
+  const idCliente = req.user.id; 
+  
   const consulta =
-    `SELECT v.idVentaO, v.fechaPago, v.metodoPago, c.nombreCliente, p.nombreProducto, d.cantidad, d.precioUnitario, v.totalPago, v.estado, p.img
+    `SELECT v.idVentaO, v.fechaPago, v.horaPago, v.metodoPago, v.totalPago, v.estado, 
+            p.nombreProducto, p.img, d.cantidad, d.precioUnitario 
      FROM VentasOnlines v
-     JOIN Clientes c ON v.idCliente = c.idCliente
      JOIN DetalleVentaOnline d ON v.idVentaO = d.idVentaO
      JOIN Productos p ON d.idProducto = p.idProducto
-     WHERE c.idCliente = ?;`;
+     WHERE v.idCliente = ? 
+     ORDER BY v.idVentaO DESC;`; // Añadimos ORDER BY para consistencia
+
   conection.query(consulta, [idCliente], (err, results) => {
     if (err) {
-      return res.status(500).json({ message: "Error al obtener compras", err });
+      // Usaremos status 500 y un objeto de error para mayor detalle en el frontend
+      return res.status(500).json({ message: "Error al obtener compras", error: err });
     }
-    res.status(200).json({ message: "Compras obtenidas", results });
+    
+    // Devolvemos el array de resultados planos que el frontend agrupará.
+    res.status(200).json({ success: true, results }); 
   });
 };
 
@@ -171,7 +178,7 @@ function formatearFechaConDia(fecha) {
 
 
 module.exports = {
-  mostrarCompras,
+  getUserOrders,
   mostrarTodasLasVentas,
   registrarVentaOnline,
   actualizarEstadoVenta

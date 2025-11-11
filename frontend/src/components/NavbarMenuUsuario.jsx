@@ -1,37 +1,41 @@
 import { Link } from "react-router-dom";
 import NavbarAvatar from "./NavbarAvatar";
 
-import { ChevronDown, User, ShoppingBag, LogOut, Truck, Heart } from "lucide-react"; 
+import {
+  ChevronDown,
+  User,
+  ShoppingBag,
+  LogOut,
+  Truck,
+  Heart,
+} from "lucide-react";
 
 const NavbarMenuUsuario = ({
   user,
   handleLogout,
   setIsProfileDropdownOpen,
 }) => {
-
   const capitalizeName = (name) =>
     name
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-  
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+
   const nombreCompleto = capitalizeName(user?.nombre || "Usuario");
 
   return (
     <div className="absolute right-0 mt-4 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden transition-all duration-200 ease-in-out transform origin-top-right">
       <div className="px-4 py-4 bg-gray-50 border-b border-gray-100">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-lg font-semibold text-gray-800">
-            Bienvenido
-          </p>
-          <button 
+          <p className="text-lg font-semibold text-gray-800">Bienvenido</p>
+          <button
             onClick={() => setIsProfileDropdownOpen(false)}
             className="text-gray-500 hover:text-gray-700 transition-colors"
           >
-            <ChevronDown className="transform rotate-180 cursor-pointer w-4 h-4" /> 
+            <ChevronDown className="transform rotate-180 cursor-pointer w-4 h-4" />
           </button>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <NavbarAvatar user={user} size="medium" />
           <div className="flex-1 min-w-0">
@@ -52,7 +56,14 @@ const NavbarMenuUsuario = ({
           <User size={16} className="text-gray-700 " />
           Mi Perfil
         </Link>
-        
+        <Link
+          to="/perfil/mis-compras"
+          onClick={() => setIsProfileDropdownOpen(false)}
+          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-150 border-t border-gray-100"
+        >
+          <ShoppingBag size={16} className="text-gray-700" />
+          Mis Pedidos
+        </Link>
         <Link
           to="/perfil/favoritos"
           onClick={() => setIsProfileDropdownOpen(false)}
@@ -60,15 +71,6 @@ const NavbarMenuUsuario = ({
         >
           <Heart size={16} className="text-gray-700" />
           Mis Favoritos
-        </Link>
-
-        <Link
-          to="/mis-compras"
-          onClick={() => setIsProfileDropdownOpen(false)}
-          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-150 border-t border-gray-100"
-        >
-          <ShoppingBag size={16} className="text-gray-700" />
-          Mis Pedidos
         </Link>
 
         <div className="border-t border-gray-100">
