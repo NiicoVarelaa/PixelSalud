@@ -58,7 +58,7 @@ const NavbarEmpleado = () => {
   return (
     <div className="py-5 font-medium relative bg-secondary-100 px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
       <div className="flex items-center justify-between w-full mx-auto">
-        <Link to="/">
+        <Link to="/panelempleados">
           <img
             className="w-auto h-9"
             src={LogoPixelSalud}
