@@ -42,7 +42,7 @@ import MenuVentas from "./components/MenuVentas";
 import OpcionesVentas from "./components/OpcionesVentas";
 import MenuClientes from "./components/MenuClientes";
 import OpcionesClientes from "./components/OpcionesClientes";
-
+import CheckoutSuccess from "./components/CheckoutSuccess";
 
 const App = () => {
   return (
@@ -51,22 +51,24 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Inicio />} />
+          <Route path="registro" element={<Registro />} />
+          <Route path="login" element={<Login />} />
+          <Route path="recuperarContraseña" element={<RecuperarContrasena />} />
           <Route path="productos" element={<Productos />} />
           <Route path="productos/:idProducto" element={<Producto />} />
           <Route path="productos/:categoria?" element={<Productos />} />
-          <Route path="sobreNosotros" element={<SobreNosotros />} />
-          <Route path="contacto" element={<Contacto />} />
-          <Route path="registro" element={<Registro />} />
           <Route path="carrito" element={<Carrito />} />
           <Route path="checkout" element={<Checkout />} />
-          <Route path="login" element={<Login />} />
-          <Route path="recuperarContraseña" element={<RecuperarContrasena />} />
-          <Route path="/perfil" element={<DashboardCliente />}>
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+          <Route path="sobreNosotros" element={<SobreNosotros />} />
+          <Route path="contacto" element={<Contacto />} />
+
+          <Route path="perfil" element={<DashboardCliente />}>
             <Route index element={<Perfil />} />
             <Route path="favoritos" element={<PerfilFavoritos />} />
             <Route path="mis-compras" element={<MisCompras />} />
+            <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
           </Route>
-          <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
         </Route>
 
         <Route path="/admin/*" element={<Administrador />}>
@@ -76,7 +78,10 @@ const App = () => {
             <Route index element={<OpcionesProductos />} />
             <Route path="productos" element={<AdminProductos />} />
             <Route path="ofertas" element={<AdminOfertas />} />
-            <Route path="productosActivos" element={<AdminProductosActivos />} />
+            <Route
+              path="productosActivos"
+              element={<AdminProductosActivos />}
+            />
             <Route path="productosBaja" element={<AdminProductosBaja />} />
           </Route>
 
@@ -95,7 +100,6 @@ const App = () => {
             <Route path="VentasE" element={<AdminVentasE />} />
             <Route path="ventasO" element={<AdminVentasO />} />
           </Route>
-
         </Route>
 
         <Route path="/PanelMedicos/*" element={<PanelMedicos />}>

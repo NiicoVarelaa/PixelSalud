@@ -37,7 +37,7 @@ const PerfilFavoritos = () => {
   return (
     <div>
       <Header />
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-[50vh]">
+      <div className="">
         <h1 className="text-3xl font-bold text-gray-800">
           Mis Productos Favoritos ({favoritos.length})
         </h1>
@@ -52,7 +52,7 @@ const PerfilFavoritos = () => {
               ))}
             </div>
         ) : (
-            <div className="text-center my-16">
+            <div className="text-center ">
                 <p className="text-gray-500">Aún no has agregado ningún producto a tus favoritos.</p>
                 <Link to="/productos" className="mt-4 inline-block text-primary-700 hover:underline font-medium">
                     Explorar la tienda
@@ -60,7 +60,6 @@ const PerfilFavoritos = () => {
             </div>
         )}
       </div>
-      <Footer />
     </div>
   );
 };

@@ -11,7 +11,6 @@ const capitalizeName = (name) =>
         .join(" ")
     : "Usuario";
 
-// 1. Recibe 'user' como prop en lugar de 'cliente'
 const NavbarMenuCelular = ({
   isMenuOpen,
   setIsMenuOpen,
@@ -21,7 +20,6 @@ const NavbarMenuCelular = ({
   handleLogout,
   totalItems = 0,
 }) => {
-  // 2. Usa 'user.nombre' en lugar de 'cliente.nombreCliente'
   const nombreUsuarioCapitalizado = capitalizeName(user?.nombre);
 
   return (
@@ -55,17 +53,14 @@ const NavbarMenuCelular = ({
           </button>
         </div>
 
-        {/* 3. La condición ahora se basa en 'user' */}
         {user && (
           <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
             <div className="flex items-center gap-3">
-              {/* 4. Pasa la prop 'user' a NavbarAvatar */}
               <NavbarAvatar user={user} size="medium" />
               <div>
                 <p className="font-semibold text-gray-900 text-sm">
                   {nombreUsuarioCapitalizado}
                 </p>
-                {/* 5. Usa 'user.email' */}
                 <p className="text-xs text-gray-600">{user.email}</p>
               </div>
             </div>
@@ -93,7 +88,6 @@ const NavbarMenuCelular = ({
 
           <hr className="my-4 border-t border-gray-200" />
 
-          {/* 6. La condición para mostrar los links de usuario ahora usa 'user' */}
           {user ? (
             <>
               <NavLink
@@ -104,7 +98,14 @@ const NavbarMenuCelular = ({
                 <User className="w-5 h-5" />
                 Mi Perfil
               </NavLink>
-
+              <Link
+                to="/perfil/mis-compras"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center gap-3 py-3 px-1 rounded-lg text-base font-medium text-gray-700 hover:text-primary-700 transition-colors duration-200"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                Mis Pedidos
+              </Link>
               <Link
                 to="/perfil/favoritos"
                 onClick={() => setIsMenuOpen(false)}
@@ -112,24 +113,6 @@ const NavbarMenuCelular = ({
               >
                 <Heart className="w-5 h-5" />
                 Mis Favoritos
-              </Link>
-              
-              <Link
-                to="/mis-compras"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex items-center gap-3 py-3 px-1 rounded-lg text-base font-medium text-gray-700 hover:text-primary-700 transition-colors duration-200"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                Mis Compras
-              </Link>
-
-              <Link
-                to="/mis-pedidos"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex items-center gap-3 py-3 px-1 rounded-lg text-base font-medium text-gray-700 hover:text-primary-700 transition-colors duration-200"
-              >
-                <Truck className="w-5 h-5" />
-                Mis Pedidos
               </Link>
 
               <hr className="my-4 border-t border-gray-200" /> 
