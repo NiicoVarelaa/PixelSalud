@@ -24,76 +24,65 @@ const Login = () => {
   const navigate = useNavigate();
   const { loginUser } = useAuthStore();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const response = await apiClient.post("/login", {
-        email: user.email.toLowerCase().trim(),
-        contrasenia: user.password,
-      });
+  // En Login.jsx
 
-      const data = response.data || {};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const response = await apiClient.post("/login", {
+        email: user.email.toLowerCase().trim(),
+        contrasenia: user.password,
+      });
 
-      const usuario = {
-      nombre: data.nombre || data.nombreCliente || "",
-      apellido: data.apellido || data.apellidoCliente || "",
-      email: data.email || "", 
-      rol: data.rol || data.tipo || "",
-      id: data.id || data.idCliente || null,
-    };
+      // 1. Obtenemos la data COMPLETA (que Postman demostró que SÍ trae permisos)
+      const data = response.data || {};
 
-    if (!usuario.rol || !data.token) {
-      toast.warn("No se pudo obtener la sesión completa (usuario o token).");
-      setIsSubmitting(false);
-      return;
-    }
+      // 2. ¡Validamos que tengamos lo mínimo!
+      if (!data.rol || !data.token) {
+        toast.warn("No se pudo obtener la sesión completa (rol o token).");
+        setIsSubmitting(false);
+        return;
+      }
 
-    const fullLoginData = {
-      ...usuario,
-      token: data.token,
-    };
-    
-    loginUser(fullLoginData);
+      // 3. ¡¡¡EL ARREGLO!!! Le pasamos 'data' (la respuesta COMPLETA) a loginUser.
+      // ¡useAuthStore se encarga de todo lo demás!
+      loginUser(data);
 
+      // 4. El resto de tu lógica de navegación (esto ya estaba bien)
+      const nombreCapitalizado =
+        (data.nombre?.charAt(0)?.toUpperCase() || "") + (data.nombre?.slice(1) || "");
+      toast.success(`¡Bienvenido, ${nombreCapitalizado}!`);
 
-      const nombreCapitalizado =
-        (usuario.nombre?.charAt(0)?.toUpperCase() || "") + (usuario.nombre?.slice(1) || "");
-      toast.success(`¡Bienvenido, ${nombreCapitalizado}!`);
+      const rol = (data.rol || "").toString().toLowerCase();
 
-      const rol = (usuario.rol || "").toString().toLowerCase();
+      if (rol === "cliente") {
+        navigate("/");
+      } else if (rol === "empleado") {
+        navigate("/panelempleados");
+      } else if (rol === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+// ... (tu manejo de errores estaba perfecto)
+      const serverMsg =
+        error.response?.data?.msg ||
+        error.response?.data?.mensaje ||
+        error.response?.data?.error ||
+        null;
 
-      if (rol === "cliente") {
-        navigate("/");
-      } else if (rol === "empleado") {
-        navigate("/panelempleados");
-      } else if (rol === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
-    } catch (error) {
-      const serverMsg =
-        error.response?.data?.msg ||
-        error.response?.data?.mensaje ||
-        error.response?.data?.error ||
-        null;
-
-      if (serverMsg) {
-        toast.error(serverMsg);
-      } else if (error.response) {
-        toast.error(`Error ${error.response.status}: ${error.response.statusText}`);
-      } else {
-        toast.error("Error al conectar con el servidor. Verifica que el backend esté corriendo.");
-      }
-
-      console.error("Login error:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-    
-  };
-
+      if (serverMsg) {
+        toast.error(serverMsg);
+      } else {
+        toast.error("Error al conectar con el servidor.");
+      }
+      console.error("Login error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
 
   return (

@@ -103,6 +103,7 @@ const login = async (req, res) => {
     } else if (tipo === "empleado") {
       const consultaPermisos = "SELECT * FROM Permisos WHERE idEmpleado = ? AND idAdmin IS NULL";
       const permisosData = await query(consultaPermisos, [user.id]);
+      console.log("PERMISOS ENCONTRADOS (Empleado):", permisosData)
       if (permisosData.length > 0) {
         permisos = {
           crear_productos: permisosData[0].crear_productos,
@@ -134,7 +135,8 @@ const login = async (req, res) => {
       email: user.email,
       nombre: user.nombre,
       apellido: user.apellido || "",
-      rol: payload.role, 
+      permisos: permisos,
+      rol: payload.role
     });
   } catch (error) {
     console.error("Error en login:", error);

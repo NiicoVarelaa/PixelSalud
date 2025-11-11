@@ -21,7 +21,7 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.2",
     "react-toastify": "^11.0.5",
-    "sweetalert2": "^11.22.1",
+    "sweetalert2": "^11.26.3",
     "swiper": "^12.0.2",
     "tailwindcss": "^4.1.10",
     "zod": "^4.1.12",

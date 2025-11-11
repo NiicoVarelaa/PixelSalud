@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 
 import Layout from "./components/Layout";
 import ScrollToTop from "./components/ScrollToTop";
-
+import ProtectedRoute from "./components/ProtectedRoute";
 import Inicio from "./pages/Inicio";
 import Productos from "./pages/Productos";
 import SobreNosotros from "./pages/SobreNosotros";
@@ -70,35 +70,36 @@ const App = () => {
             <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
           </Route>
         </Route>
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin/*" element={<Administrador />}>
+            <Route index element={<AdminMenu />} />
 
-        <Route path="/admin/*" element={<Administrador />}>
-          <Route index element={<AdminMenu />} />
+            <Route path="MenuProductos/*" element={<MenuProductos />}>
+              <Route index element={<OpcionesProductos />} />
+              <Route path="productos" element={<AdminProductos />} />
+              <Route path="ofertas" element={<AdminOfertas />} />
+              <Route
+                path="productosActivos"
+                element={<AdminProductosActivos />}
+              />
+              <Route path="productosBaja" element={<AdminProductosBaja />} />
+            </Route>
 
-          <Route path="MenuProductos/*" element={<MenuProductos />}>
-            <Route index element={<OpcionesProductos />} />
-            <Route path="productos" element={<AdminProductos />} />
-            <Route path="ofertas" element={<AdminOfertas />} />
-            <Route
-              path="productosActivos"
-              element={<AdminProductosActivos />}
-            />
-            <Route path="productosBaja" element={<AdminProductosBaja />} />
-          </Route>
+            <Route path="MenuClientes/*" element={<MenuClientes />}>
+              <Route index element={<OpcionesClientes />} />
+              <Route path="clientes" element={<AdminClientes />} />
+            </Route>
 
-          <Route path="MenuClientes/*" element={<MenuClientes />}>
-            <Route index element={<OpcionesClientes />} />
-            <Route path="clientes" element={<AdminClientes />} />
-          </Route>
+            <Route path="MenuEmpleados/*" element={<MenuEmpleados />}>
+              <Route index element={<OpcionesEmpleados />} />
+              <Route path="empleados" element={<AdminEmpleados />} />
+            </Route>
 
-          <Route path="MenuEmpleados/*" element={<MenuEmpleados />}>
-            <Route index element={<OpcionesEmpleados />} />
-            <Route path="empleados" element={<AdminEmpleados />} />
-          </Route>
-
-          <Route path="MenuVentas/*" element={<MenuVentas />}>
-            <Route index element={<OpcionesVentas />} />
-            <Route path="VentasE" element={<AdminVentasE />} />
-            <Route path="ventasO" element={<AdminVentasO />} />
+            <Route path="MenuVentas/*" element={<MenuVentas />}>
+              <Route index element={<OpcionesVentas />} />
+              <Route path="VentasE" element={<AdminVentasE />} />
+              <Route path="ventasO" element={<AdminVentasO />} />
+            </Route>
           </Route>
         </Route>
 
@@ -108,7 +109,9 @@ const App = () => {
           <Route path="CrearReceta" element={<CrearReceta />} />
         </Route>
 
-        <Route path="/panelempleados" element={<PanelEmpleados />} />
+        <Route element={<ProtectedRoute allowedRoles={["empleado"]} />}>
+          <Route path="/panelempleados" element={<PanelEmpleados />} />
+        </Route>
         <Route path="*" element={<Error404 />} />
       </Routes>
     </>

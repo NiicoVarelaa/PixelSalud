@@ -5,12 +5,9 @@ export const useAuthStore = create(
   persist(
     (set) => ({
       user: null,
-      token: null, // Estado para guardar el token JWT
-
-      // ACCIÓN DE LOGIN ACTUALIZADA
+      token: null,
       loginUser: (data) => {
-        console.log("Data completa recibida en login:", data);
-        console.log("Guardando data de login en el store:", data);
+        console.log("Data completa recibida en login:", data); // <-- ¡Este log ahora te va a mostrar los permisos!
         set({
           user: {
             id: data.id || data.idCliente,
@@ -18,32 +15,19 @@ export const useAuthStore = create(
             apellido: data.apellido,
             email: data.email,
             rol: data.rol,
+            permisos: data.permisos, // <-- ¡LA LÍNEA MÁGICA!
             tipo: data.tipo,
           },
-          token: data.token, // GUARDAMOS EL TOKEN
+          token: data.token,
         });
       },
-
-      // ACCIÓN DE LOGOUT
       logoutUser: () => {
-        console.log("Cerrando sesión, limpiando usuario y token.");
-        set({
-          user: null,
-          token: null, // LIMPIAMOS EL TOKEN
-        });
+        set({ user: null, token: null });
       },
     }),
     {
-      // CONFIGURACIÓN DE PERSISTENCIA
-      name: "auth-storage",
-
-      // 1. Especificamos el mecanismo de almacenamiento: sessionStorage
+      name: "auth",
       getStorage: () => sessionStorage,
-      // 2. Definimos qué partes del estado queremos persistir
-      partialize: (state) => ({
-        user: state.user,
-        token: state.token,
-      }),
     }
   )
 );
