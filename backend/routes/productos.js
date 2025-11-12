@@ -9,6 +9,7 @@ const {
   darBajaProducto,
   activarProducto,
   getOfertasDestacadas,
+  buscarProductos,
 
   // Rutas de Ofertas (CRUD)
   createOferta,

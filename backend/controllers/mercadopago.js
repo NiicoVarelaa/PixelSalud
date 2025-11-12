@@ -157,7 +157,7 @@ exports.createOrder = [
     const frontendUrl = process.env.FRONTEND_URL?.trim();
     const backendUrl = process.env.BACKEND_URL?.trim();
 
-    const isProduction = false;
+    const isProduction = true;
 
     if (!frontendUrl || !frontendUrl.startsWith("http")) {
       console.error("FRONTEND_URL inválida:", process.env.FRONTEND_URL);
@@ -325,11 +325,11 @@ exports.createOrder = [
         sandbox_init_point: response.sandbox_init_point,
         production_init_point: response.init_point,
         total: total,
-        environment: "sandbox",
+        environment: isProduction ? "production" : "sandbox",
         debug: {
           frontend_url: frontendUrl,
           backend_url: backendUrl,
-          is_production: false,
+          is_production: isProduction,
           sandbox_url: response.sandbox_init_point,
           production_url: response.init_point,
         }, // ✅ Confirmar que es sandbox

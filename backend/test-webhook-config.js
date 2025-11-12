@@ -1,4 +1,3 @@
-// Script para verificar el estado del último pago
 require('dotenv').config();
 const { MercadoPagoConfig, Payment } = require('mercadopago');
 
@@ -14,7 +13,7 @@ async function testPaymentQuery() {
     const payment = new Payment(client);
     const paymentDetails = await payment.get({ id: paymentId });
     
-    console.log('✅ PAGO ENCONTRADO:\n');
+    console.log('PAGO ENCONTRADO:\n');
     console.log('  - ID:', paymentDetails.id);
     console.log('  - Status:', paymentDetails.status, paymentDetails.status === 'approved' ? '✅' : '❌');
     console.log('  - Status Detail:', paymentDetails.status_detail);
@@ -28,7 +27,7 @@ async function testPaymentQuery() {
     
     console.log('\n📊 RESUMEN:');
     if (paymentDetails.status === 'approved') {
-      console.log('✅ EL PAGO FUE APROBADO');
+      console.log(' EL PAGO FUE APROBADO');
       console.log('✅ El webhook de payment.updated debería haber llegado');
     } else if (paymentDetails.status === 'pending') {
       console.log('⏳ EL PAGO ESTÁ PENDIENTE');
