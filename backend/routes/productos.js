@@ -21,6 +21,7 @@ const {
   ofertaCyberMonday,
   getCyberMondayOffers,
   updateProductosActivo,
+  buscarProductos
 } = require("../controllers/productos"); // Importa todas las funciones necesarias
 
 const auth = require("../middlewares/auth")
