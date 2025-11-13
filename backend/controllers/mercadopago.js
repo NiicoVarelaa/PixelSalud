@@ -159,12 +159,11 @@ exports.createOrder = [
 
     const isProduction = true;
 
-    if (!frontendUrl || !frontendUrl.startsWith("http")) {
+    if (!frontendUrl?.startsWith("http")) {
       console.error("FRONTEND_URL inválida:", process.env.FRONTEND_URL);
       return res.status(500).json({
         success: false,
         message: "Error de configuración del servidor",
-        error: "FRONTEND_URL no está configurada correctamente",
       });
     }
 
@@ -175,7 +174,6 @@ exports.createOrder = [
       });
     }
 
-    // Validar datos del cliente
     if (!customer_info || !customer_info.email) {
       return res.status(400).json({
         success: false,
@@ -312,27 +310,14 @@ exports.createOrder = [
       // Crear detalles de la venta
       await createDetalleVentaOnline(idVentaO, items);
 
-      // ✅ FORZAR SANDBOX SIEMPRE EN DESARROLLO
-      const initPoint = isProduction 
-          ? response.init_point // URL de Producción
-          : response.sandbox_init_point; // URL de Sandbox
-
       res.json({
         success: true,
         id: response.id,
         idVentaO: idVentaO,
-        init_point: initPoint, // ✅ SIEMPRE sandbox en desarrollo
+        init_point: response.init_point, 
         sandbox_init_point: response.sandbox_init_point,
-        production_init_point: response.init_point,
         total: total,
-        environment: isProduction ? "production" : "sandbox",
-        debug: {
-          frontend_url: frontendUrl,
-          backend_url: backendUrl,
-          is_production: isProduction,
-          sandbox_url: response.sandbox_init_point,
-          production_url: response.init_point,
-        }, // ✅ Confirmar que es sandbox
+        environment: "sandbox", 
       });
     } catch (error) {
       console.error("Error al crear la orden de Mercado Pago:", error);

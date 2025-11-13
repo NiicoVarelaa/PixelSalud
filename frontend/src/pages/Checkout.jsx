@@ -3,16 +3,10 @@ import { Link, useNavigate, NavLink } from "react-router-dom";
 import { useCarritoStore } from "../store/useCarritoStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { toast } from "react-toastify";
-import {
-  FiShoppingBag,
-  FiArrowLeft,
-  FiTag,
-  FiShield,
-} from "react-icons/fi";
+import { FiShoppingBag, FiArrowLeft, FiTag, FiShield } from "react-icons/fi";
 import Header from "../components/Header";
 import { ChevronRight, Home } from "lucide-react";
-import CheckoutForm from "../components/CheckoutForm"; 
-
+import CheckoutForm from "../components/CheckoutForm";
 
 // Función de utilidad para formatear precio a ARS (moneda con símbolo)
 const formatPrice = (value) => {
@@ -33,7 +27,7 @@ const Checkout = () => {
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
+
   useEffect(() => {
     if (!token) {
       toast.error("Debes iniciar sesión para realizar una compra");
@@ -43,7 +37,7 @@ const Checkout = () => {
       return;
     }
     setIsAuthenticated(true);
-  }, [navigate, token]); 
+  }, [navigate, token]);
 
   // Cálculo del subtotal
   const subtotal = useMemo(() => {
@@ -80,11 +74,10 @@ const onSubmit = useCallback(async (data) => {
 
   setIsProcessing(true);
   try {
-    const backendUrl =
-      import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
     const urlApiCompleta = `${backendUrl}/mercadopago/create-order`;
 
-    console.log("🔄 Enviando solicitud al backend...");
+    console.log("📤 Enviando solicitud al backend...");
 
     const response = await fetch(urlApiCompleta, {
       method: "POST",
@@ -114,53 +107,42 @@ const onSubmit = useCallback(async (data) => {
 
     const responseData = await response.json();
 
-    console.log("📦 Respuesta COMPLETA del backend:", JSON.stringify(responseData, null, 2));
+    console.log("📦 Respuesta del backend:", JSON.stringify(responseData, null, 2));
 
     if (!response.ok) {
       throw new Error(responseData.message || `Error ${response.status}`);
     }
 
-    // ✅ VERIFICACIÓN DETALLADA
-    console.log("🔍 Analizando URLs de pago:");
-    console.log("   - init_point:", responseData.init_point);
-    console.log("   - sandbox_init_point:", responseData.sandbox_init_point);
-    console.log("   - production_init_point:", responseData.production_init_point);
-    console.log("   - environment:", responseData.environment);
-
-    // ✅ OPCIÓN 1: Usar sandbox_init_point explícitamente si está disponible
-    let initPoint = responseData.sandbox_init_point || responseData.init_point;
+    // ✅ ADAPTACIÓN PARA FORZAR SANDBOX LOCALMENTE
+    // El backend ahora devuelve la URL de sandbox en el campo init_point
+    const initPoint = responseData.init_point;
     
     if (!initPoint) {
-      throw new Error("No se recibió ninguna URL de pago del servidor");
+      throw new Error("No se recibió URL de pago del servidor");
     }
 
-    // ✅ VERIFICACIÓN CRÍTICA: Forzar sandbox si estamos en desarrollo
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      console.log("🚨 ESTAMOS EN DESARROLLO - Forzando modo sandbox");
-      if (responseData.sandbox_init_point) {
-        initPoint = responseData.sandbox_init_point;
-        console.log("✅ Usando sandbox_init_point forzado:", initPoint);
-      } else {
-        console.warn("⚠️ No hay sandbox_init_point disponible, usando init_point normal");
-      }
-    }
+    // Información del Pago simplificada para pruebas locales
+    const paymentMode = "PRUEBAS (FORZADO)";
 
-    // ✅ VERIFICAR que la URL sea de sandbox
-    if (!initPoint.includes('sandbox.mercadopago.com.ar')) {
-      console.error('❌ ERROR CRÍTICO: La URL NO es de sandbox:', initPoint);
-      console.log('🔧 URL detectada:', initPoint);
-      toast.error("Error: No se pudo activar el modo de pruebas. Contacta al soporte.");
-      return;
-    }
-
-    console.log("✅ URL CONFIRMADA como SANDBOX:", initPoint);
+    console.log("\n🎯 Información del Pago:");
+    console.log("- Modo:", paymentMode);
+    console.log("- URL de pago (Sandbox):", initPoint);
+    console.log("- Preference ID:", responseData.id);
+    console.log("- Total:", responseData.total);
+    console.log("⚠️ MODO PRUEBAS (FORZADO):");
+    console.log("  - Usar tarjetas de prueba de Mercado Pago");
+    console.log("  - Los pagos NO son reales");
     
     if (responseData.success) {
-      console.log("🎯 Redirigiendo a Mercado Pago Sandbox...");
-      toast.info("Redirigiendo a Mercado Pago (Modo Pruebas)...");
+      const toastMessage = "Redirigiendo a Mercado Pago (Modo Pruebas)...";
+        
+      toast.info(toastMessage, {
+        autoClose: 2000,
+      });
       
       // Pequeño delay para que se vea el toast
       setTimeout(() => {
+        console.log("🚀 Redirigiendo a:", initPoint);
         window.location.href = initPoint; 
       }, 1000);
       
@@ -184,7 +166,6 @@ const onSubmit = useCallback(async (data) => {
   }
 }, [carrito, appliedDiscount, navigate, token]);
 
-
   const formatPrecio = (price) => {
     const numericPrice =
       typeof price === "string"
@@ -197,7 +178,6 @@ const onSubmit = useCallback(async (data) => {
       maximumFractionDigits: 2,
     }).format(numericPrice);
   };
-
 
   // Manejo de carrito vacío
   if (carrito.length === 0) {
@@ -244,47 +224,42 @@ const onSubmit = useCallback(async (data) => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="container my-12">
-          <nav className="text-sm text-gray-500" aria-label="Breadcrumb">
-              <ol className="list-none p-0 inline-flex items-center space-x-2">
-                  <li className="flex items-center">
-                      <NavLink 
-                          to="/" 
-                          className="flex items-center gap-1 hover:text-primary-700 transition-colors"
-                      >
-                          <Home size={16} className="text-gray-500" /> 
-                          Inicio
-                      </NavLink>
-                  </li>
-                  <li className="flex items-center">
-                      <ChevronRight size={16} className="text-gray-400" />
-                  </li>
-                  <li className="flex items-center">
-                      <NavLink 
-                          to="/carrito" 
-                          className="hover:text-primary-700 transition-colors"
-                      >
-                          Carrito
-                      </NavLink>
-                  </li>
-                  <li className="flex items-center">
-                      <ChevronRight size={16} className="text-gray-400" />
-                  </li>
-                  <li className="flex items-center">
-                      <span className="font-medium text-gray-700">
-                          Checkout
-                      </span>
-                  </li>
-              </ol>
-          </nav>
+        <nav className="text-sm text-gray-500" aria-label="Breadcrumb">
+          <ol className="list-none p-0 inline-flex items-center space-x-2">
+            <li className="flex items-center">
+              <NavLink
+                to="/"
+                className="flex items-center gap-1 hover:text-primary-700 transition-colors"
+              >
+                <Home size={16} className="text-gray-500" />
+                Inicio
+              </NavLink>
+            </li>
+            <li className="flex items-center">
+              <ChevronRight size={16} className="text-gray-400" />
+            </li>
+            <li className="flex items-center">
+              <NavLink
+                to="/carrito"
+                className="hover:text-primary-700 transition-colors"
+              >
+                Carrito
+              </NavLink>
+            </li>
+            <li className="flex items-center">
+              <ChevronRight size={16} className="text-gray-400" />
+            </li>
+            <li className="flex items-center">
+              <span className="font-medium text-gray-700">Checkout</span>
+            </li>
+          </ol>
+        </nav>
       </div>
 
       <div>
         <div className="flex flex-col lg:flex-row gap-8 pb-12">
           <div className="lg:flex-1">
-            <CheckoutForm 
-                onSubmit={onSubmit} 
-                isProcessing={isProcessing}
-            />
+            <CheckoutForm onSubmit={onSubmit} isProcessing={isProcessing} />
           </div>
 
           {/* Columna del Resumen */}
