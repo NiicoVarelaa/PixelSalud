@@ -1,28 +1,67 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCarritoStore } from '../store/useCarritoStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { FiCheckCircle, FiLoader } from 'react-icons/fi';
 
 const CheckoutSuccess = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigate(); 
     const [searchParams] = useSearchParams();
     const vaciarCarritoLocal = useCarritoStore(state => state.vaciarCarrito);
+    const { token } = useAuthStore(); // 👈 OBTENER TOKEN
     const [countdown, setCountdown] = useState(3);
 
+    // ✅ URL ABSOLUTA Y FORZADA AL ENTORNO LOCAL
     const LOCAL_SUCCESS_URL = 'http://localhost:5173/perfil/mis-compras';
 
+    // ---------------------------------------------------------------------
+    // FUNCIÓN PARA LIMPIAR EL CARRITO EN LA BASE DE DATOS (VIA BACKEND/NGROK)
+    // ---------------------------------------------------------------------
+    const clearCartInDB = useCallback(async () => {
+        if (!token) {
+            console.warn("❌ Token no disponible. No se puede limpiar el carrito en DB. Asumiendo que el webhook lo hizo.");
+            return;
+        }
+
+        try {
+            // Usar la URL de tu backend (ngrok) para la llamada DELETE
+            const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+            const urlApiCompleta = `${backendUrl}/mercadopago/clearUserCart`; 
+
+            const response = await fetch(urlApiCompleta, {
+                method: "DELETE", 
+                headers: {
+                    "Content-Type": "application/json",
+                    auth: `Bearer ${token}`, // Envía el token para autenticar
+                },
+            });
+
+            if (response.ok) {
+                console.log('✅ Carrito limpiado en la base de datos (DELETE API).');
+            } else {
+                const errorData = await response.json();
+                console.error('❌ Error al limpiar carrito en DB:', errorData.message);
+                // toast.error("Advertencia: La base de datos no se limpió correctamente.");
+            }
+        } catch (error) {
+            console.error('❌ Error de conexión al limpiar carrito:', error);
+        }
+    }, [token]);
+
+
     useEffect(() => {
-        // Limpiar el carrito localmente (Zustand)
+        const status = searchParams.get('status');
+        
+        // 1. Limpiar el estado local (para la página actual de Vercel)
         vaciarCarritoLocal();
 
-        // Obtener parámetros de MercadoPago
-        const paymentId = searchParams.get('payment_id');
-        const status = searchParams.get('status');
-        const externalReference = searchParams.get('external_reference');
+        // 2. Limpiar el carrito de la DB si el pago fue aprobado
+        if (status === 'approved' && token) {
+             // Llamar a la API para limpiar la tabla Carrito de MySQL
+             clearCartInDB();
+        }
 
-        console.log('✅ Pago completado:', { paymentId, status, externalReference });
-
-        // Contador regresivo con navegación
+        // 3. Iniciar el contador de redirección
         let currentCount = 3;
         const timer = setInterval(() => {
             currentCount -= 1;
@@ -30,23 +69,21 @@ const CheckoutSuccess = () => {
             
             if (currentCount <= 0) {
                 clearInterval(timer);
-                window.location.replace(LOCAL_SUCCESS_URL);
+                
+                // 🚀 SOLUCIÓN: FORZAR REDIRECCIÓN EXTERNA (A LOCALHOST)
+                // window.location.replace rompe el contexto de Vercel
+                window.location.replace(LOCAL_SUCCESS_URL); 
             }
         }, 1000);
 
         return () => clearInterval(timer);
-    }, []); // Dependencias vacías - solo se ejecuta una vez
+    }, [searchParams, vaciarCarritoLocal, token, clearCartInDB]); 
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-primary-50 flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
-                {/* Ícono animado */}
-                <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 animate-bounce">
-                    <FiCheckCircle className="w-12 h-12 text-green-600" />
-                </div>
-
-                {/* Título */}
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="text-center p-8 bg-white rounded-xl shadow-2xl max-w-md w-full">
+                <FiCheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                <h1 className="text-2xl font-bold text-gray-900 mb-3">
                     ¡Pago Exitoso!
                 </h1>
 
@@ -66,16 +103,17 @@ const CheckoutSuccess = () => {
                 <div className="flex items-center justify-center gap-2 text-gray-600">
                     <FiLoader className="animate-spin" />
                     <p className="text-sm">
-                        Redirigiendo a tus compras en <span className="font-bold text-primary-600">{countdown}</span> segundos...
+                        Redirigiendo a tus compras locales en <span className="font-bold text-primary-600">{countdown}</span> segundos...
                     </p>
                 </div>
 
-                {/* Botón manual */}
+                {/* Botón manual - AHORA REDIRIGE A LOCALHOST */}
                 <button
-                    onClick={() => navigate('/perfil/mis-compras', { replace: true })}
+                    // 🚀 SOLUCIÓN: Botón también usa window.location.replace
+                    onClick={() => window.location.replace(LOCAL_SUCCESS_URL)} 
                     className="mt-6 w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors"
                 >
-                    Ver mis compras ahora
+                    Ver mis compras (Local) ahora
                 </button>
             </div>
         </div>
