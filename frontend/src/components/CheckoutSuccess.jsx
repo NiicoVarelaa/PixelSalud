@@ -9,6 +9,8 @@ const CheckoutSuccess = () => {
     const vaciarCarritoLocal = useCarritoStore(state => state.vaciarCarrito);
     const [countdown, setCountdown] = useState(3);
 
+    const LOCAL_SUCCESS_URL = 'http://localhost:5173/perfil/mis-compras';
+
     useEffect(() => {
         // Limpiar el carrito localmente (Zustand)
         vaciarCarritoLocal();
@@ -28,7 +30,7 @@ const CheckoutSuccess = () => {
             
             if (currentCount <= 0) {
                 clearInterval(timer);
-                navigate('/perfil/mis-compras', { replace: true });
+                window.location.replace(LOCAL_SUCCESS_URL);
             }
         }, 1000);
 
