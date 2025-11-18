@@ -1,42 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import Swal from 'sweetalert2'; // Importamos SweetAlert
-
-// Asegúrate de que estas rutas sean correctas
-import apiClient from '../utils/apiClient'; 
+import Swal from 'sweetalert2';
+import apiClient from '../utils/apiClient'; // Ajustado a tu carpeta utils
 import { useAuthStore } from '../store/useAuthStore';
 
-// Recibimos las props para navegación
 const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
   
   // --- ESTADOS ---
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
-  const [resultadosBusqueda, setResultadosBusqueda] = useState([]); // Siempre debe ser un array
+  const [resultadosBusqueda, setResultadosBusqueda] = useState([]); 
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [cantidad, setCantidad] = useState(1);
+  
+  // Nuevo estado para el checkbox de receta física
+  const [recetaPresentada, setRecetaPresentada] = useState(false);
+
   const [carrito, setCarrito] = useState([]);
   const [metodoPago, setMetodoPago] = useState('Efectivo');
   const [total, setTotal] = useState(0);
 
-  // Obtenemos el usuario logueado desde Zustand
   const user = useAuthStore((state) => state.user); 
-  // Saca el ID (asegúrate que user.idEmpleado o user.id sea correcto)
   const idEmpleado = user?.idEmpleado || user?.id; 
 
   // --- EFECTOS ---
 
-  // 1. Calcula el total cada vez que cambia el carrito (CON LA CORRECCIÓN)
+  // 1. Calcular el total cada vez que cambia el carrito
   useEffect(() => {
     const nuevoTotal = carrito.reduce((acc, item) => acc + (item.precioUnitario * item.cantidad), 0);
-    setTotal(nuevoTotal); // ¡Corregido!
+    setTotal(nuevoTotal);
   }, [carrito]);
 
-  // 2. Busca productos con debounce
+  // 2. Búsqueda con "debounce" (espera a que dejes de escribir)
   useEffect(() => {
     if (terminoBusqueda.length < 3) {
-      setResultadosBusqueda([]); // Limpia si la búsqueda es corta
+      setResultadosBusqueda([]);
       return;
     }
-    // Espera 300ms antes de llamar a la API
     const timer = setTimeout(() => buscarProductos(terminoBusqueda), 300);
     return () => clearTimeout(timer);
   }, [terminoBusqueda]);
@@ -44,85 +42,78 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
 
   // --- FUNCIONES ---
 
-  // 3. Función de Búsqueda (¡IMPORTANTE!)
   const buscarProductos = async (term) => {
     try {
-        // (Asegúrate que tu ruta NO lleva /api si ya está en la baseURL)
-        const response = await apiClient.get('/productos/buscar', { 
-            params: { term } 
-        });
-
-        // ¡BLINDAJE! Nos aseguramos que SÓLO un array se guarde en el estado
+        const response = await apiClient.get('/productos/buscar', { params: { term } });
         if (Array.isArray(response.data)) {
             setResultadosBusqueda(response.data);
         } else {
-            // Si la API devuelve un error (ej: {msg: "..."}), evitamos que rompa el .map()
             setResultadosBusqueda([]);
         }
     } catch (error) { 
         console.error("Error buscando:", error.response?.data || error.message);
-        // Si hay un error de red (401, 500), también seteamos array vacío
         setResultadosBusqueda([]);
     }
   };
 
-  // 4. Función de Selección (¡AQUÍ ESTÁ LA MAGIA!)
   const seleccionarProducto = (prod) => {
-    setProductoSeleccionado(prod);    // <- Muestra el panel de detalle
-    setResultadosBusqueda([]);        // <- Oculta la lista de búsqueda
-    setTerminoBusqueda('');           // <- Limpia el input
-    setCantidad(1);                   // <- Resetea la cantidad
+    setProductoSeleccionado(prod);
+    setResultadosBusqueda([]);
+    setTerminoBusqueda('');
+    setCantidad(1);
+    setRecetaPresentada(false); // Reseteamos el checkbox al cambiar de producto
   };
 
-  // 5. Función de Agregar al Carrito
   const agregarAlCarrito = () => {
-    // Check 1: ¿Hay un producto seleccionado?
-    if (!productoSeleccionado) return; 
+    if (!productoSeleccionado) return;
 
-    // Parseamos la cantidad, ya que viene de un input
+    // VALIDACIÓN 1: Cantidad
     const cantInt = parseInt(cantidad);
-
-    // Check 2: ¿La cantidad es un número válido y mayor a cero?
     if (isNaN(cantInt) || cantInt <= 0) {
-        Swal.fire({
-          title: 'Cantidad no válida',
-          text: 'Por favor, ingresa una cantidad mayor a cero.',
-          icon: 'warning',
-          confirmButtonColor: '#d33' // Color rojo para error
-        });
+        Swal.fire('Cantidad inválida', 'Ingresa una cantidad mayor a cero.', 'warning');
         return;
     }
     
-    // Check 3: ¿Hay stock suficiente?
+    // VALIDACIÓN 2: Stock
     if (cantInt > productoSeleccionado.stock) {
+        Swal.fire('Stock insuficiente', `Solo quedan ${productoSeleccionado.stock} unidades.`, 'warning');
+        return;
+    }
+
+    // VALIDACIÓN 3: Receta Física (¡NUEVA LÓGICA!)
+    // Si requiere receta (es 1 o true) y NO se marcó el checkbox
+    if (productoSeleccionado.requiereReceta && !recetaPresentada) {
         Swal.fire({
-          title: '¡Stock insuficiente!',
-          text: `Solo quedan ${productoSeleccionado.stock} unidades disponibles.`,
-          icon: 'warning',
-          confirmButtonColor: '#d33'
+            title: '⚠️ Requiere Receta',
+            text: 'Este producto es venta bajo receta. Verifica el documento físico y marca la casilla para continuar.',
+            icon: 'warning',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Entendido'
         });
         return;
     }
 
-    // ¡Éxito! Agregamos al carrito
+    // Agregar al carrito con el dato de la receta
     setCarrito([...carrito, {
         idProducto: productoSeleccionado.idProducto,
         nombreProducto: productoSeleccionado.nombreProducto,
         precioUnitario: productoSeleccionado.precio,
-        cantidad: cantInt // Usamos la cantidad parseada
+        cantidad: cantInt,
+        requiereReceta: productoSeleccionado.requiereReceta,
+        // Guardamos si se presentó receta física (texto para la DB o null)
+        recetaFisica: recetaPresentada ? "Presentada en mostrador" : null 
     }]);
 
-    // Limpiamos para la próxima búsqueda
+    // Limpiar para el siguiente producto
     setProductoSeleccionado(null);
-    setCantidad(1); // Reseteamos el input a 1
+    setCantidad(1);
+    setRecetaPresentada(false);
   };
 
-  // 6. Función de Eliminar del Carrito
   const eliminarDelCarrito = (index) => {
      setCarrito(carrito.filter((_, i) => i !== index));
   };
 
-  // 7. Función de Finalizar Venta
   const finalizarVenta = async () => {
       if (carrito.length === 0) {
         Swal.fire('Ticket vacío', 'Agrega productos antes de finalizar.', 'info');
@@ -134,25 +125,27 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
       }
       
       const ventaData = {
-          idEmpleado, totalPago: total, metodoPago,
+          idEmpleado, 
+          totalPago: total, 
+          metodoPago,
+          // Enviamos los productos con el campo recetaFisica incluido
           productos: carrito.map(i => ({ 
               idProducto: i.idProducto, 
               cantidad: i.cantidad, 
-              precioUnitario: i.precioUnitario 
+              precioUnitario: i.precioUnitario,
+              recetaFisica: i.recetaFisica // <-- Dato importante
           }))
       };
 
       try {
-          // (Asegúrate que tu ruta NO lleva /api si ya está en la baseURL)
           const response = await apiClient.post('/ventasEmpleados/crear', ventaData);
           
-          // Limpiamos el formulario
+          // Limpieza tras éxito
           setCarrito([]);
           setTotal(0);
           setTerminoBusqueda('');
           setProductoSeleccionado(null);
 
-          // Mostramos alerta de éxito con opciones
           Swal.fire({
             title: '¡Venta Registrada!',
             text: `La venta #${response.data.idVentaE} se completó con éxito.`,
@@ -164,33 +157,30 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
             cancelButtonText: 'Registrar Nueva Venta'
           }).then((result) => {
             if (result.isConfirmed) {
-              onVentaExitosa(); // ¡Navega a Mis Ventas!
+              onVentaExitosa(); // Navega a la lista
             }
-            // Si es 'cancel' (Nueva Venta), no hace nada y se queda en la pantalla limpia.
           });
           
       } catch (error) { 
           console.error("Error al registrar venta:", error.response?.data || error.message);
           Swal.fire({
             title: 'Error al Registrar',
-            text: error.response?.data?.error || 'Error de conexión. Revisa la consola.',
+            text: error.response?.data?.error || 'Error de conexión.',
             icon: 'error'
           });
       }
   };
 
 
-  // --- RENDERIZADO (JSX) ---
+  // --- RENDERIZADO ---
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-6 flex flex-col">
       
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800">🛒 Nueva Venta</h1>
         {onVolver && (
-            <button 
-                onClick={onVolver} 
-                className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
-            >
+            <button onClick={onVolver} className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
                 ⬅ Volver al Panel
             </button>
         )}
@@ -198,7 +188,7 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
 
       <div className="flex flex-col lg:flex-row flex-1 gap-6">
         
-        {/* === LADO IZQUIERDO (Buscador) === */}
+        {/* === LADO IZQUIERDO: Buscador y Detalle === */}
         <div className="w-full lg:w-1/2 flex flex-col bg-white p-4 md:p-6 rounded-xl shadow-md order-1 lg:order-1">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">🔍 Buscar Producto</h2>
           
@@ -210,13 +200,13 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
                   value={terminoBusqueda}
                   onChange={(e) => setTerminoBusqueda(e.target.value)}
               />
-              {/* Esta lista SÓLO se muestra si 'resultadosBusqueda' es un array con items */}
+              {/* Lista desplegable */}
               {resultadosBusqueda.length > 0 && (
                   <ul className="absolute z-20 w-full bg-white border border-gray-200 mt-1 rounded-lg shadow-xl max-h-48 md:max-h-64 overflow-y-auto">
                       {resultadosBusqueda.map(prod => (
                           <li 
                               key={prod.idProducto} 
-                              onClick={() => seleccionarProducto(prod)} // <-- ¡ESTA ES LA LÍNEA CRÍTICA!
+                              onClick={() => seleccionarProducto(prod)}
                               className="p-3 hover:bg-blue-50 cursor-pointer border-b flex justify-between text-sm md:text-base"
                           >
                               <span className="font-medium truncate mr-2">{prod.nombreProducto}</span>
@@ -227,26 +217,47 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
               )}
           </div>
 
-          {/* Área de Detalle (Sólo se muestra si 'productoSeleccionado' NO es null) */}
+          {/* Panel de Detalle */}
           <div className="mt-6 flex-1 flex flex-col justify-center items-center min-h-[200px]">
             {productoSeleccionado ? (
                 <div className="w-full bg-blue-50 p-4 md:p-6 rounded-xl border border-blue-100 text-center">
                     <h3 className="text-xl md:text-2xl font-bold text-blue-800 mb-2">{productoSeleccionado.nombreProducto}</h3>
+                    
                     <div className="flex justify-center gap-4 md:gap-8 text-gray-600 text-base md:text-lg mb-4 md:mb-6">
                         <p>Precio: <span className="font-bold text-green-600">${productoSeleccionado.precio}</span></p>
                         <p>Stock: <span className="font-bold text-blue-600">{productoSeleccionado.stock}</span></p>
                     </div>
+
+                    {/* CHECKBOX DE RECETA FÍSICA (Solo si aplica) */}
+                    {(productoSeleccionado.requiereReceta === 1 || productoSeleccionado.requiereReceta === true) && (
+                        <div className="mb-6 p-3 bg-orange-50 border border-orange-200 rounded-lg flex items-center justify-center gap-3 animate-pulse-slow">
+                            <input 
+                                type="checkbox" 
+                                id="checkReceta"
+                                className="w-5 h-5 text-orange-600 rounded focus:ring-orange-500 cursor-pointer"
+                                checked={recetaPresentada}
+                                onChange={(e) => setRecetaPresentada(e.target.checked)}
+                            />
+                            <label htmlFor="checkReceta" className="text-orange-800 font-bold cursor-pointer select-none">
+                                📄 Receta Física Verificada
+                            </label>
+                        </div>
+                    )}
+
                     <div className="flex items-center justify-center gap-4 mb-6">
                         <label className="font-medium text-gray-700">Cantidad:</label>
                         <input 
-                            type="number" min="1" max={productoSeleccionado.stock}
+                            type="number" 
+                            min="1" 
+                            max={productoSeleccionado.stock}
                             className="w-20 p-2 text-center text-lg border-2 border-blue-300 rounded-lg focus:border-blue-500 outline-none"
                             value={cantidad}
                             onChange={(e) => setCantidad(e.target.value)}
                         />
                     </div>
+
                     <button onClick={agregarAlCarrito}
-                        className="w-full py-3 bg-blue-600 text-white text-lg font-bold rounded-lg hover:bg-blue-700 transition active:scale-95">
+                        className="w-full py-3 bg-blue-600 text-white text-lg font-bold rounded-lg hover:bg-blue-700 transition active:scale-95 shadow-md">
                         Agregar al Ticket ⬇️
                     </button>
                 </div>
@@ -258,7 +269,7 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
           </div>
         </div>
 
-        {/* === LADO DERECHO (Ticket) === */}
+        {/* === LADO DERECHO: Ticket === */}
         <div className="w-full lg:w-1/2 flex flex-col bg-white p-4 md:p-6 rounded-xl shadow-md order-2 lg:order-2">
           <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
               🧾 Ticket <span className="text-sm font-normal text-gray-500">({carrito.length})</span>
@@ -277,7 +288,15 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
                   <tbody className="divide-y divide-gray-100">
                       {carrito.map((item, index) => (
                           <tr key={index} className="hover:bg-gray-50">
-                              <td className="p-2 md:p-3 text-sm truncate max-w-[120px]">{item.nombreProducto}</td>
+                              <td className="p-2 md:p-3 text-sm truncate max-w-[180px]">
+                                  {item.nombreProducto}
+                                  {/* Indicador visual de Rx */}
+                                  {item.recetaFisica && (
+                                      <span className="ml-2 inline-block bg-orange-100 text-orange-800 text-[10px] px-1.5 py-0.5 rounded border border-orange-200 font-bold" title="Con Receta">
+                                          Rx
+                                      </span>
+                                  )}
+                              </td>
                               <td className="p-2 md:p-3 text-center">{item.cantidad}</td>
                               <td className="p-2 md:p-3 text-right font-medium">${(item.cantidad * item.precioUnitario).toFixed(2)}</td>
                               <td className="p-2 md:p-3 text-center">
@@ -309,7 +328,7 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
               </div>
               <button onClick={finalizarVenta} disabled={carrito.length === 0}
                   className={`w-full py-3 md:py-4 text-lg md:text-xl font-bold text-white rounded-xl transition ${
-                      carrito.length === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
+                      carrito.length === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 shadow-lg'
                   }`}>
                   {carrito.length === 0 ? 'Ticket Vacío' : '✅ CONFIRMAR'}
               </button>
