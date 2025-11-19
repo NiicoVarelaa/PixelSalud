@@ -62,9 +62,11 @@ const Login = () => {
         navigate("/panelempleados");
       } else if (rol === "admin") {
         navigate("/admin");
-      } else {
-        navigate("/");
-      }
+      } else if (rol === "medico") {
+        navigate("/panelMedico");
+      }else{
+        navigate("/")
+}
     } catch (error) {
 // ... (tu manejo de errores estaba perfecto)
       const serverMsg =

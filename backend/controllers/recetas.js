@@ -7,11 +7,11 @@ const getMisRecetas = (req, res) => {
     const consulta = `
       SELECT r.idReceta, r.dniCliente, r.cantidad, r.usada, r.fechaEmision,
              c.nombreCliente, c.apellidoCliente,
-             p.nombreProducto
+             p.nombreProducto, r.activo
       FROM Recetas r
       JOIN Clientes c ON r.dniCliente = c.dni
       JOIN Productos p ON r.idProducto = p.idProducto
-      WHERE r.idMedico = ? AND r.activo = true
+      WHERE r.idMedico = ? 
       ORDER BY r.idReceta DESC
     `;
 
@@ -25,25 +25,44 @@ const getMisRecetas = (req, res) => {
 }
 
 // 2. Crear Receta (Igual, pero asegurate que los datos lleguen bien)
+// En controllers/recetas.js
+
 const crearReceta = (req, res) => {
-    const { dniCliente, idMedico, idProducto, cantidad } = req.body;
+    // Ahora esperamos 'productos' que es un array: [{idProducto, cantidad}, ...]
+    const { dniCliente, idMedico, productos } = req.body;
+
+    if (!productos || productos.length === 0) {
+        return res.status(400).json({ error: "No hay productos en la receta" });
+    }
+
+    // Preparamos los valores para insertar MULTIPLES filas de una
+    // Cada fila es una receta independiente
+    const valores = productos.map(prod => [
+        dniCliente, 
+        idMedico, 
+        prod.idProducto, 
+        prod.cantidad, 
+        new Date() // fechaEmision
+    ]);
 
     const consulta = `
       INSERT INTO Recetas (dniCliente, idMedico, idProducto, cantidad, fechaEmision)
-      VALUES (?, ?, ?, ?, CURDATE()) 
+      VALUES ?
     `;
-    // Agregué CURDATE() explícito por si acaso, aunque tu tabla ya tiene default.
 
-    conection.query(consulta, [dniCliente, idMedico, idProducto, cantidad], (err, results) => {
+    conection.query(consulta, [valores], (err, results) => {
         if(err){
-            console.error("Error al crear receta:", err.sqlMessage);
-            // Si el error es por clave foránea (DNI no existe)
+            console.error("Error:", err);
+            // Error de clave foránea (paciente no existe)
             if (err.code === 'ER_NO_REFERENCED_ROW_2') {
-                return res.status(400).json({ error: "El DNI del paciente no existe en el sistema." });
+                 return res.status(400).json({ error: "El DNI del paciente no es válido." });
             }
-            return res.status(500).json({ error: "Error al crear la receta" });
+            return res.status(500).json({ error: "Error al crear las recetas" });
         }
-        res.status(201).json({ message: "Receta creada exitosamente", idReceta: results.insertId })
+        res.status(201).json({ 
+            message: "Recetas emitidas exitosamente", 
+            cantidad: results.affectedRows 
+        });
     })
 }
 
