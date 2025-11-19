@@ -51,16 +51,15 @@ const getClienteBajados = (req, res) => {
 };
 
 const getClientes = (req, res) => {
-  const consulta = "SELECT idCliente, nombreCliente, apellidoCliente, emailCliente, fecha_registro, hora_registro, rol FROM Clientes";
+  // ¡AGREGAMOS 'dni' y 'activo' AL SELECT!
+  const consulta = "SELECT idCliente, nombreCliente, apellidoCliente, emailCliente, dni, activo, rol FROM Clientes";
 
   conection.query(consulta, (err, results) => {
     if (err) {
       console.error("Error al obtener los clientes:", err);
       return res.status(500).json({ error: "Error al obtener los clientes." });
     }
-    if (results.length===0) {
-      return res.status(404).json({error:"No hay clientes creados"})
-    }
+    // (Quitamos el if de length===0 para que devuelva array vacío si no hay nadie, es más seguro para el front)
     res.status(200).json(results);
   });
 };

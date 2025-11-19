@@ -1,18 +1,18 @@
 import { useState } from "react";
-import apiClient from "../utils/apiClient"; 
+import apiClient from "../utils/apiClient";
 
 import { Link, useNavigate } from "react-router-dom";
-import { 
-  Mail, 
-  Lock, 
-  LogIn, 
+import {
+  Mail,
+  Lock,
+  LogIn,
   ArrowLeft,
-  Eye, 
+  Eye,
   EyeOff,
-  Loader2 
+  Loader2,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { useAuthStore } from "../store/useAuthStore"; 
+import { useAuthStore } from "../store/useAuthStore";
 
 const Login = () => {
   const [user, setUser] = useState({
@@ -26,66 +26,66 @@ const Login = () => {
 
   // En Login.jsx
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const response = await apiClient.post("/login", {
-        email: user.email.toLowerCase().trim(),
-        contrasenia: user.password,
-      });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const response = await apiClient.post("/login", {
+        email: user.email.toLowerCase().trim(),
+        contrasenia: user.password,
+      });
 
       // 1. Obtenemos la data COMPLETA (que Postman demostró que SÍ trae permisos)
-      const data = response.data || {};
+      const data = response.data || {};
 
       // 2. ¡Validamos que tengamos lo mínimo!
-      if (!data.rol || !data.token) {
-        toast.warn("No se pudo obtener la sesión completa (rol o token).");
-        setIsSubmitting(false);
-        return;
-      }
+      if (!data.rol || !data.token) {
+        toast.warn("No se pudo obtener la sesión completa (rol o token).");
+        setIsSubmitting(false);
+        return;
+      }
 
       // 3. ¡¡¡EL ARREGLO!!! Le pasamos 'data' (la respuesta COMPLETA) a loginUser.
       // ¡useAuthStore se encarga de todo lo demás!
-      loginUser(data);
+      loginUser(data);
 
       // 4. El resto de tu lógica de navegación (esto ya estaba bien)
-      const nombreCapitalizado =
-        (data.nombre?.charAt(0)?.toUpperCase() || "") + (data.nombre?.slice(1) || "");
-      toast.success(`¡Bienvenido, ${nombreCapitalizado}!`);
+      const nombreCapitalizado =
+        (data.nombre?.charAt(0)?.toUpperCase() || "") +
+        (data.nombre?.slice(1) || "");
+      toast.success(`¡Bienvenido, ${nombreCapitalizado}!`);
 
-      const rol = (data.rol || "").toString().toLowerCase();
+      const rol = (data.rol || "").toString().toLowerCase();
 
-      if (rol === "cliente") {
-        navigate("/");
-      } else if (rol === "empleado") {
-        navigate("/panelempleados");
-      } else if (rol === "admin") {
-        navigate("/admin");
-      } else if (rol === "medico") {
-        navigate("/panelMedico");
-      }else{
-        navigate("/")
-}
-    } catch (error) {
-// ... (tu manejo de errores estaba perfecto)
-      const serverMsg =
-        error.response?.data?.msg ||
-        error.response?.data?.mensaje ||
-        error.response?.data?.error ||
-        null;
+      if (rol === "cliente") {
+        navigate("/");
+      } else if (rol === "empleado") {
+        navigate("/panelempleados");
+      } else if (rol === "admin") {
+        navigate("/admin");
+      } else if (rol === "medico") {
+        navigate("/panelMedico");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      // ... (tu manejo de errores estaba perfecto)
+      const serverMsg =
+        error.response?.data?.msg ||
+        error.response?.data?.mensaje ||
+        error.response?.data?.error ||
+        null;
 
-      if (serverMsg) {
-        toast.error(serverMsg);
-      } else {
-        toast.error("Error al conectar con el servidor.");
-      }
-      console.error("Login error:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  
+      if (serverMsg) {
+        toast.error(serverMsg);
+      } else {
+        toast.error("Error al conectar con el servidor.");
+      }
+      console.error("Login error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
@@ -154,8 +154,9 @@ const Login = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full bg-primary-700 text-white py-3 rounded-lg hover:bg-primary-800 transition duration-300 font-semibold flex items-center justify-center space-x-2 shadow-md hover:shadow-lg cursor-pointer ${isSubmitting ? "opacity-75 cursor-not-allowed" : ""
-              }`}
+            className={`w-full bg-primary-700 text-white py-3 rounded-lg hover:bg-primary-800 transition duration-300 font-semibold flex items-center justify-center space-x-2 shadow-md hover:shadow-lg cursor-pointer ${
+              isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+            }`}
           >
             {isSubmitting ? (
               <>

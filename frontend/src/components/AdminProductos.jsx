@@ -41,7 +41,7 @@ const AdminProductos = () => {
 
   const getConfig = () => ({
     headers: {
-      'Authorization': `Bearer ${token}`
+      'Auth': `Bearer ${token}`
     }
   });
 

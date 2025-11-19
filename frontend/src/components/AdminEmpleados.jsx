@@ -1,537 +1,361 @@
-import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import apiClient from "../utils/apiClient";
 import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-import { useAuthStore } from "../store/useAuthStore"; 
-
-const PERMISOS_DEFAULT = {
-    crear_productos: false,
-    modificar_productos: false,
-    modificar_ventasE: false,
-    modificar_ventasO: false,
-    ver_ventasTotalesE: false,
-    ver_ventasTotalesO: false,
-};
+import Swal from "sweetalert2";
+import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
+import { Users, UserPlus, Edit, Trash2, Mail, Shield } from "lucide-react";
 
 const AdminEmpleados = () => {
   const [empleados, setEmpleados] = useState([]);
-  const [editandoId, setEditandoId] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const modalRef = useRef();
-  
-  // NUEVO: Estado para almacenar TODOS los permisos de todos los empleados
-  const [todosLosPermisos, setTodosLosPermisos] = useState([]); 
-  // NUEVO: Estado para manejar los permisos del empleado que se está editando
-  const [permisosEditados, setPermisosEditados] = useState(PERMISOS_DEFAULT);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuthStore();
+  const navigate = useNavigate();
 
-  const [busqueda, setBusqueda] = useState("");
-  const [filtroEstado, setFiltroEstado] = useState("todos");
-
-  const token = useAuthStore((state) => state.token);
-
-
-  const [empleadoEditado, setEmpleadoEditado] = useState({
-    nombreEmpleado: "",
-    apellidoEmpleado: "",
-    emailEmpleado: "",
-    contraEmpleado: "",
-  });
-
-  const [nuevoEmpleado, setNuevoEmpleado] = useState({
-    nombreEmpleado: "",
-    apellidoEmpleado: "",
-    emailEmpleado: "",
-    contraEmpleado: "",
-  });
-
-  const getConfig = () => ({
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-
+  // 1. Protección de Ruta
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        // Al cerrar el modal, limpiar permisos
-        cancelarEdicion();
-      }
-    };
-
-    if (isModalOpen) {
-      document.body.classList.add("overflow-hidden");
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.body.classList.remove("overflow-hidden");
+    if (!user || user.rol !== "admin") {
+      navigate("/");
     }
+  }, [user, navigate]);
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isModalOpen]);
-  
-  // NUEVA FUNCIÓN: Obtener todos los permisos (necesario para filtrar)
-  const obtenerTodosLosPermisos = async () => {
-      if (!token) return;
-      try {
-          // La ruta GET /permisos está protegida
-          const res = await axios.get("http://localhost:5000/permisos", getConfig());
-          setTodosLosPermisos(res.data);
-      } catch (error) {
-          console.error("Error al obtener todos los permisos:", error);
-      }
-  };
-
-
+  // 2. Cargar Empleados
   const obtenerEmpleados = async () => {
+    setLoading(true);
     try {
-      if (!token) return;
-      const res = await axios.get("http://localhost:5000/Empleados", getConfig());
-      setEmpleados(res.data.results || res.data); 
+      const res = await apiClient.get("/empleados");
+
+      // Verificamos estructura del backend (que ahora devuelve { results: [...] })
+      if (res.data.results && Array.isArray(res.data.results)) {
+        setEmpleados(res.data.results);
+      } else if (Array.isArray(res.data)) {
+        setEmpleados(res.data);
+      } else {
+        setEmpleados([]);
+      }
     } catch (error) {
       console.error("Error al obtener empleados", error);
-      toast.error("Error al cargar empleados. ¿Permisos?");
+      toast.error("No se pudieron cargar los empleados.");
+      setEmpleados([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (token) {
-        obtenerEmpleados();
-        obtenerTodosLosPermisos(); // Cargar todos los permisos
-    }
-  }, [token]);
+    obtenerEmpleados();
+  }, []);
 
-  const iniciarEdicion = (emp) => {
-    setEditandoId(emp.idEmpleado);
-    // Cargar datos del empleado
-    setEmpleadoEditado({
-      nombreEmpleado: emp.nombreEmpleado,
-      apellidoEmpleado: emp.apellidoEmpleado || "",
-      emailEmpleado: emp.emailEmpleado,
-      contraEmpleado: "",
-    });
+  // --- HTML PARA LOS PERMISOS (Helper) ---
+  const generarHtmlPermisos = (emp = {}) => {
+    const isChecked = (key) =>
+      emp[key] === 1 || emp[key] === true ? "checked" : "";
 
-    // NUEVO: Buscar y cargar permisos del empleado que se está editando
-    const permisosExistentes = todosLosPermisos.find(p => p.idEmpleado === emp.idEmpleado);
-    if (permisosExistentes) {
-        // Mapear los permisos existentes (booleanos 0/1) a true/false
-        const permisosLimpios = Object.keys(PERMISOS_DEFAULT).reduce((acc, key) => {
-            acc[key] = permisosExistentes[key] === 1 || permisosExistentes[key] === true;
-            return acc;
-        }, PERMISOS_DEFAULT);
-        setPermisosEditados({ ...PERMISOS_DEFAULT, ...permisosLimpios });
-    } else {
-        setPermisosEditados(PERMISOS_DEFAULT);
-    }
-    
-    setIsModalOpen(true);
-  };
-
-  const cancelarEdicion = () => {
-    setEditandoId(null);
-    setIsModalOpen(false); // Asegura que el modal se cierre
-    setEmpleadoEditado({
-      nombreEmpleado: "",
-      apellidoEmpleado: "",
-      emailEmpleado: "",
-      contraEmpleado: "",
-    });
-    setPermisosEditados(PERMISOS_DEFAULT); // Limpiar permisos
-  };
-
-  // NUEVA FUNCIÓN: Manejar el cambio en los checkboxes de permisos
-  const handlePermisoChange = (e) => {
-    setPermisosEditados({
-        ...permisosEditados,
-        [e.target.name]: e.target.checked,
-    });
-  };
-
-  // NUEVA FUNCIÓN: Crear o actualizar los permisos
-  const actualizarPermisos = async (idEmpleado) => {
-      const tienePermisoExistente = todosLosPermisos.some(p => p.idEmpleado === idEmpleado);
-      const endpoint = tienePermisoExistente ? 
-          `http://localhost:5000/permisos/update/${idEmpleado}` :
-          `http://localhost:5000/permisos/crear/${idEmpleado}`;
-      const method = tienePermisoExistente ? 'put' : 'post';
-      
-      // Convertir booleanos a 1 o 0 para la base de datos
-      const permisosDB = Object.keys(permisosEditados).reduce((acc, key) => {
-          acc[key] = permisosEditados[key] ? 1 : 0;
-          return acc;
-      }, {});
-
-      try {
-          await axios({
-              method: method,
-              url: endpoint,
-              data: permisosDB,
-              ...getConfig()
-          });
-          toast.info(`Permisos del empleado ${idEmpleado} ${tienePermisoExistente ? 'actualizados' : 'creados'}.`);
-          obtenerTodosLosPermisos(); // Recargar la lista maestra de permisos
-      } catch (error) {
-          console.error(`Error al gestionar permisos:`, error);
-          toast.error(`Error al gestionar permisos. ${error.response?.data?.error || ''}`);
-      }
-  };
-
-
-  const guardarCambios = async () => {
-    try {
-      // 1. Actualizar datos del empleado
-      const dataToUpdate = {
-        ...empleadoEditado,
-        apellidoEmpleado: empleadoEditado.apellidoEmpleado || ""
-      }
-      
-      await axios.put(
-        `http://localhost:5000/empleados/actualizar/${editandoId}`,
-        dataToUpdate,
-        getConfig()
-      );
-      
-      // 2. Actualizar/Crear Permisos
-      await actualizarPermisos(editandoId);
-      
-      // 3. Finalizar
-      cancelarEdicion();
-      obtenerEmpleados();
-      toast.success("Empleado y permisos actualizados correctamente");
-    } catch (error) {
-      console.error("Error al guardar cambios:", error);
-      toast.error("Error al actualizar empleado");
-    }
-  };
-
-  const toggleActivo = async (idEmpleado, activoActual) => {
-    const endpoint = activoActual ? 
-        `http://localhost:5000/empleados/baja/${idEmpleado}` : 
-        `http://localhost:5000/empleados/reactivar/${idEmpleado}`;
-    
-    const action = activoActual ? "dado de baja" : "reactivado";
-
-    try {
-        await axios.put(endpoint, {}, getConfig());
-        
-        setEmpleados(empleados.map(emp => 
-          emp.idEmpleado === idEmpleado ? { ...emp, activo: !activoActual } : emp
-        ));
-
-        toast.success(`Empleado ${action} correctamente`);
-    } catch (error) {
-        console.error(`Error al ${action} empleado:`, error);
-        toast.error(`Error al ${action} empleado`);
-    }
-  }
-
-
-  const agregarEmpleado = async () => {
-    try {
-      // 1. Crear el empleado (El ID se asigna en el backend)
-      const res = await axios.post("http://localhost:5000/Empleados/crear", nuevoEmpleado, getConfig());
-      
-      // 2. Dado que el ID del nuevo empleado no está disponible aquí directamente,
-      //    la creación de permisos del nuevo empleado debería hacerse en la edición posterior
-      //    o tu backend debería devolver el ID del empleado recién creado.
-      //    Por ahora, simplemente refrescamos la lista y el admin lo edita después.
-
-      setIsModalOpen(false);
-      setNuevoEmpleado({
-        nombreEmpleado: "",
-        apellidoEmpleado: "",
-        emailEmpleado: "",
-        contraEmpleado: "",
-      });
-      obtenerEmpleados();
-      toast.success("Empleado agregado. ¡Ahora edita para asignar permisos!");
-    } catch (error) {
-      console.error("Error al agregar empleado:", error);
-      toast.error("Error al agregar empleado. Verifica el email.");
-    }
-  };
-  
-  // LÓGICA DE FILTRADO Y BÚSQUEDA
-  const empleadosFiltrados = empleados.filter((emp) => {
-    const isActive = emp.activo === 0 ? false : (emp.activo === 1 ? true : emp.activo === undefined ? true : emp.activo);
-
-    const coincideBusqueda = 
-      emp.nombreEmpleado.toLowerCase().includes(busqueda.toLowerCase()) ||
-      (emp.apellidoEmpleado && emp.apellidoEmpleado.toLowerCase().includes(busqueda.toLowerCase())) ||
-      emp.emailEmpleado.toLowerCase().includes(busqueda.toLowerCase());
-
-    const coincideEstado =
-      filtroEstado === "todos" ||
-      (filtroEstado === "activos" && isActive) ||
-      (filtroEstado === "inactivos" && !isActive);
-
-    return coincideBusqueda && coincideEstado;
-  });
-
-  // Renderizado del Modal de Edición/Creación
-  const renderEmpleadoModal = () => {
-      return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm overflow-y-auto">
-          <div
-            ref={modalRef}
-            className="bg-white rounded-xl shadow-xl w-full max-w-4xl" // Aumentado el ancho
-          >
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">
-                  {editandoId ? 'Editar Empleado y Permisos' : 'Agregar Nuevo Empleado'}
-                </h2>
-                <button
-                  onClick={cancelarEdicion}
-                  className="text-gray-500 hover:text-gray-700 transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* COLUMNA 1: DATOS BÁSICOS */}
-                <div>
-                    <h3 className="text-xl font-semibold mb-3 text-primary-700">Datos Personales</h3>
-                    <div className="grid grid-cols-1 gap-4">
-                        {[
-                        { label: "Nombre", name: "nombreEmpleado", value: empleadoEditado.nombreEmpleado },
-                        { label: "Apellido", name: "apellidoEmpleado", value: empleadoEditado.apellidoEmpleado },
-                        { label: "Email", name: "emailEmpleado", value: empleadoEditado.emailEmpleado },
-                        {
-                            label: "Contraseña (dejar vacío si no cambia)",
-                            name: "contraEmpleado",
-                            type: "password",
-                            value: empleadoEditado.contraEmpleado,
-                        },
-                        ].map(({ label, name, type = "text", value }) => (
-                        <div key={name}>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-                            <input
-                            type={type}
-                            name={name}
-                            value={value}
-                            onChange={(e) =>
-                                setEmpleadoEditado({ ...empleadoEditado, [name]: e.target.value })
-                            }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            />
-                        </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* COLUMNA 2: PERMISOS (Solo en Edición) */}
-                {editandoId && (
-                    <div>
-                        <h3 className="text-xl font-semibold mb-3 text-primary-700">Permisos de Acceso</h3>
-                        <div className="space-y-2 bg-gray-50 p-4 rounded-md border">
-                            {Object.keys(PERMISOS_DEFAULT).map(permiso => (
-                                <div key={permiso} className="flex items-center">
-                                    <input
-                                        id={permiso}
-                                        name={permiso}
-                                        type="checkbox"
-                                        checked={permisosEditados[permiso]}
-                                        onChange={handlePermisoChange}
-                                        className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                                    />
-                                    <label htmlFor={permiso} className="ml-3 text-sm font-medium text-gray-700">
-                                        {/* Texto amigable para el permiso */}
-                                        {permiso === 'crear_productos' && 'Crear Productos'}
-                                        {permiso === 'modificar_productos' && 'Modificar Productos (Editar/Baja/Activar)'}
-                                        {permiso === 'modificar_ventasE' && 'Modificar Ventas Empleados'}
-                                        {permiso === 'modificar_ventasO' && 'Modificar Ventas Online (Estado)'}
-                                        {permiso === 'ver_ventasTotalesE' && 'Ver Ventas Totales Empleados'}
-                                        {permiso === 'ver_ventasTotalesO' && 'Ver Ventas Totales Online'}
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-                
-              </div> {/* Fin grid principal */}
-
-              <div className="flex justify-end gap-3 pt-6 border-t mt-6">
-                <button
-                  onClick={cancelarEdicion}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={editandoId ? guardarCambios : agregarEmpleado}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
-                >
-                  {editandoId ? "Guardar Cambios" : "Guardar Empleado"}
-                </button>
-              </div>
-            </div>
-          </div>
+    return `
+      <div class="mt-4 text-left bg-blue-50 p-4 rounded-lg border border-blue-100">
+        <h3 class="text-sm font-bold text-blue-800 mb-3 flex items-center gap-2">
+          🛡️ Asignar Permisos
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="flex items-center space-x-2 cursor-pointer hover:bg-blue-100 p-1 rounded transition">
+                <input type="checkbox" id="p-crear-prod" class="form-checkbox h-4 w-4 text-blue-600 rounded" ${isChecked(
+                  "crear_productos"
+                )}>
+                <span class="text-sm text-gray-700 font-medium">Crear Productos/Ofertas</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer hover:bg-blue-100 p-1 rounded transition">
+                <input type="checkbox" id="p-mod-prod" class="form-checkbox h-4 w-4 text-blue-600 rounded" ${isChecked(
+                  "modificar_productos"
+                )}>
+                <span class="text-sm text-gray-700 font-medium">Modif/Eliminar Productos</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer hover:bg-blue-100 p-1 rounded transition">
+                <input type="checkbox" id="p-mod-ventas" class="form-checkbox h-4 w-4 text-blue-600 rounded" ${isChecked(
+                  "modificar_ventasE"
+                )}>
+                <span class="text-sm text-gray-700 font-medium">Editar/Anular Ventas</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer hover:bg-blue-100 p-1 rounded transition">
+                <input type="checkbox" id="p-ver-totales" class="form-checkbox h-4 w-4 text-blue-600 rounded" ${isChecked(
+                  "ver_ventasTotalesE"
+                )}>
+                <span class="text-sm text-gray-700 font-medium">Ver Ventas Totales</span>
+            </label>
         </div>
-      );
+      </div>
+    `;
   };
 
+  // 3. Crear Empleado
+  const handleCrearEmpleado = async () => {
+    const { value: formValues } = await Swal.fire({
+      title:
+        '<h2 class="text-2xl font-bold text-gray-800">👤 Nuevo Empleado</h2>',
+      html: `
+        <div class="flex flex-col gap-4 text-left">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Nombre</label>
+                    <input id="swal-nombre" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Juan">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Apellido</label>
+                    <input id="swal-apellido" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Pérez">
+                </div>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase">Email</label>
+                <input id="swal-email" type="email" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="juan@farmacia.com">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase">Contraseña</label>
+                <input id="swal-pass" type="password" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="*******">
+            </div>
+        </div>
+        ${generarHtmlPermisos()} 
+      `,
+      showCancelButton: true,
+      confirmButtonText: "Registrar Empleado",
+      confirmButtonColor: "#2563EB",
+      width: "600px",
+      focusConfirm: false,
+      preConfirm: () => {
+        // Usamos .trim() para evitar espacios accidentales
+        const nombre = document.getElementById("swal-nombre").value.trim();
+        const apellido = document.getElementById("swal-apellido").value.trim();
+        const email = document.getElementById("swal-email").value.trim();
+        const contra = document.getElementById("swal-pass").value.trim();
 
+        if (!nombre || !apellido || !email || !contra) {
+          Swal.showValidationMessage("Todos los campos son obligatorios");
+          return false;
+        }
+
+        const permisos = {
+          crear_productos: document.getElementById("p-crear-prod").checked,
+          modificar_productos: document.getElementById("p-mod-prod").checked,
+          modificar_ventasE: document.getElementById("p-mod-ventas").checked,
+          ver_ventasTotalesE: document.getElementById("p-ver-totales").checked,
+        };
+
+        return {
+          nombreEmpleado: nombre,
+          apellidoEmpleado: apellido,
+          emailEmpleado: email,
+          contraEmpleado: contra,
+          permisos,
+        };
+      },
+    });
+
+    if (formValues) {
+      try {
+        await apiClient.post("/empleados/crear", formValues);
+        Swal.fire(
+          "Creado",
+          "Empleado y permisos registrados correctamente.",
+          "success"
+        );
+        obtenerEmpleados();
+      } catch (error) {
+        Swal.fire(
+          "Error",
+          error.response?.data?.error || "No se pudo crear",
+          "error"
+        );
+      }
+    }
+  };
+
+  // 4. Editar Empleado
+  const handleEditarEmpleado = async (emp) => {
+    const { value: formValues } = await Swal.fire({
+      title: `<h2 class="text-xl font-bold text-gray-700">✏️ Editando: ${emp.nombreEmpleado}</h2>`,
+      html: `
+        <div class="flex flex-col gap-4 text-left">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Nombre</label>
+                    <input id="swal-nombre" class="w-full p-2.5 border border-gray-300 rounded-lg" value="${
+                      emp.nombreEmpleado
+                    }">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Apellido</label>
+                    <input id="swal-apellido" class="w-full p-2.5 border border-gray-300 rounded-lg" value="${
+                      emp.apellidoEmpleado || ""
+                    }">
+                </div>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase">Email</label>
+                <input id="swal-email" type="email" class="w-full p-2.5 border border-gray-300 rounded-lg" value="${
+                  emp.emailEmpleado
+                }">
+            </div>
+            <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                <label class="text-xs font-bold text-yellow-700 uppercase">Nueva Contraseña (Opcional)</label>
+                <input id="swal-pass" type="password" class="w-full p-2 border border-yellow-300 rounded bg-white mt-1" placeholder="Dejar vacío para no cambiar">
+            </div>
+        </div>
+        ${generarHtmlPermisos(emp)} 
+      `,
+      showCancelButton: true,
+      confirmButtonText: "Guardar Cambios",
+      confirmButtonColor: "#EAB308",
+      width: "600px",
+      preConfirm: () => {
+        const permisos = {
+          crear_productos: document.getElementById("p-crear-prod").checked,
+          modificar_productos: document.getElementById("p-mod-prod").checked,
+          modificar_ventasE: document.getElementById("p-mod-ventas").checked,
+          ver_ventasTotalesE: document.getElementById("p-ver-totales").checked,
+        };
+
+        return {
+          nombreEmpleado: document.getElementById("swal-nombre").value.trim(),
+          apellidoEmpleado: document
+            .getElementById("swal-apellido")
+            .value.trim(),
+          emailEmpleado: document.getElementById("swal-email").value.trim(),
+          contraEmpleado: document.getElementById("swal-pass").value.trim(), // Si está vacío, devuelve ""
+          permisos,
+        };
+      },
+    });
+
+    if (formValues) {
+      try {
+        await apiClient.put(
+          `/empleados/actualizar/${emp.idEmpleado}`,
+          formValues
+        );
+        Swal.fire(
+          "Actualizado",
+          "Datos y permisos modificados correctamente",
+          "success"
+        );
+        obtenerEmpleados();
+      } catch (error) {
+        Swal.fire("Error", "No se pudo actualizar", "error");
+      }
+    }
+  };
+
+  // 5. Eliminar Empleado
+  const handleEliminarEmpleado = (id) => {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Se eliminará el empleado y sus permisos asociados.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await apiClient.delete(`/empleados/eliminar/${id}`);
+          Swal.fire("Eliminado", "Empleado eliminado correctamente", "success");
+          obtenerEmpleados();
+        } catch (error) {
+          Swal.fire("Error", "No se pudo eliminar", "error");
+        }
+      }
+    });
+  };
+
+  // --- RENDERIZADO ---
   return (
-    <div className="min-h-screen bg-white px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+    <div className="min-h-screen bg-gray-50 p-6 md:p-10 animate-fadeIn">
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* MODAL CONDICIONAL: Usa el nuevo renderModal */}
-      {isModalOpen && renderEmpleadoModal()}
-
-      <div className="w-full mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            Administración de Empleados
-          </h1>
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
+              <Shield className="text-blue-600" size={32} /> Administración de
+              Empleados
+            </h1>
+            <p className="text-gray-500 mt-1">
+              Gestiona el acceso y permisos del personal.
+            </p>
+          </div>
           <button
-            // Abrir el modal en modo "Agregar"
-            onClick={() => {
-                setEditandoId(null);
-                setEmpleadoEditado({
-                    nombreEmpleado: "",
-                    apellidoEmpleado: "",
-                    emailEmpleado: "",
-                    contraEmpleado: "",
-                });
-                setIsModalOpen(true);
-            }}
-            className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"
+            onClick={handleCrearEmpleado}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl transition shadow-lg hover:shadow-blue-500/30 font-medium"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-            </svg>
-            Agregar Empleado
+            <UserPlus size={20} /> Agregar Empleado
           </button>
         </div>
-        
-        {/* BUSQUEDA Y FILTRADO */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <input
-            type="text"
-            placeholder="Buscar por nombre, apellido o email..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            className="border p-2 rounded w-full md:w-1/2"
-          />
 
-          <select
-            value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
-            className="border p-2 rounded w-full md:w-1/4"
-          >
-            <option value="todos">Todos los estados</option>
-            <option value="activos">Activos</option>
-            <option value="inactivos">Inactivos</option>
-          </select>
-        </div>
-
-
-        <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full divide-y divide-gray-200">
-              <thead className="bg-primary-100">
-                <tr>
-                  {["Nombre", "Apellido", "Email", "Estado", "Acciones"].map(
-                    (title, i) => (
-                      <th
-                        key={i}
-                        className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                          title === "Acciones" ? "text-right" : ""
-                        }`}
-                      >
-                        {title}
-                      </th>
-                    )
-                  )}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {empleadosFiltrados.map((emp) => {
-                    const isActive = emp.activo === 0 ? false : (emp.activo === 1 ? true : emp.activo === undefined ? true : emp.activo);
-                    
-                    return (
-                        <tr key={emp.idEmpleado} className="hover:bg-gray-50">
-                            {editandoId === emp.idEmpleado ? (
-                            <>
-                                {/* Campos Editables en línea eliminados para forzar el uso del modal */}
-                                <td colSpan="5" className="px-6 py-4 whitespace-nowrap">
-                                    <p className="text-sm font-medium text-gray-900">Editando a {emp.nombreEmpleado} {emp.apellidoEmpleado}...</p>
-                                </td>
-                                
-                                {/* Columna Acciones (Solo Cancelar en línea, Edición completa en modal) */}
-                                <td className="px-6 py-4 whitespace-nowrap text-right">
-                                <div className="flex gap-2 justify-end">
-                                    <button
-                                    onClick={cancelarEdicion}
-                                    className="bg-secondary-500 hover:bg-secondary-600 text-white px-3 py-1 rounded-md text-xs transition-colors"
-                                    >
-                                    Cerrar Edición
-                                    </button>
-                                </div>
-                                </td>
-                            </>
-                            ) : (
-                            <>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {emp.nombreEmpleado}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {emp.apellidoEmpleado || 'N/A'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {emp.emailEmpleado}
-                                </td>
-                                
-                                {/* Columna Estado */}
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${isActive
-                                            ? "bg-green-100 text-green-800"
-                                            : "bg-red-100 text-red-800"
-                                        }`}
-                                    >
-                                        {isActive ? "Activo" : "Inactivo"}
-                                    </span>
-                                </td>
-
-                                {/* Columna Acciones */}
-                                <td className="px-6 py-4 whitespace-nowrap text-right">
-                                <div className="flex gap-2 justify-end">
-                                    <button
-                                    onClick={() => iniciarEdicion(emp)}
-                                    className="bg-secondary-500 hover:bg-secondary-600 text-white px-3 py-1 rounded-md text-xs transition-colors flex items-center gap-1"
-                                    >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                    </svg>
-                                    Editar Permisos
-                                    </button>
-                                    <button
-                                    onClick={() => toggleActivo(emp.idEmpleado, isActive)}
-                                    className={`px-3 py-1 text-white rounded hover:opacity-90 text-xs flex items-center gap-1 ${isActive ? "bg-yellow-500 hover:bg-yellow-600" : "bg-green-500 hover:bg-green-600"}`}
-                                    >
-                                    {isActive ? (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                                    ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                                    )}
-                                    {isActive ? "Desactivar" : "Activar"}
-                                    </button>
-                                </div>
-                                </td>
-                            </>
-                            )}
-                        </tr>
-                    );
-                })}
-              </tbody>
-            </table>
-          </div>
+        {/* Tabla */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          {loading ? (
+            <div className="p-12 text-center">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-500">Cargando personal...</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-gray-50 text-gray-600 font-bold uppercase text-xs border-b">
+                  <tr>
+                    <th className="px-6 py-4">ID</th>
+                    <th className="px-6 py-4">Nombre</th>
+                    <th className="px-6 py-4">Email</th>
+                    <th className="px-6 py-4 text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {empleados.map((emp) => (
+                    <tr
+                      key={emp.idEmpleado}
+                      className="hover:bg-blue-50/40 transition duration-150"
+                    >
+                      <td className="px-6 py-4 text-gray-400 font-mono text-sm">
+                        #{emp.idEmpleado}
+                      </td>
+                      <td className="px-6 py-4 font-medium text-gray-800 flex items-center gap-3">
+                        <div className="w-9 h-9 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shadow-sm">
+                          <Users size={18} />
+                        </div>
+                        {emp.nombreEmpleado} {emp.apellidoEmpleado}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <Mail size={14} className="text-gray-400" />{" "}
+                          {emp.emailEmpleado}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 flex justify-center gap-3">
+                        <button
+                          onClick={() => handleEditarEmpleado(emp)}
+                          className="p-2 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded-lg transition border border-yellow-200"
+                          title="Editar Datos y Permisos"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleEliminarEmpleado(emp.idEmpleado)}
+                          className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition border border-red-200"
+                          title="Eliminar Empleado"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {empleados.length === 0 && !loading && (
+            <div className="p-10 text-center text-gray-400">
+              No hay empleados registrados.
+            </div>
+          )}
         </div>
       </div>
     </div>
