@@ -38,7 +38,6 @@ const getProductsByIds = (productIds) => {
       p.nombreProducto,
       p.descripcion,
       p.precio AS precio,
-      -- calcular precioFinal si hay oferta válida
       CASE
         WHEN o.idOferta IS NOT NULL AND o.esActiva = 1 AND NOW() BETWEEN o.fechaInicio AND o.fechaFin
         THEN p.precio * (1 - o.porcentajeDescuento / 100)
@@ -92,7 +91,6 @@ const createVentaOnline = (ventaData) => {
   });
 };
 
-// Función para crear detalle de venta online
 // Inserta los items de la venta online en la tabla DetalleVentaOnline
 const createDetalleVentaOnline = (idVentaO, items) => {
   return new Promise((resolve, reject) => {
@@ -154,18 +152,18 @@ exports.createOrder = [
   async (req, res) => {
     const { products, customer_info, discount = 0 } = req.body;
     const userId = req.user.id;
-    
+
     // Limpiar y validar URLs
     const frontendUrl = process.env.FRONTEND_URL?.trim();
     const backendUrl = process.env.BACKEND_URL?.trim();
-    const isProduction = frontendUrl && !frontendUrl.includes('localhost');
-    
-    if (!frontendUrl || !frontendUrl.startsWith("http")) {
+
+    const isProduction = true;
+
+    if (!frontendUrl?.startsWith("http")) {
       console.error("FRONTEND_URL inválida:", process.env.FRONTEND_URL);
       return res.status(500).json({
         success: false,
         message: "Error de configuración del servidor",
-        error: "FRONTEND_URL no está configurada correctamente",
       });
     }
 
@@ -176,7 +174,6 @@ exports.createOrder = [
       });
     }
 
-    // Validar datos del cliente
     if (!customer_info || !customer_info.email) {
       return res.status(400).json({
         success: false,
@@ -272,7 +269,7 @@ exports.createOrder = [
         notification_url: `${backendUrl}/mercadopago/notifications`,
       };
 
-      // Solo agregar auto_return si NO es localhost
+      // ✅ SOLO EN PRODUCCIÓN REAL usar auto_return
       if (isProduction) {
         preferenceBody.auto_return = "approved";
       }
@@ -284,11 +281,21 @@ exports.createOrder = [
       console.log("Auto return:", preferenceBody.auto_return || "disabled");
       console.log("Back URLs:", preferenceBody.back_urls);
 
-      console.log("Creating Mercado Pago preference for user:", userId);
+      console.log("Creando orden de pago para usuario:", userId);
 
       const response = await preference.create({
         body: preferenceBody,
       });
+
+      console.log("=== RESPUESTA DE MERCADO PAGO ===");
+      console.log("Preference ID:", response.id);
+      console.log("Init Point (Producción):", response.init_point);
+      console.log(
+        "Sandbox Init Point (Desarrollo):",
+        response.sandbox_init_point
+      );
+      console.log("Back URLs configuradas:", preferenceBody.back_urls);
+      console.log("================================");
 
       // Crear venta en la base de datos (estado pendiente)
       const idVentaO = await createVentaOnline({
@@ -307,8 +314,10 @@ exports.createOrder = [
         success: true,
         id: response.id,
         idVentaO: idVentaO,
-        init_point: response.init_point,
+        init_point: response.init_point, 
+        sandbox_init_point: response.sandbox_init_point,
         total: total,
+        environment: "sandbox", 
       });
     } catch (error) {
       console.error("Error al crear la orden de Mercado Pago:", error);
@@ -321,188 +330,445 @@ exports.createOrder = [
   },
 ];
 
-// Webhook para recibir notificaciones de pago
+// Webhook robusto para MercadoPago: maneja payment, merchant_order, verifica firma y consulta por resource
+const crypto = require("crypto");
+
 exports.receiveWebhook = async (req, res) => {
   console.log("\n=== WEBHOOK RECIBIDO ===");
   console.log("Timestamp:", new Date().toISOString());
   console.log("Headers:", JSON.stringify(req.headers, null, 2));
-  console.log("Body:", JSON.stringify(req.body, null, 2));
+  console.log("Body recibido:", JSON.stringify(req.body, null, 2));
   
-  try {
-    const { type, data, action } = req.body;
-    
-    console.log("Type:", type);
-    console.log("Data:", data);
-    console.log("Action:", action);
+  // Registrar detalles específicos de la notificación
+  const { type, data, action, id, topic, resource } = req.body;
+  console.log(`🔔 Detalles de notificación:`);
+  console.log(`- Tipo: ${type || 'N/A'}`);
+  console.log(`- Tópico: ${topic || 'N/A'}`);
+  console.log(`- Acción: ${action || 'N/A'}`);
+  console.log(`- ID: ${id || 'N/A'}`);
+  console.log(`- Resource: ${resource || 'N/A'}`);
+  
+  if (data?.id) {
+    console.log(`- Data ID: ${data.id}`);
+  }
 
-    // SIEMPRE responder 200 OK primero para que MP no reintente
+  // Verificar firma del webhook (opcional, recomendado)
+  const signature = req.headers["x-signature"];
+  if (signature && process.env.MP_WEBHOOK_SECRET) {
+    const [tsPart, v1Part] = signature.split(",").map((s) => s.trim());
+    const ts = tsPart?.split("=")[1];
+    const v1 = v1Part?.split("=")[1];
+    const bodyString = JSON.stringify(req.body);
+    const secret = process.env.MP_WEBHOOK_SECRET;
+    const hash = crypto
+      .createHmac("sha256", secret)
+      .update(ts + bodyString)
+      .digest("hex");
+    if (hash !== v1) {
+      console.error("❌ Firma de webhook inválida");
+      res.status(400).send("Invalid signature");
+      return;
+    }
+    console.log("✅ Firma de webhook verificada");
+  }
+
+  try {
+    // ✅ RESPONDER INMEDIATAMENTE a MercadoPago
     res.status(200).send("OK");
     console.log("✅ Respuesta 200 OK enviada a MercadoPago");
 
-    // Detectar webhooks de prueba de MercadoPago
-    const paymentId = data?.id;
-    if (paymentId === "123456" || paymentId === 123456 || paymentId === "12345678") {
-      console.log("⚠️ WEBHOOK DE PRUEBA detectado - No se procesará");
-      console.log("✅ Endpoint funcionando correctamente - Prueba exitosa");
+    // MercadoPago puede enviar dos formatos:
+    // 1. { type, data, action, id, ... }
+    // 2. { topic, resource, ... }
+    const { type, data, action, id, topic, resource } = req.body;
+
+    // Preferir type, pero si no existe usar topic
+    const notificationType = type || topic;
+
+    console.log("Type:", notificationType);
+    console.log("Data:", data);
+    console.log("Action:", action);
+    console.log("ID:", id);
+    console.log("Resource:", resource);
+
+    // 🎯 DETECTAR Y MANEJAR DIFERENTES TIPOS DE NOTIFICACIÓN
+    if (notificationType === "payment") {
+      // Si viene resource, consultar por resource
+      if (resource) {
+        console.log("🔍 Procesando recurso de pago:", resource);
+        await handlePaymentResource(resource);
+      } else if (data?.id) {
+        // ✅ USAR data.id (ID del pago real), NO el id del webhook
+        const paymentId = data.id;
+        console.log(`🔍 Procesando notificación de pago (${action || 'sin acción'})`);
+        console.log(`💳 Payment ID real: ${paymentId}`);
+        
+        // 🎯 IGNORAR payment.created - solo procesar cuando el pago se actualiza
+        if (action === "payment.created") {
+          console.log("ℹ️ Webhook de payment.created IGNORADO - Esperando payment.updated");
+          console.log("   Razón: El pago puede no estar disponible aún en la API");
+          console.log("   El webhook de payment.updated llegará cuando el pago sea procesado");
+          return;
+        }
+        
+        // Procesar solo payment.updated y payment.authorized
+        if (["payment.updated", "payment.authorized"].includes(action)) {
+          await handlePaymentNotification(paymentId, req.body);
+        } else {
+          console.log(`ℹ️ Acción de pago no manejada: ${action}. Consultando estado actual...`);
+          // Si es una acción desconocida, consultar el estado actual del pago
+          try {
+            const payment = new Payment(client);
+            const paymentDetails = await payment.get({ id: paymentId });
+            await updatePaymentInDatabase(paymentDetails);
+          } catch (error) {
+            console.error("❌ Error consultando pago:", error.message);
+          }
+        }
+      } else {
+        console.log("ℹ️ Notificación de pago sin data.id válido");
+      }
+    } else if (notificationType === "merchant_order") {
+      if (resource) {
+        await handleMerchantOrderResource(resource);
+      } else {
+        console.log(
+          "📦 Notificación de merchant_order recibida - ID:",
+          data?.id || id
+        );
+      }
+    } else {
+      console.log(`ℹ️ Tipo de notificación no manejada: ${notificationType}`);
+    }
+  } catch (error) {
+    console.error("❌ ERROR en receiveWebhook:");
+    console.error("Message:", error.message);
+    console.error("Stack:", error.stack);
+  }
+
+  console.log("=== FIN WEBHOOK ===\n");
+};
+// Consulta el recurso de pago por URL (según documentación oficial)
+async function handlePaymentResource(resourceUrl) {
+  try {
+    const payment = new Payment(client);
+    // Extraer el ID del pago desde la URL si es posible
+    const match = resourceUrl.match(/\/payments\/(\d+)/);
+    const paymentId = match ? match[1] : null;
+    if (!paymentId) {
+      console.error(
+        "❌ No se pudo extraer paymentId del resource:",
+        resourceUrl
+      );
       return;
     }
+    console.log(`🔗 Consultando pago por resource: ${resourceUrl}`);
+    const paymentDetails = await payment.get({ id: paymentId });
+    await updatePaymentInDatabase(paymentDetails);
+  } catch (error) {
+    console.error("❌ Error consultando pago por resource:", error.message);
+  }
+}
 
-    // Si es una notificación de pago REAL
-    if (type === "payment" && paymentId) {
-      console.log(`📋 Procesando pago REAL ID: ${paymentId}`);
-      
-      try {
-        // Obtener detalles del pago desde MercadoPago
-        const payment = new Payment(client);
-        console.log("🔍 Consultando API de MercadoPago...");
-        
-        const paymentDetails = await payment.get({ id: paymentId });
-        
-        console.log("📦 Detalles del pago recibidos:");
-        console.log("  - Status:", paymentDetails.status);
-        console.log("  - External Reference:", paymentDetails.external_reference);
-        console.log("  - Transaction Amount:", paymentDetails.transaction_amount);
+async function handleMerchantOrderResource(resourceUrl) {
+  try {
+    const orderIdMatch = resourceUrl.match(/merchant_orders\/(\d+)/);
+    const orderId = orderIdMatch ? orderIdMatch[1] : null;
+    if (!orderId) {
+      console.error(
+        "❌ No se pudo extraer merchant_order_id del resource:",
+        resourceUrl
+      );
+      return;
+    }
+    console.log(`🔗 Consultando merchant_order por resource: ${resourceUrl}`);
+    const fetch = require("node-fetch");
+    const url = `https://api.mercadolibre.com/merchant_orders/${orderId}`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+      },
+    });
+    if (!response.ok) {
+      console.error(
+        "❌ Error consultando merchant_order:",
+        await response.text()
+      );
+      return;
+    }
+    const orderDetails = await response.json();
+    console.log("✅ Detalles de merchant_order:", orderDetails);
+    const approvedPayment = orderDetails.payments?.find(
+      (p) => p.status === "approved"
+    );
+    if (approvedPayment) {
+      await updatePaymentInDatabase({
+        id: approvedPayment.id,
+        status: approvedPayment.status,
+        external_reference: orderDetails.external_reference,
+      });
+    } else {
+      console.log(
+        `ℹ️ Merchant Order ${orderDetails.id} recibida. Estado: ${orderDetails.status}. Pago aún no aprobado en la orden.`
+      );
+    }
+  } catch (error) {
+    console.error(
+      "❌ Error consultando merchant_order por resource:",
+      error.message
+    );
+  }
+}
 
-        const externalReference = paymentDetails.external_reference;
-        
-        if (!externalReference) {
-          console.error("❌ No se encontró external_reference en el pago");
+// 🎯 MANEJAR NOTIFICACIONES DE PAGO CON LÓGICA DE REINTENTO
+async function handlePaymentNotification(
+  paymentId,
+  webhookBody,
+  maxRetries = 5,
+  delayMs = 3000
+) {
+  if (!paymentId) {
+    console.log("❌ No hay paymentId en la notificación");
+    return;
+  }
+
+  console.log(`📋 Procesando pago ID: ${paymentId}`);
+  console.log(`🔍 Action: ${webhookBody.action}`);
+  console.log(`🔍 Live mode: ${webhookBody.live_mode}`);
+
+  // 🎯 DETECTAR PAGOS DE PRUEBA (puedes ajustar la lista de testIds)
+  if (isTestPayment(paymentId)) {
+    console.log(
+      "✅ NOTIFICACIÓN DE PRUEBA - Webhook funcionando correctamente"
+    );
+    return;
+  }
+
+  // ⚠️ Si es payment.created, esperar más tiempo antes del primer intento
+  // porque el pago puede no estar disponible inmediatamente
+  if (webhookBody.action === "payment.created") {
+    console.log("⏳ Webhook de payment.created - Esperando 5s antes de consultar...");
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const payment = new Payment(client);
+      console.log(
+        `🔍 Consultando API de MercadoPago para obtener detalles... (Intento ${attempt}/${maxRetries})`
+      );
+
+      const paymentDetails = await payment.get({ id: paymentId });
+
+      console.log("✅ DETALLES DEL PAGO OBTENIDOS:");
+      console.log("  - payment_id:", paymentDetails.id);
+      console.log("  - status:", paymentDetails.status);
+      console.log("  - status_detail:", paymentDetails.status_detail);
+      console.log("  - external_reference:", paymentDetails.external_reference);
+      console.log("  - transaction_amount:", paymentDetails.transaction_amount);
+      console.log("  - merchant_order_id:", paymentDetails.order?.id);
+      console.log("  - payment_method_id:", paymentDetails.payment_method_id);
+      console.log("  - payment_type_id:", paymentDetails.payment_type_id);
+
+      // 🎯 ACTUALIZAR BASE DE DATOS SEGÚN ESTADO
+      await updatePaymentInDatabase(paymentDetails);
+      return; // ÉXITO: Salir de la función si la consulta es exitosa
+    } catch (paymentError) {
+      if (
+        paymentError.message === "Payment not found" &&
+        attempt < maxRetries
+      ) {
+        console.log(
+          `ℹ️ Pago no encontrado en el intento ${attempt}. Reintentando en ${
+            delayMs / 1000
+          }s...`
+        );
+        // Esperar antes de reintentar
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        continue; // Ir al siguiente intento
+      } else {
+        console.error("❌ Error obteniendo detalles del pago:");
+        console.error("Message:", paymentError.message);
+        console.error("Stack:", paymentError.stack);
+
+        if (paymentError.message === "Payment not found") {
+          console.log(
+            `ℹ️ El pago no se encontró después de ${maxRetries} intentos. El webhook falló.`
+          );
+        }
+        return; // Salir si es el último intento o un error diferente
+      }
+    }
+  }
+}
+
+// 🔍 DETECTAR PAGOS DE PRUEBA
+function isTestPayment(paymentId) {
+  const testIds = ["123456", "1325317138", "12345678"];
+  return testIds.includes(paymentId.toString());
+}
+
+// 💾 ACTUALIZAR PAGO EN BASE DE DATOS
+async function updatePaymentInDatabase(paymentDetails) {
+  const {
+    id: payment_id,
+    status,
+    external_reference,
+    transaction_amount,
+    order,
+  } = paymentDetails;
+
+  const merchant_order_id = order?.id;
+
+  console.log(`🎯 Actualizando base de datos con:`);
+  console.log("  - payment_id:", payment_id);
+  console.log("  - status:", status);
+  console.log("  - external_reference:", external_reference);
+  console.log("  - merchant_order_id:", merchant_order_id);
+  console.log("  - transaction_amount:", transaction_amount);
+
+  if (!external_reference) {
+    console.error(
+      "❌ No se puede actualizar: external_reference no encontrado"
+    );
+    return;
+  }
+
+  // ✅ PAGO APROBADO O AUTORIZADO
+  if (["approved", "authorized"].includes(status)) {
+    console.log(`✅ PAGO APROBADO - Actualizando venta: ${external_reference}`);
+
+    const findVentaSql = `
+      SELECT vo.idVentaO, vo.estado
+      FROM VentasOnlines vo
+      WHERE vo.externalReference = ?
+    `;
+
+    conection.query(
+      findVentaSql,
+      [external_reference],
+      async (error, results) => {
+        if (error) {
+          console.error("❌ Error buscando venta:", error);
           return;
         }
 
-        // PAGO APROBADO
-        if (paymentDetails.status === "approved") {
-          console.log(`✅ PAGO APROBADO - Referencia: ${externalReference}`);
-          
-          const findVentaSql = `
-            SELECT vo.idVentaO, vo.idCliente, vo.estado
-            FROM VentasOnlines vo
-            WHERE vo.externalReference = ?
-          `;
-
-          conection.query(findVentaSql, [externalReference], async (error, results) => {
-            if (error) {
-              console.error("❌ Error buscando venta:", error);
-              return;
-            }
-
-            console.log(`📊 Ventas encontradas: ${results.length}`);
-            
-            if (results.length > 0) {
-              const venta = results[0];
-              console.log(`📄 Venta encontrada: ID=${venta.idVentaO}, Estado=${venta.estado}`);
-              
-              if (venta.estado !== 'pendiente') {
-                console.log(`⚠️ Venta ${venta.idVentaO} ya procesada anteriormente`);
-                return;
-              }
-              
-              const updateVentaSql = `
-                UPDATE VentasOnlines 
-                SET estado = 'retirado', 
-                    metodoPago = 'Mercado Pago - Aprobado'
-                WHERE idVentaO = ?
-              `;
-
-              conection.query(updateVentaSql, [venta.idVentaO], async (updateError) => {
-                if (updateError) {
-                  console.error("❌ Error actualizando venta:", updateError);
-                  return;
-                }
-                
-                console.log(`✅ Venta ${venta.idVentaO} actualizada a 'retirado'`);
-                
-                // Obtener detalles para actualizar stock
-                const getDetallesSql = `
-                  SELECT idProducto, cantidad 
-                  FROM DetalleVentaOnline 
-                  WHERE idVentaO = ?
-                `;
-
-                conection.query(getDetallesSql, [venta.idVentaO], async (detalleError, detalles) => {
-                  if (detalleError) {
-                    console.error("❌ Error obteniendo detalles:", detalleError);
-                    return;
-                  }
-
-                  console.log(`📦 Productos a actualizar (${detalles.length}):`, detalles);
-
-                  try {
-                    await updateProductStock(detalles);
-                    console.log(`✅ Stock actualizado exitosamente para venta ${venta.idVentaO}`);
-                  } catch (stockError) {
-                    console.error("❌ Error actualizando stock:", stockError);
-                  }
-                });
-              });
-            } else {
-              console.log(`⚠️ No se encontró venta con referencia: ${externalReference}`);
-            }
-          });
-          
-        // PAGO RECHAZADO
-        } else if (paymentDetails.status === "rejected") {
-          console.log(`❌ PAGO RECHAZADO - Referencia: ${externalReference}`);
-          
-          const findVentaSql = `
-            SELECT vo.idVentaO, vo.estado
-            FROM VentasOnlines vo
-            WHERE vo.externalReference = ?
-          `;
-
-          conection.query(findVentaSql, [externalReference], (error, results) => { 
-            if (error) {
-              console.error("❌ Error buscando venta rechazada:", error);
-              return;
-            }
-
-            if (results.length > 0) {
-              const venta = results[0];
-              
-              if (venta.estado !== 'pendiente') {
-                console.log(`⚠️ Venta ${venta.idVentaO} ya procesada`);
-                return;
-              }
-              
-              const updateVentaSql = `
-                UPDATE VentasOnlines 
-                SET estado = 'cancelado'
-                WHERE idVentaO = ?
-              `;
-
-              conection.query(updateVentaSql, [venta.idVentaO], (updateError) => {
-                if (updateError) {
-                  console.error("❌ Error actualizando venta rechazada:", updateError);
-                } else {
-                  console.log(`✅ Venta ${venta.idVentaO} marcada como 'cancelado'`);
-                }
-              });
-            }
-          });
-          
-        } else {
-          console.log(`ℹ️ Estado del pago: ${paymentDetails.status} - Sin acción inmediata`);
+        if (results.length === 0) {
+          console.log(
+            `❌ No se encontró venta con external_reference: ${external_reference}`
+          );
+          return;
         }
-        
-      } catch (paymentError) {
-        console.error("❌ ERROR obteniendo detalles del pago:");
-        console.error("  Message:", paymentError.message);
-        if (paymentError.message === "Payment not found") {
-          console.log("ℹ️ El pago no existe en MercadoPago (posible prueba)");
+
+        const venta = results[0];
+
+        if (venta.estado !== "pendiente") {
+          console.log(
+            `⚠️ Venta ${venta.idVentaO} ya fue procesada (estado: ${venta.estado})`
+          );
+          return;
+        }
+
+        // ACTUALIZAR VENTA A "RETIRADO" (equivalente a aprobado)
+        const updateVentaSql = `
+        UPDATE VentasOnlines 
+        SET estado = 'retirado',
+            fechaPago = CURRENT_DATE,
+            horaPago = CURRENT_TIME
+        WHERE idVentaO = ?
+      `;
+
+        conection.query(
+          updateVentaSql,
+          [venta.idVentaO],
+          async (updateError) => {
+            if (updateError) {
+              console.error("❌ Error actualizando venta:", updateError);
+              return;
+            }
+
+            console.log(`✅ Venta ${venta.idVentaO} actualizada a 'aprobado'`);
+
+            // ACTUALIZAR STOCK
+            await updateStockForOrder(venta.idVentaO);
+          }
+        );
+      }
+    );
+  }
+  // ❌ PAGO RECHAZADO O CANCELADO
+  else if (["rejected", "cancelled", "refunded", "charged_back"].includes(status)) {
+    console.log(
+      `❌ PAGO RECHAZADO - Marcando como cancelado: ${external_reference}`
+    );
+
+    const updateVentaSql = `
+      UPDATE VentasOnlines 
+      SET estado = 'cancelado'
+      WHERE externalReference = ?
+    `;
+
+    conection.query(updateVentaSql, [external_reference], (updateError) => {
+      if (updateError) {
+        console.error("❌ Error actualizando venta rechazada:", updateError);
+      } else {
+        console.log(
+          `✅ Venta con referencia ${external_reference} marcada como 'cancelado'`
+        );
+      }
+    });
+  }
+  // ⏳ OTROS ESTADOS - Establecer como 'pendiente' por defecto
+  else {
+    console.log(`ℹ️ Pago en estado: ${status} - Estableciendo como 'pendiente'`);
+    
+    // Actualizar el estado a 'pendiente' para cualquier otro estado no manejado
+    const updateStatusSql = `
+      UPDATE VentasOnlines 
+      SET estado = 'pendiente',
+          fechaPago = IF(? IN ('approved', 'authorized'), CURRENT_DATE, fechaPago),
+          horaPago = IF(? IN ('approved', 'authorized'), CURRENT_TIME, horaPago)
+      WHERE externalReference = ?
+    `;
+
+    conection.query(
+      updateStatusSql, 
+      [status, status, status, external_reference], 
+      (error) => {
+        if (error) {
+          console.error("❌ Error actualizando estado intermedio:", error);
+        } else {
+          console.log(`✅ Estado actualizado a '${status}' para referencia: ${external_reference}`);
         }
       }
-    } else {
-      console.log(`ℹ️ Tipo de notificación: ${type} - No requiere procesamiento`);
+    );
+  }
+}
+
+// 📦 ACTUALIZAR STOCK (tu función existente)
+async function updateStockForOrder(idVentaO) {
+  const getDetallesSql = `
+    SELECT idProducto, cantidad 
+    FROM DetalleVentaOnline 
+    WHERE idVentaO = ?
+  `;
+
+  conection.query(getDetallesSql, [idVentaO], async (error, detalles) => {
+    if (error) {
+      console.error("❌ Error obteniendo detalles:", error);
+      return;
     }
 
-  } catch (error) {
-    console.error("❌ ERROR CRÍTICO en receiveWebhook:");
-    console.error("  Message:", error.message);
-    console.error("  Stack:", error.stack);
-  }
-  
-  console.log("=== FIN WEBHOOK ===\n");
-};
+    console.log(`📦 Actualizando stock para ${detalles.length} productos`);
+
+    try {
+      await updateProductStock(detalles);
+      console.log(`✅ Stock actualizado exitosamente para venta ${idVentaO}`);
+    } catch (stockError) {
+      console.error("❌ Error actualizando stock:", stockError);
+    }
+  });
+}
 
 // Obtener historial de ventas del usuario
 exports.getUserOrders = [
@@ -540,7 +806,6 @@ exports.getUserOrders = [
           });
         }
 
-        // Agrupar productos por venta
         const ventasMap = new Map();
 
         results.forEach((row) => {

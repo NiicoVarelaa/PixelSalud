@@ -18,6 +18,7 @@ const routesMercadoPago = require("./routes/mercadopago");
 const routesPermisos = require("./routes/permisos")
 const routesMedicos = require("./routes/medicos")
 const mensajesRoutes = require('./routes/mensajes'); 
+const routesRecetas = require("./routes/recetas")
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use("/mercadopago", routesMercadoPago);
 app.use("/",routesPermisos)
 app.use("/",routesMedicos)
 app.use('/mensajes', mensajesRoutes);
+app.use("/", routesRecetas)
 
 conection.connect((err) => {
   if (err) {

@@ -1,7 +1,8 @@
 const { conection } = require("../config/database");
 
 const registrarVentaEmpleado = (req, res) => {
-    const { idEmpleado, totalPago, metodoPago, productos, recetas } = req.body;
+    // Recibimos 'productos' que ahora trae la propiedad 'recetaFisica' si aplica
+    const { idEmpleado, totalPago, metodoPago, productos } = req.body;
 
     if (!idEmpleado || !productos || productos.length === 0) {
         return res.status(400).json({ error: "Faltan datos obligatorios" });
@@ -15,7 +16,7 @@ const registrarVentaEmpleado = (req, res) => {
         }
 
         let i = 0;
-        // Función flecha recursiva para verificar stock
+        // Función recursiva para verificar stock (Igual que antes)
         const verificarStock = () => {
             if (i < productos.length) {
                 const prod = productos[i];
@@ -31,18 +32,17 @@ const registrarVentaEmpleado = (req, res) => {
                             res.status(400).json({ error: `Stock insuficiente para: ${results[0]?.nombreProducto || 'Producto desconocido'}` });
                         });
                     }
-                    // Siguiente producto
                     i++;
                     verificarStock();
                 });
             } else {
-                // Todo el stock verificado, procedemos a insertar la venta
                 insertarVenta();
             }
         };
 
         const insertarVenta = () => {
-            conection.query('INSERT INTO VentasEmpleados (idEmpleado, totalPago, metodoPago) VALUES (?, ?, ?)', 
+            // Agregamos el estado 'completada' por defecto
+            conection.query('INSERT INTO VentasEmpleados (idEmpleado, totalPago, metodoPago, estado) VALUES (?, ?, ?, "completada")', 
                 [idEmpleado, totalPago, metodoPago], 
                 (err, resultVenta) => {
                     if (err) {
@@ -51,7 +51,6 @@ const registrarVentaEmpleado = (req, res) => {
                              res.status(500).json({ error: "Error al registrar venta" });
                         });
                     }
-                    // Una vez insertada la venta, insertamos sus detalles
                     insertarDetalles(resultVenta.insertId);
                 }
             );
@@ -59,13 +58,15 @@ const registrarVentaEmpleado = (req, res) => {
 
         const insertarDetalles = (idVentaE) => {
             let j = 0;
-            // Función flecha recursiva para insertar detalles y actualizar stock
             const procesarDetalle = () => {
                 if (j < productos.length) {
                     const prod = productos[j];
-                    // 1. Insertar detalle
-                    conection.query('INSERT INTO DetalleVentaEmpleado (idVentaE, idProducto, cantidad, precioUnitario) VALUES (?, ?, ?, ?)',
-                        [idVentaE, prod.idProducto, prod.cantidad, prod.precioUnitario],
+                    
+                    // --- CAMBIO AQUÍ: Insertamos 'recetaFisica' ---
+                    // Si prod.recetaFisica tiene texto (ej: "Presentada"), se guarda. Si no, guarda NULL.
+                    conection.query(
+                        'INSERT INTO DetalleVentaEmpleado (idVentaE, idProducto, cantidad, precioUnitario, recetaFisica) VALUES (?, ?, ?, ?, ?)',
+                        [idVentaE, prod.idProducto, prod.cantidad, prod.precioUnitario, prod.recetaFisica || null],
                         (err) => {
                             if (err) {
                                 return conection.rollback(() => {
@@ -73,7 +74,8 @@ const registrarVentaEmpleado = (req, res) => {
                                     res.status(500).json({ error: "Error al registrar detalles" });
                                 });
                             }
-                            // 2. Actualizar stock
+                            
+                            // Actualizar stock
                             conection.query('UPDATE Productos SET stock = stock - ? WHERE idProducto = ?',
                                 [prod.cantidad, prod.idProducto],
                                 (err) => {
@@ -83,7 +85,6 @@ const registrarVentaEmpleado = (req, res) => {
                                             res.status(500).json({ error: "Error al actualizar stock" });
                                         });
                                      }
-                                     // Siguiente detalle
                                      j++;
                                      procesarDetalle();
                                 }
@@ -91,7 +92,7 @@ const registrarVentaEmpleado = (req, res) => {
                         }
                     );
                 } else {
-                    // ¡Todo listo! Confirmamos la transacción
+                    // Confirmar transacción
                     conection.commit((err) => {
                         if (err) {
                              return conection.rollback(() => {
@@ -103,14 +104,14 @@ const registrarVentaEmpleado = (req, res) => {
                     });
                 }
             };
-            // Iniciamos el loop de detalles
             procesarDetalle();
         };
 
-        // Arrancamos el proceso con la primera verificación
         verificarStock();
     });
 };
+
+
 
 const obtenerVentasEmpleado = (req, res) => {
   // Asegúrate de que no haya NINGÚN espacio antes del `SELECT`

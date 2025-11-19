@@ -6,7 +6,7 @@ import LogoDior from "../assets/Logo-Dior.webp";
 import LogoLoreal from "../assets/Logo-Loreal.webp";
 import LogoMaybelline from "../assets/Logo-Maybelline.webp";
 import LogoVichy from "../assets/Logo-Vichy.webp";
-import LogoColgate from "../assets/Logo-Colgate.webp";
+import LogoColgate from "../assets/Logo-colgate.webp";
 import LogoDove from "../assets/Logo-Dove.webp";
 import LogoHuggies from "../assets/Logo-Huggies.webp";
 import LogoPampers from "../assets/Logo-Pampers.webp";

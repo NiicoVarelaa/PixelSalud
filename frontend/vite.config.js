@@ -6,10 +6,10 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
+    // ⚠️ Asegúrate de que esta URL coincida EXACTAMENTE con la que te dio Cloudflare/el túnel
     allowedHosts: [
-      'localhost', 
-      '127.0.0.1', 
-      'histomorphological-alonzo-figuratively.ngrok-free.dev' 
+      'sarah-recommended-supplement-steve.trycloudflare.com',
+      'chess-aviation-thereafter-helping.trycloudflare.com'  
     ]
-  }
+  },
 })

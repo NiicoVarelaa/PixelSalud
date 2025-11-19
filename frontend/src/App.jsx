@@ -27,10 +27,7 @@ import AdminVentasO from "./components/AdminVentasO";
 import AdminClientes from "./components/AdminClientes";
 import AdminEmpleados from "./components/AdminEmpleados";
 import AdminMenu from "./components/AdminMenu";
-import MedicosMenu from "./components/MedicosMenu";
-import Receta from "./components/Receta";
-import CrearReceta from "./components/CrearReceta";
-import PanelMedicos from "./components/PanelMedicos";
+import PanelMedicos from "./pages/PanelMedico";
 import MenuProductos from "./components/MenuProductos";
 import OpcionesProductos from "./components/OpcionesProductos";
 import AdminOfertas from "./components/AdminOfertas";
@@ -51,21 +48,23 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Inicio />} />
-          <Route path="productos" element={<Productos />} />
-          <Route path="productos/:idProducto" element={<Producto />} />
-          <Route path="productos/:categoria?" element={<Productos />} />
-          <Route path="sobreNosotros" element={<SobreNosotros />} />
-          <Route path="contacto" element={<Contacto />} />
           <Route path="registro" element={<Registro />} />
           <Route path="login" element={<Login />} />
           <Route path="recuperarContraseña" element={<RecuperarContrasena />} />
-          <Route element={<ProtectedRoute allowedRoles={["cliente"]} />}>
-            <Route path="carrito" element={<Carrito />} />
-            <Route path="checkout" element={<Checkout />} />
-            <Route path="perfil" element={<Perfil />} />
-            <Route path="perfil/favoritos" element={<PerfilFavoritos />} />
-            <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
+          <Route path="productos" element={<Productos />} />
+          <Route path="productos/:idProducto" element={<Producto />} />
+          <Route path="productos/:categoria?" element={<Productos />} />
+          <Route path="carrito" element={<Carrito />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="checkout/success" element={<CheckoutSuccess />} />
+          <Route path="sobreNosotros" element={<SobreNosotros />} />
+          <Route path="contacto" element={<Contacto />} />
+
+          <Route path="perfil" element={<DashboardCliente />}>
+            <Route index element={<Perfil />} />
+            <Route path="favoritos" element={<PerfilFavoritos />} />
             <Route path="mis-compras" element={<MisCompras />} />
+            <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
@@ -102,15 +101,13 @@ const App = () => {
             </Route>
           </Route>
         </Route>
-
-        <Route path="/PanelMedicos/*" element={<PanelMedicos />}>
-          <Route index element={<MedicosMenu />} />
-          <Route path="Receta" element={<Receta />} />
-          <Route path="CrearReceta" element={<CrearReceta />} />
-        </Route>
-
+        
         <Route element={<ProtectedRoute allowedRoles={["empleado"]} />}>
           <Route path="/panelempleados" element={<PanelEmpleados />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={["medico"]} />}>
+          <Route path="/panelMedico" element={<PanelMedicos />} />
         </Route>
         <Route path="*" element={<Error404 />} />
       </Routes>

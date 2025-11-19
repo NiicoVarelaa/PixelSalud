@@ -127,6 +127,56 @@ const activarCliente = (req, res)=>{
   });
 }
 
+const buscarClientePorDNI = (req, res) => {
+    const { dni } = req.params;
+    const consulta = "SELECT nombreCliente, apellidoCliente, dni FROM Clientes WHERE dni = ?";
+    
+    conection.query(consulta, [dni], (err, results) => {
+        if (err) return res.status(500).json({ error: "Error al buscar cliente" });
+        if (results.length === 0) return res.status(404).json({ error: "Paciente no encontrado" });
+        res.json(results[0]);
+    });
+};
+
+const registrarPacienteExpress = async (req, res) => {
+    const { nombre, apellido, dni, email } = req.body;
+
+    // Validaciones básicas
+    if (!nombre || !apellido || !dni || !email) {
+        return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    }
+
+    try {
+        // 1. Encriptamos el DNI para usarlo como contraseña
+        const salt = await bcryptjs.genSalt(10);
+        const contraHasheada = await bcryptjs.hash(dni.toString(), salt);
+
+        // 2. Insertamos en la DB
+        // Asumo que tu tabla es 'Clientes' y tiene estas columnas
+        const consulta = `
+            INSERT INTO Clientes (nombreCliente, apellidoCliente, dni, emailCliente, contraCliente, rol, activo)
+            VALUES (?, ?, ?, ?, ?, 'cliente', 1)
+        `;
+
+        conection.query(consulta, [nombre, apellido, dni, email, contraHasheada], (err, result) => {
+            if (err) {
+                console.error("Error al registrar paciente express:", err);
+                // Manejo de duplicados (DNI o Email ya existen)
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return res.status(400).json({ error: "El DNI o Email ya están registrados en el sistema." });
+                }
+                return res.status(500).json({ error: "Error interno al registrar paciente." });
+            }
+
+            res.status(201).json({ message: "Paciente registrado con éxito." });
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error del servidor" });
+    }
+};
+
 module.exports = {
   getClientes,
   getClienteBajados,
@@ -134,5 +184,7 @@ module.exports = {
   crearCliente,
   updateCliente,
   darBajaCliente,
-  activarCliente
+  activarCliente,
+  buscarClientePorDNI,
+  registrarPacienteExpress
 };
