@@ -1,13 +1,5 @@
 const { conection } = require("../config/database");
 
-// ------------------------------------------------------------------
-// --- FUNCIONES PRINCIPALES DE PRODUCTOS (Cálculo de Precios) ---
-// ------------------------------------------------------------------
-
-/**
- * Obtiene todos los productos con precios actualizados y flag de oferta.
- * ¡Consulta corregida para evitar ONLY_FULL_GROUP_BY!
- */
 const getProductos = (req, res) => {
   const consulta = `
     SELECT 
@@ -68,11 +60,6 @@ const getProductoBajado = (req, res)=>{
   })
 }
 
-
-/**
- * Obtiene un único producto con precio actualizado y flag de oferta.
- * ¡Consulta corregida para evitar ONLY_FULL_GROUP_BY!
- */
 const getProducto = (req, res) => {
   const id = req.params.idProducto;
   const consulta = `
@@ -121,9 +108,6 @@ const getProducto = (req, res) => {
   });
 };
 
-/**
- * Obtiene solo los productos que están en oferta AHORA y son de la categoría 'Dermocosmética'.
- */
 const getOfertasDestacadas = (req, res) => {
   const categoriaDestacada = "Dermocosmética"; 
 
@@ -159,11 +143,6 @@ const getOfertasDestacadas = (req, res) => {
     res.json(results);
   });
 };
-
-
-// ------------------------------------------------------------------
-// --- FUNCIONES CRUD DE PRODUCTOS (Administración) ---
-// ------------------------------------------------------------------
 
 const createProducto = (req, res) => {
   const { nombreProducto, descripcion, precio, img, categoria, stock, requiereReceta } =
@@ -259,11 +238,6 @@ const activarProducto = (req, res) => {
       .json({ message: "Productos activado con exito" });
   });
 };
-
-
-// ------------------------------------------------------------------
-// --- FUNCIONES CRUD DE OFERTAS (Administración de Promociones) ---
-// ------------------------------------------------------------------
 
 const createOferta = (req, res) => {
     const { 
@@ -397,10 +371,6 @@ const deleteOferta = (req, res) => {
     });
 };
 
-/**
- * Crea una oferta masiva para una lista de IDs de producto específicos.
- * POST /ofertas/mass-create
- */
 const ofertaCyberMonday = (req, res) => {
     // Lista de IDs. Se espera que vengan en el body como un array 'productIds'.
     // También se espera el porcentaje de descuento y la fecha de fin.
@@ -409,7 +379,7 @@ const ofertaCyberMonday = (req, res) => {
     // --- PARÁMETROS FIJOS Y AJUSTADOS POR REQUERIMIENTO ---
     const DESCUENTO = 25.00; // Por requerimiento: 25% de descuento
     const FECHA_INICIO = new Date().toISOString().slice(0, 19).replace('T', ' '); // Fecha y hora actual del servidor
-    const FECHA_FIN = '2025-11-16 23:59:59'; // Ajustado por requerimiento: Oferta hasta el 16 de noviembre.
+    const FECHA_FIN = '2025-11-29 23:59:59'; // Ajustado por requerimiento: Oferta hasta el 16 de noviembre.
     const ES_ACTIVA = 1;
 
     // Los IDs que proporcionaste: 23 productos
@@ -448,9 +418,8 @@ const ofertaCyberMonday = (req, res) => {
 };
 
 const getCyberMondayOffers = (req, res) => {
-    // Parámetros fijos de la promoción de Cyber Monday
     const DESCUENTO_CM = 25.00;
-    const FECHA_FIN_CM = '2025-11-16 23:59:59'; 
+    const FECHA_FIN_CM = '2025-11-29 23:59:59'; 
 
     const consulta = `
         SELECT 
@@ -488,19 +457,11 @@ const getCyberMondayOffers = (req, res) => {
 };
 
 const buscarProductos = (req, res) => {
-    // Obtenemos el término de búsqueda de la URL (ej: /buscar?term=aspirina)
     const { term } = req.query;
 
-    // Si no hay término o es muy corto, devolvemos lista vacía para no sobrecargar
     if (!term || term.length < 3) {
         return res.status(200).json([]);
     }
-
-    // Consulta SQL:
-    // 1. LOWER(...) para que no importen mayúsculas/minúsculas.
-    // 2. LIKE ? para búsquedas parciales.
-    // 3. activo = 1 y stock > 0 para solo mostrar lo vendible.
-    // 4. LIMIT 10 para que no traiga mil productos de golpe.
     const consulta = `
       SELECT idProducto, nombreProducto, precio, stock, categoria, requiereReceta 
       FROM Productos 
@@ -513,7 +474,6 @@ const buscarProductos = (req, res) => {
             console.error("Error buscando productos:", err);
             return res.status(500).json({ error: "Error al buscar productos" });
         }
-        // Devolvemos el array de resultados (puede estar vacío si no encontró nada)
         res.status(200).json(results);
     });
 };

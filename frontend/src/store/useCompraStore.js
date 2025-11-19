@@ -20,7 +20,7 @@ export const useCompraStore = create(() => ({
       const compra = {
         totalPago: producto.precio * producto.cantidad,
         metodoPago: metodoPago,
-        tipoEntrega: "Sucursal", // Por defecto en compras individuales
+        tipoEntrega: "Sucursal",
         estado: "Pendiente",
         idCliente,
         productos: [
@@ -49,12 +49,6 @@ export const useCompraStore = create(() => ({
     }
   },
 
-  /**
-   * Realiza compra desde el carrito
-   * @param {string} metodoPago - 'Tarjeta de Crédito', 'Transferencia Bancaria', 'Efectivo'
-   * @param {string} tipoEntrega - 'Sucursal' o 'Envio'
-   * @param {object|null} direccionEnvio - datos de envío si corresponde
-   */
   realizarCompraCarrito: async (metodoPago, tipoEntrega = "Sucursal", direccionEnvio = null) => {
     try {
       const idCliente = await getCliente();

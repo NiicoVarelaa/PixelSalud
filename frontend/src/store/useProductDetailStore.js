@@ -30,32 +30,19 @@ export const useProductDetailStore = create((set) => ({
 
   fetchProductDetail: async (id) => {
     set({ isLoading: true, error: null });
-    console.log(`[STORE] Iniciando búsqueda para el producto ID: ${id}`);
 
     try {
-      console.log("[STORE] Pidiendo producto principal a la API...");
       const res = await axios.get(`${API_URL}/${id}`);
-      const productoData = res.data;
-      console.log("DEBUG - Datos del producto desde API:", productoData);
-      console.log("DEBUG - precioRegular:", productoData.precioRegular);
-      console.log("DEBUG - precioFinal:", productoData.precioFinal);
-      console.log("DEBUG - enOferta:", productoData.enOferta);
-
-      // CORRECCIÓN: Usar los campos correctos de la API
-      // La API devuelve: precioRegular y precioFinal
+      const productoData = res.data;      
       const precioActual = cleanAndParsePrice(
         productoData.precioFinal || productoData.precio
       );
       const precioRegular = cleanAndParsePrice(productoData.precioRegular);
 
-      // Determinar si hay oferta activa
       const tieneOferta = productoData.enOferta && precioActual < precioRegular;
 
       let allProducts = useProductStore.getState().productos;
       if (allProducts.length === 0) {
-        console.log(
-          "[STORE] Lista de productos vacía, buscando todos los productos..."
-        );
         await useProductStore.getState().fetchProducts();
         allProducts = useProductStore.getState().productos;
       }
@@ -68,19 +55,13 @@ export const useProductDetailStore = create((set) => ({
         )
         .sort(() => 0.5 - Math.random())
         .slice(0, 8);
-      console.log(
-        "[STORE] Productos relacionados encontrados:",
-        related.length
-      );
-
-      // Actualizar estado con los precios correctos
       set({
         producto: {
           ...productoData,
-          precio: precioActual, // Usar el precio final (con descuento si aplica)
+          precio: precioActual, 
         },
         relatedProducts: related,
-        precioOriginal: tieneOferta ? precioRegular : null, // Solo mostrar original si hay descuento
+        precioOriginal: tieneOferta ? precioRegular : null,
         isLoading: false,
       });
     } catch (err) {

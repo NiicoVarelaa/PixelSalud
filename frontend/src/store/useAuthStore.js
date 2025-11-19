@@ -7,7 +7,6 @@ export const useAuthStore = create(
       user: null,
       token: null,
       loginUser: (data) => {
-        console.log("Data completa recibida en login:", data); // <-- ¡Este log ahora te va a mostrar los permisos!
         set({
           user: {
             id: data.id || data.idCliente,
@@ -15,7 +14,7 @@ export const useAuthStore = create(
             apellido: data.apellido,
             email: data.email,
             rol: data.rol,
-            permisos: data.permisos, // <-- ¡LA LÍNEA MÁGICA!
+            permisos: data.permisos, 
             tipo: data.tipo,
           },
           token: data.token,

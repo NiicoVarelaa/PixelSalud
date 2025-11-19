@@ -760,10 +760,13 @@ async function updateStockForOrder(idVentaO) {
     }
 
     console.log(`📦 Actualizando stock para ${detalles.length} productos`);
-
+    const itemsToUpdate = detalles.map(d => ({
+      idProducto: d.idProducto,
+      quantity: d.cantidad
+    }));
     try {
-      await updateProductStock(detalles);
-      console.log(`✅ Stock actualizado exitosamente para venta ${idVentaO}`);
+      const results = await updateProductStock(itemsToUpdate);
+      console.log(`✅ Stock actualizado exitosamente para venta ${idVentaO}`, results);
     } catch (stockError) {
       console.error("❌ Error actualizando stock:", stockError);
     }

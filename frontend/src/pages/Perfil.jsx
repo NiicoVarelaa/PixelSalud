@@ -1,31 +1,32 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { User, Mail, Calendar, Shield, Edit, Info } from "lucide-react";
+import { 
+  User, Mail, MapPin, Package, Heart, CreditCard, 
+  Edit2, Save, X, Camera, Calendar, ShieldCheck 
+} from "lucide-react";
 
 const Perfil = () => {
   const { user } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    nombreCliente: "",
-    apellidoCliente: "",
-    emailCliente: "",
-    dni: "",
+    nombre: "",
+    apellido: "",
+    email: "",
+    telefono: "", 
+    direccion: "",
   });
 
   useEffect(() => {
     if (user) {
       setFormData({
-        nombreCliente: user.nombreCliente || "",
-        apellidoCliente: user.apellidoCliente || "",
-        emailCliente: user.emailCliente || "",
-        dni: user.dni || "",
+        nombre: user.nombre || "",
+        apellido: user.apellido || "",
+        email: user.email || "",
+        telefono: user.telefono || "", 
+        direccion: user.direccion || "", 
       });
     }
-    // Opcional: enfocar el primer campo al entrar en modo edición
-    if (isEditing) {
-      document.querySelector('input[name="nombreCliente"]')?.focus();
-    }
-  }, [user, isEditing]); // Añadir isEditing a las dependencias
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,262 +38,216 @@ const Perfil = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí iría la lógica para actualizar el perfil (API call)
-    console.log("Datos a actualizar:", formData);
+    console.log("Datos actualizados:", formData);
     setIsEditing(false);
-    // TODO: Mostrar toast de éxito: "¡Perfil actualizado con éxito!"
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "No disponible";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("es-AR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center min-h-96">
-        <p className="text-gray-600">Cargando información del perfil...</p>
-      </div>
-    );
-  }
+  if (!user) return null;
 
   return (
-    <div className="max-w-6xl mx-auto p-4 lg:p-0"> {/* Añadido padding móvil */}
-      {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8 transition-shadow duration-300">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2">
-              Mi Perfil
-            </h1>
-            <p className="text-gray-600 text-lg">
-              Gestiona tu información personal y preferencias
-            </p>
-          </div>
-          {/* Botón de Edición/Cancelar Mejorado UX */}
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className={`flex items-center space-x-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-md
-              ${isEditing 
-                ? "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50" 
-                : "bg-primary-600 text-white hover:bg-primary-700"
-              }`}
-          >
-            <span>{isEditing ? "Cancelar edición" : "Editar perfil"}</span>
-            <Edit size={18} />
-          </button>
-        </div>
-      </div>
-
-      {/* Información del Usuario */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Información Personal */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 transition-shadow duration-300">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">
-              Información Personal
-            </h2>
-
-            {isEditing ? (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Nombre */}
-                  <div>
-                    <label htmlFor="nombreCliente" className="block text-sm font-medium text-gray-700 mb-2">
-                      Nombre
-                    </label>
-                    <input
-                      id="nombreCliente"
-                      type="text"
-                      name="nombreCliente"
-                      value={formData.nombreCliente}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl 
-                               focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-150"
-                      required
-                    />
-                  </div>
-                  {/* Apellido */}
-                  <div>
-                    <label htmlFor="apellidoCliente" className="block text-sm font-medium text-gray-700 mb-2">
-                      Apellido
-                    </label>
-                    <input
-                      id="apellidoCliente"
-                      type="text"
-                      name="apellidoCliente"
-                      value={formData.apellidoCliente}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl 
-                               focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-150"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label htmlFor="emailCliente" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
-                  </label>
-                  <input
-                    id="emailCliente"
-                    type="email"
-                    name="emailCliente"
-                    value={formData.emailCliente}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl 
-                             focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-150"
-                    required
-                  />
-                </div>
-
-                {/* DNI */}
-                <div>
-                  <label htmlFor="dni" className="block text-sm font-medium text-gray-700 mb-2">
-                    DNI
-                  </label>
-                  <input
-                    id="dni"
-                    type="text"
-                    name="dni"
-                    value={formData.dni}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl 
-                             focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-150"
-                    required
-                  />
-                </div>
-
-                <div className="flex space-x-4 pt-4">
-                  {/* Botón Principal: Guardar Cambios */}
-                  <button
-                    type="submit"
-                    className="px-8 py-3 bg-primary-600 text-white font-semibold rounded-xl 
-                             hover:bg-primary-700 transition-colors duration-200 shadow-md hover:shadow-lg"
-                  >
-                    Guardar Cambios
-                  </button>
-                  {/* Botón Secundario: Cancelar */}
-                  <button
-                    type="button"
-                    onClick={() => setIsEditing(false)}
-                    className="px-8 py-3 bg-gray-200 text-gray-700 font-medium rounded-xl 
-                             hover:bg-gray-300 transition-colors duration-200"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <div className="space-y-6">
-                {/* Bloque: Nombre Completo */}
-                <div className="grid grid-cols-2 items-center py-3 border-b border-gray-100">
-                  <div className="flex items-center space-x-4">
-                    <User className="w-6 h-6 text-primary-500" />
-                    <p className="text-base text-gray-600">Nombre completo</p>
-                  </div>
-                  <p className="font-bold text-gray-900 justify-self-end text-right text-lg">
-                    {user.nombreCliente} {user.apellidoCliente}
-                  </p>
-                </div>
-
-                {/* Bloque: Email */}
-                <div className="grid grid-cols-2 items-center py-3 border-b border-gray-100">
-                  <div className="flex items-center space-x-4">
-                    <Mail className="w-6 h-6 text-primary-500" />
-                    <p className="text-base text-gray-600">Email</p>
-                  </div>
-                  <p className="font-semibold text-gray-900 justify-self-end text-right">
-                    {user.emailCliente}
-                  </p>
-                </div>
-
-                {/* Bloque: DNI */}
-                <div className="grid grid-cols-2 items-center py-3 border-b border-gray-100">
-                  <div className="flex items-center space-x-4">
-                    <Shield className="w-6 h-6 text-primary-500" />
-                    <p className="text-base text-gray-600">DNI</p>
-                  </div>
-                  <p className="font-semibold text-gray-900 justify-self-end text-right">
-                    {user.dni}
-                  </p>
-                </div>
-
-                {/* Bloque: Miembro Desde */}
-                <div className="grid grid-cols-2 items-center py-3">
-                  <div className="flex items-center space-x-4">
-                    <Calendar className="w-6 h-6 text-primary-500" />
-                    <p className="text-base text-gray-600">Miembro desde</p>
-                  </div>
-                  <p className="font-semibold text-gray-900 justify-self-end text-right">
-                    {formatDate(user.fecha_registro)}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+    <div className="min-h-screen bg-gray-50/50  px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">        
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Mi Cuenta</h1>
+          <p className="mt-2 text-gray-600">Administra tu información personal y revisa tu actividad.</p>
         </div>
 
-        {/* Columnas laterales (Resumen y Acciones) */}
-        <div className="space-y-8">
-          {/* Resumen de Cuenta */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow duration-300">
-            <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">
-              <Info className="inline w-5 h-5 mr-2 text-gray-500" />
-              Resumen de Cuenta
-            </h3>
-            <div className="space-y-4 pt-2">
-              <div className="flex justify-between items-center pb-2 border-b border-gray-100">
-                <span className="text-gray-600">Estado</span>
-                <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-                  Activo
-                </span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          <div className="lg:col-span-4 space-y-6">
+            
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="h-32 bg-gradient-to-b from-primary-600 to-primary-500 relative">
+                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
+                  <div className="relative group">
+                    <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center shadow-lg overflow-hidden">
+                      <span className="text-3xl font-bold text-gray-500">
+                        {user.nombre?.charAt(0)}{user.apellido?.charAt(0)}
+                      </span>
+                    </div>
+                    <button className="absolute bottom-0 right-0 bg-white p-1.5 rounded-full shadow-md border border-gray-100 text-gray-600 hover:text-primary-600 transition-colors">
+                      <Camera size={14} />
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-gray-100">
-                <span className="text-gray-600">Rol</span>
-                <span className="font-semibold text-gray-900 capitalize">
-                  {user.rol}
-                </span>
-              </div>
-              <div className="flex justify-between items-center pt-2">
-                <span className="text-gray-600">Última actividad</span>
-                <span className="font-semibold text-gray-900">Hoy</span>
+              
+              <div className="pt-16 pb-8 px-6 text-center">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {user.nombre} {user.apellido}
+                </h2>
+                <p className="text-sm text-gray-500 mt-1 flex items-center justify-center gap-2">
+                  <ShieldCheck size={16} className="text-green-600" />
+                  Cuenta Verificada
+                </p>
+
+                <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-100 pt-6">
+                  <div className="text-center">
+                    <span className="block text-2xl font-bold text-gray-900">12</span>
+                    <span className="text-xs text-gray-500 uppercase tracking-wide">Pedidos</span>
+                  </div>
+                  <div className="text-center border-l border-gray-100">
+                    <span className="block text-2xl font-bold text-gray-900">5</span>
+                    <span className="text-xs text-gray-500 uppercase tracking-wide">Favoritos</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Acciones Rápidas */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow duration-300">
-            <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">
-              Acciones Rápidas
-            </h3>
-            <div className="space-y-3 pt-2">
-              <button
-                className="w-full text-left p-4 rounded-xl border border-gray-200 bg-white
-                              hover:border-primary-400 hover:bg-primary-50 transition-all duration-200 shadow-sm"
-              >
-                <p className="font-semibold text-gray-900">Cambiar contraseña</p>
-                <p className="text-sm text-gray-600 mt-1">
-                  Actualiza tu contraseña de acceso por seguridad
-                </p>
-              </button>
-              <button
-                className="w-full text-left p-4 rounded-xl border border-gray-200 bg-white
-                              hover:border-primary-400 hover:bg-primary-50 transition-all duration-200 shadow-sm"
-              >
-                <p className="font-semibold text-gray-900">
-                  Preferencias de notificación
-                </p>
-                <p className="text-sm text-gray-600 mt-1">
-                  Configura cómo y cuándo te contactamos
-                </p>
-              </button>
+          <div className="lg:col-span-8 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col items-start justify-between h-full">
+                <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600 mb-3">
+                  <CreditCard size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Método de Pago</p>
+                  <p className="text-gray-900 font-semibold mt-1">Visa •••• 4242</p>
+                </div>
+              </div>
+              
+              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col items-start justify-between h-full">
+                <div className="p-2.5 bg-red-50 rounded-xl text-red-600 mb-3">
+                  <Heart size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Lista de Deseos</p>
+                  <p className="text-gray-900 font-semibold mt-1">8 productos</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col items-start justify-between h-full">
+                <div className="p-2.5 bg-amber-50 rounded-xl text-amber-600 mb-3">
+                  <MapPin size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Dirección Principal</p>
+                  <p className="text-gray-900 font-semibold mt-1 truncate w-full">Calle Falsa 123</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+                <h3 className="text-lg font-bold text-gray-900">Información Personal</h3>
+                <button
+                  onClick={() => setIsEditing(!isEditing)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all
+                    ${isEditing 
+                      ? "bg-red-50 text-red-600 hover:bg-red-100" 
+                      : "bg-primary-50 text-primary-700 hover:bg-primary-100"
+                    }`}
+                >
+                  {isEditing ? (
+                    <>
+                      <X size={16} /> Cancelar
+                    </>
+                  ) : (
+                    <>
+                      <Edit2 size={16} /> Editar
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="p-6">
+                {isEditing ? (
+                  <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Nombre</label>
+                      <input
+                        type="text"
+                        name="nombre"
+                        value={formData.nombre}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Apellido</label>
+                      <input
+                        type="text"
+                        name="apellido"
+                        value={formData.apellido}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="text-sm font-medium text-gray-700">Correo Electrónico</label>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-3 text-gray-400 w-5 h-5" />
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className="w-full pl-12 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="md:col-span-2 pt-4 flex justify-end">
+                      <button
+                        type="submit"
+                        className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-all shadow-md hover:shadow-lg transform active:scale-95"
+                      >
+                        <Save size={18} />
+                        Guardar Cambios
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                        <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
+                          <User size={20} />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 font-medium">Nombre Completo</p>
+                          <p className="text-gray-900 font-semibold mt-0.5">
+                            {user.nombre} {user.apellido}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                        <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
+                          <Mail size={20} />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 font-medium">Correo Electrónico</p>
+                          <p className="text-gray-900 font-semibold mt-0.5">{user.email}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                        <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
+                          <Calendar size={20} />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 font-medium">Fecha de Registro</p>
+                          <p className="text-gray-900 font-semibold mt-0.5">Noviembre 2025</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                        <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
+                          <ShieldCheck size={20} />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 font-medium">Tipo de Cuenta</p>
+                          <p className="text-gray-900 font-semibold mt-0.5 capitalize">
+                            {user.tipo || "Cliente Estándar"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

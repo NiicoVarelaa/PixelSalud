@@ -1,25 +1,23 @@
 import { useState, useEffect, useRef } from "react";
-// 1. Importa el store del carrito y el NUEVO store de autenticación
 import { useCarritoStore } from "../store/useCarritoStore";
-import { useAuthStore } from "../store/useAuthStore"; // Se cambia el store
+import { useAuthStore } from "../store/useAuthStore"; 
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { ShoppingCart, Menu, CircleUserRound, Heart } from "lucide-react";
 
-// Componentes (no cambian)
 import NavbarAvatar from "./NavbarAvatar";
 import NavbarMenuUsuario from "./NavbarMenuUsuario";
 import NavbarMenuCelular from "./NavbarMenuCelular";
 import MiniBanner from "./MiniBanner";
 
-// Assets e Íconos (no cambian)
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
-import { ShoppingCart, Menu, CircleUserRound, Heart } from "lucide-react";
 
 const Navbar = () => {
-  // 2. Obtiene los datos y acciones de los stores actualizados
   const { carrito, sincronizarCarrito } = useCarritoStore();
-  const { user, logoutUser } = useAuthStore(); // Se usa 'user' y 'logoutUser'
+  const { user, logoutUser } = useAuthStore();
   const navigate = useNavigate();
 
+  // Mantenemos el cálculo activo para que la variable 'totalItems' exista
+  // y no rompa el componente 'NavbarMenuCelular' más abajo.
   const totalItems = (carrito || []).reduce(
     (acc, item) => acc + (item.cantidad || 0),
     0
@@ -32,13 +30,10 @@ const Navbar = () => {
   const menuRef = useRef(null);
   const profileRef = useRef(null);
 
-  // Sincroniza el carrito cuando el usuario cambia (login/logout)
   useEffect(() => {
     sincronizarCarrito();
-  }, [user, sincronizarCarrito]); // La dependencia ahora es 'user'
+  }, [user, sincronizarCarrito]); 
 
-  // 3. El useEffect para 'getCliente' se elimina. ¡Ya no es necesario!
-  // Zustand se encarga de cargar el usuario desde localStorage automáticamente.
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -63,7 +58,7 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, []); // El array de dependencias ahora está vacío
+  }, []); 
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,9 +73,8 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 4. Se simplifica la función de logout
   const handleLogout = () => {
-    logoutUser(); // Simplemente llama a la acción del store
+    logoutUser(); 
     setIsProfileDropdownOpen(false);
     setIsMenuOpen(false);
     navigate("/");
@@ -144,7 +138,6 @@ const Navbar = () => {
               </ul>
 
               <div className="flex items-center gap-4">
-                {/* 5. La lógica condicional ahora usa 'user' en lugar de 'cliente' */}
                 {user && (
                   <Link
                     to="/perfil/favoritos"
@@ -168,16 +161,22 @@ const Navbar = () => {
                       strokeWidth={1.5}
                       className="w-7 h-7 text-gray-700"
                     />
-                    {totalItems > 0 && (
+                    
+                    {/* COMENTADO TEMPORALMENTE: Badge del contador de ítems
+                      Descomentar para volver a mostrar el número rojo sobre el carrito
+                    */}
+                    {/* {totalItems > 0 && (
                       <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center bg-primary-700 text-white rounded-full text-xs font-medium">
                         {totalItems}
                       </span>
-                    )}
+                    )} 
+                    */}
+                    
                   </Link>
                 )}
 
                 <div className="group relative" ref={profileRef}>
-                  {user ? ( // Se verifica 'user'
+                  {user ? (
                     <>
                       <button
                         onClick={() =>
@@ -186,7 +185,7 @@ const Navbar = () => {
                         className="flex items-center gap-2 p-2 transition-colors duration-200 cursor-pointer"
                         aria-label="Abrir menú de perfil"
                       >
-                        <NavbarAvatar user={user} size="tiny" /> {/* Prop 'user' */}
+                        <NavbarAvatar user={user} size="tiny" />
                         <span className="hidden sm:block text-sm text-gray-700  hover:text-primary-700 font-semibold transition-colors duration-200">
                           ¡Hola{" "}
                           {user.nombre
@@ -199,7 +198,7 @@ const Navbar = () => {
                       </button>
                       {isProfileDropdownOpen && (
                         <NavbarMenuUsuario
-                          user={user} // Prop 'user'
+                          user={user}
                           handleLogout={handleLogout}
                           setIsProfileDropdownOpen={setIsProfileDropdownOpen}
                         />

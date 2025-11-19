@@ -1,19 +1,26 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import axios from "axios";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { FaShoppingCart, FaBoxOpen, FaStore } from "react-icons/fa";
-import { FiClock, FiXCircle } from "react-icons/fi";
+import { 
+  Package, 
+  Clock, 
+  CheckCircle2, 
+  XCircle, 
+  CalendarDays, 
+  CreditCard, 
+  ChevronDown, 
+  ChevronUp,
+  ShoppingBag,
+  ArrowRight
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 const MisCompras = () => {
+  const { user, token } = useAuthStore();
+  const navigate = useNavigate();
   const [ventasAgrupadas, setVentasAgrupadas] = useState([]);
   const [cargando, setCargando] = useState(true);
-  // ✅ Obtener user y token del store
-  const { user, token } = useAuthStore(); 
   const [expandedOrder, setExpandedOrder] = useState(null);
-  const navigate = useNavigate();
 
   const ARSformatter = new Intl.NumberFormat("es-AR", {
     style: "currency",
@@ -21,32 +28,14 @@ const MisCompras = () => {
     minimumFractionDigits: 2,
   });
 
-  // Función de utilería: Agrupa los resultados planos de la DB por idVentaO
   const agruparVentas = (datos) => {
     const ventas = {};
     datos.forEach((fila) => {
-      const {
-        idVentaO,
-        fechaPago,
-        horaPago,
-        metodoPago,
-        totalPago,
-        estado,
-        // Eliminados tipoEntrega y direccionEnvio que no existen en la tabla VentasOnlines
-        nombreProducto,
-        cantidad,
-        precioUnitario,
-        img,
-      } = fila;
-      
-      // La tabla VentasOnlines no tiene tipoEntrega ni direccionEnvio
-      // Usaremos estado para inferir la modalidad
-
+      const { idVentaO, fechaPago, horaPago, metodoPago, totalPago, estado, nombreProducto, cantidad, precioUnitario, img } = fila;
       if (!ventas[idVentaO]) {
         ventas[idVentaO] = {
           idVentaO,
-          // Usamos venta.fechaPago y horaPago directamente de la fila
-          fechaPago, 
+          fechaPago,
           horaPago,
           metodoPago,
           totalPago: Number(totalPago),
@@ -61,355 +50,179 @@ const MisCompras = () => {
         img,
       });
     });
-    return Object.values(ventas);
+    return Object.values(ventas).sort((a, b) => b.idVentaO - a.idVentaO);
   };
 
-  const getStatusBadge = (estado) => {
-    switch (estado.toLowerCase()) {
-      case "pendiente":
-        return {
-          icon: <FiClock className="w-4 h-4" />,
-          text: "Pendiente",
-          color: "bg-yellow-100 text-yellow-800",
-        };
-      case "retirado":
-      case "entregado": // Asumimos 'retirado' es la confirmación final
-        return {
-          icon: <FaBoxOpen className="w-4 h-4" />,
-          text: "Retirado/Entregado",
-          color: "bg-purple-100 text-purple-800",
-        };
-      case "cancelado":
-        return {
-          icon: <FiXCircle className="w-4 h-4" />,
-          text: "Cancelado",
-          color: "bg-red-100 text-red-800",
-        };
-      default:
-        return {
-          icon: <FiClock className="w-4 h-4" />,
-          text: estado,
-          color: "bg-gray-100 text-gray-800",
-        };
-    }
-  };
-  
-  const toggleExpand = (idVentaO) => {
-    setExpandedOrder(expandedOrder === idVentaO ? null : idVentaO);
-  };
-  
-  function formatearFechaConDia(fecha) {
-    if (!fecha) return "";
-    const date = new Date(fecha);
-    const opciones = {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
-    const fechaFormateada = date.toLocaleDateString("es-AR", opciones);
-    return fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1);
-  }
-
-  // Hook para cargar las compras
   useEffect(() => {
-    if (!user) {
-      // Redirige solo si no hay usuario
-      navigate("/login");
-      return;
-    }
+    if (!user) return navigate("/login");
 
     const obtenerCompras = async () => {
       setCargando(true);
       try {
-        const backendUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:5000";
-        
-        // ✅ Llamada con token y ruta simplificada (sin :id)
-        const respuesta = await axios.get(
-            // Asumiendo que la ruta es /ventaOnline/misCompras (desde index.js)
-            `${backendUrl}/mis-compras`, 
-            {
-                // ✅ CRÍTICO: Envío del token en el header 'auth'
-                headers: {
-                    'auth': `Bearer ${token}` 
-                }
-            }
-        );
-
-        // La respuesta de la DB es plana, por lo que usamos agruparVentas
-        const agrupadas = agruparVentas(respuesta.data.results); 
-        // Ordenar por la venta más reciente
-        agrupadas.sort((a, b) => b.idVentaO - a.idVentaO);
-        setVentasAgrupadas(agrupadas);
-
+        const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const { data } = await axios.get(`${backendUrl}/mis-compras`, {
+          headers: { 'auth': `Bearer ${token}` }
+        });
+        setVentasAgrupadas(agruparVentas(data.results));
       } catch (error) {
-        console.error("Error al obtener las compras:", error);
-        // Si el token falla (401), redirigir al login
-        if (error.response && error.response.status === 401) {
-            navigate("/login");
-        }
+        console.error("Error:", error);
+        if (error.response?.status === 401) navigate("/login");
       } finally {
         setCargando(false);
       }
     };
-    
-    // Solo llama si hay token
-    if (token) {
-        obtenerCompras();
+    if (token) obtenerCompras();
+  }, [user, navigate, token]);
+
+  const getStatusConfig = (estado) => {
+    switch (estado?.toLowerCase()) {
+      case "pendiente":
+        return { icon: <Clock size={14} strokeWidth={2.5} />, className: "text-amber-700 bg-amber-50 border-amber-200", label: "Pendiente" };
+      case "retirado":
+      case "entregado":
+        return { icon: <CheckCircle2 size={14} strokeWidth={2.5} />, className: "text-emerald-700 bg-emerald-50 border-emerald-200", label: "Completado" };
+      case "cancelado":
+        return { icon: <XCircle size={14} strokeWidth={2.5} />, className: "text-rose-700 bg-rose-50 border-rose-200", label: "Cancelado" };
+      default:
+        return { icon: <Package size={14} strokeWidth={2.5} />, className: "text-slate-700 bg-slate-50 border-slate-200", label: estado };
     }
-  }, [user, navigate, token]); 
-
-
-  if (!user) {
-    // ... (El bloque se mantiene igual)
-    return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-lg text-gray-700 font-medium">
-              Redirigiendo a inicio de sesión...
-            </p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+  };
 
   if (cargando) {
-    // ... (El bloque se mantiene igual)
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-lg text-gray-700 font-medium">
-              Cargando tus compras...
-            </p>
-            <p className="text-sm text-gray-500 mt-2">
-              Esto puede tomar unos segundos
-            </p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (ventasAgrupadas.length === 0) {
-    // ... (El bloque se mantiene igual)
-    return (
-      <div className="flex flex-col bg-gray-50 my-16">
-        <Header />
-        <main className="flex-grow flex items-center justify-center px-4">
-          <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-sm">
-            <div className="mx-auto h-24 w-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <FaBoxOpen className="h-12 w-12 text-gray-400" />
-            </div>
-            <h3 className="mt-4 text-xl font-semibold text-gray-900">
-              Aún no tienes compras registradas
-            </h3>
-            <p className="mt-2 text-gray-500">
-              Cuando realices tu primera compra, aparecerá aquí tu historial.
-            </p>
-            <div className="mt-6 text-primary-600 font-medium hover:underline">
-              <Link to="/productos">Comenzar a comprar</Link>
-            </div>
-          </div>
-        </main>
+      <div className="w-full h-96 flex flex-col items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary-600/30 border-t-primary-600 rounded-full animate-spin mb-4" />
+        <p className="text-slate-500 font-medium animate-pulse">Cargando tus pedidos...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-      <main className="flex-grow max-w-6xl mx-auto  sm:px-6 lg:px-8">
-        <div className="px-4 sm:px-0">
-          <div className="mb-8">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary-100 rounded-full">
-                <FaShoppingCart className="text-primary-600 text-2xl" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  Mis Compras
-                </h1>
-                <p className="mt-1 text-gray-600 text-sm md:text-base">
-                  Historial de todas tus compras realizadas
-                </p>
-              </div>
-            </div>
+    <div className="w-full max-w-5xl mx-auto">
+      <div className="mb-8 flex items-end justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Mis Compras</h2>
+          <p className="text-slate-500 mt-1 text-sm">Historial de pedidos y facturación</p>
+        </div>
+      </div>
+
+      {ventasAgrupadas.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
+          <div className="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <ShoppingBag className="text-primary-500" size={32} />
           </div>
+          <h3 className="text-lg font-semibold text-slate-900">No tienes pedidos aún</h3>
+          <p className="text-slate-500 mt-2 mb-6 max-w-xs mx-auto">
+            Parece que no has realizado ninguna compra. ¡Explora nuestra tienda!
+          </p>
+          <Link 
+            to="/productos" 
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white font-medium rounded-xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20 hover:shadow-primary-600/30 active:scale-95"
+          >
+            Ir a la tienda <ArrowRight size={18} />
+          </Link>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {ventasAgrupadas.map((venta) => {
+            const status = getStatusConfig(venta.estado);
+            const isExpanded = expandedOrder === venta.idVentaO;
+            const fecha = new Date(venta.fechaPago).toLocaleDateString("es-AR", { 
+              day: 'numeric', month: 'long', year: 'numeric' 
+            });
 
-          <div className="mb-6 p-4 bg-white rounded-lg shadow-sm">
-            <p className="text-gray-700">
-              <span className="font-semibold">Cliente:</span> {user.nombre}
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {ventasAgrupadas.map((venta) => {
-              const badge = getStatusBadge(venta.estado);
-              
-              // Usamos fechaPago directamente
-              const fecha = new Date(venta.fechaPago);
-              const fechaDisplay = fecha.toLocaleDateString("es-AR", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-              });
-              
-              const productos = venta.productos || [];
-
-              return (
-                <div
-                  key={venta.idVentaO}
-                  className="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200 transition-all duration-300 hover:shadow-md"
+            return (
+              <div 
+                key={venta.idVentaO} 
+                className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden
+                  ${isExpanded ? 'border-primary-200 shadow-lg shadow-primary-900/5' : 'border-slate-200 shadow-sm hover:shadow-md hover:border-primary-100'}
+                `}
+              >
+                <div 
+                  onClick={() => setExpandedOrder(isExpanded ? null : venta.idVentaO)}
+                  className="p-5 cursor-pointer"
                 >
-                  {/* Encabezado de la Compra */}
-                  <button
-                    className="w-full px-5 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left"
-                    onClick={() =>
-                      setExpandedOrder(
-                        expandedOrder === venta.idVentaO ? null : venta.idVentaO
-                      )
-                    }
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center flex-wrap gap-2">
-                        <div className="flex items-center gap-2">
-                           {badge.icon}
-                          <h3 className="text-lg font-bold text-gray-800">
-                            Orden #{venta.idVentaO}
-                          </h3>
-                        </div>
-                        <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${badge.color}`}
-                        >
-                          {/* El icono ya está en badge.icon */}
-                          <span className="ml-1">{badge.text}</span>
-                        </span>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    
+                    <div className="flex items-start gap-4">
+                      <div className={`p-3 rounded-xl hidden sm:flex ${isExpanded ? 'bg-primary-50 text-primary-600' : 'bg-slate-50 text-slate-400'}`}>
+                        <Package size={24} />
                       </div>
-
-                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <svg
-                            className="h-4 w-4 text-gray-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                          {fechaDisplay}
-                          {venta.horaPago && (
-                            <span> • {venta.horaPago.slice(0, 5)}</span>
-                          )}
+                      
+                      <div>
+                        <div className="flex items-center gap-3 mb-1">
+                          <span className="font-bold text-slate-900 text-lg">Orden #{venta.idVentaO}</span>
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border uppercase tracking-wider ${status.className}`}>
+                            {status.icon}
+                            {status.label}
+                          </span>
                         </div>
-
-                        <div className="flex items-center gap-1">
-                          <svg
-                            className="h-4 w-4 text-gray-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                            />
-                          </svg>
-                          {venta.metodoPago}
-                        </div>
-
-                        <div className="flex items-center gap-1">
-                          <FaStore className="h-4 w-4 text-orange-500" />
-                          Retiro en Tienda
+                        <div className="flex items-center gap-4 text-sm text-slate-500">
+                          <div className="flex items-center gap-1.5">
+                            <CalendarDays size={14} />
+                            {fecha}
+                          </div>
+                          <div className="w-1 h-1 rounded-full bg-slate-300" />
+                          <div className="flex items-center gap-1.5">
+                            <CreditCard size={14} />
+                            {venta.metodoPago}
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-end sm:items-end mt-2 sm:mt-0">
-                      <p className="text-sm text-gray-500">Total de la orden</p>
-                      <p className="text-xl font-bold text-primary-600">
-                        {ARSformatter.format(venta.totalPago)}
-                      </p>
-                      <p className="mt-1 text-xs text-gray-500">
-                        {venta.productos.length} producto
-                        {venta.productos.length !== 1 ? "s" : ""}
-                      </p>
+                    <div className="flex items-center justify-between md:justify-end gap-6 pl-14 md:pl-0">
+                      <div className="text-right">
+                        <span className="text-xs text-slate-400 font-medium uppercase">Total</span>
+                        <div className="text-xl font-bold text-slate-900">
+                          {ARSformatter.format(venta.totalPago)}
+                        </div>
+                      </div>
+                      <div className={`p-2 rounded-full transition-all duration-300 ${isExpanded ? 'bg-primary-600 text-white rotate-180' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
+                        <ChevronDown size={20} />
+                      </div>
                     </div>
-                  </button>
+                  </div>
+                </div>
 
-                  {/* Detalle de Productos (Colapsible) */}
-                  {expandedOrder === venta.idVentaO && (
-                    <div
-                      className="px-5 pb-5 pt-2 border-t border-gray-100 bg-gray-50"
-                    >
-                      <h3 className="text-sm font-bold text-gray-700 mb-3">
-                        Detalles de la Orden
-                      </h3>
-                      <div className="space-y-4">
-                        {productos.map((prod) => (
-                          <div
-                            key={prod.idProducto}
-                            className="flex items-start space-x-4 p-3 bg-white rounded-lg shadow-sm border border-gray-200"
-                          >
-                            <div className="w-12 h-12 flex-shrink-0 rounded-md overflow-hidden border border-gray-100">
-                              <img
-                                src={prod.img}
-                                alt={prod.nombreProducto}
-                                className="w-full h-full object-cover"
-                              />
+                <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                  <div className="overflow-hidden bg-slate-50/50 border-t border-slate-100">
+                    <div className="p-5">
+                      <h4 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <ShoppingBag size={16} className="text-primary-600" />
+                        Productos ({venta.productos.length})
+                      </h4>
+                      
+                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                        {venta.productos.map((prod, idx) => (
+                          <div key={idx} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                            <div className="w-14 h-14 rounded-lg bg-slate-100 flex-shrink-0 overflow-hidden border border-slate-100">
+                              {prod.img ? (
+                                <img src={prod.img} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                  <Package size={20} />
+                                </div>
+                              )}
                             </div>
-                            <div className="flex-1">
-                              <h4 className="text-sm font-semibold text-gray-800">
-                                {prod.nombreProducto}
-                              </h4>
-                              <p className="text-xs text-gray-500 mt-1">
-                                Cantidad:{" "}
-                                <span className="font-medium text-gray-700">
-                                  {prod.cantidad}
-                                </span>
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                Precio:{" "}
-                                <span className="font-medium text-gray-700">
-                                  {ARSformatter.format(prod.precioUnitario)}
-                                </span>
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                Subtotal:{" "}
-                                <span className="font-medium text-gray-900">
-                                  {ARSformatter.format(
-                                    prod.cantidad * prod.precioUnitario
-                                  )}
-                                </span>
-                              </p>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-slate-900 truncate">{prod.nombreProducto}</p>
+                              <div className="flex justify-between items-end mt-1">
+                                <p className="text-xs text-slate-500">{prod.cantidad} x {ARSformatter.format(prod.precioUnitario)}</p>
+                                <p className="text-sm font-semibold text-slate-700">{ARSformatter.format(prod.cantidad * prod.precioUnitario)}</p>
+                              </div>
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
-      </main>
-      
+      )}
     </div>
   );
 };
