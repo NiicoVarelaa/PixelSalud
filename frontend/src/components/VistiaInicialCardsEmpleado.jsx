@@ -1,29 +1,25 @@
 import React from 'react';
 
-// ===================================================================
-// --- VISTA INICIAL (Las Cards) ---
-// ===================================================================
 const VistaInicialCardsEmpleado = ({ onNavegar, user }) => {
   
-  // Leemos los permisos del 'user' que nos pasó el padre
-  // (El '|| {}' es un truco para que no se rompa si 'permisos' es null o undefined)
   const permisos = user?.permisos || {};
 
+  // --- ¡EL ARREGLO! ---
+  // Convertimos el valor a booleano real.
+  // Esto chequea si es 1 (int) O si es true (bool). Si es 0, da false.
+  const mostrarVentasTotales = permisos.ver_ventasTotalesE === 1 || permisos.ver_ventasTotalesE === true;
+
   return (
-    // Wrapper principal que centra todo el contenido
     <div className="flex flex-col items-center justify-center h-full p-6">
       
-      {/* Título centrado con el nombre */}
       <h1 className="text-4xl font-bold text-gray-800 text-center">
         Bienvenido, {user?.nombreEmpleado || user?.nombre || 'Empleado'}
       </h1>
       
-      {/* Subtítulo centrado */}
       <p className="text-lg text-gray-600 text-center mt-2 mb-12">
         Selecciona qué deseas ver/hacer hoy
       </p>
       
-      {/* Contenedor de Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         
         {/* Card 1: Realizar Venta */}
@@ -55,10 +51,10 @@ const VistaInicialCardsEmpleado = ({ onNavegar, user }) => {
           <h2 className="text-2xl font-semibold mt-4 text-gray-800 group-hover:text-yellow-600">Productos</h2>
           <p className="text-gray-500 mt-1">Ver y gestionar stock.</p>
         </div>
-        
-        {/* === CARD 4: OCULTA POR PERMISOS === */}
-        {/* Se muestra SÓLO SI 'permisos.ver_ventasTotalesE' es verdadero (1) */}
-        {permisos.ver_ventasTotalesE && (
+
+        {/* Card 4: Ventas Totales */}
+        {/* Usamos la variable booleana 'mostrarVentasTotales' en lugar del permiso directo */}
+        {mostrarVentasTotales && (
             <div 
               onClick={() => onNavegar('ventasTotales')}
               className="group p-8 bg-white rounded-xl shadow-lg cursor-pointer transition transform hover:scale-105 hover:shadow-xl hover:bg-purple-50"

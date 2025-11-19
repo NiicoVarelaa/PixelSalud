@@ -19,7 +19,7 @@ const Registro = () => {
   const [form, setForm] = useState({
     nombreCliente: "",
     apellidoCliente: "",
-    email: "", // Usaremos 'email' en el estado para el frontend
+    email: "", // Usamos 'email' internamente
     contraCliente: "",
     dni: "",
   });
@@ -31,37 +31,41 @@ const Registro = () => {
     const { name, value } = e.target;
     let newValue = value;
     
-    // Lógica para DNI (solo números)
+    // Solo números para el DNI
     if (name === 'dni') {
         newValue = value.replace(/\D/g, '');
     }
 
-    // Corregido: Usar el 'name' del input directamente para actualizar el estado
     setForm(prevForm => ({ ...prevForm, [name]: newValue }));
   };
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validaciones básicas antes de enviar
+    if (!form.nombreCliente || !form.apellidoCliente || !form.email || !form.contraCliente || !form.dni) {
+        toast.warning("Por favor completa todos los campos.");
+        return;
+    }
+
     setIsSubmitting(true);
     
-    // Mapeo final de datos para el backend
+    // Preparamos el objeto EXACTO que espera el backend
     const dataToSend = {
-        ...form,
-        // Renombrar 'email' del estado a 'emailCliente' para el backend
-        emailCliente: form.email 
+        nombreCliente: form.nombreCliente.trim(),
+        apellidoCliente: form.apellidoCliente.trim(),
+        emailCliente: form.email.toLowerCase().trim(), // Mapeo clave: email -> emailCliente
+        contraCliente: form.contraCliente,
+        dni: form.dni
     };
-    // El campo 'email' se mantiene en 'dataToSend', pero el backend lo ignorará 
-    // si solo usa 'emailCliente', 'contraCliente', etc.
-    // Si tu backend es estricto, podrías usar: delete dataToSend.email;
 
     try {
-      const res = await apiClient.post(
-        "/registroCliente",
-        dataToSend
-      );
+      const res = await apiClient.post("/registroCliente", dataToSend);
       
-      toast.success(res.data.mensaje); 
+      toast.success(res.data.mensaje || "¡Registro exitoso! Inicia sesión.");
+      
+      // Limpiamos el formulario
       setForm({
         nombreCliente: "",
         apellidoCliente: "",
@@ -69,11 +73,18 @@ const Registro = () => {
         contraCliente: "",
         dni: "", 
       });
-      navigate("/login");
+      
+      // Redirigimos al login después de un breve delay para que el usuario lea el toast
+      setTimeout(() => {
+          navigate("/login");
+      }, 1500);
+
     } catch (error) {
-      const errorMessage = error.response?.data?.mensaje || "Error al registrar el cliente";
+      console.error("Error de registro:", error);
+      const errorMessage = error.response?.data?.mensaje || 
+                           error.response?.data?.error || 
+                           "Error al registrar el cliente. Intenta nuevamente.";
       toast.error(errorMessage); 
-      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -82,6 +93,8 @@ const Registro = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 transform transition-all duration-300 hover:shadow-2xl">
+        
+        {/* Header */}
         <div className="flex items-center mb-6">
           <button
             type="button"
@@ -95,45 +108,39 @@ const Registro = () => {
             Crear Cuenta
           </h1>
         </div>
+        
         <p className="text-gray-600 text-center mb-8 text-md leading-relaxed">
           Únete a nuestra farmacia y comienza tu experiencia
         </p>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        
+        <form onSubmit={handleSubmit} className="space-y-5">
+          
+          {/* Nombre y Apellido (Grid) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Nombre */}
             <div className="relative">
-              <label className="sr-only" htmlFor="nombreCliente">
-                Nombre
-              </label>
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                 <User className="w-4 h-4" />
               </div>
               <input
-                id="nombreCliente"
                 name="nombreCliente"
                 placeholder="Nombre"
                 value={form.nombreCliente}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent transition duration-200"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 transition"
                 required
               />
             </div>
 
-            {/* Apellido */}
             <div className="relative">
-              <label className="sr-only" htmlFor="apellidoCliente">
-                Apellido
-              </label>
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                 <User className="w-4 h-4" />
               </div>
               <input
-                id="apellidoCliente"
                 name="apellidoCliente"
                 placeholder="Apellido"
                 value={form.apellidoCliente}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent transition duration-200"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 transition"
                 required
               />
             </div>
@@ -141,79 +148,64 @@ const Registro = () => {
           
           {/* DNI */}
           <div className="relative">
-            <label className="sr-only" htmlFor="dni">
-              DNI / Identificación
-            </label>
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
               <ScanText className="w-4 h-4" />
             </div>
             <input
               type="text"
-              id="dni"
               name="dni" 
               placeholder="DNI / Cédula"
               value={form.dni}
               onChange={handleChange}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent transition duration-200"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 transition"
               required
               inputMode="numeric"
               pattern="[0-9]*"
+              maxLength={8} // Opcional: limitar a 8 dígitos
             />
           </div>
 
-          {/* Email (CORREGIDO) */}
+          {/* Email */}
           <div className="relative">
-            <label className="sr-only" htmlFor="email">
-              Correo electrónico
-            </label>
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
               <Mail className="w-4 h-4" />
             </div>
             <input
               type="email"
-              id="email"
-              name="email" // Nombre del campo en el estado del componente
+              name="email" // Coincide con el estado local
               placeholder="Correo electrónico"
               value={form.email}
               onChange={handleChange}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent transition duration-200"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 transition"
               required
             />
           </div>
           
           {/* Contraseña */}
           <div className="relative">
-            <label className="sr-only" htmlFor="contraCliente">
-              Contraseña
-            </label>
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
               <Lock className="w-4 h-4" />
             </div>
             <input
               type={showPassword ? "text" : "password"}
-              id="contraCliente"
               name="contraCliente"
               placeholder="Contraseña"
               value={form.contraCliente}
               onChange={handleChange}
-              className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent transition duration-200"
+              className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 transition"
               required
+              minLength={6} // Mínimo recomendado
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-primary-700 transition cursor-pointer"
-              aria-label="Mostrar u ocultar contraseña"
             >
-              {showPassword ? (
-                <EyeOff className="w-5 h-5" /> 
-              ) : (
-                <Eye className="w-5 h-5" />
-              )}
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
           
-          {/* Botón Registro */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -224,38 +216,40 @@ const Registro = () => {
             {isSubmitting ? (
               <>
                 <Loader2 className="animate-spin w-5 h-5 mr-2" />
-                <span>Procesando...</span>
+                <span>Registrando...</span>
               </>
             ) : (
               <>
                 <LogIn className="w-5 h-5" />
-                <span>Registrarse</span>
+                <span>Crear Cuenta</span>
               </>
             )}
           </button>
+
         </form>
-        {/* Enlace a Login */}
+        
+        {/* Links Footer */}
         <div className="mt-6 text-center text-sm text-gray-600">
           ¿Ya tienes una cuenta?{" "}
-          <a
-            href="#"
-            onClick={() => navigate("/login")}
+          <Link
+            to="/login"
             className="text-primary-800 font-semibold hover:underline"
           >
             Inicia sesión
-          </a>
+          </Link>
         </div>
-        {/* Términos y condiciones */}
+        
         <p className="mt-4 text-xs text-gray-500 text-center leading-relaxed">
           Al registrarte, aceptas nuestros{" "}
-          <Link to="/Error404" className="text-primary-800 hover:underline">
+          <Link to="/terminos" className="text-primary-800 hover:underline">
             Términos de servicio
           </Link>{" "}
           y{" "}
-          <Link to="/Error404" className="text-primary-800 hover:underline">
+          <Link to="/privacidad" className="text-primary-800 hover:underline">
             Política de privacidad.
           </Link>
         </p>
+
       </div>
     </div>
   );
