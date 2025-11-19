@@ -37,11 +37,12 @@ import AdminOfertas from "./components/AdminOfertas";
 import AdminProductosActivos from "./components/AdminProductosActivos";
 import AdminProductosBaja from "./components/AdminProductosBaja";
 import MenuEmpleados from "./components/MenuEmpleados";
-import OpcionesEmpleados from "./components/OpcionesEmpleados";
 import MenuVentas from "./components/MenuVentas";
 import OpcionesVentas from "./components/OpcionesVentas";
 import MenuClientes from "./components/MenuClientes";
-import OpcionesClientes from "./components/OpcionesClientes";
+import MedicosMenuAdmin from "./components/MedicosMenuAdmin";
+import AdminMedicos from "./components/AdminMedicos";
+
 
 const App = () => {
   return (
@@ -83,19 +84,21 @@ const App = () => {
             </Route>
 
             <Route path="MenuClientes/*" element={<MenuClientes />}>
-              <Route index element={<OpcionesClientes />} />
-              <Route path="clientes" element={<AdminClientes />} />
+              <Route index element={<AdminClientes />} />
             </Route>
 
             <Route path="MenuEmpleados/*" element={<MenuEmpleados />}>
-              <Route index element={<OpcionesEmpleados />} />
-              <Route path="empleados" element={<AdminEmpleados />} />
+              <Route index element={<AdminEmpleados />} />
             </Route>
 
             <Route path="MenuVentas/*" element={<MenuVentas />}>
               <Route index element={<OpcionesVentas />} />
               <Route path="VentasE" element={<AdminVentasE />} />
               <Route path="ventasO" element={<AdminVentasO />} />
+            </Route>
+
+            <Route path="MenuMedicosAdmin/*" element={<MedicosMenuAdmin />}>
+              <Route index element={<AdminMedicos />} />
             </Route>
           </Route>
         </Route>

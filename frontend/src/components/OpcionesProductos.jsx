@@ -42,36 +42,7 @@ const OpcionesProductos = () => {
         </Link>
 
         
-        <Link
-          to="productosActivos" 
-          className="block bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out"
-        >
-          <div className="flex flex-col items-center">
-            <div className="bg-blue-100 p-5 rounded-full mb-4">
-              
-              <svg className="h-12 w-12 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800 text-center">Productos Activos</h3>
-          </div>
-        </Link>
-
-       
-        <Link
-          to="productosBaja" 
-          className="block bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out"
-        >
-          <div className="flex flex-col items-center">
-            <div className="bg-red-100 p-5 rounded-full mb-4">
-              
-              <svg className="h-12 w-12 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-800 text-center">Productos de Baja</h3>
-          </div>
-        </Link>
+        
 
       </nav>
     </div>

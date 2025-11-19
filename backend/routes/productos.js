@@ -20,6 +20,7 @@ const {
   ofertaCyberMonday,
   getCyberMondayOffers,
   updateProductosActivo,
+  buscarProductos,
 } = require("../controllers/productos"); // Importa todas las funciones necesarias
 
 const auth = require("../middlewares/auth")
@@ -42,7 +43,7 @@ router.put("/productos/activar/:id", auth, verificarRol(["admin", "empleado"]), 
 // ------------------------------------------------------------------
 router.get("/productos/ofertas-destacadas", getOfertasDestacadas);
 // POST: Crear una nueva oferta
-router.post("/ofertas/crear"/* ,auth, verificarRol(["admin"]) */, createOferta);
+router.post("/ofertas/crear",auth, verificarRol(["admin"]), createOferta);
 
 // GET: Obtener todas las ofertas (para el panel de administración)
 router.get("/ofertas", getOfertas);
@@ -51,12 +52,12 @@ router.get("/ofertas", getOfertas);
 router.get("/ofertas/:idOferta", getOferta);
 
 // PUT: Actualizar los detalles de una oferta (cambiar porcentaje, fechas, o desactivar 'esActiva')
-router.put("/ofertas/actualizar/:idOferta"/* ,auth, verificarRol(["admin"]) */, updateOferta);
+router.put("/ofertas/actualizar/:idOferta",auth, verificarRol(["admin"]), updateOferta);
 
 router.put("/ofertas/esActiva/:idOferta", updateOfertaEsActiva);
 
 // DELETE: Eliminar una oferta
-router.delete("/ofertas/eliminar/:idOferta"/* ,auth,verificarRol(["admin"]) */, deleteOferta);
+router.delete("/ofertas/eliminar/:idOferta",auth,verificarRol(["admin"]), deleteOferta);
 
 // POST: Crea la oferta masiva de Cyber Monday
 router.post("/ofertas/crear-cyber-monday",auth,verificarRol(["admin"]), ofertaCyberMonday);
