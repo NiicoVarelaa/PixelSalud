@@ -39,6 +39,7 @@ import OpcionesVentas from "./components/OpcionesVentas";
 import MenuClientes from "./components/MenuClientes";
 import MedicosMenuAdmin from "./components/MedicosMenuAdmin";
 import AdminMedicos from "./components/AdminMedicos";
+import CheckoutSuccess from "./components/CheckoutSuccess";
 
 
 const App = () => {
