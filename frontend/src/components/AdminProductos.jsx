@@ -1,27 +1,25 @@
 import { useProductStore } from "../store/useProductStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import Swal from 'sweetalert2';
 import "react-toastify/dist/ReactToastify.css";
 
 const AdminProductos = () => {
 
-  /* usStore */
   const productos = useProductStore((state) => state.productos);
   const fetchProducts = useProductStore((state) => state.fetchProducts);
   const categorias = useProductStore((state) => state.categorias)
 
-  /* usEstate */
+  const token = useAuthStore((state) => state.token);
+
   const [editandoId, setEditandoId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef();
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("todas");
   const [filtroEstado, setFiltroEstado] = useState("todos");
-
-
 
   const [productoEditado, setProductoEditado] = useState({
     nombreProducto: "",
@@ -41,9 +39,16 @@ const AdminProductos = () => {
     stock: "",
   });
 
-  // Función para formatear el precio
+  const getConfig = () => ({
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
   const formatearPrecio = (precio) => {
-    const numero = Number(precio);
+    const precioLimpio = String(precio).replace(',', '.');
+    const numero = Number(precioLimpio);
+    
     if (isNaN(numero)) return "$0.00";
 
     return new Intl.NumberFormat("es-AR", {
@@ -54,7 +59,6 @@ const AdminProductos = () => {
     }).format(numero);
   };
 
-  // Cerrar modal al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -71,13 +75,11 @@ const AdminProductos = () => {
     };
   }, [isModalOpen]);
 
-
-
   const iniciarEdicion = (prod) => {
     setEditandoId(prod.idProducto);
     setProductoEditado({
       ...prod,
-      precio: Number(prod.precio) || ""
+      precio: Number(prod.precioRegular) || ""
     });
   };
 
@@ -102,7 +104,8 @@ const AdminProductos = () => {
 
       await axios.put(
         `http://localhost:5000/productos/actualizar/${editandoId}`,
-        productoAEnviar
+        productoAEnviar,
+        getConfig()
       );
       toast.success("Producto actualizado correctamente");
       cancelarEdicion();
@@ -113,31 +116,6 @@ const AdminProductos = () => {
     }
   };
 
-  const eliminarProductos = async (id) => {
-    const resultado = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: "¡No podrás revertir esto!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    });
-
-    if (resultado.isConfirmed) {
-      try {
-        await axios.delete(`http://localhost:5000/productos/eliminar/${id}`);
-        toast.success("Producto eliminado correctamente");
-        fetchProducts();
-      } catch (error) {
-        console.error("Error al eliminar:", error);
-        toast.error("Error al eliminar el producto");
-      }
-    }
-  };
-
-
   const agregarProducto = async () => {
     try {
       const productoAEnviar = {
@@ -145,7 +123,7 @@ const AdminProductos = () => {
         precio: Number(nuevoProducto.precio) || 0
       };
 
-      await axios.post("http://localhost:5000/productos/crear", productoAEnviar);
+      await axios.post("http://localhost:5000/productos/crear", productoAEnviar, getConfig());
       toast.success("Producto agregado correctamente");
       setIsModalOpen(false);
       setNuevoProducto({
@@ -167,7 +145,7 @@ const AdminProductos = () => {
     try {
       await axios.put(`http://localhost:5000/productos/actualizar/activo/${idProducto}`, {
         activo: !activo, 
-      });
+      }, getConfig());
       fetchProducts()
     } catch (error) {
       console.error("error al cambiar de estado", error)
@@ -201,7 +179,6 @@ const AdminProductos = () => {
       />
 
       <div className="w-full mx-auto">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Administración de Productos</h1>
@@ -249,7 +226,6 @@ const AdminProductos = () => {
           </select>
         </div>
 
-        {/* Modal para agregar producto */}
         {isModalOpen && (
           <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center p-4 z-50">
             <div
@@ -395,7 +371,6 @@ const AdminProductos = () => {
           </div>
         )}
 
-        {/* Tabla de productos */}
         <div className="bg-white rounded-xl shadow-2xl overflow-hidden overflow-x-auto">
           <table className="w-full divide-y divide-gray-200">
             <thead className="bg-primary-100">
@@ -493,7 +468,7 @@ const AdminProductos = () => {
                       </div>
                     ) : (
                       <div className="text-sm text-gray-900">
-                        {formatearPrecio(prod.precio)}
+                        {formatearPrecio(+prod.precioFinal)}
                       </div>
                     )}
                   </td>
@@ -599,15 +574,6 @@ const AdminProductos = () => {
                             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                           </svg>
                           Editar
-                        </button>
-                        <button
-                          onClick={() => eliminarProductos(prod.idProducto)}
-                          className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs transition-colors cursor-pointer"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                          Eliminar
                         </button>
                       </div>
                     )}

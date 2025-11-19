@@ -11,11 +11,11 @@ const AdminMenu = () => {
 
       <br />
 
+      {/* Se agregó un espacio más en el grid para el nuevo módulo (lg:grid-cols-5) */}
       <nav className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
 
         <Link
           to="/admin/MenuProductos"
-
           className="block bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out"
         >
           <div className="flex flex-col items-center">
@@ -55,22 +55,38 @@ const AdminMenu = () => {
             <h3 className="text-xl font-semibold text-gray-800">Empleados</h3>
           </div>
         </Link>
-
+        
+        {/* NUEVA CARD PARA MÉDICOS */}
         <Link
-      to="/admin/MenuVentas" // Esta será la nueva página que agrupará las otras dos
-      className="block bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out"
-    >
-      <div className="flex flex-col items-center">
-        <div className="bg-purple-100 p-5 rounded-full mb-4">
-          {/* Icono: Currency Dollar (Símbolo de moneda) */}
-          <svg className="h-12 w-12 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <h3 className="text-xl font-semibold text-gray-800 text-center">Ventas</h3>
-      </div>
-    </Link>
-       
+          to="/admin/MenuMedicosAdmin"
+          className="block bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out"
+        >
+          <div className="flex flex-col items-center">
+            <div className="bg-red-100 p-5 rounded-full mb-4">
+              {/* Icono de Cruz Médica / Salud */}
+              <svg className="h-12 w-12 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 text-center">Médicos</h3>
+          </div>
+        </Link>
+        
+        <Link
+          to="/admin/MenuVentas"
+          className="block bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out"
+        >
+          <div className="flex flex-col items-center">
+            <div className="bg-purple-100 p-5 rounded-full mb-4">
+              {/* Icono: Currency Dollar (Símbolo de moneda) */}
+              <svg className="h-12 w-12 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 text-center">Ventas</h3>
+          </div>
+        </Link>
+
       </nav>
     </>
   );

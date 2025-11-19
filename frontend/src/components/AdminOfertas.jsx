@@ -1,5 +1,9 @@
 import axios from "axios";
-import { useEffect, useState, useRef } from "react"; // Importamos useRef
+import { useEffect, useState, useRef } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import Swal from 'sweetalert2';
+import { useAuthStore } from "../store/useAuthStore";
 
 const AdminOfertas = () => {
   const [ofertas, setOfertas] = useState([]);
@@ -10,17 +14,28 @@ const AdminOfertas = () => {
     fechaInicio: "",
     fechaFin: "",
   });
+  
+  // ESTADOS PARA BÚSQUEDA Y FILTRADO
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("todos"); // 'todos', 'activas', 'inactivas'
 
-  // Referencia para el modal (para cerrar al hacer click fuera)
   const modalRef = useRef();
+  const token = useAuthStore((state) => state.token);
+
+  const getConfig = () => ({
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
 
   const fechOfertas = async () => {
     try {
+      // Ruta GET /ofertas NO está protegida, no necesita Token
       const response = await axios.get("http://localhost:5000/ofertas");
       setOfertas(response.data);
     } catch (error) {
-      console.error("error al cargar las ofertas", error);
-      // Aquí podrías agregar un toast de error si lo importas
+      console.error("Error al cargar las ofertas:", error);
+      toast.error("Error al cargar las ofertas.");
     }
   };
 
@@ -28,7 +43,6 @@ const AdminOfertas = () => {
     fechOfertas();
   }, []);
 
-  // Efecto para cerrar el modal al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -47,33 +61,53 @@ const AdminOfertas = () => {
 
   const toggleActiva = async (idOferta, esActiva) => {
     try {
+      // Ruta PUT /ofertas/esActiva/:idOferta NO está protegida, no necesita Token
       await axios.put(`http://localhost:5000/ofertas/esActiva/${idOferta}`, {
         esActiva: !esActiva,
       });
-      fechOfertas();
-      // Aquí podrías agregar un toast de éxito
+      
+      // Actualización optimista de la UI
+      setOfertas(ofertas.map(oferta => 
+        oferta.idOferta === idOferta ? { ...oferta, esActiva: !esActiva } : oferta
+      ));
+
+      toast.success(`Oferta ${!esActiva ? "activada" : "desactivada"} correctamente.`);
     } catch (error) {
       console.error("Error al cambiar estado de oferta:", error);
-      // Aquí podrías agregar un toast de error
+      toast.error("Error al cambiar estado de oferta.");
     }
   };
 
   const eliminarOferta = async (idOferta) => {
-    // Podrías reemplazar window.confirm con el SweetAlert2 que ya usas
-    if (!window.confirm("¿Seguro que deseas eliminar esta oferta?")) return;
-    try {
-      await axios.delete(`http://localhost:5000/ofertas/eliminar/${idOferta}`);
-      fechOfertas();
-      // Aquí podrías agregar un toast de éxito
-    } catch (error) {
-      console.error("error al eliminar oferta");
-      // Aquí podrías agregar un toast de error
+    const resultado = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡Esta acción eliminará la oferta permanentemente!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (resultado.isConfirmed) {
+        try {
+            // Ruta DELETE /ofertas/eliminar/:idOferta ESTÁ PROTEGIDA, USA TOKEN
+            await axios.delete(`http://localhost:5000/ofertas/eliminar/${idOferta}`, getConfig());
+            fechOfertas();
+            toast.success("Oferta eliminada correctamente.");
+        } catch (error) {
+            console.error("Error al eliminar oferta:", error);
+            toast.error("Error al eliminar oferta. Verifica tus permisos.");
+        }
     }
   };
 
   const crearOferta = async () => {
     try {
-      await axios.post("http://localhost:5000/ofertas/crear", nuevaOferta);
+      // Ruta POST /ofertas/crear ESTÁ PROTEGIDA, USA TOKEN
+      await axios.post("http://localhost:5000/ofertas/crear", nuevaOferta, getConfig());
+      
       setModalAbierto(false);
       setNuevaOferta({
         idProducto: "",
@@ -82,10 +116,10 @@ const AdminOfertas = () => {
         fechaFin: "",
       });
       fechOfertas();
-      // Aquí podrías agregar un toast de éxito
+      toast.success("Oferta creada correctamente.");
     } catch (error) {
-      console.error("error al crear una oferta", error);
-      // Aquí podrías agregar un toast de error
+      console.error("Error al crear una oferta:", error);
+      toast.error("Error al crear una oferta. Verifica datos y permisos.");
     }
   };
 
@@ -93,18 +127,31 @@ const AdminOfertas = () => {
     setNuevaOferta({ ...nuevaOferta, [e.target.name]: e.target.value });
   };
 
-  // Formateador de fecha (opcional, pero mejora la vista)
   const formatearFecha = (fecha) => {
     if (!fecha) return "N/A";
-    // Ajusta la fecha UTC que puede venir de la DB
     const fechaObj = new Date(fecha);
     const fechaCorregida = new Date(fechaObj.getTime() + fechaObj.getTimezoneOffset() * 60000);
     return fechaCorregida.toLocaleDateString("es-AR");
   };
 
+  // LÓGICA DE FILTRADO Y BÚSQUEDA
+  const ofertasFiltradas = ofertas.filter((oferta) => {
+    const coincideBusqueda = 
+      oferta.nombreProducto.toLowerCase().includes(busqueda.toLowerCase());
+
+    const coincideEstado =
+      filtroEstado === "todos" ||
+      (filtroEstado === "activas" && oferta.esActiva) ||
+      (filtroEstado === "inactivas" && !oferta.esActiva);
+
+    return coincideBusqueda && coincideEstado;
+  });
+
 
   return (
     <div className="min-h-screen bg-white px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] py-8">
+      <ToastContainer position="top-right" autoClose={3000} />
+
       {/* Modal para agregar oferta */}
       {modalAbierto && (
         <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center p-4 z-50">
@@ -251,6 +298,27 @@ const AdminOfertas = () => {
           </button>
         </div>
 
+        {/* BÚSQUEDA Y FILTRADO */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <input
+            type="text"
+            placeholder="Buscar por nombre de producto..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="border p-2 rounded w-full md:w-1/2"
+          />
+
+          <select
+            value={filtroEstado}
+            onChange={(e) => setFiltroEstado(e.target.value)}
+            className="border p-2 rounded w-full md:w-1/4"
+          >
+            <option value="todos">Todas las ofertas</option>
+            <option value="activas">Activas</option>
+            <option value="inactivas">Inactivas</option>
+          </select>
+        </div>
+
         {/* Tabla de ofertas */}
         <div className="bg-white rounded-xl shadow-2xl overflow-hidden overflow-x-auto">
           <table className="w-full divide-y divide-gray-200">
@@ -295,7 +363,7 @@ const AdminOfertas = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {ofertas.map((oferta) => (
+              {ofertasFiltradas.map((oferta) => (
                 <tr
                   key={oferta.idOferta}
                   className="hover:bg-gray-50 transition-colors"
@@ -350,6 +418,7 @@ const AdminOfertas = () => {
                         )}
                         {oferta.esActiva ? "Desactivar" : "Activar"}
                       </button>
+                      {/* Botón de Eliminar permanente */}
                       <button
                         onClick={() => eliminarOferta(oferta.idOferta)}
                         className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs transition-colors cursor-pointer"
