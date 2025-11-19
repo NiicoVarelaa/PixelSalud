@@ -27,9 +27,6 @@ import AdminVentasO from "./components/AdminVentasO";
 import AdminClientes from "./components/AdminClientes";
 import AdminEmpleados from "./components/AdminEmpleados";
 import AdminMenu from "./components/AdminMenu";
-/* import MedicosMenu from "./components/MedicosMenu";
-import Receta from "./components/Receta";
-import CrearReceta from "./components/CrearReceta"; */
 import PanelMedicos from "./pages/PanelMedico";
 import MenuProductos from "./components/MenuProductos";
 import OpcionesProductos from "./components/OpcionesProductos";
@@ -102,13 +99,7 @@ const App = () => {
             </Route>
           </Route>
         </Route>
-
-{/*         <Route path="/PanelMedicos/*" element={<PanelMedicos />}>
-          <Route index element={<MedicosMenu />} />
-          <Route path="Receta" element={<Receta />} />
-          <Route path="CrearReceta" element={<CrearReceta />} />
-        </Route>
- */}
+        
         <Route element={<ProtectedRoute allowedRoles={["empleado"]} />}>
           <Route path="/panelempleados" element={<PanelEmpleados />} />
         </Route>
