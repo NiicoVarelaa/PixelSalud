@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+// ASUMO que tienes esta importación.
+import { useAuthStore } from "../store/useAuthStore";
 
-const AdminVentasE = () => {
+const AdminVentasO = () => { // Nombre corregido
   const [ventas, setVentas] = useState([]);
   const [filtro, setFiltro] = useState("");
   const [ventasFiltradas, setVentasFiltradas] = useState([]);
@@ -9,15 +13,38 @@ const AdminVentasE = () => {
   const [cargando, setCargando] = useState(true);
 
   const estadosPosibles = ["Pendiente", "Enviado", "Entregado", "Retirado", "Cancelado"];
+  
+  const token = useAuthStore((state) => state.token); // Obtener token
+
+  const getConfig = () => ({
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
 
   const obtenerVentas = async () => {
+    if (!token) {
+        setCargando(false);
+        return; 
+    }
+
     try {
       setCargando(true);
-      const res = await axios.get("http://localhost:5000/ventasOnline/todas");
-      setVentas(res.data?.results || []);
-      setVentasFiltradas(res.data?.results || []);
+      // RUTA PROTEGIDA: USAR TOKEN
+      const res = await axios.get("http://localhost:5000/ventasOnline/todas", getConfig());
+      
+      // La respuesta del backend es { message: "...", results: [...] }
+      const data = res.data?.results || [];
+
+      setVentas(data);
+      setVentasFiltradas(data);
+      if (data.length > 0) {
+        toast.success(`Cargadas ${data.length} líneas de venta online.`);
+      }
+
     } catch (error) {
       console.error("Error al obtener las ventas", error);
+      toast.error("Error al cargar ventas online. Verifica tu token/permisos.");
       setVentas([]);
       setVentasFiltradas([]);
     } finally {
@@ -27,15 +54,17 @@ const AdminVentasE = () => {
 
   useEffect(() => {
     obtenerVentas();
-  }, []);
+  }, [token]); // Se ejecuta al inicio y cuando el token cambia
 
   useEffect(() => {
     const resultados = ventas.filter((venta) => {
       const busqueda = filtro.toLowerCase();
       return (
-        (venta.nombreEmpleado?.toLowerCase() || "").includes(busqueda) ||
+        // Filtrando por las columnas disponibles en el controlador `mostrarTodasLasVentas`
+        (venta.nombreCliente?.toLowerCase() || "").includes(busqueda) || // Nuevo campo
         (venta.nombreProducto?.toLowerCase() || "").includes(busqueda) ||
         (venta.metodoPago?.toLowerCase() || "").includes(busqueda) ||
+        (venta.estado?.toLowerCase() || "").includes(busqueda) ||
         (venta.fechaPago || "").includes(busqueda)
       );
     });
@@ -74,37 +103,48 @@ const AdminVentasE = () => {
     }).format(num);
   };
 
+  // Función para actualizar el estado (protegida)
   const handleEstadoChange = async (idVentaO, nuevoEstado) => {
+    if (!token) {
+        toast.error("No autorizado. Inicia sesión para cambiar el estado.");
+        return;
+    }
     try {
+      // RUTA PROTEGIDA: USAR TOKEN
       await axios.put("http://localhost:5000/ventaOnline/estado", {
         idVentaO,
         nuevoEstado,
-      });
-      setVentas((prev) =>
-        prev.map((venta) =>
-          venta.idVentaO === idVentaO ? { ...venta, estado: nuevoEstado } : venta
-        )
+      }, getConfig());
+      
+      // Actualizar estado localmente
+      const newVentas = ventas.map((venta) =>
+        venta.idVentaO === idVentaO ? { ...venta, estado: nuevoEstado } : venta
       );
-      setVentasFiltradas((prev) =>
-        prev.map((venta) =>
-          venta.idVentaO === idVentaO ? { ...venta, estado: nuevoEstado } : venta
-        )
-      );
+
+      // Usamos obtenerVentas() para refrescar y evitar inconsistencias con filas duplicadas
+      // pero actualizamos localmente primero para feedback rápido:
+      setVentas(newVentas);
+      setVentasFiltradas(newVentas.filter(v => ventasFiltradas.some(f => f.idVentaO === v.idVentaO && f.nombreProducto === v.nombreProducto)));
+
+      toast.success(`Estado de Venta #${idVentaO} actualizado a ${nuevoEstado}.`);
+
     } catch (error) {
-      alert("Error al actualizar el estado", error);
+      console.error("Error al actualizar el estado", error);
+      toast.error(error.response?.data?.error || "Error al actualizar el estado.");
     }
   };
 
   return (
     <div className="min-h-screen bg-white p-4 md:p-8">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Ventas Realizadas por Empleados</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Administración de Ventas Online</h1>
 
           <div className="relative w-full md:w-64">
             <input
               type="text"
-              placeholder="Buscar ventas..."
+              placeholder="Buscar cliente, producto, método..."
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
@@ -135,7 +175,8 @@ const AdminVentasE = () => {
               <table className="w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    {/* <Cabecera titulo="Empleado" campo="nombreEmpleado" ordenarVentas={ordenarVentas} orden={orden} /> */}
+                    <Cabecera titulo="ID Venta" campo="idVentaO" ordenarVentas={ordenarVentas} orden={orden} />
+                    <Cabecera titulo="Cliente" campo="nombreCliente" ordenarVentas={ordenarVentas} orden={orden} /> {/* Nuevo */}
                     <Cabecera titulo="Producto" campo="nombreProducto" ordenarVentas={ordenarVentas} orden={orden} />
                     <Cabecera titulo="Cantidad" campo="cantidad" ordenarVentas={ordenarVentas} orden={orden} />
                     <Cabecera titulo="Precio Unit." campo="precioUnitario" ordenarVentas={ordenarVentas} orden={orden} />
@@ -149,7 +190,9 @@ const AdminVentasE = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {ventasFiltradas.length > 0 ? (
                     ventasFiltradas.map((venta, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
+                      <tr key={`${venta.idVentaO}-${venta.nombreProducto}-${index}`} className="hover:bg-gray-50">
+                        <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{venta?.idVentaO}</td>
+                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900">{venta?.nombreCliente || "N/A"}</td>
                         {/* PRODUCTO - achicado y truncado */}
                         <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 min-w-[120px] max-w-[180px] truncate">
                           {venta?.nombreProducto || "N/A"}
@@ -159,25 +202,19 @@ const AdminVentasE = () => {
                         <td className="px-3 py-4 whitespace-nowrap text-sm font-semibold text-primary-600">{formatearMoneda(venta?.totalPago)}</td>
                         <td className="px-3 py-4 whitespace-nowrap">
                           <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            venta?.metodoPago === "Efectivo"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-blue-100 text-blue-800"
+                            venta?.metodoPago === "Efectivo" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"
                           }`}>
                             {venta?.metodoPago || "N/A"}
                           </span>
                         </td>
-                        {/* NUEVA COLUMNA ESTADO */}
+                        {/* COLUMNA ESTADO (con Select) */}
                         <td className="px-3 py-4 whitespace-nowrap text-sm">
                           <select
                             className={`px-2 py-1 rounded-full text-xs font-semibold border ${
-                              venta?.estado === "Pendiente"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : venta?.estado === "Enviado"
-                                ? "bg-blue-100 text-blue-800"
-                                : venta?.estado === "Entregado" || venta?.estado === "Retirado"
-                                ? "bg-green-100 text-green-800"
-                                : venta?.estado === "Cancelado"
-                                ? "bg-red-100 text-red-800"
+                              venta?.estado === "Pendiente" ? "bg-yellow-100 text-yellow-800"
+                                : venta?.estado === "Enviado" ? "bg-blue-100 text-blue-800"
+                                : venta?.estado === "Entregado" || venta?.estado === "Retirado" ? "bg-green-100 text-green-800"
+                                : venta?.estado === "Cancelado" ? "bg-red-100 text-red-800"
                                 : "bg-gray-100 text-gray-700"
                             }`}
                             value={venta?.estado || "Pendiente"}
@@ -196,8 +233,8 @@ const AdminVentasE = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
-                        No se encontraron ventas que coincidan con tu búsqueda
+                      <td colSpan="10" className="px-6 py-4 text-center text-sm text-gray-500">
+                        {token ? "No se encontraron ventas que coincidan con tu búsqueda." : "No autorizado. Inicia sesión."}
                       </td>
                     </tr>
                   )}
@@ -237,4 +274,4 @@ const Cabecera = ({ titulo, campo, ordenarVentas, orden }) => (
   </th>
 );
 
-export default AdminVentasE;
+export default AdminVentasO;

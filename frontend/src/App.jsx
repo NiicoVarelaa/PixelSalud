@@ -27,22 +27,19 @@ import AdminVentasO from "./components/AdminVentasO";
 import AdminClientes from "./components/AdminClientes";
 import AdminEmpleados from "./components/AdminEmpleados";
 import AdminMenu from "./components/AdminMenu";
-import MedicosMenu from "./components/MedicosMenu";
-import Receta from "./components/Receta";
-import CrearReceta from "./components/CrearReceta";
-import PanelMedicos from "./components/PanelMedicos";
+import PanelMedicos from "./pages/PanelMedico";
 import MenuProductos from "./components/MenuProductos";
 import OpcionesProductos from "./components/OpcionesProductos";
 import AdminOfertas from "./components/AdminOfertas";
 import AdminProductosActivos from "./components/AdminProductosActivos";
 import AdminProductosBaja from "./components/AdminProductosBaja";
 import MenuEmpleados from "./components/MenuEmpleados";
-import OpcionesEmpleados from "./components/OpcionesEmpleados";
 import MenuVentas from "./components/MenuVentas";
 import OpcionesVentas from "./components/OpcionesVentas";
 import MenuClientes from "./components/MenuClientes";
-import OpcionesClientes from "./components/OpcionesClientes";
-import CheckoutSuccess from "./components/CheckoutSuccess";
+import MedicosMenuAdmin from "./components/MedicosMenuAdmin";
+import AdminMedicos from "./components/AdminMedicos";
+
 
 const App = () => {
   return (
@@ -86,13 +83,11 @@ const App = () => {
             </Route>
 
             <Route path="MenuClientes/*" element={<MenuClientes />}>
-              <Route index element={<OpcionesClientes />} />
-              <Route path="clientes" element={<AdminClientes />} />
+              <Route index element={<AdminClientes />} />
             </Route>
 
             <Route path="MenuEmpleados/*" element={<MenuEmpleados />}>
-              <Route index element={<OpcionesEmpleados />} />
-              <Route path="empleados" element={<AdminEmpleados />} />
+              <Route index element={<AdminEmpleados />} />
             </Route>
 
             <Route path="MenuVentas/*" element={<MenuVentas />}>
@@ -100,17 +95,19 @@ const App = () => {
               <Route path="VentasE" element={<AdminVentasE />} />
               <Route path="ventasO" element={<AdminVentasO />} />
             </Route>
+
+            <Route path="MenuMedicosAdmin/*" element={<MedicosMenuAdmin />}>
+              <Route index element={<AdminMedicos />} />
+            </Route>
           </Route>
         </Route>
-
-        <Route path="/PanelMedicos/*" element={<PanelMedicos />}>
-          <Route index element={<MedicosMenu />} />
-          <Route path="Receta" element={<Receta />} />
-          <Route path="CrearReceta" element={<CrearReceta />} />
-        </Route>
-
+        
         <Route element={<ProtectedRoute allowedRoles={["empleado"]} />}>
           <Route path="/panelempleados" element={<PanelEmpleados />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={["medico"]} />}>
+          <Route path="/panelMedico" element={<PanelMedicos />} />
         </Route>
         <Route path="*" element={<Error404 />} />
       </Routes>
