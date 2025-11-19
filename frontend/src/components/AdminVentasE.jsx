@@ -63,7 +63,7 @@ const AdminVentasE = () => {
 
     const getConfig = () => ({
         headers: {
-            'Authorization': `Bearer ${token}`
+            'Auth': `Bearer ${token}`
         }
     });
 

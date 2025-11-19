@@ -24,7 +24,7 @@ const AdminOfertas = () => {
 
   const getConfig = () => ({
     headers: {
-      'Authorization': `Bearer ${token}`
+      'Auth': `Bearer ${token}`
     }
   });
 

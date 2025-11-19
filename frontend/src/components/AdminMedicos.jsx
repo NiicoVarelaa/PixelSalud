@@ -36,7 +36,7 @@ const AdminMedicos = () => {
 
   const getConfig = () => ({
     headers: {
-      'Authorization': `Bearer ${token}`
+      'Auth': `Bearer ${token}`
     }
   });
 
