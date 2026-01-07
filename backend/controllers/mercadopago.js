@@ -11,7 +11,7 @@ const client = new MercadoPagoConfig({
 // Middleware para verificar JWT
 const verifyToken = (req, res, next) => {
   try {
-    const authHeader = req.header("Authorization") || req.header("auth");
+    const authHeader = req.header("Auth") || req.header("auth");
     const token = authHeader?.replace("Bearer ", "");
 
     if (!token) {
@@ -486,7 +486,7 @@ async function handleMerchantOrderResource(resourceUrl) {
     const url = `https://api.mercadolibre.com/merchant_orders/${orderId}`;
     const response = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+        Auth: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
       },
     });
     if (!response.ok) {

@@ -60,7 +60,11 @@ const AdminVentasE = () => {
         }
     }, [user]);
 
-    // 2. ELIMINAMOS getConfig() (apiClient lo hace solo)
+    const getConfig = () => ({
+        headers: {
+            'Auth': `Bearer ${token}`
+        }
+    });
 
     const obtenerVentas = async () => {
         try {

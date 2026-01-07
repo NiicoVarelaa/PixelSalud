@@ -69,6 +69,7 @@ const Login = () => {
         navigate("/");
       }
     } catch (error) {
+      // ... (tu manejo de errores estaba perfecto)
       const serverMsg =
         error.response?.data?.msg ||
         error.response?.data?.mensaje ||

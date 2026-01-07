@@ -5,13 +5,17 @@ const registrarCliente = async (req, res) => {
   try {
     const { nombreCliente, apellidoCliente, contraCliente, emailCliente, dni } = req.body;
 
+    // 1. Validaciones
     if (!nombreCliente || !apellidoCliente || !contraCliente || !emailCliente || !dni) {
       return res.status(400).json({ mensaje: "Faltan campos requeridos" });
     }
 
+    // 2. Encriptación
     let salt = await bcryptjs.genSalt(10);
     let contraEncrip = await bcryptjs.hash(contraCliente, salt);
 
+    // 3. Insertar en la DB (¡AGREGAMOS 'rol' y 'activo'!)
+    // Esto es vital para que luego pueda hacer login y para respetar la estructura de la tabla.
     const query = `
       INSERT INTO Clientes (nombreCliente, apellidoCliente, contraCliente, emailCliente, dni, rol, activo)
       VALUES (?, ?, ?, ?, ?, 'cliente', 1)`;

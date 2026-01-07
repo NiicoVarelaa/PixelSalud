@@ -30,7 +30,13 @@ const AdminMedicos = () => {
     contraMedico: "",
   });
 
-  // Manejo del click fuera del modal
+  const getConfig = () => ({
+    headers: {
+      'Auth': `Bearer ${token}`
+    }
+  });
+
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
