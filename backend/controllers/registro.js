@@ -1,34 +1,44 @@
 const { conection } = require("../config/database");
-const bcryptjs = require("bcryptjs")
+const bcryptjs = require("bcryptjs");
 
 const registrarCliente = async (req, res) => {
-  
-  const { nombreCliente, apellidoCliente,  contraCliente, emailCliente, dni} = req.body;
+  try {
+    const { nombreCliente, apellidoCliente, contraCliente, emailCliente, dni } = req.body;
 
-  if (!nombreCliente || !apellidoCliente || !contraCliente || !emailCliente || !dni) {
-    return res.status(400).json({ mensaje: "Faltan campos requeridos" });
-  }
-  let salt = await bcryptjs.genSalt(10);
-  let contraEncrip = await bcryptjs.hash(contraCliente, salt);
-
-  const query = `
-    INSERT INTO Clientes (nombreCliente, apellidoCliente, contraCliente, emailCliente, dni)
-    VALUES (?, ?, ?, ?, ?)`;
-
-  conection.query(
-    query,
-    [nombreCliente, apellidoCliente, contraEncrip, emailCliente, dni],
-    (err, result) => {
-      if (err) {
-        console.error("Error al registrar cliente:", err);
-        if (err.code === 'ER_DUP_ENTRY') {
-            return res.status(409).json({ mensaje: "El correo electrónico ya está registrado." });
-        }
-        return res.status(500).json({ mensaje: "Error del servidor" });
-      }
-      res.json({ mensaje: "Cliente registrado exitosamente" });
+    if (!nombreCliente || !apellidoCliente || !contraCliente || !emailCliente || !dni) {
+      return res.status(400).json({ mensaje: "Faltan campos requeridos" });
     }
-  );
+
+    let salt = await bcryptjs.genSalt(10);
+    let contraEncrip = await bcryptjs.hash(contraCliente, salt);
+
+    const query = `
+      INSERT INTO Clientes (nombreCliente, apellidoCliente, contraCliente, emailCliente, dni, rol, activo)
+      VALUES (?, ?, ?, ?, ?, 'cliente', 1)`;
+
+    conection.query(
+      query,
+      [nombreCliente, apellidoCliente, contraEncrip, emailCliente, dni],
+      (err, result) => {
+        if (err) {
+          // Muestra el error exacto de SQL en tu terminal de Backend
+          console.error("Error SQL al registrar cliente:", err.sqlMessage || err);
+
+          if (err.code === 'ER_DUP_ENTRY') {
+            // Puede ser duplicado de Email O de DNI
+            return res.status(409).json({ mensaje: "El correo electrónico o DNI ya están registrados." });
+          }
+          return res.status(500).json({ mensaje: "Error al guardar en la base de datos" });
+        }
+        
+        res.status(201).json({ mensaje: "Cliente registrado exitosamente" });
+      }
+    );
+
+  } catch (error) {
+    console.error("Error interno en registrarCliente:", error);
+    res.status(500).json({ mensaje: "Error interno del servidor" });
+  }
 };
 
 module.exports = {

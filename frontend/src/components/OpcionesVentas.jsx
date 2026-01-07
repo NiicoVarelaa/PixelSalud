@@ -1,15 +1,8 @@
-import React from 'react'; // Es buena práctica importar React
 import { Link } from "react-router-dom"
 
 const OpcionesVentas = () => {
   return (
     <div>
-      {/* Error corregido: Era <Nav> (componente) pero debe ser <nav> (etiqueta HTML).
-        También ajusté el grid para que funcione mejor con 2 elementos:
-        - Ocupará 1 columna en móvil.
-        - Ocupará 2 columnas en pantallas 'sm' y más grandes.
-        - 'max-w-2xl' centra las 2 tarjetas para que no se estiren demasiado en pantallas grandes.
-      */}
       <nav className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8">
         <Link
           to="VentasE"
@@ -23,7 +16,7 @@ const OpcionesVentas = () => {
             </div>
             <h3 className="text-xl font-semibold text-gray-800 text-center">Ventas Empleados</h3>
           </div>
-        </Link>
+        </Link>{/* 
 
         <Link
           to="ventasO"
@@ -37,7 +30,7 @@ const OpcionesVentas = () => {
             </div>
             <h3 className="text-xl font-semibold text-gray-800 text-center">Ventas Online</h3>
           </div>
-        </Link>
+        </Link> */}
       </nav>
     </div>
   )

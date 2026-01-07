@@ -123,7 +123,7 @@ const Perfil = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Dirección Principal</p>
-                  <p className="text-gray-900 font-semibold mt-1 truncate w-full">Calle Falsa 123</p>
+                  <p className="text-gray-900 font-semibold mt-1 truncate w-full">Calle French 247</p>
                 </div>
               </div>
             </div>

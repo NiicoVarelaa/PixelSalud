@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import apiClient from "../utils/apiClient"; // Usamos tu cliente configurado
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-// Importación necesaria para la autenticación
-import { useAuthStore } from "../store/useAuthStore"; 
 
 const AdminMedicos = () => {
   const [medicos, setMedicos] = useState([]);
@@ -11,13 +9,11 @@ const AdminMedicos = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef();
 
-  // ESTADOS PARA BÚSQUEDA Y FILTRADO
+  // Filtros
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("todos");
 
-  // OBTENER TOKEN
-  const token = useAuthStore((state) => state.token);
-
+  // Estados para el formulario
   const [medicoEditado, setMedicoEditado] = useState({
     nombreMedico: "",
     apellidoMedico: "",
@@ -34,13 +30,7 @@ const AdminMedicos = () => {
     contraMedico: "",
   });
 
-  const getConfig = () => ({
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-
+  // Manejo del click fuera del modal
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -60,23 +50,30 @@ const AdminMedicos = () => {
     };
   }, [isModalOpen]);
 
+  // --- FUNCIONES DE API ---
+
   const obtenerMedicos = async () => {
     try {
-      if (!token) return;
-      // Ruta GET /medicos está protegida, usa Token
-      const res = await axios.get("http://localhost:5000/medicos", getConfig());
+      // Nota: Usamos minúscula '/medicos' que es lo estándar. 
+      // Si tu backend define la ruta como '/Medicos', cámbialo aquí.
+      const res = await apiClient.get("/medicos");
       setMedicos(res.data);
     } catch (error) {
-      console.error("Error al obtener médicos", error);
-      toast.error("Error al cargar médicos. ¿Permisos?");
+      // MANEJO ESPECÍFICO PARA TU CONTROLADOR
+      // Tu backend devuelve 404 si no hay médicos (results.length === 0)
+      if (error.response && error.response.status === 404) {
+        setMedicos([]); // No es un error real, solo que está vacío
+        console.log("La base de datos de médicos está vacía.");
+      } else {
+        console.error("Error al obtener médicos", error);
+        toast.error("Error al cargar la lista de médicos.");
+      }
     }
   };
 
   useEffect(() => {
-    if (token) {
-        obtenerMedicos();
-    }
-  }, [token]);
+    obtenerMedicos();
+  }, []);
 
   const iniciarEdicion = (med) => {
     setEditandoId(med.idMedico);
@@ -85,7 +82,7 @@ const AdminMedicos = () => {
       apellidoMedico: med.apellidoMedico,
       matricula: med.matricula,
       emailMedico: med.emailMedico,
-      contraMedico: "", // Siempre blanqueamos la contraseña en edición
+      contraMedico: "", // Se inicia vacía por seguridad
     });
     setIsModalOpen(true);
   };
@@ -93,6 +90,7 @@ const AdminMedicos = () => {
   const cancelarEdicion = () => {
     setEditandoId(null);
     setIsModalOpen(false);
+    // Limpiamos ambos estados
     setMedicoEditado({
       nombreMedico: "",
       apellidoMedico: "",
@@ -100,21 +98,29 @@ const AdminMedicos = () => {
       emailMedico: "",
       contraMedico: "",
     });
+    setNuevoMedico({
+        nombreMedico: "",
+        apellidoMedico: "",
+        matricula: "",
+        emailMedico: "",
+        contraMedico: "",
+    });
   };
 
   const guardarCambios = async () => {
+    // VALIDACIÓN IMPORTANTE: Tu backend siempre hashea la contraseña.
+    // Si envías una cadena vacía, la contraseña del usuario dejará de funcionar.
+    if (medicoEditado.contraMedico.trim() === "") {
+        toast.warning("Debes ingresar la contraseña para confirmar la edición.");
+        return;
+    }
+
     try {
-      // El controlador UPDATE MEDICO no necesita la matrícula, pero la incluimos por si acaso.
-      const dataToUpdate = {
-        ...medicoEditado,
-        matricula: medicoEditado.matricula || null 
-      }
-      
-      // Ruta PUT /medicos/actualizar/:id está protegida, usa Token
-      await axios.put(
-        `http://localhost:5000/medicos/actualizar/${editandoId}`,
-        dataToUpdate,
-        getConfig() 
+      // Tu backend updateMedico NO usa el campo matrícula en el SET
+      // Solo actualiza nombre, apellido, email y contraseña.
+      await apiClient.put(
+        `/medicos/actualizar/${editandoId}`,
+        medicoEditado
       );
       
       cancelarEdicion();
@@ -126,18 +132,17 @@ const AdminMedicos = () => {
     }
   };
 
-  // FUNCIONALIDAD DE BORRADO LÓGICO Y REACTIVACIÓN
   const toggleActivo = async (idMedico, activoActual) => {
     const endpoint = activoActual ? 
-        `http://localhost:5000/medicos/darBaja/${idMedico}` : // Ruta darBajaMedico (Protegida)
-        `http://localhost:5000/medicos/reactivar/${idMedico}`; // Ruta reactivarMedico (Protegida)
+        `/medicos/darBaja/${idMedico}` : 
+        `/medicos/reactivar/${idMedico}`;
     
     const action = activoActual ? "dado de baja" : "reactivado";
 
     try {
-        await axios.put(endpoint, {}, getConfig());
+        await apiClient.put(endpoint, {});
         
-        // CORRECCIÓN UI: Actualizar el estado local 
+        // Actualización optimista de la UI
         setMedicos(medicos.map(med => 
           med.idMedico === idMedico ? { ...med, activo: !activoActual } : med
         ));
@@ -151,8 +156,7 @@ const AdminMedicos = () => {
 
   const agregarMedico = async () => {
     try {
-      // Ruta POST /medicos/crear está protegida, usa Token
-      await axios.post("http://localhost:5000/medicos/crear", nuevoMedico, getConfig());
+      await apiClient.post("/medicos/crear", nuevoMedico);
       
       setIsModalOpen(false);
       setNuevoMedico({
@@ -163,16 +167,21 @@ const AdminMedicos = () => {
         contraMedico: "",
       });
       obtenerMedicos();
-      toast.success("Médico agregado correctamente");
+      toast.success("Médico creado exitosamente");
     } catch (error) {
       console.error("Error al agregar médico:", error);
-      toast.error("Error al agregar médico. Verifica email o matrícula.");
+      // Tu backend devuelve 409 si ya existe email o matrícula
+      if (error.response && error.response.status === 409) {
+          toast.error("Error: El email o la matrícula ya están registrados.");
+      } else {
+          toast.error("Error al crear el médico.");
+      }
     }
   };
   
-  // LÓGICA DE FILTRADO Y BÚSQUEDA
+  // --- FILTROS ---
   const medicosFiltrados = medicos.filter((med) => {
-    // Si 'activo' no viene del backend, asumimos 'true' (Activo)
+    // Normalización del estado activo (mysql devuelve 1/0)
     const isActive = med.activo === 0 ? false : (med.activo === 1 ? true : med.activo === undefined ? true : med.activo);
 
     const coincideBusqueda = 
@@ -189,21 +198,19 @@ const AdminMedicos = () => {
     return coincideBusqueda && coincideEstado;
   });
 
-  // Renderizado del Modal de Edición/Creación
+  // --- RENDERIZADO ---
   const renderMedicoModal = () => {
       const isEdit = editandoId !== null;
-      const data = isEdit ? medicoEditado : nuevoMedico;
-      const setData = isEdit ? setMedicoEditado : setNuevoMedico;
       
       const fields = [
-          { label: "Nombre", name: "nombreMedico", value: data.nombreMedico, type: "text" },
-          { label: "Apellido", name: "apellidoMedico", value: data.apellidoMedico, type: "text" },
-          { label: "Matrícula", name: "matricula", value: data.matricula, type: "text", disabled: isEdit },
-          { label: "Email", name: "emailMedico", value: data.emailMedico, type: "email" },
+          { label: "Nombre", name: "nombreMedico", type: "text" },
+          { label: "Apellido", name: "apellidoMedico", type: "text" },
+          // Matrícula deshabilitada en edición porque el backend no la actualiza
+          { label: "Matrícula", name: "matricula", type: "text", disabled: isEdit },
+          { label: "Email", name: "emailMedico", type: "email" },
           { 
-              label: isEdit ? "Nueva Contraseña (dejar vacío si no cambia)" : "Contraseña", 
+              label: isEdit ? "Re-ingresar Contraseña (Obligatorio)" : "Contraseña", 
               name: "contraMedico", 
-              value: data.contraMedico, 
               type: "password" 
           },
       ];
@@ -228,19 +235,34 @@ const AdminMedicos = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {fields.map(({ label, name, value, type, disabled = false }) => (
-                  <div key={name}>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-                    <input
-                      type={type}
-                      name={name}
-                      value={value}
-                      onChange={(e) => setData({ ...data, [name]: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100"
-                      disabled={disabled}
-                    />
-                  </div>
-                ))}
+                {fields.map(({ label, name, type, disabled = false }) => {
+                  
+                  // LÓGICA DE INPUT (CORRECCIÓN ANTERIOR)
+                  const valorInput = isEdit 
+                      ? medicoEditado[name] 
+                      : nuevoMedico[name];
+
+                  return (
+                    <div key={name}>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+                      <input
+                        type={type}
+                        name={name}
+                        value={valorInput}
+                        onChange={(e) => {
+                            if (isEdit) {
+                                setMedicoEditado({ ...medicoEditado, [name]: e.target.value });
+                            } else {
+                                setNuevoMedico({ ...nuevoMedico, [name]: e.target.value });
+                            }
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
+                        disabled={disabled}
+                        placeholder={isEdit && name === 'contraMedico' ? "Requerido para guardar" : ""}
+                      />
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t">
@@ -262,7 +284,6 @@ const AdminMedicos = () => {
         </div>
       );
   };
-
 
   return (
     <div className="min-h-screen bg-white px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
@@ -296,7 +317,7 @@ const AdminMedicos = () => {
           </button>
         </div>
         
-        {/* BUSQUEDA Y FILTRADO */}
+        {/* BUSCADOR */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <input
             type="text"
@@ -317,7 +338,7 @@ const AdminMedicos = () => {
           </select>
         </div>
 
-
+        {/* TABLA */}
         <div className="bg-white rounded-xl shadow-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full divide-y divide-gray-200">
@@ -325,12 +346,7 @@ const AdminMedicos = () => {
                 <tr>
                   {["Nombre", "Apellido", "Matrícula", "Email", "Estado", "Acciones"].map(
                     (title, i) => (
-                      <th
-                        key={i}
-                        className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                          title === "Acciones" ? "text-right" : ""
-                        }`}
-                      >
+                      <th key={i} className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${title === "Acciones" ? "text-right" : ""}`}>
                         {title}
                       </th>
                     )
@@ -338,64 +354,47 @@ const AdminMedicos = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {medicosFiltrados.map((med) => {
-                    const isActive = med.activo === 0 ? false : (med.activo === 1 ? true : med.activo === undefined ? true : med.activo);
-                    
-                    return (
-                        <tr key={med.idMedico} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {med.nombreMedico}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {med.apellidoMedico || 'N/A'}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {med.matricula}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {med.emailMedico}
-                            </td>
-                            
-                            {/* Columna Estado */}
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <span
-                                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${isActive
-                                        ? "bg-green-100 text-green-800"
-                                        : "bg-red-100 text-red-800"
-                                    }`}
-                                >
-                                    {isActive ? "Activo" : "Inactivo"}
-                                </span>
-                            </td>
-
-                            {/* Columna Acciones */}
-                            <td className="px-6 py-4 whitespace-nowrap text-right">
-                            <div className="flex gap-2 justify-end">
-                                <button
-                                onClick={() => iniciarEdicion(med)}
-                                className="bg-secondary-500 hover:bg-secondary-600 text-white px-3 py-1 rounded-md text-xs transition-colors flex items-center gap-1"
-                                >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                </svg>
-                                Editar
-                                </button>
-                                <button
-                                onClick={() => toggleActivo(med.idMedico, isActive)}
-                                className={`px-3 py-1 text-white rounded hover:opacity-90 text-xs flex items-center gap-1 ${isActive ? "bg-yellow-500 hover:bg-yellow-600" : "bg-green-500 hover:bg-green-600"}`}
-                                >
-                                {isActive ? (
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                                ) : (
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                                )}
-                                {isActive ? "Desactivar" : "Activar"}
-                                </button>
-                            </div>
-                            </td>
-                        </tr>
-                    );
-                })}
+                {medicosFiltrados.length > 0 ? (
+                    medicosFiltrados.map((med) => {
+                        const isActive = med.activo === 0 ? false : (med.activo === 1 ? true : med.activo === undefined ? true : med.activo);
+                        
+                        return (
+                            <tr key={med.idMedico} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{med.nombreMedico}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{med.apellidoMedico || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{med.matricula}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{med.emailMedico}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                                        {isActive ? "Activo" : "Inactivo"}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right">
+                                <div className="flex gap-2 justify-end">
+                                    <button onClick={() => iniciarEdicion(med)} className="bg-secondary-500 hover:bg-secondary-600 text-white px-3 py-1 rounded-md text-xs transition-colors flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
+                                    Editar
+                                    </button>
+                                    <button onClick={() => toggleActivo(med.idMedico, isActive)} className={`px-3 py-1 text-white rounded hover:opacity-90 text-xs flex items-center gap-1 ${isActive ? "bg-yellow-500 hover:bg-yellow-600" : "bg-green-500 hover:bg-green-600"}`}>
+                                    {isActive ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                                    )}
+                                    {isActive ? "Desactivar" : "Activar"}
+                                    </button>
+                                </div>
+                                </td>
+                            </tr>
+                        );
+                    })
+                ) : (
+                    <tr>
+                        <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                            No se encontraron médicos registrados.
+                        </td>
+                    </tr>
+                )}
               </tbody>
             </table>
           </div>

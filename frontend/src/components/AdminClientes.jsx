@@ -36,7 +36,7 @@ const AdminClientes = () => {
 
   const getConfig = () => ({
     headers: {
-      'Authorization': `Bearer ${token}`
+      'auth': `Bearer ${token}`
     }
   });
 

@@ -1,10 +1,11 @@
 import { useState, useEffect, useReducer } from "react";
-import axios from "axios";
+// 1. USAMOS apiClient
+import apiClient from "../utils/apiClient";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuthStore } from "../store/useAuthStore"; 
 
-// --- REDUCER PARA MANEJAR EL FORMULARIO DE VENTA COMPLEJO ---
+// --- REDUCER (Misma lógica, sin cambios) ---
 const ventaReducer = (state, action) => {
     switch (action.type) {
         case 'SET_FIELD':
@@ -48,40 +49,31 @@ const AdminVentasE = () => {
     const [isEditing, setIsEditing] = useState(false);
     
     const [ventaForm, dispatch] = useReducer(ventaReducer, initialState);
-    
     const [productosDisponibles, setProductosDisponibles] = useState([]); 
 
-    const token = useAuthStore((state) => state.token);
+    // apiClient maneja el token, solo necesitamos el user para el ID por defecto
     const user = useAuthStore((state) => state.user);
     
-    // Establecer idEmpleado por defecto al usuario logueado
     useEffect(() => {
         if (user && (user.rol === "empleado" || user.rol === "admin")) {
             dispatch({ type: 'SET_FIELD', field: 'idEmpleado', value: user.id });
         }
     }, [user]);
 
-    const getConfig = () => ({
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
+    // 2. ELIMINAMOS getConfig() (apiClient lo hace solo)
 
     const obtenerVentas = async () => {
-        if (!token) {
-            setCargando(false);
-            return; 
-        }
-
         try {
             setCargando(true);
-            const res = await axios.get("http://localhost:5000/ventasEmpleados", getConfig());
+            // 3. USAMOS apiClient Y RUTA RELATIVA
+            const res = await apiClient.get("/ventasEmpleados");
             const data = Array.isArray(res.data) ? res.data : (res.data.msg ? [] : res.data);
 
             setVentas(data || []);
             setVentasFiltradas(data || []);
         } catch (error) {
             console.error("Error al obtener las ventas", error);
+            toast.error("Error al cargar el historial de ventas.");
         } finally {
             setCargando(false);
         }
@@ -89,34 +81,29 @@ const AdminVentasE = () => {
     
     const fetchProductosDisponibles = async () => {
         try {
-            // Esta ruta /productos está desprotegida
-            const res = await axios.get("http://localhost:5000/productos"); 
+            // Usamos apiClient también aquí por consistencia
+            const res = await apiClient.get("/productos"); 
             setProductosDisponibles(res.data);
         } catch (error) {
             console.error("Error al obtener productos disponibles:", error);
         }
     };
 
-
     useEffect(() => {
-        if (token) {
-            obtenerVentas();
-        }
+        obtenerVentas();
         fetchProductosDisponibles(); 
-    }, [token]);
-
+    }, []); // El array vacío está bien porque apiClient gestiona el token internamente
 
     const iniciarEdicion = async (ventaCabecera) => {
         try {
-            // 1. Obtener los detalles de la venta (productos)
-            const resDetalle = await axios.get(`http://localhost:5000/ventasEmpleados/detalle/${ventaCabecera.idVentaE}`, getConfig()); 
+            // 1. Obtener los detalles (apiClient)
+            const resDetalle = await apiClient.get(`/ventasEmpleados/detalle/${ventaCabecera.idVentaE}`); 
             const detalles = resDetalle.data;
 
-            // 2. Obtener la cabecera 
-            const resCabecera = await axios.get(`http://localhost:5000/ventasEmpleados/venta/${ventaCabecera.idVentaE}`, getConfig()); 
+            // 2. Obtener la cabecera (apiClient)
+            const resCabecera = await apiClient.get(`/ventasEmpleados/venta/${ventaCabecera.idVentaE}`); 
             const cabecera = resCabecera.data;
             
-            // 3. Mapear y establecer el estado del formulario
             const productosDetalle = detalles.map(d => ({
                 idProducto: d.idProducto,
                 cantidad: d.cantidad,
@@ -145,11 +132,14 @@ const AdminVentasE = () => {
     
     const abrirModalRegistro = () => {
         dispatch({ type: 'RESET', initialState });
+        // Restablecer ID empleado si el usuario está logueado
+        if (user && (user.rol === "empleado" || user.rol === "admin")) {
+            dispatch({ type: 'SET_FIELD', field: 'idEmpleado', value: user.id });
+        }
         setIsEditing(false);
         setIsModalOpen(true);
     };
 
-    // --- CÁLCULO DEL TOTAL (Reducer) ---
     useEffect(() => {
         const nuevoTotal = ventaForm.productos.reduce((acc, prod) => {
             const cantidad = Number(prod.cantidad) || 0;
@@ -163,7 +153,7 @@ const AdminVentasE = () => {
     }, [ventaForm.productos]);
 
 
-    // --- CRUD OPERACIONES ---
+    // --- CRUD OPERACIONES CON API CLIENT ---
 
     const registrarVenta = async () => {
         if (!ventaForm.idEmpleado || ventaForm.productos.length === 0) {
@@ -172,10 +162,12 @@ const AdminVentasE = () => {
         }
         
         try {
-            await axios.post("http://localhost:5000/ventasEmpleados/crear", ventaForm, getConfig());
+            await apiClient.post("/ventasEmpleados/crear", ventaForm);
             toast.success("Venta registrada con éxito.");
             setIsModalOpen(false);
             obtenerVentas();
+            // Actualizar productos para reflejar nuevo stock
+            fetchProductosDisponibles(); 
         } catch (error) {
             console.error("Error al registrar venta:", error);
             toast.error(error.response?.data?.error || "Error al registrar venta. Revisa el stock.");
@@ -189,20 +181,18 @@ const AdminVentasE = () => {
         }
 
         try {
-            await axios.put(`http://localhost:5000/ventasEmpleados/actualizar/${ventaForm.idVentaE}`, ventaForm, getConfig());
+            await apiClient.put(`/ventasEmpleados/actualizar/${ventaForm.idVentaE}`, ventaForm);
             toast.success("Venta actualizada con éxito.");
             setIsModalOpen(false);
             obtenerVentas();
+            fetchProductosDisponibles();
         } catch (error) {
             console.error("Error al actualizar venta:", error);
             toast.error(error.response?.data?.error || "Error al actualizar venta. Revisa el stock.");
         }
     };
-    
-    // Función anularVenta eliminada
 
-
-    // --- LÓGICA DE FILTROS Y ORDENACIÓN ---
+    // --- FILTROS Y ORDENACIÓN (Sin cambios) ---
 
     useEffect(() => {
         const resultados = ventas.filter((venta) => {
@@ -278,7 +268,7 @@ const AdminVentasE = () => {
                                     value={ventaForm.idEmpleado}
                                     onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'idEmpleado', value: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
-                                    disabled={!isEditing && (user.rol === "empleado" || user.rol === "admin")} // Deshabilitar si es registro y el user está logueado
+                                    disabled={!isEditing && (user.rol === "empleado" || user.rol === "admin")} 
                                 />
                             </div>
                             <div>
@@ -306,7 +296,6 @@ const AdminVentasE = () => {
                         <div className="space-y-4 mb-6 max-h-64 overflow-y-auto border p-3 rounded-md">
                             {ventaForm.productos.map((prod, index) => (
                                 <div key={index} className="flex gap-4 items-center bg-white p-3 rounded-md shadow-sm">
-                                    {/* Select de Producto */}
                                     <div className="w-1/2">
                                         <select
                                             value={prod.idProducto}
@@ -339,7 +328,6 @@ const AdminVentasE = () => {
                                         </select>
                                     </div>
 
-                                    {/* Cantidad */}
                                     <div className="w-1/6">
                                         <input
                                             type="number"
@@ -352,17 +340,14 @@ const AdminVentasE = () => {
                                         />
                                     </div>
 
-                                    {/* Precio Unitario */}
                                     <div className="w-1/6 text-sm">
                                         {formatearMoneda(prod.precioUnitario)}
                                     </div>
 
-                                    {/* Subtotal */}
                                     <div className="w-1/6 text-sm font-semibold">
                                         {formatearMoneda(Number(prod.cantidad) * Number(prod.precioUnitario))}
                                     </div>
                                     
-                                    {/* Botón Eliminar Fila */}
                                     <button
                                         onClick={() => dispatch({ type: 'REMOVE_PRODUCT', index })}
                                         className="text-red-500 hover:text-red-700"
@@ -425,7 +410,6 @@ const AdminVentasE = () => {
                     </button>
                 </div>
                 
-                {/* BUSCADOR */}
                 <div className="relative w-full md:w-64 mb-6">
                     <input
                         type="text"
@@ -493,8 +477,6 @@ const AdminVentasE = () => {
                                                         {venta?.estado || "N/A"}
                                                     </span>
                                                 </td>
-
-                                                {/* ACCIONES */}
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <div className="flex gap-2 justify-end">
                                                         <button 
@@ -511,7 +493,7 @@ const AdminVentasE = () => {
                                     ) : (
                                         <tr>
                                             <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
-                                                {token ? "No se encontraron ventas que coincidan con tu búsqueda." : "No autorizado. Inicia sesión."}
+                                                No se encontraron ventas que coincidan con tu búsqueda.
                                             </td>
                                         </tr>
                                     )}
@@ -525,7 +507,6 @@ const AdminVentasE = () => {
     );
 };
 
-// Componente reutilizable para las cabeceras de tabla con orden
 const Cabecera = ({ titulo, campo, ordenarVentas, orden }) => (
     <th
         scope="col"

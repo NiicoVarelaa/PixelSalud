@@ -92,9 +92,7 @@ const App = () => {
             </Route>
 
             <Route path="MenuVentas/*" element={<MenuVentas />}>
-              <Route index element={<OpcionesVentas />} />
-              <Route path="VentasE" element={<AdminVentasE />} />
-              <Route path="ventasO" element={<AdminVentasO />} />
+              <Route index element={<AdminVentasE />} />
             </Route>
 
             <Route path="MenuMedicosAdmin/*" element={<MedicosMenuAdmin />}>
