@@ -16,7 +16,7 @@ import {
   Tags,
 } from "lucide-react";
 
-const CYBER_MONDAY_END_DATE = new Date("November 29, 2025 23:59:59").getTime();
+const CYBER_MONDAY_END_DATE = new Date("December 31, 2026 23:59:59").getTime();
 
 const useCountdown = (targetDate) => {
   const [timeLeft, setTimeLeft] = useState(targetDate - new Date().getTime());

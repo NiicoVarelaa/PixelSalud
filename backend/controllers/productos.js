@@ -45,7 +45,6 @@ const getProductos = (req, res) => {
   });
 };
 
-
 const getProductoBajado = (req, res)=>{
   const consulta = "select * from Productos where activo = false;"
   conection.query(consulta, (error, result)=>{
@@ -372,14 +371,11 @@ const deleteOferta = (req, res) => {
 };
 
 const ofertaCyberMonday = (req, res) => {
-    // Lista de IDs. Se espera que vengan en el body como un array 'productIds'.
-    // También se espera el porcentaje de descuento y la fecha de fin.
     const { productIds, porcentajeDescuento } = req.body;
     
-    // --- PARÁMETROS FIJOS Y AJUSTADOS POR REQUERIMIENTO ---
-    const DESCUENTO = 25.00; // Por requerimiento: 25% de descuento
+    const DESCUENTO = 25.00;
     const FECHA_INICIO = new Date().toISOString().slice(0, 19).replace('T', ' '); // Fecha y hora actual del servidor
-    const FECHA_FIN = '2025-11-29 23:59:59'; // Ajustado por requerimiento: Oferta hasta el 16 de noviembre.
+    const FECHA_FIN = '2026-12-31 23:59:59'; // Ajustado por requerimiento: Oferta hasta el 16 de noviembre.
     const ES_ACTIVA = 1;
 
     // Los IDs que proporcionaste: 23 productos
@@ -419,7 +415,7 @@ const ofertaCyberMonday = (req, res) => {
 
 const getCyberMondayOffers = (req, res) => {
     const DESCUENTO_CM = 25.00;
-    const FECHA_FIN_CM = '2025-11-29 23:59:59'; 
+    const FECHA_FIN_CM = '2026-12-31 23:59:59';
 
     const consulta = `
         SELECT 
