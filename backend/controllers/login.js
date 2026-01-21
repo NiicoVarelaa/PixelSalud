@@ -13,7 +13,7 @@ const login = async (req, res) => {
     if (!email || !contrasenia) {
       return res
         .status(400)
-        .json({ error: "El campo email o contraseña está vacío" });
+        .json({ error: "El campo email o contraseña está vacío"});
     }
 
     const consultaAdmin = `
