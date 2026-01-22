@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import apiClient from '../utils/apiClient'; 
 import { useAuthStore } from '../store/useAuthStore';
-import { Search, History, User, Calendar, Pill, Trash2, ArrowLeft, FileX, CheckCircle, AlertCircle } from 'lucide-react';
+import { Search, History, ArrowLeft, CheckCircle, AlertCircle, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // <--- IMPORTANTE
 
-const MedicoMisRecetas = ({ onVolver }) => {
+const MedicoMisRecetas = () => { // <--- Sin props
+  const navigate = useNavigate(); // <--- Instanciamos navegación
   const { user } = useAuthStore();
   
   const [recetas, setRecetas] = useState([]);
@@ -18,7 +20,7 @@ const MedicoMisRecetas = ({ onVolver }) => {
     try {
       const response = await apiClient.get(`/recetas/medico/${user.id}`);
       if (Array.isArray(response.data)) {
-          console.log("Recetas cargadas:", response.data); // <--- MIRÁ ESTO EN CONSOLA (F12)
+          console.log("Recetas cargadas:", response.data);
           setRecetas(response.data);
       }
     } catch (error) {
@@ -79,7 +81,12 @@ const MedicoMisRecetas = ({ onVolver }) => {
             </h1>
             <p className="text-gray-500 mt-1">Registro de recetas emitidas.</p>
         </div>
-        <button onClick={onVolver} className="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center gap-2 font-medium">
+        
+        {/* BOTÓN VOLVER ARREGLADO */}
+        <button 
+            onClick={() => navigate('/panelMedico')} 
+            className="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center gap-2 font-medium"
+        >
             <ArrowLeft size={18} /> Volver
         </button>
       </div>
@@ -119,8 +126,7 @@ const MedicoMisRecetas = ({ onVolver }) => {
                     <tbody className="divide-y divide-gray-100">
                         {recetasActuales.map((receta) => {
                             
-                            // --- LÓGICA BLINDADA ---
-                            // Convertimos a Número explícitamente (0 o 1)
+                            // --- LÓGICA DE ESTADO ---
                             const esActiva = Number(receta.activo) === 1;
                             const fueUsada = Number(receta.usada) === 1;
 
@@ -152,7 +158,7 @@ const MedicoMisRecetas = ({ onVolver }) => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-center">
-                                        {/* BOTÓN ANULAR: Solo si Activa=1 y Usada=0 */}
+                                        {/* Solo se puede anular si está activa y NO fue usada */}
                                         {esActiva && !fueUsada ? (
                                             <button onClick={() => handleAnular(receta.idReceta)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Anular">
                                                 <Trash2 size={18} />

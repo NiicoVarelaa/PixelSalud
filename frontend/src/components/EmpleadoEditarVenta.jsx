@@ -1,12 +1,14 @@
-// src/components/EmpleadoEditarVenta.jsx
-
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2'; 
 import apiClient from '../utils/apiClient'; 
+import { useNavigate, useParams } from 'react-router-dom'; // <--- Hooks de Router
 
-const EmpleadoEditarVenta = ({ onVolver, idVentaE }) => {
+const EmpleadoEditarVenta = () => {
   
-  // --- Estados (Iguales a RealizarVenta) ---
+  const navigate = useNavigate();
+  const { idVenta } = useParams(); // <--- Capturamos el ID de la URL (definido en App.jsx como :idVenta)
+
+  // --- Estados ---
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const [resultadosBusqueda, setResultadosBusqueda] = useState([]); 
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
@@ -18,13 +20,13 @@ const EmpleadoEditarVenta = ({ onVolver, idVentaE }) => {
   // --- Estado de Carga ---
   const [loading, setLoading] = useState(true);
 
-  // 1. CALCULAR TOTAL (Idéntico a RealizarVenta)
+  // 1. CALCULAR TOTAL
   useEffect(() => {
     const nuevoTotal = carrito.reduce((acc, item) => acc + (item.precioUnitario * item.cantidad), 0);
     setTotal(nuevoTotal);
   }, [carrito]);
 
-  // 2. BUSCAR PRODUCTOS (Idéntico a RealizarVenta)
+  // 2. BUSCAR PRODUCTOS
   useEffect(() => {
     if (terminoBusqueda.length < 3) {
       setResultadosBusqueda([]);
@@ -35,49 +37,50 @@ const EmpleadoEditarVenta = ({ onVolver, idVentaE }) => {
   }, [terminoBusqueda]);
 
   // =======================================================
-  // --- ¡NUEVO! Cargar datos de la venta al montar ---
+  // --- CARGAR DATOS DE LA VENTA (Usando idVenta de la URL) ---
   // =======================================================
   useEffect(() => {
-    if (!idVentaE) return; // Seguridad
+    if (!idVenta) return; 
     
     setLoading(true);
     Swal.fire({ title: 'Cargando Venta...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
     const cargarDatosVenta = async () => {
       try {
-        // Hacemos DOS llamadas a la API en paralelo
         const [cabeceraRes, detalleRes] = await Promise.all([
-          apiClient.get(`/ventasEmpleados/venta/${idVentaE}`), // Cabecera (método pago)
-          apiClient.get(`/ventasEmpleados/detalle/${idVentaE}`) // Detalle (productos)
+          apiClient.get(`/ventasEmpleados/venta/${idVenta}`), 
+          apiClient.get(`/ventasEmpleados/detalle/${idVenta}`) 
         ]);
 
-        // 1. Seteamos el método de pago (de la cabecera)
+        // 1. Seteamos datos cabecera
         setMetodoPago(cabeceraRes.data.metodoPago);
 
-        // 2. Seteamos el carrito (con los productos del detalle)
-        // (Gracias al fix del Paso 0, 'detalleRes.data' ya trae el idProducto)
+        // 2. Seteamos carrito
         setCarrito(detalleRes.data.map(prod => ({
           idProducto: prod.idProducto,
           nombreProducto: prod.nombreProducto,
           precioUnitario: prod.precioUnitario,
-          cantidad: prod.cantidad
+          cantidad: prod.cantidad,
+          // Si tu backend guarda info de receta en el detalle, asignala acá. 
+          // Si no, asumimos null o false por defecto al editar.
+          recetaFisica: prod.recetaFisica || null 
         })));
         
-        Swal.close(); // Cerramos el "Cargando..."
+        Swal.close();
 
       } catch (error) {
         console.error("Error al cargar datos de la venta:", error);
         Swal.fire('Error', 'No se pudieron cargar los datos de la venta.', 'error');
-        onVolver(); // Si falla, volvemos a la lista
+        navigate('/panelempleados/misventas'); // Si falla, volvemos a la lista
       } finally {
         setLoading(false);
       }
     };
 
     cargarDatosVenta();
-  }, [idVentaE, onVolver]);
+  }, [idVenta, navigate]); // Dependencias actualizadas
 
-  // --- FUNCIONES (Idénticas a RealizarVenta) ---
+  // --- FUNCIONES ---
 
   const buscarProductos = async (term) => {
     try {
@@ -129,7 +132,7 @@ const EmpleadoEditarVenta = ({ onVolver, idVentaE }) => {
   };
 
   // =======================================================
-  // --- ¡FUNCIÓN FINAL MODIFICADA! ---
+  // --- GUARDAR CAMBIOS ---
   // =======================================================
   const handleGuardarCambios = async () => {
       if (carrito.length === 0) {
@@ -150,16 +153,16 @@ const EmpleadoEditarVenta = ({ onVolver, idVentaE }) => {
       Swal.fire({ title: 'Guardando Cambios...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
       try {
-          // Usamos PUT y la ruta de 'actualizar' (el "monstruo")
-          await apiClient.put(`/ventasEmpleados/actualizar/${idVentaE}`, ventaData);
+          await apiClient.put(`/ventasEmpleados/actualizar/${idVenta}`, ventaData);
           
           Swal.fire(
             '¡Actualizado!',
-            `La venta #${idVentaE} se modificó con éxito.`,
+            `La venta #${idVenta} se modificó con éxito.`,
             'success'
-          );
-          
-          onVolver(); // ¡Volvemos a la lista de ventas!
+          ).then(() => {
+             // Volver a la lista de ventas tras guardar
+             navigate('/panelempleados/misventas'); 
+          });
           
       } catch (error) { 
           console.error("Error al actualizar venta:", error.response?.data || error.message);
@@ -172,35 +175,31 @@ const EmpleadoEditarVenta = ({ onVolver, idVentaE }) => {
   };
 
 
-  // --- RENDERIZADO (Clon de RealizarVenta, con textos cambiados) ---
+  // --- RENDERIZADO ---
   
   if (loading) {
-    return (
-        <div className="flex justify-center items-center h-screen">
-            {/* El Swal "Cargando" ya se está mostrando */}
-        </div>
-    );
+    return <div className="flex justify-center items-center h-screen"></div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-6 flex flex-col">
+    <div className="min-h-screen bg-gray-100 p-4 md:p-6 flex flex-col animate-fadeIn">
       
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        {/* Título CAMBIADO */}
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">✍️ Editando Venta #{idVentaE}</h1>
-        {onVolver && (
-            <button onClick={onVolver} className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
-                ⬅ Cancelar y Volver
-            </button>
-        )}
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">✍️ Editando Venta #{idVenta}</h1>
+        
+        {/* BOTÓN CANCELAR */}
+        <button 
+            onClick={() => navigate('/panelempleados/misventas')} 
+            className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
+        >
+            ⬅ Cancelar y Volver
+        </button>
       </div>
 
       <div className="flex flex-col lg:flex-row flex-1 gap-6">
         
-        {/* === LADO IZQUIERDO (Buscador) === (IDÉNTICO) */}
+        {/* === LADO IZQUIERDO (Buscador) === */}
         <div className="w-full lg:w-1/2 flex flex-col bg-white p-4 md:p-6 rounded-xl shadow-md order-1 lg:order-1">
-          {/* ... (Copiá y pegá el LADO IZQUIERDO de EmpleadoRealizarVenta.jsx) ... */}
-          {/* (Desde <h2 ... "Buscar Producto"> hasta </div>) */}
           <h2 className="text-xl font-semibold text-gray-700 mb-4">🔍 Buscar Producto</h2>
           <div className="relative">
               <input 
@@ -255,15 +254,13 @@ const EmpleadoEditarVenta = ({ onVolver, idVentaE }) => {
           </div>
         </div>
 
-        {/* === LADO DERECHO (Ticket) === (IDÉNTICO, pero cambia el botón final) */}
+        {/* === LADO DERECHO (Ticket) === */}
         <div className="w-full lg:w-1/2 flex flex-col bg-white p-4 md:p-6 rounded-xl shadow-md order-2 lg:order-2">
-          {/* ... (Copiá y pegá el LADO DERECHO de EmpleadoRealizarVenta.jsx hasta ANTES del botón final) ... */}
           <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
               🧾 Ticket <span className="text-sm font-normal text-gray-500">({carrito.length})</span>
           </h2>
           <div className="flex-1 overflow-auto border rounded-lg max-h-[300px] lg:max-h-none">
               <table className="w-full text-left min-w-[350px]">
-                  {/* ... (thead idéntico) ... */}
                   <tbody className="divide-y divide-gray-100">
                       {carrito.map((item, index) => (
                           <tr key={index} className="hover:bg-gray-50">
@@ -297,14 +294,13 @@ const EmpleadoEditarVenta = ({ onVolver, idVentaE }) => {
                   </div>
               </div>
               
-              {/* ¡Botón final CAMBIADO! */}
               <button 
                   onClick={handleGuardarCambios}
                   disabled={carrito.length === 0}
                   className={`w-full py-3 md:py-4 text-lg md:text-xl font-bold text-white rounded-xl transition ${
                       carrito.length === 0 
                       ? 'bg-gray-300 cursor-not-allowed' 
-                      : 'bg-yellow-500 hover:bg-yellow-600' // <-- Color cambiado
+                      : 'bg-yellow-500 hover:bg-yellow-600'
                   }`}
               >
                   {carrito.length === 0 ? 'Ticket Vacío' : '💾 GUARDAR CAMBIOS'}
