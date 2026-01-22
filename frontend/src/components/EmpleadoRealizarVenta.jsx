@@ -1,35 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import apiClient from '../utils/apiClient'; // Ajustado a tu carpeta utils
+import apiClient from '../utils/apiClient';
 import { useAuthStore } from '../store/useAuthStore';
+import { useNavigate } from 'react-router-dom'; // <--- IMPORTANTE
 
-const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
+const EmpleadoRealizarVenta = () => {
   
+  const navigate = useNavigate(); // <--- Hook de navegación
+  const { user } = useAuthStore();
+  const idEmpleado = user?.idEmpleado || user?.id; 
+
   // --- ESTADOS ---
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const [resultadosBusqueda, setResultadosBusqueda] = useState([]); 
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [cantidad, setCantidad] = useState(1);
-  
-  // Nuevo estado para el checkbox de receta física
   const [recetaPresentada, setRecetaPresentada] = useState(false);
-
   const [carrito, setCarrito] = useState([]);
   const [metodoPago, setMetodoPago] = useState('Efectivo');
   const [total, setTotal] = useState(0);
 
-  const user = useAuthStore((state) => state.user); 
-  const idEmpleado = user?.idEmpleado || user?.id; 
-
   // --- EFECTOS ---
 
-  // 1. Calcular el total cada vez que cambia el carrito
+  // 1. Calcular el total
   useEffect(() => {
     const nuevoTotal = carrito.reduce((acc, item) => acc + (item.precioUnitario * item.cantidad), 0);
     setTotal(nuevoTotal);
   }, [carrito]);
 
-  // 2. Búsqueda con "debounce" (espera a que dejes de escribir)
+  // 2. Búsqueda con "debounce"
   useEffect(() => {
     if (terminoBusqueda.length < 3) {
       setResultadosBusqueda([]);
@@ -61,27 +60,24 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
     setResultadosBusqueda([]);
     setTerminoBusqueda('');
     setCantidad(1);
-    setRecetaPresentada(false); // Reseteamos el checkbox al cambiar de producto
+    setRecetaPresentada(false); 
   };
 
   const agregarAlCarrito = () => {
     if (!productoSeleccionado) return;
 
-    // VALIDACIÓN 1: Cantidad
     const cantInt = parseInt(cantidad);
     if (isNaN(cantInt) || cantInt <= 0) {
         Swal.fire('Cantidad inválida', 'Ingresa una cantidad mayor a cero.', 'warning');
         return;
     }
     
-    // VALIDACIÓN 2: Stock
     if (cantInt > productoSeleccionado.stock) {
         Swal.fire('Stock insuficiente', `Solo quedan ${productoSeleccionado.stock} unidades.`, 'warning');
         return;
     }
 
-    // VALIDACIÓN 3: Receta Física (¡NUEVA LÓGICA!)
-    // Si requiere receta (es 1 o true) y NO se marcó el checkbox
+    // Validación Receta
     if (productoSeleccionado.requiereReceta && !recetaPresentada) {
         Swal.fire({
             title: '⚠️ Requiere Receta',
@@ -93,18 +89,15 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
         return;
     }
 
-    // Agregar al carrito con el dato de la receta
     setCarrito([...carrito, {
         idProducto: productoSeleccionado.idProducto,
         nombreProducto: productoSeleccionado.nombreProducto,
         precioUnitario: productoSeleccionado.precio,
         cantidad: cantInt,
         requiereReceta: productoSeleccionado.requiereReceta,
-        // Guardamos si se presentó receta física (texto para la DB o null)
         recetaFisica: recetaPresentada ? "Presentada en mostrador" : null 
     }]);
 
-    // Limpiar para el siguiente producto
     setProductoSeleccionado(null);
     setCantidad(1);
     setRecetaPresentada(false);
@@ -128,19 +121,18 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
           idEmpleado, 
           totalPago: total, 
           metodoPago,
-          // Enviamos los productos con el campo recetaFisica incluido
           productos: carrito.map(i => ({ 
               idProducto: i.idProducto, 
               cantidad: i.cantidad, 
               precioUnitario: i.precioUnitario,
-              recetaFisica: i.recetaFisica // <-- Dato importante
+              recetaFisica: i.recetaFisica 
           }))
       };
 
       try {
           const response = await apiClient.post('/ventasEmpleados/crear', ventaData);
           
-          // Limpieza tras éxito
+          // Limpieza
           setCarrito([]);
           setTotal(0);
           setTerminoBusqueda('');
@@ -157,7 +149,8 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
             cancelButtonText: 'Registrar Nueva Venta'
           }).then((result) => {
             if (result.isConfirmed) {
-              onVentaExitosa(); // Navega a la lista
+              // --- NAVEGACIÓN NUEVA ---
+              navigate('/panelempleados/misventas'); 
             }
           });
           
@@ -174,16 +167,19 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
 
   // --- RENDERIZADO ---
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-6 flex flex-col">
+    <div className="min-h-screen bg-gray-100 p-4 md:p-6 flex flex-col animate-fadeIn">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800">🛒 Nueva Venta</h1>
-        {onVolver && (
-            <button onClick={onVolver} className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
-                ⬅ Volver al Panel
-            </button>
-        )}
+        
+        {/* --- BOTÓN VOLVER NUEVO --- */}
+        <button 
+            onClick={() => navigate('/panelempleados')} 
+            className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
+        >
+            ⬅ Volver al Panel
+        </button>
       </div>
 
       <div className="flex flex-col lg:flex-row flex-1 gap-6">
@@ -228,7 +224,7 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
                         <p>Stock: <span className="font-bold text-blue-600">{productoSeleccionado.stock}</span></p>
                     </div>
 
-                    {/* CHECKBOX DE RECETA FÍSICA (Solo si aplica) */}
+                    {/* CHECKBOX DE RECETA FÍSICA */}
                     {(productoSeleccionado.requiereReceta === 1 || productoSeleccionado.requiereReceta === true) && (
                         <div className="mb-6 p-3 bg-orange-50 border border-orange-200 rounded-lg flex items-center justify-center gap-3 animate-pulse-slow">
                             <input 
@@ -290,7 +286,6 @@ const EmpleadoRealizarVenta = ({ onVolver, onVentaExitosa }) => {
                           <tr key={index} className="hover:bg-gray-50">
                               <td className="p-2 md:p-3 text-sm truncate max-w-[180px]">
                                   {item.nombreProducto}
-                                  {/* Indicador visual de Rx */}
                                   {item.recetaFisica && (
                                       <span className="ml-2 inline-block bg-orange-100 text-orange-800 text-[10px] px-1.5 py-0.5 rounded border border-orange-200 font-bold" title="Con Receta">
                                           Rx
