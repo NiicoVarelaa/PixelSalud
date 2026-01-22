@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
+
 import Layout from "./components/Layout";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -41,6 +42,12 @@ import MedicosMenuAdmin from "./components/MedicosMenuAdmin";
 import AdminMedicos from "./components/AdminMedicos";
 import CheckoutSuccess from "./components/CheckoutSuccess";
 
+// import Institucional from "./pages/Institucional";
+import Sucursales from "./pages/Sucursales";
+import PreguntasFrecuentes from "./pages/PreguntasFrecuentes";
+import TerminosCondiciones from "./pages/TerminosCondiciones";
+import LegalesPromocion from "./pages/LegalesPromocion";
+
 
 const App = () => {
   return (
@@ -58,8 +65,16 @@ const App = () => {
           <Route path="carrito" element={<Carrito />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="checkout/success" element={<CheckoutSuccess />} />
+
           <Route path="sobreNosotros" element={<SobreNosotros />} />
           <Route path="contacto" element={<Contacto />} />
+
+          {/* Rutas para las páginas del footer */}
+          {/* <Route path="institucional" element={<Institucional />} /> */}
+          <Route path="sucursales" element={<Sucursales />} />
+          <Route path="preguntas-frecuentes" element={<PreguntasFrecuentes />} />
+          <Route path="terminos-condiciones" element={<TerminosCondiciones />} />
+          <Route path="legales-promocion" element={<LegalesPromocion />} />
 
           <Route path="perfil" element={<DashboardCliente />}>
             <Route index element={<Perfil />} />

@@ -7,7 +7,7 @@ import {
 
 import { useProductStore } from "../store/useProductStore"; 
 
-import ReservationCard from "./ReservationCard";
+import PersonalAttentionCard from "./PersonalAttentionCard";
 import LoyaltyCard from "./LoyaltyCard";  
 import PrescriptionCard from "./PrescriptionCard"; 
 import IconCard from "./IconCard";
@@ -26,7 +26,7 @@ const BannerGrid = () => {
     <div>
       <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 auto-rows-min">
         
-        <ReservationCard />
+        <PersonalAttentionCard />
         <IconCard
           icon={<ShieldCheck className="h-7 w-7" />}
           titulo="Pagá Seguro"

@@ -78,22 +78,25 @@ const STATS_DATA = [
   { id: 4, number: "24/7", label: "Soporte online", Icon: Store },
 ];
 
-const HeroSection = memo(() => (
-  <section className="relative pt-24 pb-32 overflow-hidden">
-    <div className="absolute inset-0 bg-gradient-to-b from-primary-50/60 to-white -z-10" aria-hidden="true" />
-    <div className="max-w-5xl mx-auto px-6 text-center">
+const HeroSection = memo(function HeroSection() {
+  return (
+    <section className="relative pt-24 pb-32 overflow-hidden">
+      <div className="absolute inset-0 bg-linear-to-b from-primary-50/60 to-white -z-10" aria-hidden="true" />
+      <div className="max-w-5xl mx-auto text-center">
       <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-[1.1]">
-        Revolucionando el cuidado de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-primary-400">Salud</span>
+        Revolucionando el cuidado de tu <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-600 to-primary-400">Salud</span>
       </h1>
       <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
         En Pixel Salud fusionamos la calidez de la atención tradicional con la innovación tecnológica para brindarte una experiencia única.
       </p>
     </div>
   </section>
-));
+  );
+});
 
-const StatsSection = memo(() => (
-  <section className="relative z-10 -mt-24 px-4 sm:px-6 mb-24">
+const StatsSection = memo(function StatsSection() {
+  return (
+    <section className="relative z-10 -mt-24 mb-24">
     <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8 md:p-12">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-slate-100">
         {STATS_DATA.map(({ id, number, label, Icon }) => (
@@ -108,10 +111,12 @@ const StatsSection = memo(() => (
       </div>
     </div>
   </section>
-));
+  );
+});
 
-const PhilosophySection = memo(() => (
-  <section className="py-12 px-6 mb-24">
+const PhilosophySection = memo(function PhilosophySection() {
+  return (
+    <section className="py-12 mb-24">
     <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="space-y-8">
@@ -156,10 +161,12 @@ const PhilosophySection = memo(() => (
       </div>
     </div>
   </section>
-));
+  );
+});
 
-const ValuesSection = memo(() => (
-  <section className="py-20 px-6 bg-slate-50/80">
+const ValuesSection = memo(function ValuesSection() {
+  return (
+    <section className="py-20 bg-slate-50/80">
     <div className="max-w-7xl mx-auto">
       <div className="text-center max-w-3xl mx-auto mb-16">
         <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Valores que nos definen</h2>
@@ -169,9 +176,9 @@ const ValuesSection = memo(() => (
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {VALUES_DATA.map(({ title, description, colorClass, icon: Icon }, index) => (
+        {VALUES_DATA.map(({ title, description, colorClass, icon: Icon }) => (
           <div
-            key={index}
+            key={title}
             className="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:-translate-y-2"
           >
             <div className={`inline-flex p-4 rounded-xl ${colorClass} border mb-6 transition-transform group-hover:scale-110 duration-300`}>
@@ -188,11 +195,13 @@ const ValuesSection = memo(() => (
       </div>
     </div>
   </section>
-));
+  );
+});
 
-const InstallationsGallery = memo(() => (
-  <section className="py-24 w-full">
-    <div className="max-w-[1920px] mx-auto px-4 sm:px-8">
+const InstallationsGallery = memo(function InstallationsGallery() {
+  return (
+    <section className="py-24 w-full">
+      <div className="max-w-[1920px] mx-auto">
       <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-10 text-center">Nuestras Instalaciones</h2>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-[250px] gap-4">
@@ -204,10 +213,10 @@ const InstallationsGallery = memo(() => (
             <img
               src={img}
               alt={alt}
-              loading="lazy" // Mejora de performance vital para galerías
+              loading="lazy" 
               className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+            <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
               <p className="text-white font-bold text-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 drop-shadow-md">
                 {alt}
               </p>
@@ -218,12 +227,14 @@ const InstallationsGallery = memo(() => (
       </div>
     </div>
   </section>
-));
+  );
+});
 
-const CTASection = memo(() => (
-  <section className="py-20 px-6">
-    <div className="max-w-5xl mx-auto bg-gradient-to-r from-primary-700 to-primary-900 rounded-3xl p-12 text-center relative overflow-hidden shadow-2xl">
-      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" aria-hidden="true"></div>
+const CTASection = memo(function CTASection() {
+  return (
+    <section className="py-20">
+    <div className="max-w-5xl mx-auto bg-linear-to-r from-primary-700 to-primary-900 rounded-3xl p-12 text-center relative overflow-hidden shadow-2xl">
+      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-size-[16px_16px]" aria-hidden="true"></div>
       
       <div className="relative z-10">
         <h3 className="text-3xl md:text-4xl font-bold text-white mb-6">
@@ -241,7 +252,8 @@ const CTASection = memo(() => (
       </div>
     </div>
   </section>
-));
+  );
+});
 
 const SobreNosotros = () => {
   return (
@@ -249,7 +261,7 @@ const SobreNosotros = () => {
       <MiniBanner />
       <Header />
       
-      <main className="flex-grow">
+      <main className="grow">
         <HeroSection />
         <StatsSection />
         <PhilosophySection />
