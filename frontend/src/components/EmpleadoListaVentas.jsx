@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import apiClient from '../utils/apiClient'; 
 import { useAuthStore } from '../store/useAuthStore';
 import Swal from 'sweetalert2';
-import { Search, ChevronLeft, ChevronRight, Eye, Edit, Trash2 } from 'lucide-react'; // Importamos iconos
+import { Search, ChevronLeft, ChevronRight, Eye, Edit, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // <--- IMPORTANTE
 
-const EmpleadoListaVentas = ({ onVolver, endpoint, title, onEditar }) => {
+const EmpleadoListaVentas = ({ endpoint, title }) => {
   
+  const navigate = useNavigate(); // <--- Hook de navegación
   const { user } = useAuthStore();
   const permisos = user?.permisos || {};
 
@@ -24,7 +26,16 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title, onEditar }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get(endpoint);
+      // Si el endpoint es una función, la ejecutamos con el usuario (para sacar el ID)
+      const url = typeof endpoint === 'function' ? endpoint(user) : endpoint;
+      
+      // Mapeo simple de "modos" a URLs reales si usaste strings cortos en App.jsx
+      let finalUrl = url;
+      if (url === 'personal') finalUrl = `/ventasEmpleados/${user.idEmpleado || user.id}`;
+      if (url === 'general') finalUrl = '/ventasEmpleados';
+
+      const response = await apiClient.get(finalUrl);
+      
       if (Array.isArray(response.data)) {
         setVentas(response.data);
       } else {
@@ -39,8 +50,8 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title, onEditar }) => {
   };
 
   useEffect(() => {
-    cargarVentas();
-  }, [endpoint]); 
+    if (user) cargarVentas();
+  }, [endpoint, user]); 
 
   // Resetear a página 1 cuando se busca
   useEffect(() => {
@@ -52,10 +63,8 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title, onEditar }) => {
   // --- LÓGICA DE FILTRADO Y PAGINACIÓN ---
   // =================================================================
   
-  // 1. Filtrar ventas
   const ventasFiltradas = ventas.filter((venta) => {
     const termino = busqueda.toLowerCase();
-    // Convertimos todo a string por si acaso
     const id = venta.idVentaE?.toString() || '';
     const empleado = venta.nombreEmpleado?.toLowerCase() || '';
     const estado = venta.estado?.toLowerCase() || '';
@@ -69,7 +78,6 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title, onEditar }) => {
     );
   });
 
-  // 2. Calcular Paginación
   const totalPaginas = Math.ceil(ventasFiltradas.length / itemsPorPagina);
   const indiceUltimoItem = paginaActual * itemsPorPagina;
   const indicePrimerItem = indiceUltimoItem - itemsPorPagina;
@@ -77,7 +85,7 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title, onEditar }) => {
 
 
   // =================================================================
-  // --- FUNCIONES DE ACCIÓN (Handlers) ---
+  // --- FUNCIONES DE ACCIÓN ---
   // =================================================================
 
   const handleAnular = (idVentaE) => {
@@ -160,8 +168,10 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title, onEditar }) => {
     }
   };
 
+  // --- NAVEGACIÓN A EDITAR (NUEVO) ---
   const handleEditar = (idVentaE) => {
-    onEditar(idVentaE);
+    // Navegamos a la ruta hija de edición
+    navigate(`/panelempleados/editar-venta/${idVentaE}`);
   };
 
 
@@ -175,7 +185,12 @@ const EmpleadoListaVentas = ({ onVolver, endpoint, title, onEditar }) => {
       {/* ENCABEZADO */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-gray-800">{title}</h1>
-        <button onClick={onVolver} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+        
+        {/* BOTÓN VOLVER (NUEVO) */}
+        <button 
+            onClick={() => navigate('/panelempleados')} 
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+        >
             ⬅ Volver al Panel
         </button>
       </div>

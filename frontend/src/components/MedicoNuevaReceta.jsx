@@ -3,8 +3,10 @@ import Swal from 'sweetalert2';
 import apiClient from '../utils/apiClient'; 
 import { useAuthStore } from '../store/useAuthStore';
 import { Search, User, FilePlus, Pill, ArrowLeft, X, CheckCircle, AlertCircle, Plus, Trash2, UserPlus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // <--- IMPORTANTE
 
-const MedicoNuevaReceta = ({ onVolver }) => {
+const MedicoNuevaReceta = () => { // <--- Sin props
+  const navigate = useNavigate(); // <--- Hook
   const { user } = useAuthStore();
   
   // --- Estados de Paciente ---
@@ -22,7 +24,7 @@ const MedicoNuevaReceta = ({ onVolver }) => {
   const [listaRecetas, setListaRecetas] = useState([]);
 
   // ------------------------------------------------------
-  // 1. BUSCADOR DE PACIENTE (Automático al escribir DNI)
+  // 1. BUSCADOR DE PACIENTE
   // ------------------------------------------------------
   useEffect(() => {
     if (dniPaciente.length < 7) {
@@ -228,7 +230,12 @@ const MedicoNuevaReceta = ({ onVolver }) => {
             </h1>
             <p className="text-gray-500">Complete los datos del paciente y medicamentos.</p>
         </div>
-        <button onClick={onVolver} className="px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 shadow-sm font-medium text-gray-700">
+        
+        {/* BOTÓN VOLVER ARREGLADO */}
+        <button 
+            onClick={() => navigate('/panelMedico')} 
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 shadow-sm font-medium text-gray-700"
+        >
             <ArrowLeft size={18} /> Volver
         </button>
       </div>
@@ -288,7 +295,7 @@ const MedicoNuevaReceta = ({ onVolver }) => {
                 </div>
             </div>
 
-            {/* 2. AGREGAR MEDICAMENTOS (Fix de Overflow aplicado aquí) */}
+            {/* 2. AGREGAR MEDICAMENTOS */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative">
                 <div className="absolute top-0 left-0 w-1 h-full bg-purple-500 rounded-l-2xl"></div>
                 <h2 className="font-bold text-gray-700 mb-4 flex items-center gap-2">
@@ -307,7 +314,7 @@ const MedicoNuevaReceta = ({ onVolver }) => {
                             disabled={!!productoSeleccionado}
                         />
                         
-                        {/* Lista Flotante con Z-Index alto */}
+                        {/* Lista Flotante */}
                         {resultadosBusqueda.length > 0 && !productoSeleccionado && (
                             <ul className="absolute z-50 w-full bg-white border border-gray-200 mt-2 rounded-xl shadow-2xl max-h-60 overflow-y-auto animate-in fade-in zoom-in-95">
                                 {resultadosBusqueda.map(prod => (
