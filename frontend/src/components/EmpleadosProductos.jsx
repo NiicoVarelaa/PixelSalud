@@ -3,24 +3,20 @@ import Swal from 'sweetalert2';
 import apiClient from '../utils/apiClient'; 
 import { useAuthStore } from '../store/useAuthStore';
 import { Package, Tag, Plus, Edit, Trash2, Archive, RotateCcw, ArrowLeft, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; // <--- IMPORTANTE
+import { useNavigate } from 'react-router-dom';
 
-const EmpleadoProductos = () => { // Ya no recibe props
+const EmpleadoProductos = () => { 
   
-  const navigate = useNavigate(); // <--- Hook de navegación
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const permisos = user?.permisos || {};
 
-  // Estados de Navegación Local (Sub-vistas)
   const [subVista, setSubVista] = useState('menu');
   const [productos, setProductos] = useState([]);
   const [ofertas, setOfertas] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // =================================================================
   // --- LÓGICA DE CARGA DE DATOS ---
-  // =================================================================
-
   const cargarInventario = async () => {
     setLoading(true);
     try {
@@ -47,10 +43,7 @@ const EmpleadoProductos = () => { // Ya no recibe props
     }
   };
 
-  // =================================================================
-  // --- ACCIONES ---
-  // =================================================================
-
+  // --- ACCIONES (Mantengo tus funciones originales, resumidas para no repetir lógica innecesaria) ---
   const handleCrearProducto = async () => {
     const { value: formValues } = await Swal.fire({
       title: '<h2 class="text-2xl font-bold text-gray-800">✨ Nuevo Producto</h2>',
@@ -406,7 +399,8 @@ const EmpleadoProductos = () => { // Ya no recibe props
                                     <th className="px-4 py-3 text-center">Estado</th>
                                 </>
                             )}
-                            {permisos.modificar_productos && <th className="px-4 py-3 text-center">Acciones</th>}
+                            {/* FIX AQUI: !! para evitar el 0 */}
+                            {!!permisos.modificar_productos && <th className="px-4 py-3 text-center">Acciones</th>}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -430,7 +424,8 @@ const EmpleadoProductos = () => { // Ya no recibe props
                                                     <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">Inactivo</span>
                                                 )}
                                             </td>
-                                            {permisos.modificar_productos && (
+                                            {/* FIX AQUI: !! para evitar el 0 */}
+                                            {!!permisos.modificar_productos && (
                                                 <td className="px-4 py-3 flex justify-center gap-2">
                                                     <button onClick={() => handleEditarProducto(item)} className="p-2 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200"><Edit size={16}/></button>
                                                     <button onClick={() => handleCambiarEstado(item)} className={`p-2 rounded text-white ${item.activo ? 'bg-red-500' : 'bg-green-500'}`}>
@@ -449,7 +444,8 @@ const EmpleadoProductos = () => { // Ya no recibe props
                                             <td className="px-4 py-3 text-center">
                                                 {item.esActiva ? <span className="text-green-600 font-bold">Activa</span> : <span className="text-gray-400">Inactiva</span>}
                                             </td>
-                                            {permisos.modificar_productos && (
+                                            {/* FIX AQUI: !! para evitar el 0 */}
+                                            {!!permisos.modificar_productos && (
                                                 <td className="px-4 py-3 text-center">
                                                     <button onClick={() => handleEliminarOferta(item.idOferta)} className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200">
                                                         <Trash2 size={16} />

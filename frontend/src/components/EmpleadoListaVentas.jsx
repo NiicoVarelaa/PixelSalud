@@ -3,11 +3,11 @@ import apiClient from '../utils/apiClient';
 import { useAuthStore } from '../store/useAuthStore';
 import Swal from 'sweetalert2';
 import { Search, ChevronLeft, ChevronRight, Eye, Edit, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; // <--- IMPORTANTE
+import { useNavigate } from 'react-router-dom';
 
 const EmpleadoListaVentas = ({ endpoint, title }) => {
   
-  const navigate = useNavigate(); // <--- Hook de navegación
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const permisos = user?.permisos || {};
 
@@ -168,9 +168,7 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
     }
   };
 
-  // --- NAVEGACIÓN A EDITAR (NUEVO) ---
   const handleEditar = (idVentaE) => {
-    // Navegamos a la ruta hija de edición
     navigate(`/panelempleados/editar-venta/${idVentaE}`);
   };
 
@@ -186,7 +184,6 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-gray-800">{title}</h1>
         
-        {/* BOTÓN VOLVER (NUEVO) */}
         <button 
             onClick={() => navigate('/panelempleados')} 
             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
@@ -226,7 +223,8 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Empleado</th>
                         <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Total</th>
                         <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Estado</th>
-                        {permisos.modificar_ventasE && (
+                        {/* AQUI EL FIX: Doble negación !! para evitar el 0 */}
+                        {!!permisos.modificar_ventasE && (
                             <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Acciones</th>
                         )}
                     </tr>
@@ -258,8 +256,8 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
                                 </span>
                             </td>
                             
-                            {/* Acciones (Solo con permiso) */}
-                            {permisos.modificar_ventasE && (
+                            {/* AQUI EL FIX: Doble negación !! para evitar el 0 */}
+                            {!!permisos.modificar_ventasE && (
                                 <td className="px-4 py-3 text-center text-sm">
                                     {venta.estado === 'completada' ? (
                                     <div className="flex justify-center gap-2">
