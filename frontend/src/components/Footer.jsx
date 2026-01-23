@@ -1,22 +1,10 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-// Se elimina la importación de axios y la función getCliente
-// import axios from "axios"; 
-
-// 1. Importamos el store de autenticación
-import { useAuthStore } from "../store/useAuthStore";
-
-// 2. Importamos los íconos de Lucide
-import { 
-  Twitter, 
-  Facebook, 
-  Instagram, 
-  Github,
-} from "lucide-react"; 
+import { useAuthStore } from "../store/useAuthStore"; 
 
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
 import { Link, NavLink } from "react-router-dom";
-// Importaciones de imágenes (se mantienen)
+
 import cyberMonday from "../assets/footerImagenes/cyberMonday.webp";
 import hotSale from "../assets/footerImagenes/hotSale.webp";
 import dataFiscal from "../assets/footerImagenes/dataFiscal.webp";
@@ -72,18 +60,6 @@ const Footer = () => {
       return;
     }
 
-    // Lógica para enviar la suscripción al backend (OPCIONAL: si tienes un endpoint de suscripción)
-    /*
-    try {
-        await apiClient.post("/suscripcion", { email: usuarioEmail });
-        toast.success("¡Gracias por suscribirte!");
-    } catch (error) {
-        toast.error("Error al suscribirte.");
-        return;
-    }
-    */
-    
-    // Si no hay endpoint, se mantiene la lógica local:
     toast.success("¡Gracias por suscribirte!");
     setIsSubscribed(true);
     setEmail("");
@@ -95,7 +71,7 @@ const Footer = () => {
     <div>
       <section className="py-10 sm:pt-16 lg:pt-24">
         <div>
-          <div className="grid grid-cols-2 md:col-span-3 lg:grid-cols-6 gap-y-16 gap-x-12 px-4 sm:px-6 lg:px-8"> 
+          <div className="grid grid-cols-2 md:col-span-3 lg:grid-cols-6 gap-y-16 gap-x-12"> 
             
             {/* Logo y redes */}
             <div className="col-span-2 md:col-span-3 lg:col-span-2 lg:pr-8">
@@ -111,41 +87,6 @@ const Footer = () => {
                 atención personalizada y el respaldo de profesionales de la
                 salud. Gracias por confiar en nosotros.
               </p>
-              <ul className="flex items-center space-x-3 mt-9">
-                {/* ÍCONOS LUCIDE */}
-                <li>
-                  <Link
-                    to="/error404"
-                    className="flex items-center justify-center text-white transition-all duration-200 bg-primary-700 rounded-full w-7 h-7 hover:bg-primary-800"
-                  >
-                    <Twitter className="w-4 h-4" />
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/error404"
-                    className="flex items-center justify-center text-white transition-all duration-200 bg-primary-700 rounded-full w-7 h-7 hover:bg-primary-800"
-                  >
-                    <Facebook className="w-4 h-4" />
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/error404"
-                    className="flex items-center justify-center text-white transition-all duration-200 bg-primary-700 rounded-full w-7 h-7 hover:bg-primary-800"
-                  >
-                    <Instagram className="w-4 h-4" />
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/error404"
-                    className="flex items-center justify-center text-white transition-all duration-200 bg-primary-700 rounded-full w-7 h-7 hover:bg-primary-800"
-                  >
-                    <Github className="w-4 h-4" />
-                  </Link>
-                </li>
-              </ul>
             </div>
 
             {/* Info */}
@@ -156,7 +97,7 @@ const Footer = () => {
               <ul className="mt-6 space-y-4">
                 <li>
                   <Link
-                    to="/error404"
+                    to="/sobreNosotros"
                     className="flex text-base text-gray-500 hover:text-gray-800"
                   >
                     Institucional
@@ -164,26 +105,10 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    to="/error404"
+                    to="/sucursales"
                     className="flex text-base text-gray-500 hover:text-gray-800"
                   >
                     Sucursales
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/error404"
-                    className="flex text-base text-gray-500 hover:text-gray-800"
-                  >
-                    Turnos
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/error404"
-                    className="flex text-base text-gray-500 hover:text-gray-800"
-                  >
-                    Obra Sociales
                   </Link>
                 </li>
               </ul>
@@ -197,7 +122,7 @@ const Footer = () => {
               <ul className="mt-6 space-y-4">
                 <li>
                   <Link
-                    to="/error404"
+                    to="/preguntas-frecuentes"
                     className="flex text-base text-gray-500 hover:text-gray-800"
                   >
                     Preguntas Frecuentes
@@ -205,7 +130,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    to="/error404"
+                    to="/terminos-condiciones"
                     className="flex text-base text-gray-500 hover:text-gray-800"
                   >
                     Términos y Condiciones
@@ -213,18 +138,10 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    to="/error404"
+                    to="/legales-promocion"
                     className="flex text-base text-gray-500 hover:text-gray-800"
                   >
                     Legales de Promoción
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/error404"
-                    className="flex text-base text-gray-500 hover:text-gray-800"
-                  >
-                    Medios de Envíos
                   </Link>
                 </li>
               </ul>
@@ -271,7 +188,7 @@ const Footer = () => {
 
           <hr className="mt-16 mb-10 border-gray-200" />
 
-          <div className="flex justify-between gap-6 sm:flex-row px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between gap-6 sm:flex-row">
             <div>
               <p className="text-sm text-gray-600">
                 © {new Date().getFullYear()} Todos los derechos reservados Pixel

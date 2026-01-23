@@ -59,6 +59,12 @@ import VistaMenuMedico from "./components/VistaMenuMedico";; // Cards médico
 import MedicoNuevaReceta from "./components/MedicoNuevaReceta";
 import MedicoMisRecetas from "./components/MedicoMisRecetas";
 
+// import Institucional from "./pages/Institucional";
+import Sucursales from "./pages/Sucursales";
+import PreguntasFrecuentes from "./pages/PreguntasFrecuentes";
+import TerminosCondiciones from "./pages/TerminosCondiciones";
+import LegalesPromocion from "./pages/LegalesPromocion";
+
 
 const App = () => {
   return (
