@@ -1,3 +1,15 @@
+// Marcar receta como usada (usada=true)
+const marcarRecetaUsada = (req, res) => {
+    const { idReceta } = req.params;
+    const consulta = `UPDATE Recetas SET usada = true WHERE idReceta = ?`;
+    conection.query(consulta, [idReceta], (err, result) => {
+        if (err) {
+            console.error("Error al marcar receta como usada:", err);
+            return res.status(500).json({ error: "Error al actualizar la receta" });
+        }
+        res.status(200).json({ message: "Receta marcada como usada" });
+    });
+};
 const { conection } = require("../config/database")
 
 // 1. Obtener SOLO las recetas del médico logueado
@@ -84,9 +96,31 @@ const darBajaReceta = (req,res) => {
 // (Los otros controladores como recetaUsada podés dejarlos, aunque 'recetaUsada' 
 // generalmente lo usa el Farmacéutico cuando vende, no el Médico).
 
+// Obtener recetas activas de un cliente
+const getRecetasClienteActivas = (req, res) => {
+    const { dniCliente } = req.params;
+    console.log("[BACKEND] Buscando recetas activas para dniCliente:", dniCliente);
+    const consulta = `
+      SELECT r.idReceta, r.idProducto, r.cantidad, r.activo, r.usada, p.nombreProducto
+      FROM Recetas r
+      JOIN Productos p ON r.idProducto = p.idProducto
+      WHERE r.dniCliente = ? AND r.activo = true AND r.usada = false
+    `;
+    conection.query(consulta, [dniCliente], (err, results) => {
+        if (err) {
+            console.error("Error al obtener recetas activas del cliente:", err);
+            return res.status(500).json({ error: "Error del servidor" });
+        }
+        console.log("[BACKEND] Resultados recetas activas:", results);
+        res.json(results);
+    });
+};
+
 module.exports = {
     getMisRecetas,
     crearReceta,
     darBajaReceta,
+    getRecetasClienteActivas,
+    marcarRecetaUsada,
     // getRecetas // Este dejalo solo para el Admin si querés
 }
