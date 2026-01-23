@@ -9,7 +9,12 @@ import Header from "../components/Header";
 import Breadcrumbs from "../components/Breadcrumbs";
 import CardSkeleton from "../components/CardSkeleton";
 import CardProductos from "../components/CardProductos";
+import ModalRecetas from "../components/ModalRecetas";
 import Footer from "../components/Footer";
+import BuscarRecetaButton from "../components/BuscarRecetaButton";
+
+import { useAuthStore } from "../store/useAuthStore";
+import { useCarritoStore } from "../store/useCarritoStore";
 
 const Productos = () => {
   const { categorias, isLoading, fetchProducts, productos } = useProductStore();
@@ -20,11 +25,25 @@ const Productos = () => {
     setFiltroCategoria,
     setBusqueda,
     setOrdenPrecio,
-    limpiarFiltros,
     getProductosFiltrados,
   } = useFiltroStore();
 
   const productosFiltrados = getProductosFiltrados();
+  const { user } = useAuthStore();
+  const [recetasActivas, setRecetasActivas] = useState([]);
+  const [recetaBuscada, setRecetaBuscada] = useState(false);
+  const [showModalRecetas, setShowModalRecetas] = useState(false);
+  const { agregarCarrito } = useCarritoStore();
+
+  // Handler para agregar todos los productos de la receta al carrito
+  const handleAddAllRecetaToCart = async () => {
+    if (recetasActivas && recetasActivas.length > 0) {
+      for (const receta of recetasActivas) {
+        await agregarCarrito({ idProducto: receta.idProducto, cantidad: receta.cantidad });
+      }
+      setShowModalRecetas(false);
+    }
+  };
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -84,10 +103,26 @@ const Productos = () => {
     updateQueryParam("orden", value);
   };
 
-  const limpiarYQuitarQuery = () => {
-    limpiarFiltros();
-    navigate({ pathname: location.pathname, search: "" }, { replace: true });
-  };
+
+  // Filtrado especial para medicamentos con receta
+  let productosParaMostrar = productosFiltrados;
+  // Log para debug: mostrar productos ordenados cada vez que cambia el filtro de ordenPrecio
+  
+  const esCategoriaReceta = filtroCategoria === "Medicamentos con Receta";
+
+  if (esCategoriaReceta) {
+    if (!user) {
+      productosParaMostrar = [];
+    } else if (!recetaBuscada) {
+      productosParaMostrar = [];
+    } else if (recetasActivas.length > 0) {
+      // Mostrar solo el producto de la receta activa
+      const productosRecetaIds = recetasActivas.map(r => r.idProducto);
+      productosParaMostrar = productosFiltrados.filter(p => productosRecetaIds.includes(p.idProducto));
+    } else {
+      productosParaMostrar = [];
+    }
+  }
 
   return (
     <div>
@@ -185,21 +220,9 @@ const Productos = () => {
           </div>
         </div>
 
-        {filtroCategoria !== "todos" && (
-          <div className="flex items-center bg-secondary-100 text-gray-800 px-3 py-1 rounded-full text-sm mt-4 w-fit">
-            {filtroCategoria}
-            <button
-              onClick={() => setCategoriaYSync("todos")}
-              className="ml-2 text-secondary-500 transition-colors cursor-pointer"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        )}
-
         <div className="flex flex-col md:flex-row gap-8 w-full my-8">
           {/* Filtros laterales */}
-          <aside className="w-full md:w-56 flex-shrink-0">
+          <aside className="w-full md:w-56 shrink-0">
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               <div className="p-3 border-b border-gray-200">
                 <h2 className="font-medium text-gray-800 text-sm uppercase">
@@ -227,7 +250,7 @@ const Productos = () => {
                     onClick={() => setCategoriaYSync(cat)}
                     className={`w-full text-left px-3 py-2 rounded text-sm flex items-center transition-colors ${
                       filtroCategoria === cat
-                        ? "bg-primary-50 text-primary-700 font-medium"
+                        ? "bg-primary-50 text-primary-700 font-medium cursor-pointer"
                         : "text-gray-600 hover:bg-gray-50 cursor-pointer"
                     }`}
                   >
@@ -245,33 +268,64 @@ const Productos = () => {
                   <CardSkeleton key={index} />
                 ))}
               </div>
-            ) : productosFiltrados.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-                {productosFiltrados.map((p) => (
-                  <CardProductos key={p.idProducto} product={p} />
-                ))}
-              </div>
+            ) : productosParaMostrar.length > 0 ? (
+              showModalRecetas ? null : (
+                recetaBuscada && recetasActivas.length > 0 && user && esCategoriaReceta ? (
+                  <div className="flex justify-center my-8">
+                    <button
+                      onClick={() => setShowModalRecetas(true)}
+                      className="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold shadow hover:bg-primary-700 transition cursor-pointer"
+                    >
+                      Ver Receta
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                    {productosParaMostrar.map((p) => (
+                      <CardProductos key={p.idProducto} product={p} />
+                    ))}
+                  </div>
+                )
+              )
             ) : (
               <div className="bg-white rounded-lg border border-gray-200 p-8 text-center w-full">
                 <Frown className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-700 mb-1">
-                  No se encontraron productos
+                  {esCategoriaReceta ?
+                    (user ?
+                      (recetaBuscada ? "No tienes recetas activas" : "Debes buscar tu receta")
+                      : "Debes iniciar sesión para ver medicamentos con receta")
+                    : "No se encontraron productos"
+                  }
                 </h3>
                 <p className="text-gray-500 text-sm">
-                  Prueba cambiando los filtros o el término de búsqueda.
+                  {esCategoriaReceta ? "Solo puedes comprar medicamentos con receta si tienes una receta activa." : "Prueba cambiando los filtros o el término de búsqueda."}
                 </p>
-                <button
-                  onClick={limpiarYQuitarQuery}
-                  className="mt-4 text-primary-600 hover:text-primary-800 text-sm font-medium transition-colors cursor-pointer"
-                >
-                  Limpiar todos los filtros
-                </button>
+                {!user && esCategoriaReceta && (
+                  <button
+                    onClick={() => window.location.href = "/login"}
+                    className="mt-4 text-primary-600 hover:text-primary-800 text-sm font-medium transition-colors cursor-pointer"
+                  >
+                    Iniciar sesión
+                  </button>
+                )}
+                {!recetaBuscada && user && esCategoriaReceta && (
+                  <BuscarRecetaButton onRecetaEncontrada={recetas => { setRecetasActivas(recetas); setRecetaBuscada(true); setShowModalRecetas(true); }} />
+                )}
               </div>
             )}
           </div>
         </div>
       </section>
       <Footer />
+      
+      {/* Modal para mostrar recetas activas y agregar todos al carrito */}
+      <ModalRecetas
+        isOpen={showModalRecetas}
+        onClose={() => setShowModalRecetas(false)}
+        recetas={recetasActivas}
+        onAddAllToCart={handleAddAllRecetaToCart}
+      />
     </div>
   );
 };

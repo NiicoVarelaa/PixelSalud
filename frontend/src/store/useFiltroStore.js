@@ -16,20 +16,36 @@ export const useFiltroStore = create((set, get) => ({
     }),
 
     getProductosFiltrados: () => {
-        const { productos } = useProductStore.getState();
+        const { productos, productosAbajo } = useProductStore.getState();
         const { filtroCategoria, busqueda, ordenPrecio } = get();
 
-        const productosFiltrados = productos
-            .filter((p) => {
-                const coincideCategoria = filtroCategoria === "todos" || p.categoria === filtroCategoria;
-                const coincideNombre = p.nombreProducto.toLowerCase().includes(busqueda.toLowerCase());
-                return coincideCategoria && coincideNombre;
-            })
-            .sort((a, b) => {
-                if (ordenPrecio === "menor-precio") return a.precio - b.precio;
-                if (ordenPrecio === "mayor-precio") return b.precio - a.precio;
-                return 0;
-            });
+        let productosFiltrados;
+        if (filtroCategoria === "Cyber Monday") {
+            productosFiltrados = productosAbajo
+                .filter((p) => p.nombreProducto.toLowerCase().includes(busqueda.toLowerCase()))
+                .sort((a, b) => {
+                    const precioA = Number(a.precioFinal || a.precio || a.precioRegular || 0);
+                    const precioB = Number(b.precioFinal || b.precio || b.precioRegular || 0);
+                    if (ordenPrecio === "menor-precio") return precioA - precioB;
+                    if (ordenPrecio === "mayor-precio") return precioB - precioA;
+                    return 0;
+                });
+        } else {
+            productosFiltrados = productos
+                .filter((p) => {
+                    const coincideCategoria = filtroCategoria === "todos" || p.categoria === filtroCategoria;
+                    const coincideNombre = p.nombreProducto.toLowerCase().includes(busqueda.toLowerCase());
+                    return coincideCategoria && coincideNombre;
+                })
+                .sort((a, b) => {
+                    // Usar el campo correcto de precio
+                    const precioA = Number(a.precioFinal || a.precio || a.precioRegular || 0);
+                    const precioB = Number(b.precioFinal || b.precio || b.precioRegular || 0);
+                    if (ordenPrecio === "menor-precio") return precioA - precioB;
+                    if (ordenPrecio === "mayor-precio") return precioB - precioA;
+                    return 0;
+                });
+        }
         return productosFiltrados;
     }
 }));

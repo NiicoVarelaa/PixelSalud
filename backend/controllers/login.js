@@ -37,7 +37,7 @@ const login = async (req, res) => {
 
     const consultaCli = `
       SELECT idCliente AS id, nombreCliente AS nombre, apellidoCliente AS apellido, 
-             emailCliente AS email, contraCliente AS contra, rol
+             emailCliente AS email, contraCliente AS contra, rol, dni
       FROM Clientes WHERE emailCliente = ?
     `;
 
@@ -127,6 +127,11 @@ const login = async (req, res) => {
     
     const token = jwt.sign(payload, process.env.SECRET_KEY);
 
+    // Incluir dni solo si es cliente
+    const extra = {};
+    if (tipo === "cliente" && user.dni) {
+      extra.dni = user.dni;
+    }
     return res.status(200).json({
       msg: "Inicio de sesión exitoso",
       tipo, 
@@ -136,7 +141,8 @@ const login = async (req, res) => {
       nombre: user.nombre,
       apellido: user.apellido || "",
       permisos: permisos,
-      rol: payload.role
+      rol: payload.role,
+      ...extra
     });
   } catch (error) {
     console.error("Error en login:", error);

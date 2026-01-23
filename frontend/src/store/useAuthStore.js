@@ -16,6 +16,7 @@ export const useAuthStore = create(
             rol: data.rol,
             permisos: data.permisos, 
             tipo: data.tipo,
+            dni: data.dni,
           },
           token: data.token,
         });

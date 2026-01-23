@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { getCliente } from "./useClienteStore";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { marcarRecetaUsada } from "../utils/recetaUtils";
+import { useAuthStore } from "./useAuthStore";
 import { useCarritoStore } from "./useCarritoStore";
 
 export const useCompraStore = create(() => ({
@@ -90,6 +92,14 @@ export const useCompraStore = create(() => ({
       };
 
       await axios.post("http://localhost:5000/ventaOnline/crear", compra);
+
+      // Marcar receta como usada si corresponde
+      const { token } = useAuthStore.getState();
+      for (const prod of carrito) {
+        if (prod.categoria === "Medicamentos con Receta" && prod.idReceta) {
+          await marcarRecetaUsada(prod.idReceta, token);
+        }
+      }
 
       await axios.delete(`http://localhost:5000/carrito/vaciar/${idCliente}`);
       useCarritoStore.getState().vaciarCarrito?.();
