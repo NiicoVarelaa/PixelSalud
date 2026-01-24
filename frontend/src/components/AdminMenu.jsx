@@ -13,6 +13,21 @@ const AdminMenu = () => {
 
       {/* Se agregó un espacio más en el grid para el nuevo módulo (lg:grid-cols-5) */}
       <nav className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+        {/* Card de Mensajes */}
+        <Link
+          to="/admin/mensajes"
+          className="block bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out"
+        >
+          <div className="flex flex-col items-center">
+            <div className="bg-cyan-100 p-5 rounded-full mb-4">
+              {/* Icono de sobre */}
+              <svg className="h-12 w-12 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a3 3 0 003.22 0L22 8m-19 8h18a2 2 0 002-2V8a2 2 0 00-2-2H3a2 2 0 00-2 2v6a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 text-center">Mensajes</h3>
+          </div>
+        </Link>
 
         <Link
           to="/admin/MenuProductos"

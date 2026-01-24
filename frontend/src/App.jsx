@@ -38,6 +38,7 @@ import AdminProductosBaja from "./components/AdminProductosBaja";
 import MenuClientes from "./components/MenuClientes";
 import AdminClientes from "./components/AdminClientes";
 import MenuEmpleados from "./components/MenuEmpleados";
+import AdminMensajes from "./pages/AdminMensajes";
 import AdminEmpleados from "./components/AdminEmpleados";
 import MenuVentas from "./components/MenuVentas";
 import AdminVentasE from "./components/AdminVentasE";
@@ -100,6 +101,7 @@ const App = () => {
             <Route path="favoritos" element={<PerfilFavoritos />} />
             <Route path="mis-compras" element={<MisCompras />} />
             <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
+            
           </Route>
         </Route>
 
@@ -133,6 +135,8 @@ const App = () => {
             <Route path="MenuMedicosAdmin/*" element={<MedicosMenuAdmin />}>
               <Route index element={<AdminMedicos />} />
             </Route>
+
+            <Route path="mensajes" element={<AdminMensajes />} />
           </Route>
         </Route>
         
