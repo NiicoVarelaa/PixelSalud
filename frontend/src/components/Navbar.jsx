@@ -15,9 +15,7 @@ const Navbar = () => {
   const { carrito, sincronizarCarrito } = useCarritoStore();
   const { user, logoutUser } = useAuthStore();
   const navigate = useNavigate();
-
-  // Mantenemos el cálculo activo para que la variable 'totalItems' exista
-  // y no rompa el componente 'NavbarMenuCelular' más abajo.
+  
   const totalItems = (carrito || []).reduce(
     (acc, item) => acc + (item.cantidad || 0),
     0
@@ -161,16 +159,7 @@ const Navbar = () => {
                       strokeWidth={1.5}
                       className="w-7 h-7 text-gray-700"
                     />
-                    
-                    {/* COMENTADO TEMPORALMENTE: Badge del contador de ítems
-                      Descomentar para volver a mostrar el número rojo sobre el carrito
-                    */}
-                    {/* {totalItems > 0 && (
-                      <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center bg-primary-700 text-white rounded-full text-xs font-medium">
-                        {totalItems}
-                      </span>
-                    )} 
-                    */}
+
                     
                   </Link>
                 )}
