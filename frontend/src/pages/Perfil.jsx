@@ -2,31 +2,65 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { 
   User, Mail, MapPin, Package, Heart, CreditCard, 
-  Edit2, Save, X, Camera, Calendar, ShieldCheck 
+  Edit2, Save, X, Camera, Calendar, ShieldCheck, KeyRound, IdCard, Phone 
 } from "lucide-react";
 
 const Perfil = () => {
-  const { user } = useAuthStore();
+
+  const { user, token } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    nombre: "",
-    apellido: "",
-    email: "",
-    telefono: "", 
+    nombreCliente: "",
+    apellidoCliente: "",
+    emailCliente: "",
+    telefono: "",
     direccion: "",
+    dni: "",
+    contraCliente: ""
   });
+  const [loading, setLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
+  // Cargar datos reales del cliente
   useEffect(() => {
-    if (user) {
-      setFormData({
-        nombre: user.nombre || "",
-        apellido: user.apellido || "",
-        email: user.email || "",
-        telefono: user.telefono || "", 
-        direccion: user.direccion || "", 
-      });
-    }
+    console.log('user en Perfil.jsx:', user);
+    const fetchCliente = async () => {
+      if (!user || !user.id) {
+        setErrorMsg('No hay usuario logueado o falta id en user.');
+        return;
+      }
+      setLoading(true);
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL;
+        const res = await fetch(`${apiUrl}/clientes/${user.id}`, {
+          headers: { auth: `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error("No se pudo obtener el perfil");
+        const data = await res.json();
+        console.log('Respuesta del backend perfil:', data);
+        if (!data || Object.keys(data).length === 0) {
+          setErrorMsg("No se encontraron datos del usuario en el backend");
+          return;
+        }
+        setFormData({
+          nombreCliente: data.nombreCliente || "",
+          apellidoCliente: data.apellidoCliente || "",
+          emailCliente: data.emailCliente || "",
+          telefono: data.telefono || "",
+          direccion: data.direccion || "",
+          dni: data.dni || "",
+          contraCliente: ""
+        });
+      } catch (err) {
+        setErrorMsg("Error al cargar el perfil");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCliente();
   }, [user]);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -36,13 +70,48 @@ const Perfil = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Datos actualizados:", formData);
-    setIsEditing(false);
+    setLoading(true);
+    setSuccessMsg("");
+    setErrorMsg("");
+    try {
+      // Solo enviar campos modificados o no vacíos
+      const body = {};
+      Object.keys(formData).forEach((key) => {
+        if (formData[key] !== "" && formData[key] !== null && typeof formData[key] !== "undefined") {
+          body[key] = formData[key];
+        }
+      });
+      // Si la contraseña está vacía, no la mandes
+      if (!body.contraCliente) delete body.contraCliente;
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const res = await fetch(`${apiUrl}/clientes/actualizar/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          auth: `Bearer ${token}`
+        },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al actualizar");
+      setSuccessMsg("Perfil actualizado con éxito");
+      setIsEditing(false);
+      setFormData((prev) => ({ ...prev, contraCliente: "" })); // Limpiar campo contraseña
+    } catch (err) {
+      setErrorMsg(err.message || "Error al actualizar");
+    } finally {
+      setLoading(false);
+    }
   };
 
+
   if (!user) return null;
+  if (errorMsg) {
+    return <div className="text-red-600 font-bold p-8">{errorMsg}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50/50  px-4 sm:px-6 lg:px-8">
@@ -57,7 +126,7 @@ const Perfil = () => {
           <div className="lg:col-span-4 space-y-6">
             
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="h-32 bg-gradient-to-b from-primary-600 to-primary-500 relative">
+              <div className="h-32 bg-linear-to-b from-primary-600 to-primary-500 relative">
                 <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
                   <div className="relative group">
                     <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center shadow-lg overflow-hidden">
@@ -74,59 +143,20 @@ const Perfil = () => {
               
               <div className="pt-16 pb-8 px-6 text-center">
                 <h2 className="text-xl font-bold text-gray-900">
-                  {user.nombre} {user.apellido}
+                  {formData.nombreCliente} {formData.apellidoCliente}
                 </h2>
                 <p className="text-sm text-gray-500 mt-1 flex items-center justify-center gap-2">
                   <ShieldCheck size={16} className="text-green-600" />
                   Cuenta Verificada
                 </p>
 
-                <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-100 pt-6">
-                  <div className="text-center">
-                    <span className="block text-2xl font-bold text-gray-900">12</span>
-                    <span className="text-xs text-gray-500 uppercase tracking-wide">Pedidos</span>
-                  </div>
-                  <div className="text-center border-l border-gray-100">
-                    <span className="block text-2xl font-bold text-gray-900">5</span>
-                    <span className="text-xs text-gray-500 uppercase tracking-wide">Favoritos</span>
-                  </div>
-                </div>
+                {/* Info de pedidos/favoritos eliminada por pedido */}
               </div>
             </div>
           </div>
 
           <div className="lg:col-span-8 space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col items-start justify-between h-full">
-                <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600 mb-3">
-                  <CreditCard size={20} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Método de Pago</p>
-                  <p className="text-gray-900 font-semibold mt-1">Visa •••• 4242</p>
-                </div>
-              </div>
-              
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col items-start justify-between h-full">
-                <div className="p-2.5 bg-red-50 rounded-xl text-red-600 mb-3">
-                  <Heart size={20} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Lista de Deseos</p>
-                  <p className="text-gray-900 font-semibold mt-1">8 productos</p>
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col items-start justify-between h-full">
-                <div className="p-2.5 bg-amber-50 rounded-xl text-amber-600 mb-3">
-                  <MapPin size={20} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Dirección Principal</p>
-                  <p className="text-gray-900 font-semibold mt-1 truncate w-full">Calle French 247</p>
-                </div>
-              </div>
-            </div>
+            {/* Cards de método de pago, lista de deseos y dirección principal eliminadas por pedido */}
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
@@ -158,8 +188,8 @@ const Perfil = () => {
                       <label className="text-sm font-medium text-gray-700">Nombre</label>
                       <input
                         type="text"
-                        name="nombre"
-                        value={formData.nombre}
+                        name="nombreCliente"
+                        value={formData.nombreCliente}
                         onChange={handleInputChange}
                         className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                       />
@@ -168,35 +198,79 @@ const Perfil = () => {
                       <label className="text-sm font-medium text-gray-700">Apellido</label>
                       <input
                         type="text"
-                        name="apellido"
-                        value={formData.apellido}
+                        name="apellidoCliente"
+                        value={formData.apellidoCliente}
                         onChange={handleInputChange}
                         className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                       />
                     </div>
-                    <div className="space-y-2 md:col-span-2">
+                    <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700">Correo Electrónico</label>
                       <div className="relative">
                         <Mail className="absolute left-4 top-3 text-gray-400 w-5 h-5" />
                         <input
                           type="email"
-                          name="email"
-                          value={formData.email}
+                          name="emailCliente"
+                          value={formData.emailCliente}
                           onChange={handleInputChange}
                           className="w-full pl-12 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                         />
                       </div>
                     </div>
-                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">DNI</label>
+                      <input
+                        type="number"
+                        name="dni"
+                        value={formData.dni}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Teléfono</label>
+                      <input
+                        type="text"
+                        name="telefono"
+                        value={formData.telefono}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Dirección</label>
+                      <input
+                        type="text"
+                        name="direccion"
+                        value={formData.direccion}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="text-sm font-medium text-gray-700 flex items-center gap-2"><KeyRound size={16}/> Nueva Contraseña <span className="text-xs text-gray-400">(opcional)</span></label>
+                      <input
+                        type="password"
+                        name="contraCliente"
+                        value={formData.contraCliente}
+                        onChange={handleInputChange}
+                        autoComplete="new-password"
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
+                        placeholder="Dejar vacío para no cambiar"
+                      />
+                    </div>
                     <div className="md:col-span-2 pt-4 flex justify-end">
                       <button
                         type="submit"
-                        className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-all shadow-md hover:shadow-lg transform active:scale-95"
+                        disabled={loading}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-all shadow-md hover:shadow-lg transform active:scale-95 disabled:opacity-60"
                       >
                         <Save size={18} />
-                        Guardar Cambios
+                        {loading ? "Guardando..." : "Guardar Cambios"}
                       </button>
                     </div>
+                    {successMsg && <div className="md:col-span-2 text-green-600 font-medium mt-2">{successMsg}</div>}
+                    {errorMsg && <div className="md:col-span-2 text-red-600 font-medium mt-2">{errorMsg}</div>}
                   </form>
                 ) : (
                   <div className="space-y-6">
@@ -208,7 +282,7 @@ const Perfil = () => {
                         <div>
                           <p className="text-sm text-gray-500 font-medium">Nombre Completo</p>
                           <p className="text-gray-900 font-semibold mt-0.5">
-                            {user.nombre} {user.apellido}
+                            {formData.nombreCliente || '-'} {formData.apellidoCliente || '-'}
                           </p>
                         </div>
                       </div>
@@ -219,29 +293,37 @@ const Perfil = () => {
                         </div>
                         <div>
                           <p className="text-sm text-gray-500 font-medium">Correo Electrónico</p>
-                          <p className="text-gray-900 font-semibold mt-0.5">{user.email}</p>
+                          <p className="text-gray-900 font-semibold mt-0.5">{formData.emailCliente || '-'}</p>
                         </div>
                       </div>
 
                       <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
                         <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
-                          <Calendar size={20} />
+                          <IdCard size={20} />
                         </div>
                         <div>
-                          <p className="text-sm text-gray-500 font-medium">Fecha de Registro</p>
-                          <p className="text-gray-900 font-semibold mt-0.5">Noviembre 2025</p>
+                          <p className="text-sm text-gray-500 font-medium">DNI</p>
+                          <p className="text-gray-900 font-semibold mt-0.5">{formData.dni || '-'}</p>
                         </div>
                       </div>
 
                       <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
                         <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
-                          <ShieldCheck size={20} />
+                          <Phone size={20} />
                         </div>
                         <div>
-                          <p className="text-sm text-gray-500 font-medium">Tipo de Cuenta</p>
-                          <p className="text-gray-900 font-semibold mt-0.5 capitalize">
-                            {user.tipo || "Cliente Estándar"}
-                          </p>
+                          <p className="text-sm text-gray-500 font-medium">Teléfono</p>
+                          <p className="text-gray-900 font-semibold mt-0.5">{formData.telefono || '-'}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors md:col-span-2">
+                        <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
+                          <MapPin size={20} />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 font-medium">Dirección</p>
+                          <p className="text-gray-900 font-semibold mt-0.5">{formData.direccion || '-'}</p>
                         </div>
                       </div>
                     </div>
