@@ -66,6 +66,8 @@ const getClientes = (req, res) => {
 
 const getCliente = (req, res)=>{
   const id = req.params.id
+  console.log("GET /clientes/:id - ID recibido:", id);
+  console.log("Usuario autenticado:", req.user);
   const consulta = "select * from clientes where idCliente =?"
    conection.query(consulta, [id], (err, results) => {
     if (err) {
@@ -73,8 +75,10 @@ const getCliente = (req, res)=>{
       return res.status(500).json({ error: "Error al obtener el cliente" });
     }
     if (results.length === 0) {
+      console.log("Cliente no encontrado para ID:", id);
       return res.status(404).json({ error: "Cliente no encontrado" });
     }
+    console.log("Cliente encontrado:", results[0]);
     res.json(results[0]);
   });
 }

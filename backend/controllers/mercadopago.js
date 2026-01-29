@@ -486,7 +486,7 @@ async function handleMerchantOrderResource(resourceUrl) {
     const url = `https://api.mercadolibre.com/merchant_orders/${orderId}`;
     const response = await fetch(url, {
       headers: {
-        Auth: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+        Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
       },
     });
     if (!response.ok) {

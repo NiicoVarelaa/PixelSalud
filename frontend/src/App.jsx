@@ -65,6 +65,8 @@ import Sucursales from "./pages/Sucursales";
 import PreguntasFrecuentes from "./pages/PreguntasFrecuentes";
 import TerminosCondiciones from "./pages/TerminosCondiciones";
 import LegalesPromocion from "./pages/LegalesPromocion";
+import AdminVentasO from "./components/AdminVentasO";
+import OpcionesVentas from "./components/OpcionesVentas";
 
 
 const App = () => {
@@ -129,7 +131,9 @@ const App = () => {
             </Route>
 
             <Route path="MenuVentas/*" element={<MenuVentas />}>
-              <Route index element={<AdminVentasE />} />
+            <Route index element={<OpcionesVentas />} />
+              <Route path="VentasE" element={<AdminVentasE />} />
+              <Route path="VentasO" element={<AdminVentasO />} />
             </Route>
 
             <Route path="MenuMedicosAdmin/*" element={<MedicosMenuAdmin />}>

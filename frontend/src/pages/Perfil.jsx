@@ -25,15 +25,19 @@ const Perfil = () => {
   // Cargar datos reales del cliente
   useEffect(() => {
     console.log('user en Perfil.jsx:', user);
+    console.log('user.id en Perfil:', user?.id, 'tipo:', typeof user?.id);
     const fetchCliente = async () => {
       if (!user || !user.id) {
+        console.log('Error: No hay usuario o falta id');
         setErrorMsg('No hay usuario logueado o falta id en user.');
         return;
       }
       setLoading(true);
       try {
         const apiUrl = import.meta.env.VITE_API_URL;
-        const res = await fetch(`${apiUrl}/clientes/${user.id}`, {
+        const url = `${apiUrl}/clientes/${user.id}`;
+        console.log('Fetcheando:', url);
+        const res = await fetch(url, {
           headers: { auth: `Bearer ${token}` }
         });
         if (!res.ok) throw new Error("No se pudo obtener el perfil");
