@@ -1,67 +1,77 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/useAuthStore'; // 1. Importamos el Store
 
-const VistaInicialCardsEmpleado = ({ onNavegar, user }) => {
+const VistaInicialCardsEmpleado = () => { // 2. Ya no esperamos recibir 'user' por props
   
+  const navigate = useNavigate();
+  const { user } = useAuthStore(); // 3. Sacamos el usuario del estado global
   const permisos = user?.permisos || {};
 
-  // --- ¡EL ARREGLO! ---
-  // Convertimos el valor a booleano real.
-  // Esto chequea si es 1 (int) O si es true (bool). Si es 0, da false.
+  // Lógica para el botón de Ventas Totales
   const mostrarVentasTotales = permisos.ver_ventasTotalesE === 1 || permisos.ver_ventasTotalesE === true;
 
   return (
-    <div className="flex flex-col items-center justify-center h-full p-6">
+    <div className="flex flex-col items-center justify-start min-h-full bg-gray-50/50 p-6 pt-24 animate-fadeIn">
       
-      <h1 className="text-4xl font-bold text-gray-800 text-center">
-        Bienvenido, {user?.nombreEmpleado || user?.nombre || 'Empleado'}
+      {/* Título */}
+      <h1 className="text-5xl font-extrabold text-gray-800 text-center tracking-tight">
+        Bienvenido, <span className="text-blue-600">{user?.nombre || 'Empleado'}</span>
       </h1>
       
-      <p className="text-lg text-gray-600 text-center mt-2 mb-12">
-        Selecciona qué deseas ver/hacer hoy
+      <p className="text-xl text-gray-500 text-center mt-4 mb-16 font-light">
+        Selecciona una opción para comenzar tu jornada
       </p>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="flex flex-wrap justify-center gap-10 w-full max-w-6xl">
         
         {/* Card 1: Realizar Venta */}
         <div 
-          onClick={() => onNavegar('venta')}
-          className="group p-8 bg-white rounded-xl shadow-lg cursor-pointer transition transform hover:scale-105 hover:shadow-xl hover:bg-blue-50"
+          onClick={() => navigate('venta')}
+          className="group w-72 p-8 bg-white rounded-3xl shadow-lg border border-gray-100 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-blue-200 flex flex-col items-center text-center"
         >
-          <span className="text-6xl">🛒</span>
-          <h2 className="text-2xl font-semibold mt-4 text-gray-800 group-hover:text-blue-600">Realizar Venta</h2>
-          <p className="text-gray-500 mt-1">Iniciar un nuevo ticket.</p>
+          <div className="p-4 bg-blue-50 rounded-full mb-4 group-hover:bg-blue-600 transition-colors duration-300">
+             <span className="text-5xl group-hover:text-white transition-colors">🛒</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">Realizar Venta</h2>
+          <p className="text-gray-500 mt-2 text-sm">Iniciar un nuevo ticket de venta para un cliente.</p>
         </div>
 
         {/* Card 2: Mis Ventas */}
         <div 
-          onClick={() => onNavegar('misVentas')}
-          className="group p-8 bg-white rounded-xl shadow-lg cursor-pointer transition transform hover:scale-105 hover:shadow-xl hover:bg-green-50"
+          onClick={() => navigate('misventas')} 
+          className="group w-72 p-8 bg-white rounded-3xl shadow-lg border border-gray-100 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-green-200 flex flex-col items-center text-center"
         >
-          <span className="text-6xl">👤</span>
-          <h2 className="text-2xl font-semibold mt-4 text-gray-800 group-hover:text-green-600">Mis Ventas</h2>
-          <p className="text-gray-500 mt-1">Ver mi historial personal.</p>
+          <div className="p-4 bg-green-50 rounded-full mb-4 group-hover:bg-green-600 transition-colors duration-300">
+             <span className="text-5xl group-hover:text-white transition-colors">👤</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 group-hover:text-green-600 transition-colors">Mis Ventas</h2>
+          <p className="text-gray-500 mt-2 text-sm">Ver mi historial personal y comisiones.</p>
         </div>
 
         {/* Card 3: Productos */}
         <div 
-          onClick={() => onNavegar('productos')}
-          className="group p-8 bg-white rounded-xl shadow-lg cursor-pointer transition transform hover:scale-105 hover:shadow-xl hover:bg-yellow-50"
+          onClick={() => navigate('productos')} 
+          className="group w-72 p-8 bg-white rounded-3xl shadow-lg border border-gray-100 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-yellow-200 flex flex-col items-center text-center"
         >
-          <span className="text-6xl">📦</span>
-          <h2 className="text-2xl font-semibold mt-4 text-gray-800 group-hover:text-yellow-600">Productos</h2>
-          <p className="text-gray-500 mt-1">Ver y gestionar stock.</p>
+          <div className="p-4 bg-yellow-50 rounded-full mb-4 group-hover:bg-yellow-500 transition-colors duration-300">
+             <span className="text-5xl group-hover:text-white transition-colors">📦</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 group-hover:text-yellow-600 transition-colors">Productos</h2>
+          <p className="text-gray-500 mt-2 text-sm">Consultar stock, precios y ofertas disponibles.</p>
         </div>
 
         {/* Card 4: Ventas Totales */}
-        {/* Usamos la variable booleana 'mostrarVentasTotales' en lugar del permiso directo */}
         {mostrarVentasTotales && (
             <div 
-              onClick={() => onNavegar('ventasTotales')}
-              className="group p-8 bg-white rounded-xl shadow-lg cursor-pointer transition transform hover:scale-105 hover:shadow-xl hover:bg-purple-50"
+              onClick={() => navigate('ventastotales')} 
+              className="group w-72 p-8 bg-white rounded-3xl shadow-lg border border-gray-100 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-purple-200 flex flex-col items-center text-center"
             >
-              <span className="text-6xl">📊</span>
-              <h2 className="text-2xl font-semibold mt-4 text-gray-800 group-hover:text-purple-600">Ventas Totales</h2>
-              <p className="text-gray-500 mt-1">Ver ventas de todos.</p>
+              <div className="p-4 bg-purple-50 rounded-full mb-4 group-hover:bg-purple-600 transition-colors duration-300">
+                 <span className="text-5xl group-hover:text-white transition-colors">📊</span>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 group-hover:text-purple-600 transition-colors">Ventas Totales</h2>
+              <p className="text-gray-500 mt-2 text-sm">Auditoría general de ventas de la farmacia.</p>
             </div>
         )}
         

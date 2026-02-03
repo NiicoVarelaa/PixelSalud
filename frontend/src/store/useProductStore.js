@@ -34,7 +34,11 @@ export const useProductStore = create((set) => ({
       );
       const arriba = shuffledArriba.slice(0, PRODUCTS_PER_SECTION);
       const abajo = cyberOffers; 
-      const categoriasUnicas = [...new Set(todos.map((p) => p.categoria))];
+      let categoriasUnicas = [...new Set(todos.map((p) => p.categoria))];
+      // Agregar Cyber Monday como categoría especial si hay productos en la oferta
+      if (cyberOffers && cyberOffers.length > 0 && !categoriasUnicas.includes('Cyber Monday')) {
+        categoriasUnicas = ['Cyber Monday', ...categoriasUnicas];
+      }
 
       set({
         productosArriba: arriba,

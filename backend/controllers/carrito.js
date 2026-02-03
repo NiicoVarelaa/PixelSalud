@@ -41,7 +41,8 @@ const getCarrito = (req, res) => {
 };
 
 const addCarrito = (req, res) => {
-  const { idProducto, idCliente } = req.body;
+  const { idProducto, idCliente, cantidad } = req.body;
+  const cantidadAgregar = Number(cantidad) > 0 ? Number(cantidad) : 1;
 
   const checkQuery = "SELECT * FROM Carrito WHERE idProducto = ? AND idCliente = ?";
   
@@ -52,8 +53,8 @@ const addCarrito = (req, res) => {
     }
 
     if (results.length > 0) {
-      const updateQuery = "UPDATE Carrito SET cantidad = cantidad + 1 WHERE idProducto = ? AND idCliente = ?";
-      conection.query(updateQuery, [idProducto, idCliente], (err, updateResult) => {
+      const updateQuery = "UPDATE Carrito SET cantidad = cantidad + ? WHERE idProducto = ? AND idCliente = ?";
+      conection.query(updateQuery, [cantidadAgregar, idProducto, idCliente], (err, updateResult) => {
         if (err) {
           console.error("Error al incrementar la cantidad:", err);
           return res.status(500).json({ error: "Error al actualizar el producto en el carrito." });
@@ -61,8 +62,8 @@ const addCarrito = (req, res) => {
         res.status(200).json({ message: "Cantidad del producto actualizada en el carrito." });
       });
     } else {
-      const insertQuery = "INSERT INTO Carrito (idProducto, idCliente, cantidad) VALUES (?, ?, 1)";
-      conection.query(insertQuery, [idProducto, idCliente], (err, insertResult) => {
+      const insertQuery = "INSERT INTO Carrito (idProducto, idCliente, cantidad) VALUES (?, ?, ?)";
+      conection.query(insertQuery, [idProducto, idCliente, cantidadAgregar], (err, insertResult) => {
         if (err) {
           console.error("Error al agregar el producto al carrito:", err);
           return res.status(500).json({ error: "Error al agregar el nuevo producto al carrito." });

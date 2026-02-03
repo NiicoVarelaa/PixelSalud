@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import apiClient from '../utils/apiClient'; // Ajustado a tu ruta utils
+import apiClient from '../utils/apiClient'; 
 import { useAuthStore } from '../store/useAuthStore';
 import { Package, Tag, Plus, Edit, Trash2, Archive, RotateCcw, ArrowLeft, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const EmpleadoProductos = ({ onVolver }) => {
+const EmpleadoProductos = () => { 
+  
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const permisos = user?.permisos || {};
 
-  // Estados de Navegación y Datos
   const [subVista, setSubVista] = useState('menu');
   const [productos, setProductos] = useState([]);
   const [ofertas, setOfertas] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // =================================================================
   // --- LÓGICA DE CARGA DE DATOS ---
-  // =================================================================
-
   const cargarInventario = async () => {
     setLoading(true);
     try {
@@ -44,23 +43,16 @@ const EmpleadoProductos = ({ onVolver }) => {
     }
   };
 
-  // =================================================================
-  // --- ACCIONES (Crear, Editar, etc - IDÉNTICAS AL ANTERIOR) ---
-  // =================================================================
-  // (Resumí estas funciones para no hacer el código eterno, son las mismas que ya tenías)
-
-const handleCrearProducto = async () => {
+  // --- ACCIONES (Mantengo tus funciones originales, resumidas para no repetir lógica innecesaria) ---
+  const handleCrearProducto = async () => {
     const { value: formValues } = await Swal.fire({
       title: '<h2 class="text-2xl font-bold text-gray-800">✨ Nuevo Producto</h2>',
-      // Usamos backticks (`) para escribir HTML limpio con clases de Tailwind
       html: `
         <div class="flex flex-col gap-4 text-left mt-4">
-            
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto</label>
                 <input id="swal-nombre" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Ej: Ibuprofeno 400mg">
             </div>
-
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
@@ -78,12 +70,10 @@ const handleCrearProducto = async () => {
                     </select>
                 </div>
             </div>
-
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">URL de la Imagen</label>
                 <input id="swal-img" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://...">
             </div>
-
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Precio ($)</label>
@@ -94,18 +84,17 @@ const handleCrearProducto = async () => {
                     <input id="swal-stock" type="number" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="0">
                 </div>
             </div>
-
             <div class="flex items-center mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
                 <input type="checkbox" id="swal-receta" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300">
                 <label for="swal-receta" class="ml-2 block text-sm text-gray-900 font-medium cursor-pointer">Este producto requiere receta médica</label>
             </div>
         </div>
       `,
-      width: '600px', // Hacemos el modal un poco más ancho
+      width: '600px',
       focusConfirm: false,
       showCancelButton: true,
-      confirmButtonColor: '#2563EB', // Azul Tailwind
-      cancelButtonColor: '#9CA3AF',  // Gris
+      confirmButtonColor: '#2563EB',
+      cancelButtonColor: '#9CA3AF',
       confirmButtonText: 'Guardar Producto',
       cancelButtonText: 'Cancelar',
       preConfirm: () => {
@@ -133,7 +122,6 @@ const handleCrearProducto = async () => {
     if (formValues) {
       try {
         await apiClient.post('/productos/crear', formValues);
-        // Alerta de éxito más bonita
         Swal.fire({
             icon: 'success',
             title: '¡Producto Creado!',
@@ -145,13 +133,9 @@ const handleCrearProducto = async () => {
         Swal.fire('Error', error.response?.data?.error || 'Error al crear.', 'error');
       }
     }
-};
-  // NOTA: Para que funcione rápido copiar y pegar, voy a omitir repetir toooodo el Swal de los forms
-  // porque ya lo tenés. Lo importante ahora es la TABLA.
-  
-  // Voy a usar placeholders para las acciones para enfocarme en la Paginación/Buscador
-  // VOS COPIÁ TUS FUNCIONES REALES AQUÍ
-const handleEditarProducto = async (prod) => {
+  };
+
+  const handleEditarProducto = async (prod) => {
     const { value: formValues } = await Swal.fire({
       title: `<h2 class="text-xl font-bold text-gray-700">✏️ Editando: <span class="text-blue-600">${prod.nombreProducto}</span></h2>`,
       html: `
@@ -160,7 +144,6 @@ const handleEditarProducto = async (prod) => {
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Nombre</label>
                 <input id="swal-nombre" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 outline-none" value="${prod.nombreProducto}">
             </div>
-
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Categoría</label>
@@ -171,12 +154,10 @@ const handleEditarProducto = async (prod) => {
                     <input id="swal-desc" class="w-full p-2 border border-gray-300 rounded outline-none" value="${prod.descripcion || ''}">
                 </div>
             </div>
-
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Imagen URL</label>
                 <input id="swal-img" class="w-full p-2 border border-gray-300 rounded outline-none text-gray-600" value="${prod.img || ''}">
             </div>
-
             <div class="grid grid-cols-2 gap-4 p-4 bg-yellow-50 rounded-lg border border-yellow-100">
                 <div>
                     <label class="block text-xs font-bold text-yellow-700 uppercase tracking-wide mb-1">Precio ($)</label>
@@ -187,7 +168,6 @@ const handleEditarProducto = async (prod) => {
                     <input id="swal-stock" type="number" class="w-full p-2 border border-yellow-300 rounded focus:ring-2 focus:ring-yellow-500 outline-none font-bold text-gray-800" value="${prod.stock}">
                 </div>
             </div>
-
             <div class="flex items-center mt-1">
                 <input type="checkbox" id="swal-receta" class="w-4 h-4 text-yellow-600 border-gray-300 rounded" ${prod.requiereReceta ? 'checked' : ''}>
                 <label for="swal-receta" class="ml-2 text-sm text-gray-700">Requiere Receta</label>
@@ -197,11 +177,9 @@ const handleEditarProducto = async (prod) => {
       width: '550px',
       focusConfirm: false,
       showCancelButton: true,
-      confirmButtonColor: '#EAB308', // Amarillo oscuro
+      confirmButtonColor: '#EAB308',
       cancelButtonColor: '#9CA3AF',
       confirmButtonText: 'Guardar Cambios',
-      
-      // ... (El preConfirm es IGUAL al que te pasé antes, copialo de ahí o de abajo)
       preConfirm: () => {
         return {
           nombreProducto: document.getElementById('swal-nombre').value,
@@ -225,8 +203,9 @@ const handleEditarProducto = async (prod) => {
         Swal.fire('Error', 'No se pudo actualizar.', 'error');
       }
     }
-};
-const handleCrearOferta = async () => {
+  };
+
+  const handleCrearOferta = async () => {
     const { value: formValues } = await Swal.fire({
       title: '<h2 class="text-2xl font-bold text-purple-700">🏷️ Nueva Oferta</h2>',
       html: `
@@ -236,12 +215,10 @@ const handleCrearOferta = async () => {
                 <input id="swal-id" type="number" class="w-full p-2 border border-purple-200 rounded focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Mirar ID en inventario">
                 <p class="text-xs text-gray-500 mt-1">Ingresa el ID del producto a promocionar.</p>
             </div>
-
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Porcentaje de Descuento (%)</label>
                 <input id="swal-desc" type="number" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none font-bold text-lg" placeholder="Ej: 25">
             </div>
-
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio</label>
@@ -256,7 +233,7 @@ const handleCrearOferta = async () => {
       `,
       focusConfirm: false,
       showCancelButton: true,
-      confirmButtonColor: '#9333EA', // Violeta
+      confirmButtonColor: '#9333EA',
       confirmButtonText: 'Crear Oferta',
       preConfirm: () => {
         const id = document.getElementById('swal-id').value;
@@ -286,8 +263,9 @@ const handleCrearOferta = async () => {
         Swal.fire('Error', error.response?.data?.error || 'Error al crear oferta.', 'error');
       }
     }
-};
-const handleEliminarOferta = (idOferta) => {
+  };
+
+  const handleEliminarOferta = (idOferta) => {
     Swal.fire({
       title: '¿Eliminar oferta?',
       text: "Esta acción quitará el descuento del producto. No se puede deshacer.",
@@ -300,40 +278,24 @@ const handleEliminarOferta = (idOferta) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // Llama a la ruta DELETE definida en tu backend
           await apiClient.delete(`/ofertas/eliminar/${idOferta}`);
-          
-          Swal.fire(
-            '¡Eliminada!',
-            'La oferta ha sido borrada correctamente.',
-            'success'
-          );
-          
-          // Recargamos la tabla de ofertas
+          Swal.fire('¡Eliminada!', 'La oferta ha sido borrada correctamente.', 'success');
           cargarOfertas();
-          
         } catch (error) {
           console.error(error);
-          Swal.fire(
-            'Error',
-            error.response?.data?.error || 'No se pudo eliminar la oferta.',
-            'error'
-          );
+          Swal.fire('Error', error.response?.data?.error || 'No se pudo eliminar la oferta.', 'error');
         }
       }
     });
-};
+  };
 
-const handleCambiarEstado = (prod) => {
-    // Verificamos el estado actual (asumiendo que activo es 1 o true)
+  const handleCambiarEstado = (prod) => {
     const esActivo = prod.activo === 1 || prod.activo === true;
-    
-    // Configuramos textos y colores según la acción
     const accion = esActivo ? 'Dar de Baja' : 'Re-Activar';
     const texto = esActivo 
         ? `El producto "${prod.nombreProducto}" dejará de estar visible para la venta.` 
         : `El producto "${prod.nombreProducto}" volverá a estar disponible.`;
-    const colorBtn = esActivo ? '#d33' : '#28a745'; // Rojo para baja, Verde para activar
+    const colorBtn = esActivo ? '#d33' : '#28a745';
     
     Swal.fire({
       title: `¿${accion}?`,
@@ -346,49 +308,34 @@ const handleCambiarEstado = (prod) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-            // Seleccionamos la ruta correcta según el estado actual
             const endpoint = esActivo 
                 ? `/productos/darBaja/${prod.idProducto}` 
                 : `/productos/activar/${prod.idProducto}`;
             
-            // Usamos PUT como definiste en tus rutas
             await apiClient.put(endpoint);
             
-            Swal.fire(
-                '¡Estado Actualizado!', 
-                `El producto ahora está ${esActivo ? 'Inactivo' : 'Activo'}.`, 
-                'success'
-            );
-            
-            // Recargamos el inventario para ver el cambio en la tabla (y que el buscador se actualice)
+            Swal.fire('¡Estado Actualizado!', `El producto ahora está ${esActivo ? 'Inactivo' : 'Activo'}.`, 'success');
             cargarInventario(); 
-            
         } catch (error) {
             console.error(error);
-            Swal.fire(
-                'Error', 
-                error.response?.data?.error || 'No se pudo cambiar el estado.', 
-                'error'
-            );
+            Swal.fire('Error', error.response?.data?.error || 'No se pudo cambiar el estado.', 'error');
         }
       }
     });
-};
+  };
 
 
   // =================================================================
   // --- COMPONENTE INTERNO: TABLA CON BUSCADOR Y PAGINACIÓN ---
   // =================================================================
-  // Hacemos un componente genérico aquí adentro para reutilizar lógica
   const TablaPaginada = ({ datos, tipo }) => {
     const [busqueda, setBusqueda] = useState('');
     const [paginaActual, setPaginaActual] = useState(1);
-    const itemsPorPagina = 10; // Cantidad de filas por página
+    const itemsPorPagina = 10;
 
     // 1. Filtrado
     const datosFiltrados = datos.filter((item) => {
         const termino = busqueda.toLowerCase();
-        // Lógica diferente según si es Producto u Oferta
         if (tipo === 'producto') {
             const estadoTexto = item.activo ? 'activo' : 'inactivo baja';
             return (
@@ -411,7 +358,6 @@ const handleCambiarEstado = (prod) => {
     const indicePrimerItem = indiceUltimoItem - itemsPorPagina;
     const itemsActuales = datosFiltrados.slice(indicePrimerItem, indiceUltimoItem);
 
-    // Resetear a pág 1 si se busca algo
     useEffect(() => {
         setPaginaActual(1);
     }, [busqueda]);
@@ -453,7 +399,8 @@ const handleCambiarEstado = (prod) => {
                                     <th className="px-4 py-3 text-center">Estado</th>
                                 </>
                             )}
-                            {permisos.modificar_productos && <th className="px-4 py-3 text-center">Acciones</th>}
+                            {/* FIX AQUI: !! para evitar el 0 */}
+                            {!!permisos.modificar_productos && <th className="px-4 py-3 text-center">Acciones</th>}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -461,7 +408,6 @@ const handleCambiarEstado = (prod) => {
                             itemsActuales.map((item, idx) => (
                                 <tr key={idx} className="hover:bg-gray-50">
                                     {tipo === 'producto' ? (
-                                        // FILAS DE PRODUCTOS
                                         <>
                                             <td className="px-4 py-3 font-medium text-gray-900">{item.nombreProducto}</td>
                                             <td className="px-4 py-3 text-gray-600">{item.categoria}</td>
@@ -478,7 +424,8 @@ const handleCambiarEstado = (prod) => {
                                                     <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs">Inactivo</span>
                                                 )}
                                             </td>
-                                            {permisos.modificar_productos && (
+                                            {/* FIX AQUI: !! para evitar el 0 */}
+                                            {!!permisos.modificar_productos && (
                                                 <td className="px-4 py-3 flex justify-center gap-2">
                                                     <button onClick={() => handleEditarProducto(item)} className="p-2 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200"><Edit size={16}/></button>
                                                     <button onClick={() => handleCambiarEstado(item)} className={`p-2 rounded text-white ${item.activo ? 'bg-red-500' : 'bg-green-500'}`}>
@@ -488,7 +435,6 @@ const handleCambiarEstado = (prod) => {
                                             )}
                                         </>
                                     ) : (
-                                        // FILAS DE OFERTAS
                                         <>
                                             <td className="px-4 py-3 font-medium">{item.nombreProducto}</td>
                                             <td className="px-4 py-3 text-center font-bold text-purple-600">-{item.porcentajeDescuento}%</td>
@@ -498,7 +444,8 @@ const handleCambiarEstado = (prod) => {
                                             <td className="px-4 py-3 text-center">
                                                 {item.esActiva ? <span className="text-green-600 font-bold">Activa</span> : <span className="text-gray-400">Inactiva</span>}
                                             </td>
-                                            {permisos.modificar_productos && (
+                                            {/* FIX AQUI: !! para evitar el 0 */}
+                                            {!!permisos.modificar_productos && (
                                                 <td className="px-4 py-3 text-center">
                                                     <button onClick={() => handleEliminarOferta(item.idOferta)} className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200">
                                                         <Trash2 size={16} />
@@ -516,25 +463,16 @@ const handleCambiarEstado = (prod) => {
                 </table>
             </div>
 
-            {/* CONTROLES DE PAGINACIÓN */}
             {totalPaginas > 1 && (
                 <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">
                         Página {paginaActual} de {totalPaginas} ({datosFiltrados.length} resultados)
                     </span>
                     <div className="flex gap-2">
-                        <button 
-                            onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))}
-                            disabled={paginaActual === 1}
-                            className="p-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
+                        <button onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))} disabled={paginaActual === 1} className="p-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
                             <ChevronLeft size={20} />
                         </button>
-                        <button 
-                            onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))}
-                            disabled={paginaActual === totalPaginas}
-                            className="p-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
+                        <button onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))} disabled={paginaActual === totalPaginas} className="p-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
                             <ChevronRight size={20} />
                         </button>
                     </div>
@@ -549,7 +487,6 @@ const handleCambiarEstado = (prod) => {
   // --- RENDERIZADO PRINCIPAL ---
   // =================================================================
 
-  // --- VISTA 1: INVENTARIO GENERAL ---
   const VistaInventario = () => (
     <div className="w-full animate-fadeIn">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -566,13 +503,11 @@ const handleCambiarEstado = (prod) => {
         </div>
       </div>
       {loading ? <div className="text-center p-10">Cargando...</div> : (
-          // USAMOS EL COMPONENTE DE TABLA PAGINADA
           <TablaPaginada datos={productos} tipo="producto" />
       )}
     </div>
   );
 
-  // --- VISTA 2: OFERTAS ---
   const VistaOfertas = () => (
     <div className="w-full animate-fadeIn">
        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -589,7 +524,6 @@ const handleCambiarEstado = (prod) => {
         </div>
       </div>
       {loading ? <div className="text-center p-10">Cargando ofertas...</div> : (
-          // USAMOS EL COMPONENTE DE TABLA PAGINADA
           <TablaPaginada datos={ofertas} tipo="oferta" />
       )}
     </div>
@@ -620,7 +554,8 @@ const handleCambiarEstado = (prod) => {
             </div>
           </div>
 
-          <button onClick={onVolver} className="mt-12 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">
+          {/* BOTÓN VOLVER MODIFICADO PARA USAR NAVIGATE */}
+          <button onClick={() => navigate('/panelempleados')} className="mt-12 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">
              ⬅ Volver al Panel Principal
           </button>
         </div>

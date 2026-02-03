@@ -66,6 +66,8 @@ const getClientes = (req, res) => {
 
 const getCliente = (req, res)=>{
   const id = req.params.id
+  console.log("GET /clientes/:id - ID recibido:", id);
+  console.log("Usuario autenticado:", req.user);
   const consulta = "select * from clientes where idCliente =?"
    conection.query(consulta, [id], (err, results) => {
     if (err) {
@@ -73,33 +75,71 @@ const getCliente = (req, res)=>{
       return res.status(500).json({ error: "Error al obtener el cliente" });
     }
     if (results.length === 0) {
+      console.log("Cliente no encontrado para ID:", id);
       return res.status(404).json({ error: "Cliente no encontrado" });
     }
+    console.log("Cliente encontrado:", results[0]);
     res.json(results[0]);
   });
 }
 
 const updateCliente = async (req, res) => {
   const idCliente = req.params.idCliente;
-  const {  nombreCliente,apellidoCliente, contraCliente, emailCliente, dni  } = req.body;
+  let {
+    nombreCliente,
+    apellidoCliente,
+    contraCliente,
+    emailCliente,
+    dni,
+    telefono,
+    direccion
+  } = req.body;
 
-   let salt = await bcryptjs.genSalt(10);
-  let contraEncrip = await bcryptjs.hash(contraCliente, salt);
-  
-  const consulta =
-    "UPDATE CLIENTES  SET NOMBRECLIENTE = ?, APELLIDOCLIENTE=?, CONTRACLIENTE = ?, EMAILCLIENTE = ?, DNI= ? WHERE IDCLIENTE = ?";
+  // Validar email único si se cambia
+  if (emailCliente) {
+    const consultaEmail = "SELECT idCliente FROM clientes WHERE emailCliente = ? AND idCliente != ?";
+    conection.query(consultaEmail, [emailCliente, idCliente], async (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: "Error al validar email." });
+      }
+      if (results.length > 0) {
+        return res.status(400).json({ error: "El email ya está en uso por otro cliente." });
+      }
+      await continuarUpdate();
+    });
+  } else {
+    await continuarUpdate();
+  }
 
-  conection.query(
-    consulta,
-    [nombreCliente,apellidoCliente, contraEncrip, emailCliente, dni , idCliente],
-    (err, results) => {
+  async function continuarUpdate() {
+    // Construir consulta dinámica
+    let campos = [];
+    let valores = [];
+    if (nombreCliente) { campos.push("NOMBRECLIENTE = ?"); valores.push(nombreCliente); }
+    if (apellidoCliente) { campos.push("APELLIDOCLIENTE = ?"); valores.push(apellidoCliente); }
+    if (typeof telefono !== 'undefined') { campos.push("TELEFONO = ?"); valores.push(telefono); }
+    if (typeof direccion !== 'undefined') { campos.push("DIRECCION = ?"); valores.push(direccion); }
+    if (emailCliente) { campos.push("EMAILCLIENTE = ?"); valores.push(emailCliente); }
+    if (dni) { campos.push("DNI = ?"); valores.push(dni); }
+    if (contraCliente) {
+      let salt = await bcryptjs.genSalt(10);
+      let contraEncrip = await bcryptjs.hash(contraCliente, salt);
+      campos.push("CONTRACLIENTE = ?");
+      valores.push(contraEncrip);
+    }
+    if (campos.length === 0) {
+      return res.status(400).json({ error: "No se enviaron datos para actualizar." });
+    }
+    const consulta = `UPDATE CLIENTES SET ${campos.join(", ")} WHERE IDCLIENTE = ?`;
+    valores.push(idCliente);
+    conection.query(consulta, valores, (err, results) => {
       if (err) {
         console.error("Error al actualizar el cliente:", err);
         return res.status(500).json({ error: "Error al actualizar el cliente." });
       }
-       res.status(200).json({msg:"Empleado actualizado con exito", results});
-    }
-  );
+      res.status(200).json({ msg: "Cliente actualizado con éxito", results });
+    });
+  }
 };
 
 const darBajaCliente = (req, res)=>{

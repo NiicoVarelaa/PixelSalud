@@ -4,8 +4,10 @@ const bcryptjs = require("bcryptjs")
 
 const query = util.promisify(conection.query).bind(conection);
 
+// controllers/empleados.js
+
 const getEmpleados = (req, res) => {
-  // Hacemos LEFT JOIN para traer los datos del empleado Y sus permisos en la misma fila
+  // Quitamos el "WHERE e.activo = true" para que traiga TODOS (activos y bajas)
   const consulta = `
     SELECT e.*, 
            p.crear_productos, 
@@ -14,15 +16,14 @@ const getEmpleados = (req, res) => {
            p.ver_ventasTotalesE 
     FROM Empleados e
     LEFT JOIN Permisos p ON e.idEmpleado = p.idEmpleado
-    WHERE e.activo = true
   `;
+  // (Nota: Si quieres ordenarlos, podrías agregar al final: ORDER BY e.activo DESC, e.apellidoEmpleado ASC)
 
   conection.query(consulta, (err, results) => {
     if (err) {
         console.error(err);
         return res.status(500).json({ error: "Error al obtener empleados" });
     }
-    // Enviamos 'results' que ahora tiene nombre, email Y los permisos (1 o 0)
     res.status(200).json({ msg: "Exito", results });
   });
 };

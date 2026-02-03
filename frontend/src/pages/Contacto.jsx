@@ -21,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 const Contacto = () => {
   const { user } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({ nombre: "", email: "", mensaje: "" });
+  const [formData, setFormData] = useState({ nombre: "", email: "", asunto: "", mensaje: "" });
   const [errors, setErrors] = useState({});
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
@@ -31,10 +31,11 @@ const Contacto = () => {
       setFormData({
         nombre: user.nombre || "",
         email: user.email || "",
+        asunto: "",
         mensaje: "",
       });
     } else {
-      setFormData({ nombre: "", email: "", mensaje: "" });
+      setFormData({ nombre: "", email: "", asunto: "", mensaje: "" });
     }
   }, [user]);
 
@@ -74,14 +75,14 @@ const Contacto = () => {
     try {
       await axios.post("http://localhost:5000/mensajes/crear", {
         idCliente: user.id,
-        asunto: `Consulta de ${user.nombre}`,
+        nombre: formData.nombre,
+        email: formData.email,
+        asunto: formData.asunto || `Consulta de ${user.nombre}`,
         mensaje: formData.mensaje,
       });
-      
-      setFormData(prev => ({ ...prev, mensaje: "" }));
+      setFormData({ nombre: user.nombre || "", email: user.email || "", asunto: "", mensaje: "" });
       setErrors({});
       toast.success("¡Mensaje enviado correctamente!");
-
     } catch (error) {
       console.error("Error al enviar el mensaje:", error);
       toast.error("No se pudo enviar el mensaje. Inténtalo de nuevo.");
@@ -172,6 +173,35 @@ const Contacto = () => {
                             : "border-gray-300 focus:ring-primary-600"
                         } ${!user ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                         placeholder="Inicia sesión para autocompletar"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Asunto Input */}
+                  <div>
+                    <label
+                      htmlFor="asunto"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Asunto
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <FaAt className="text-sm" />
+                      </div>
+                      <input
+                        type="text"
+                        id="asunto"
+                        name="asunto"
+                        value={formData.asunto || ''}
+                        onChange={handleChange}
+                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+                          errors.asunto
+                            ? "border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:ring-primary-600"
+                        }`}
+                        placeholder="Motivo del mensaje (opcional)"
+                        maxLength="100"
                       />
                     </div>
                   </div>
