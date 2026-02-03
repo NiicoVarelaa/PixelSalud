@@ -32,10 +32,9 @@ const RestablecerContrasena = () => {
     try {
       // Lógica para restablecer la contraseña en el backend
       // Reemplaza esta URL con la ruta de tu API
-      await axios.post("http://localhost:5000/reset-password", {
-        token,
-        newPassword: password,
-      });
+      await axios.post(`http://localhost:5000/clientes/restablecer-password/${token}`, {
+    nuevaPassword: password, // Asegurate que la variable se llame igual que en el controller
+  });
 
       toast.success("¡Contraseña restablecida con éxito!");
       setTimeout(() => {

@@ -8,7 +8,7 @@ import Error404 from "./pages/Error404";
 
 // --- VISTAS PÚBLICAS / CLIENTE ---
 import Inicio from "./pages/Inicio";
-import Productos from "./pages/Productos"; // Vista pública
+import Productos from "./pages/Productos";
 import Producto from "./pages/Producto";
 import Carrito from "./pages/Carrito";
 import Checkout from "./pages/Checkout";
@@ -16,6 +16,7 @@ import CheckoutSuccess from "./components/CheckoutSuccess";
 import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import RecuperarContrasena from "./pages/RecuperarContraseña";
+import RestablecerContrasena from "./pages/RestablecerContrasena"; // <--- 1. NUEVA IMPORTACIÓN AQUÍ
 import SobreNosotros from "./pages/SobreNosotros";
 import Contacto from "./pages/Contacto";
 
@@ -44,23 +45,21 @@ import MenuVentas from "./components/MenuVentas";
 import AdminVentasE from "./components/AdminVentasE";
 import MedicosMenuAdmin from "./components/MedicosMenuAdmin";
 import AdminMedicos from "./components/AdminMedicos";
-// (Nota: AdminVentasO lo tenías importado pero no usado en rutas, lo omití para limpiar)
 
-// --- PANEL EMPLEADO (Rutas Anidadas) ---
-import PanelEmpleados from "./pages/PanelEmpleados"; // Layout
-import VistaInicialCards from "./components/VistiaInicialCardsEmpleado"; // Ojo: Verifica si es 'Vistia' o 'Vista'
+// --- PANEL EMPLEADO ---
+import PanelEmpleados from "./pages/PanelEmpleados";
+import VistaInicialCards from "./components/VistiaInicialCardsEmpleado";
 import EmpleadoRealizarVenta from "./components/EmpleadoRealizarVenta";
 import EmpleadoListaVentas from "./components/EmpleadoListaVentas";
 import EmpleadoEditarVenta from "./components/EmpleadoEditarVenta";
-import EmpleadoProductos from "./components/EmpleadosProductos"; // Vista interna empleado
+import EmpleadoProductos from "./components/EmpleadosProductos";
 
-// --- PANEL MÉDICO (Rutas Anidadas) ---
-import PanelMedicos from "./pages/PanelMedico"; // Layout
-import VistaMenuMedico from "./components/VistaMenuMedico";; // Cards médico
+// --- PANEL MÉDICO ---
+import PanelMedicos from "./pages/PanelMedico";
+import VistaMenuMedico from "./components/VistaMenuMedico";
 import MedicoNuevaReceta from "./components/MedicoNuevaReceta";
 import MedicoMisRecetas from "./components/MedicoMisRecetas";
 
-// import Institucional from "./pages/Institucional";
 import Sucursales from "./pages/Sucursales";
 import PreguntasFrecuentes from "./pages/PreguntasFrecuentes";
 import TerminosCondiciones from "./pages/TerminosCondiciones";
@@ -83,30 +82,31 @@ const App = () => {
           <Route path="login" element={<Login />} />
           <Route path="recuperarContraseña" element={<RecuperarContrasena />} />
           
-          {/* Tienda */}
+          {/* 2. NUEVA RUTA AQUÍ */}
+          {/* Esta ruta recibe el token por URL (?token=...) y muestra el form para cambiar la clave */}
+          <Route path="reset-password" element={<RestablecerContrasena />} />
+          
           <Route path="productos" element={<Productos />} />
           <Route path="productos/:idProducto" element={<Producto />} />
           <Route path="productos/:categoria?" element={<Productos />} />
           
-          {/* Proceso de Compra */}
           <Route path="carrito" element={<Carrito />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="checkout/success" element={<CheckoutSuccess />} />
           
-          {/* Institucional */}
           <Route path="sobreNosotros" element={<SobreNosotros />} />
           <Route path="contacto" element={<Contacto />} />
 
-          {/* Dashboard Cliente */}
           <Route path="perfil" element={<DashboardCliente />}>
             <Route index element={<Perfil />} />
             <Route path="favoritos" element={<PerfilFavoritos />} />
             <Route path="mis-compras" element={<MisCompras />} />
             <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
-            
           </Route>
         </Route>
 
+        {/* ... (RUTAS ADMIN, EMPLEADO Y MÉDICO QUEDAN IGUAL) ... */}
+        
         {/* =========================================
             RUTAS ADMINISTRADOR
            ========================================= */}
@@ -131,7 +131,7 @@ const App = () => {
             </Route>
 
             <Route path="MenuVentas/*" element={<MenuVentas />}>
-            <Route index element={<OpcionesVentas />} />
+              <Route index element={<OpcionesVentas />} />
               <Route path="VentasE" element={<AdminVentasE />} />
               <Route path="VentasO" element={<AdminVentasO />} />
             </Route>
@@ -145,46 +145,21 @@ const App = () => {
         </Route>
         
         {/* =========================================
-            RUTAS EMPLEADO (NUEVAS & ANIDADAS)
+            RUTAS EMPLEADO
            ========================================= */}
         <Route element={<ProtectedRoute allowedRoles={["empleado"]} />}>
           <Route path="/panelempleados" element={<PanelEmpleados />}>
-             {/* 1. Inicio (Cards) */}
              <Route index element={<VistaInicialCards />} /> 
-             
-             {/* 2. Funciones */}
              <Route path="venta" element={<EmpleadoRealizarVenta />} />
              <Route path="productos" element={<EmpleadoProductos />} />
-             
-             {/* 3. Reutilización de ListaVentas con props específicas */}
-             <Route 
-                path="misventas" 
-                element={
-                    <EmpleadoListaVentas 
-                        // El componente interno deberá leer el ID del store si no se pasa endpoint completo
-                        // O bien, pasamos un prop 'mode="personal"'
-                        endpoint="personal" 
-                        title="Mis Ventas Personales" 
-                    />
-                } 
-             />
-             <Route 
-                path="ventastotales" 
-                element={
-                    <EmpleadoListaVentas 
-                        endpoint="general" 
-                        title="Ventas Totales" 
-                    />
-                } 
-             />
-
-             {/* 4. Edición (con parámetro ID) */}
+             <Route path="misventas" element={<EmpleadoListaVentas endpoint="personal" title="Mis Ventas Personales" />} />
+             <Route path="ventastotales" element={<EmpleadoListaVentas endpoint="general" title="Ventas Totales" />} />
              <Route path="editar-venta/:idVenta" element={<EmpleadoEditarVenta />} />
           </Route>
         </Route>
 
         {/* =========================================
-            RUTAS MÉDICO (NUEVAS & ANIDADAS)
+            RUTAS MÉDICO
            ========================================= */}
         <Route element={<ProtectedRoute allowedRoles={["medico"]} />}>
           <Route path="/panelMedico" element={<PanelMedicos />}>
@@ -194,7 +169,6 @@ const App = () => {
           </Route>
         </Route>
 
-        {/* Error Global */}
         <Route path="*" element={<Error404 />} />
       </Routes>
     </>
