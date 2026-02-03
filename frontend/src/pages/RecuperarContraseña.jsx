@@ -21,8 +21,7 @@ const RecuperarContrasena = () => {
     try {
       // Lógica para enviar el correo al backend
       // Reemplaza esta URL con la ruta de tu API de backend
-      await axios.post("http://localhost:5000/forgot-password", { email });
-      
+      await axios.post("http://localhost:5000/clientes/olvide-password", { email });
       toast.success("¡Correo enviado! Revisa tu bandeja de entrada.");
       setTimeout(() => {
         navigate("/");
