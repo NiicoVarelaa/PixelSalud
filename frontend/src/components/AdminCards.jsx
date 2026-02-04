@@ -1,6 +1,6 @@
 
 
-const AdminCards = ({ productos}) => {
+/* const AdminCards = ({ productos}) => {
 
   const ultimoProducto = productos[productos.length - 1];
 
@@ -43,3 +43,4 @@ const AdminCards = ({ productos}) => {
 };
 
 export default AdminCards;
+ */

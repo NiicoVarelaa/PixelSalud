@@ -1,4 +1,4 @@
-require("dotenv").config();
+  require("dotenv").config();
 const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
 const { conection } = require("../config/database");
 const jwt = require("jsonwebtoken");
@@ -12,7 +12,7 @@ const client = new MercadoPagoConfig({
 const verifyToken = (req, res, next) => {
   try {
     const authHeader = req.header("Auth") || req.header("auth");
-    const token = authHeader?.replace("Bearer ", "");
+    const token = authHeader?.replace("Bearer ", "");       
 
     if (!token) {
       return res.status(401).json({ message: "Token requerido" });

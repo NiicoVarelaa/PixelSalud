@@ -1,41 +1,46 @@
 import { useState, useEffect } from "react";
 import apiClient from "../utils/apiClient";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 import { useAuthStore } from "../store/useAuthStore";
-import { useNavigate } from "react-router-dom";
-import {
-  Users,
-  UserPlus,
-  Edit,
-  Mail,
-  Shield,
-  UserX,
-  CheckCircle,
-  Search,
-} from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Users, UserPlus, Edit, UserX, CheckCircle, Search, Shield, Mail } from "lucide-react";
 
 const AdminEmpleados = () => {
   const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Filtros
   const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("todos"); // Nuevo filtro
+
+  // --- ESTADOS PARA PAGINACIÓN ---
+  const [paginaActual, setPaginaActual] = useState(1);
+  const itemsPorPagina = 4;
+
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
-  // 🔐 Protección de ruta
   useEffect(() => {
-    if (!user || user.rol !== "admin") navigate("/");
+    if (!user || user.rol !== "admin") {
+      navigate("/");
+    }
   }, [user, navigate]);
 
-  // 📦 Obtener empleados
   const obtenerEmpleados = async () => {
     setLoading(true);
     try {
       const res = await apiClient.get("/empleados");
-      if (res.data.results) setEmpleados(res.data.results);
-      else if (Array.isArray(res.data)) setEmpleados(res.data);
-      else setEmpleados([]);
+      if (res.data.results && Array.isArray(res.data.results)) {
+        setEmpleados(res.data.results);
+      } else if (Array.isArray(res.data)) {
+        setEmpleados(res.data);
+      } else {
+        setEmpleados([]);
+      }
     } catch (error) {
+      console.error("Error al obtener empleados", error);
+      toast.error("No se pudieron cargar los empleados.");
       setEmpleados([]);
     } finally {
       setLoading(false);
@@ -46,224 +51,396 @@ const AdminEmpleados = () => {
     obtenerEmpleados();
   }, []);
 
-  // 📝 Crear empleado
+  // Resetear pagina al buscar o filtrar
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [busqueda, filtroEstado]);
+
+  const generarHtmlPermisos = (emp = {}) => {
+    const isChecked = (key) => (emp[key] == 1 || emp[key] === true) ? "checked" : "";
+    return `
+      <div class="mt-4 text-left bg-blue-50 p-4 rounded-lg border border-blue-100">
+        <h3 class="text-sm font-bold text-blue-800 mb-3 flex items-center gap-2">
+          🛡️ Asignar Permisos
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="flex items-center space-x-2 cursor-pointer hover:bg-blue-100 p-1 rounded transition">
+                <input type="checkbox" id="p-crear-prod" class="form-checkbox h-4 w-4 text-blue-600 rounded" ${isChecked("crear_productos")}>
+                <span class="text-sm text-gray-700 font-medium">Crear Productos/Ofertas</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer hover:bg-blue-100 p-1 rounded transition">
+                <input type="checkbox" id="p-mod-prod" class="form-checkbox h-4 w-4 text-blue-600 rounded" ${isChecked("modificar_productos")}>
+                <span class="text-sm text-gray-700 font-medium">Modif/Eliminar Productos</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer hover:bg-blue-100 p-1 rounded transition">
+                <input type="checkbox" id="p-mod-ventas" class="form-checkbox h-4 w-4 text-blue-600 rounded" ${isChecked("modificar_ventasE")}>
+                <span class="text-sm text-gray-700 font-medium">Editar/Anular Ventas</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer hover:bg-blue-100 p-1 rounded transition">
+                <input type="checkbox" id="p-ver-totales" class="form-checkbox h-4 w-4 text-blue-600 rounded" ${isChecked("ver_ventasTotalesE")}>
+                <span class="text-sm text-gray-700 font-medium">Ver Ventas Totales</span>
+            </label>
+        </div>
+      </div>
+    `;
+  };
+
   const handleCrearEmpleado = async () => {
-    const { value } = await Swal.fire({
-      title: '<h2 class="text-2xl font-bold text-blue-700">👤 Nuevo Empleado</h2>',
+    const { value: formValues } = await Swal.fire({
+      title: '<h2 class="text-2xl font-bold text-gray-800">👤 Nuevo Empleado</h2>',
       html: `
-        <div class="flex flex-col gap-3 text-left">
-          <input id="nombre" class="swal2-input" placeholder="Nombre">
-          <input id="apellido" class="swal2-input" placeholder="Apellido">
-          <input id="email" type="email" class="swal2-input" placeholder="Email">
-          <input id="pass" type="password" class="swal2-input" placeholder="Contraseña">
+        <div class="flex flex-col gap-4 text-left">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Nombre</label>
+                    <input id="swal-nombre" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Juan">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Apellido</label>
+                    <input id="swal-apellido" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Pérez">
+                </div>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase">Email</label>
+                <input id="swal-email" type="email" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="juan@farmacia.com">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase">Contraseña</label>
+                <input id="swal-pass" type="password" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="*******">
+            </div>
         </div>
+        ${generarHtmlPermisos()} 
       `,
       showCancelButton: true,
+      confirmButtonText: "Registrar Empleado",
       confirmButtonColor: "#2563EB",
-      preConfirm: () => ({
-        nombreEmpleado: document.getElementById("nombre").value.trim(),
-        apellidoEmpleado: document.getElementById("apellido").value.trim(),
-        emailEmpleado: document.getElementById("email").value.trim(),
-        contraEmpleado: document.getElementById("pass").value.trim(),
-      }),
+      width: "600px",
+      focusConfirm: false,
+      preConfirm: () => {
+        const nombre = document.getElementById("swal-nombre").value.trim();
+        const apellido = document.getElementById("swal-apellido").value.trim();
+        const email = document.getElementById("swal-email").value.trim();
+        const contra = document.getElementById("swal-pass").value.trim();
+
+        if (!nombre || !apellido || !email || !contra) {
+          Swal.showValidationMessage("Todos los campos son obligatorios");
+          return false;
+        }
+
+        const permisos = {
+          crear_productos: document.getElementById("p-crear-prod").checked,
+          modificar_productos: document.getElementById("p-mod-prod").checked,
+          modificar_ventasE: document.getElementById("p-mod-ventas").checked,
+          ver_ventasTotalesE: document.getElementById("p-ver-totales").checked,
+        };
+
+        return {
+          nombreEmpleado: nombre,
+          apellidoEmpleado: apellido,
+          emailEmpleado: email,
+          contraEmpleado: contra,
+          permisos,
+        };
+      },
     });
 
-    if (value) {
-      await apiClient.post("/empleados/crear", value);
-      obtenerEmpleados();
+    if (formValues) {
+      try {
+        await apiClient.post("/empleados/crear", formValues);
+        Swal.fire("Creado", "Empleado y permisos registrados correctamente.", "success");
+        obtenerEmpleados();
+      } catch (error) {
+        Swal.fire("Error", error.response?.data?.error || "No se pudo crear", "error");
+      }
     }
   };
 
-  // ✏️ Editar empleado
   const handleEditarEmpleado = async (emp) => {
-    const { value } = await Swal.fire({
-      title: `<h2 class="text-xl font-bold">✏️ Editar ${emp.nombreEmpleado}</h2>`,
+    const { value: formValues } = await Swal.fire({
+      title: `<h2 class="text-xl font-bold text-gray-700">✏️ Editando: ${emp.nombreEmpleado}</h2>`,
       html: `
-        <div class="flex flex-col gap-3 text-left">
-          <input id="nombre" class="swal2-input" value="${emp.nombreEmpleado}">
-          <input id="apellido" class="swal2-input" value="${emp.apellidoEmpleado}">
-          <input id="email" class="swal2-input" value="${emp.emailEmpleado}">
-          <input id="pass" type="password" class="swal2-input" placeholder="Nueva contraseña (opcional)">
+        <div class="flex flex-col gap-4 text-left">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Nombre</label>
+                    <input id="swal-nombre" class="w-full p-2.5 border border-gray-300 rounded-lg" value="${emp.nombreEmpleado}">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase">Apellido</label>
+                    <input id="swal-apellido" class="w-full p-2.5 border border-gray-300 rounded-lg" value="${emp.apellidoEmpleado || ""}">
+                </div>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-500 uppercase">Email</label>
+                <input id="swal-email" type="email" class="w-full p-2.5 border border-gray-300 rounded-lg" value="${emp.emailEmpleado}">
+            </div>
+            <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                <label class="text-xs font-bold text-yellow-700 uppercase">Nueva Contraseña (Opcional)</label>
+                <input id="swal-pass" type="password" class="w-full p-2 border border-yellow-300 rounded bg-white mt-1" placeholder="Dejar vacío para no cambiar">
+            </div>
         </div>
+        ${generarHtmlPermisos(emp)} 
       `,
       showCancelButton: true,
+      confirmButtonText: "Guardar Cambios",
       confirmButtonColor: "#EAB308",
-      preConfirm: () => ({
-        nombreEmpleado: document.getElementById("nombre").value.trim(),
-        apellidoEmpleado: document.getElementById("apellido").value.trim(),
-        emailEmpleado: document.getElementById("email").value.trim(),
-        contraEmpleado: document.getElementById("pass").value.trim(),
-      }),
+      width: "600px",
+      preConfirm: () => {
+        const permisos = {
+          crear_productos: document.getElementById("p-crear-prod").checked,
+          modificar_productos: document.getElementById("p-mod-prod").checked,
+          modificar_ventasE: document.getElementById("p-mod-ventas").checked,
+          ver_ventasTotalesE: document.getElementById("p-ver-totales").checked,
+        };
+
+        return {
+          nombreEmpleado: document.getElementById("swal-nombre").value.trim(),
+          apellidoEmpleado: document.getElementById("swal-apellido").value.trim(),
+          emailEmpleado: document.getElementById("swal-email").value.trim(),
+          contraEmpleado: document.getElementById("swal-pass").value.trim(),
+          permisos,
+        };
+      },
     });
 
-    if (value) {
-      await apiClient.put(`/empleados/actualizar/${emp.idEmpleado}`, value);
-      obtenerEmpleados();
+    if (formValues) {
+      try {
+        await apiClient.put(`/empleados/actualizar/${emp.idEmpleado}`, formValues);
+        Swal.fire("Actualizado", "Datos y permisos modificados correctamente", "success");
+        obtenerEmpleados();
+      } catch (error) {
+        Swal.fire("Error", "No se pudo actualizar", "error");
+      }
     }
   };
 
-  // En AdminEmpleados.jsx
-
-const handleCambiarEstado = (emp) => {
-    const activo = emp.activo !== 0 && emp.activo !== false;
+  const handleCambiarEstado = (emp) => {
+    const esActivo = emp.activo !== 0 && emp.activo !== false;
+    const accion = esActivo ? "Dar de Baja" : "Reactivar";
+    const color = esActivo ? "#d33" : "#059669"; 
 
     Swal.fire({
-      title: activo ? "¿Dar de baja?" : "¿Reactivar?",
+      title: `¿${accion}?`,
+      text: `El empleado ${esActivo ? "perderá" : "recuperará"} el acceso al sistema.`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: activo ? "#dc2626" : "#16a34a",
-    }).then(async (r) => {
-      if (r.isConfirmed) {
+      confirmButtonColor: color,
+      confirmButtonText: `Sí, ${accion}`,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
         try {
-          await apiClient.put(
-            activo
-              ? `/empleados/baja/${emp.idEmpleado}`
-              : `/empleados/reactivar/${emp.idEmpleado}` // ✅ CORREGIDO: "reactivar" en lugar de "activar"
-          );
-          
-          // Opcional: Mostrar mensaje de éxito
-          Swal.fire("¡Éxito!", "El estado del empleado ha sido actualizado.", "success");
-          
+          const endpoint = esActivo
+            ? `/empleados/baja/${emp.idEmpleado}`
+            : `/empleados/reactivar/${emp.idEmpleado}`;
+
+          await apiClient.put(endpoint);
+          Swal.fire("Estado Actualizado", `Empleado ${accion.toLowerCase()} con éxito`, "success");
           obtenerEmpleados();
         } catch (error) {
-          console.error("Error al cambiar estado:", error);
-          Swal.fire("Error", "No se pudo cambiar el estado del empleado", "error");
+          console.error("Error cambiando estado:", error);
+          Swal.fire("Error", "No se pudo cambiar el estado", "error");
         }
       }
     });
   };
 
-  // 🔍 Filtro
-  const empleadosFiltrados = empleados.filter((e) => {
-    const t = busqueda.toLowerCase();
-    return (
-      e.nombreEmpleado.toLowerCase().includes(t) ||
-      e.apellidoEmpleado.toLowerCase().includes(t) ||
-      e.emailEmpleado.toLowerCase().includes(t)
-    );
+  // --- LÓGICA DE FILTRADO ACTUALIZADA ---
+  const empleadosFiltrados = empleados.filter((emp) => {
+    const termino = busqueda.toLowerCase();
+    const coincideBusqueda = 
+      emp.nombreEmpleado.toLowerCase().includes(termino) ||
+      emp.apellidoEmpleado.toLowerCase().includes(termino) ||
+      emp.emailEmpleado.toLowerCase().includes(termino) ||
+      emp.idEmpleado.toString().includes(termino);
+
+    // Filtro por Estado
+    const esActivo = emp.activo !== 0 && emp.activo !== false;
+    const coincideEstado = 
+        filtroEstado === "todos" ||
+        (filtroEstado === "activos" && esActivo) ||
+        (filtroEstado === "inactivos" && !esActivo);
+
+    return coincideBusqueda && coincideEstado;
   });
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-10">
-      <ToastContainer />
+  const indiceUltimoItem = paginaActual * itemsPorPagina;
+  const indicePrimerItem = indiceUltimoItem - itemsPorPagina;
+  const itemsActuales = empleadosFiltrados.slice(indicePrimerItem, indiceUltimoItem);
+  const totalPaginas = Math.ceil(empleadosFiltrados.length / itemsPorPagina);
 
-      <div className="max-w-7xl mx-auto">
+  const cambiarPagina = (numeroPagina) => setPaginaActual(numeroPagina);
+
+  const getPaginationNumbers = () => {
+    const delta = 1;
+    const range = [];
+    const rangeWithDots = [];
+    for (let i = 1; i <= totalPaginas; i++) {
+      if (i === 1 || i === totalPaginas || (i >= paginaActual - delta && i <= paginaActual + delta)) {
+        range.push(i);
+      }
+    }
+    let l;
+    for (let i of range) {
+      if (l) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1);
+        } else if (i - l !== 1) {
+          rangeWithDots.push("...");
+        }
+      }
+      rangeWithDots.push(i);
+      l = i;
+    }
+    return rangeWithDots;
+  };
+
+  return (
+    <div className="min-h-screen bg-white p-6 w-full">
+      <ToastContainer position="top-right" autoClose={3000} />
+
+      <div className="w-full mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <Shield className="text-blue-600" size={32} />
-              Administración de Empleados
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-2">
+              <Shield className="text-blue-600" size={32} /> Administración de Empleados
             </h1>
-            <p className="text-gray-500 mt-1">
-              Gestiona el personal del sistema.
+            <p className="text-gray-500 mt-1 text-sm">
+              Gestiona el acceso y permisos del personal.
             </p>
           </div>
-
-          <button
-            onClick={handleCrearEmpleado}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl transition shadow-lg hover:shadow-blue-500/30"
-          >
-            <UserPlus size={20} /> Nuevo Empleado
-          </button>
+          <div className="flex gap-3">
+            <button onClick={handleCrearEmpleado} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer">
+              <UserPlus size={20} /> Agregar Empleado
+            </button>
+            <Link to="/admin" className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium">
+              ← Volver
+            </Link>
+          </div>
         </div>
 
-        {/* Tabla */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          {/* Buscador */}
-          <div className="p-4 border-b bg-gray-50 flex items-center gap-2">
-            <Search className="text-gray-400" size={18} />
-            <input
-              type="text"
-              placeholder="Buscar empleado..."
-              className="w-full bg-transparent outline-none"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
+        {/* Buscador y Filtro */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="relative w-full md:w-1/3">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="text-gray-400" size={18} />
+            </div>
+            <input 
+                type="text" 
+                placeholder="Buscar por nombre, ID o email..." 
+                value={busqueda} 
+                onChange={(e) => setBusqueda(e.target.value)} 
+                className="border p-2 pl-10 rounded w-full focus:outline-none focus:ring-1 focus:ring-blue-500" 
             />
           </div>
 
+          <div className="w-full md:w-1/4">
+            <select
+                value={filtroEstado}
+                onChange={(e) => setFiltroEstado(e.target.value)}
+                className="border p-2 rounded w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+                <option value="todos">Todos</option>
+                <option value="activos">Activos</option>
+                <option value="inactivos">Inactivos</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Tabla */}
+        <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
           {loading ? (
-            <div className="p-12 text-center text-gray-500">
-              Cargando empleados...
+            <div className="p-12 text-center">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-500">Cargando personal...</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-gray-50 text-xs uppercase text-gray-600">
+            <div className="w-full">
+              <table className="w-full divide-y divide-gray-200 table-fixed">
+                <thead className="bg-blue-100">
                   <tr>
-                    <th className="px-6 py-4">Empleado</th>
-                    <th className="px-6 py-4">Email</th>
-                    <th className="px-6 py-4 text-center">Estado</th>
-                    <th className="px-6 py-4 text-center">Acciones</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-20">ID</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-1/3">Nombre</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-1/3">Email</th>
+                    <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-24">Estado</th>
+                    <th className="px-3 py-3 text-right text-xs font-medium text-gray-800 uppercase tracking-wider w-32">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {empleadosFiltrados.map((emp) => {
-                    const activo = emp.activo !== 0 && emp.activo !== false;
-                    return (
-                      <tr
-                        key={emp.idEmpleado}
-                        className={`${!activo ? "opacity-60 bg-gray-50" : ""}`}
-                      >
-                        <td className="px-6 py-4 hover:bg-blue-50/40 flex items-center gap-3 font-medium">
-                          <div className="w-9 h-9 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-                            <Users size={18} />
-                          </div>
-                          {emp.nombreEmpleado} {emp.apellidoEmpleado}
-                        </td>
+                  {itemsActuales.length > 0 ? (
+                    itemsActuales.map((emp) => {
+                      const esActivo = emp.activo !== 0 && emp.activo !== false;
+                      return (
+                        <tr key={emp.idEmpleado} className={`hover:bg-blue-50/40 transition duration-150 ${!esActivo ? "opacity-60 bg-gray-50" : ""}`}>
+                          <td className="px-3 py-3 text-gray-500 font-mono text-xs whitespace-nowrap">#{emp.idEmpleado}</td>
+                          <td className="px-3 py-3 align-middle">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+                                <Users size={16} />
+                              </div>
+                              <div className="text-sm font-medium text-gray-900 whitespace-normal break-words">
+                                {emp.nombreEmpleado} {emp.apellidoEmpleado}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-3 py-3 align-middle">
+                            <div className="flex items-center gap-2 text-sm text-gray-600 whitespace-normal break-words break-all">
+                              <Mail size={14} className="text-gray-400 flex-shrink-0" /> {emp.emailEmpleado}
+                            </div>
+                          </td>
+                          <td className="px-3 py-3 whitespace-nowrap text-center align-middle">
+                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${esActivo ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                              {esActivo ? "Activo" : "Baja"}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 whitespace-nowrap text-right align-middle">
+                            <div className="flex gap-1 justify-end">
+                              {/* Botón Editar sin texto */}
+                              <button 
+                                onClick={() => handleEditarEmpleado(emp)} 
+                                className="p-1.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer" 
+                                title="Editar Empleado"
+                              >
+                                <Edit size={16} />
+                              </button>
 
-                        <td className="px-6 py-4 hover:bg-blue-50/40 text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Mail size={14} />
-                            {emp.emailEmpleado}
-                          </div>
-                        </td>
-
-                        <td className="px-6 py-4 hover:bg-blue-50/40 text-center">
-                          <span
-                            className={`px-2 py-1 text-xs font-bold rounded-full ${activo
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                              }`}
-                          >
-                            {activo ? "Activo" : "Baja"}
-                          </span>
-                        </td>
-
-                        <td className="px-6 py-4 hover:bg-blue-50/40">
-                          <div className="flex justify-center gap-3">
-                            <button
-                              onClick={() => handleEditarEmpleado(emp)}
-                              className="p-2 bg-yellow-50 text-yellow-600 rounded-lg border hover:bg-yellow-100"
-                            >
-                              <Edit size={18} />
-                            </button>
-                            <button
-                              onClick={() => handleCambiarEstado(emp)}
-                              className={`p-2 rounded-lg border ${activo
-                                ? "bg-red-50 text-red-600 hover:bg-red-100"
-                                : "bg-green-50 text-green-600 hover:bg-green-100"
-                                }`}
-                            >
-                              {activo ? (
-                                <UserX size={18} />
-                              ) : (
-                                <CheckCircle size={18} />
-                              )}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                              {/* Botón Estado sin texto */}
+                              <button 
+                                onClick={() => handleCambiarEstado(emp)} 
+                                className={`p-1.5 text-white rounded-md transition-colors cursor-pointer ${esActivo ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"}`} 
+                                title={esActivo ? "Dar Baja" : "Reactivar Empleado"}
+                              >
+                                {esActivo ? <UserX size={16} /> : <CheckCircle size={16} />}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr><td colSpan="5" className="px-6 py-4 text-center text-gray-500">No hay empleados registrados.</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
           )}
 
-          {empleadosFiltrados.length === 0 && !loading && (
-            <div className="p-10 text-center text-gray-400">
-              No se encontraron empleados.
+          {/* --- CONTROLES DE PAGINACIÓN --- */}
+          {!loading && itemsActuales.length > 0 && (
+            <div className="flex justify-center py-6 bg-white border-t border-gray-200">
+              <nav className="flex items-center gap-1" aria-label="Pagination">
+                <button onClick={() => cambiarPagina(Math.max(1, paginaActual - 1))} disabled={paginaActual === 1} className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === 1 ? "opacity-50 cursor-not-allowed text-gray-400 hover:bg-white" : "cursor-pointer"}`}>
+                  &lt;
+                </button>
+                {getPaginationNumbers().map((number, index) => (
+                  <button key={index} onClick={() => typeof number === "number" ? cambiarPagina(number) : null} disabled={typeof number !== "number"} className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${number === paginaActual ? "bg-blue-500 text-white" : typeof number === "number" ? "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50" : "bg-white text-gray-400 cursor-default"}`}>
+                    {number}
+                  </button>
+                ))}
+                <button onClick={() => cambiarPagina(Math.min(totalPaginas, paginaActual + 1))} disabled={paginaActual === totalPaginas} className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === totalPaginas ? "opacity-50 cursor-not-allowed text-gray-400 hover:bg-white" : "cursor-pointer"}`}>
+                  &gt;
+                </button>
+              </nav>
             </div>
           )}
         </div>

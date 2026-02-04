@@ -223,8 +223,9 @@ const obtenerVentasCompletadas = (req, res) => {
 };
 
 const updateVenta = (req, res) => {
-    const  idVentaE  = req.params.idVentaE 
-    const { totalPago, metodoPago, productos } = req.body;
+    const idVentaE = req.params.idVentaE;
+    // 1. AHORA RECIBIMOS TAMBIÉN idEmpleado
+    const { totalPago, metodoPago, productos, idEmpleado } = req.body;
 
     if (!idVentaE || !productos || productos.length === 0) {
         return res.status(400).json({ error: "Faltan datos para editar" });
@@ -255,8 +256,9 @@ const updateVenta = (req, res) => {
                         conection.query('DELETE FROM DetalleVentaEmpleado WHERE idVentaE = ?', [idVentaE], (err) => {
                             if (err) return conection.rollback(() => res.status(500).json({ error: "Error borrando detalles viejos" }));
                             
-                            conection.query('UPDATE VentasEmpleados SET totalPago = ?, metodoPago = ? WHERE idVentaE = ?', 
-                                [totalPago, metodoPago, idVentaE], 
+                            // 2. AQUÍ ESTÁ LA CORRECCIÓN: Agregamos idEmpleado = ? al UPDATE
+                            conection.query('UPDATE VentasEmpleados SET totalPago = ?, metodoPago = ?, idEmpleado = ? WHERE idVentaE = ?', 
+                                [totalPago, metodoPago, idEmpleado, idVentaE], 
                                 (err) => {
                                     if (err) return conection.rollback(() => res.status(500).json({ error: "Error actualizando cabecera" }));
                                     insertarNuevosDetalles();

@@ -28,7 +28,9 @@ const getUserOrders = async (req, res) => {
 
 const mostrarTodasLasVentas = async (req, res) => {
   const consulta = `
-    SELECT v.idVentaO, v.fechaPago, v.horaPago, v.metodoPago, v.estado, c.nombreCliente, p.nombreProducto, d.cantidad, d.precioUnitario, v.totalPago
+    SELECT v.idVentaO, v.fechaPago, v.horaPago, v.metodoPago, v.estado, 
+           c.nombreCliente, c.apellidoCliente, c.dni,  -- <--- AGREGADO c.dni y c.apellidoCliente
+           p.nombreProducto, d.cantidad, d.precioUnitario, v.totalPago
     FROM VentasOnlines v
     JOIN Clientes c ON v.idCliente = c.idCliente
     JOIN DetalleVentaOnline d ON v.idVentaO = d.idVentaO

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEnvelopeOpen, FaEnvelope, FaCheck, FaTimes, FaFilter, FaSearch } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 // Formateador nativo para fechas tipo dd/MM/yyyy HH:mm
 function formatFecha(fechaStr) {
@@ -10,7 +11,6 @@ function formatFecha(fechaStr) {
   const pad = n => n.toString().padStart(2, '0');
   return `${pad(fecha.getDate())}/${pad(fecha.getMonth() + 1)}/${fecha.getFullYear()} ${pad(fecha.getHours())}:${pad(fecha.getMinutes())}`;
 }
-
 
 const estadoLabels = {
   nuevo: "Nuevo",
@@ -65,7 +65,19 @@ const AdminMensajes = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto py-10 px-4">
-        <h1 className="text-3xl font-bold mb-6 text-primary-700">Gestión de Mensajes</h1>
+        
+        {/* HEADER: Título y Botón Volver alineados */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h1 className="text-3xl font-bold text-primary-700">Gestión de Mensajes</h1>
+            
+            <Link
+              to="/admin"
+              className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium"
+            >
+              ← Volver
+            </Link>
+        </div>
+        
         <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
           <div className="flex gap-2 items-center">
             <FaFilter className="text-gray-400" />
