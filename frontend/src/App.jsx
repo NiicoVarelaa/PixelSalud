@@ -42,8 +42,7 @@ import AdminMensajes from "./pages/AdminMensajes";
 import AdminEmpleados from "./components/AdminEmpleados";
 import MenuVentas from "./components/MenuVentas";
 import AdminVentasE from "./components/AdminVentasE";
-import MedicosMenuAdmin from "./components/MedicosMenuAdmin";
-import AdminMedicos from "./components/AdminMedicos";
+
 // (Nota: AdminVentasO lo tenías importado pero no usado en rutas, lo omití para limpiar)
 
 // --- PANEL EMPLEADO (Rutas Anidadas) ---
@@ -136,9 +135,9 @@ const App = () => {
               <Route path="VentasO" element={<AdminVentasO />} />
             </Route>
 
-            <Route path="MenuMedicosAdmin/*" element={<MedicosMenuAdmin />}>
+            {/* <Route path="MenuMedicosAdmin/*" element={<MedicosMenuAdmin />}>
               <Route index element={<AdminMedicos />} />
-            </Route>
+            </Route> */}
 
             <Route path="mensajes" element={<AdminMensajes />} />
           </Route>

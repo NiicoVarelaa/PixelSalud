@@ -1,10 +1,19 @@
 import React from 'react';
-import { ShoppingCart, Package, User, BarChart2, Home, LogOut } from 'lucide-react';
+import { 
+    Home, 
+    Package, 
+    Users,          // Para Clientes
+    Briefcase,      // Para Empleados
+    BarChart2,      // Para Ventas (Estadísticas/Historial)
+    MessageSquare,  // Para Mensajes
+    LogOut 
+} from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const SidebarAdmin = () => {
-    const { logoutUser } = useAuthStore();
+    // Obtenemos 'user' (datos del usuario) y 'logoutUser' del store
+    const { user, logoutUser } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -13,7 +22,6 @@ const SidebarAdmin = () => {
         navigate('/login');
     };
 
-    
     const isActive = (path) => {
         const segmentos = location.pathname.split('/');
         return segmentos.includes(path);
@@ -27,22 +35,21 @@ const SidebarAdmin = () => {
         }
   `;
 
-
-
     return (
         <div className="w-64 bg-white border-r border-gray-200 h-full flex flex-col p-4 shadow-sm hidden md:flex animate-slideInLeft">
 
             {/* CABECERA */}
             <div className="mb-8 px-2 flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-md shrink-0">
-                    {User?.nombre?.charAt(0)}{User?.apellido?.charAt(0)}
+                    {/* Usamos 'user' del store (minúscula) */}
+                    {user?.nombre?.charAt(0)}{user?.apellido?.charAt(0)}
                 </div>
                 <div className="overflow-hidden">
                     <h2
                         className="text-sm font-bold text-gray-800 truncate"
-                        title={`${User?.nombre} ${User?.apellido}`}
+                        title={`${user?.nombre} ${user?.apellido}`}
                     >
-                        {User?.nombre} {User?.apellido}
+                        {user?.nombre} {user?.apellido}
                     </h2>
                     <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
                         PixelSalud • Administrador
@@ -64,33 +71,33 @@ const SidebarAdmin = () => {
                 <div className="my-2 border-t border-gray-100 mx-2"></div>
 
                 {/* PRODUCTOS */}
-                <div onClick={() => navigate('/admin/MenuProductos')} className={btnClass('productos')}>
+                <div onClick={() => navigate('/admin/MenuProductos')} className={btnClass('MenuProductos')}>
                     <Package size={20} />
                     <span>Productos</span>
                 </div>
 
-                {/* Clientes */}
-                <div onClick={() => navigate('/admin/MenuClientes')} className={btnClass('usuarios')}>
-                    <User size={20} />
+                {/* CLIENTES - Icono Users */}
+                <div onClick={() => navigate('/admin/MenuClientes')} className={btnClass('MenuClientes')}>
+                    <Users size={20} />
                     <span>Clientes</span>
                 </div>
 
-                {/* Empleados */}
-                <div onClick={() => navigate('/admin/MenuEmpleados')} className={btnClass('usuarios')}>
-                    <User size={20} />
+                {/* EMPLEADOS - Icono Briefcase (Maletín) */}
+                <div onClick={() => navigate('/admin/MenuEmpleados')} className={btnClass('MenuEmpleados')}>
+                    <Briefcase size={20} />
                     <span>Empleados</span>
                 </div>
 
-                {/* Medicos */}
-                <div onClick={() => navigate('/admin/MenuMedicosAdmin')} className={btnClass('usuarios')}>
-                    <User size={20} />
-                    <span>Medicos</span>
+                {/* VENTAS - Icono BarChart2 (Gráfico) */}
+                <div onClick={() => navigate('/admin/MenuVentas')} className={btnClass('MenuVentas')}>
+                    <BarChart2 size={20} />
+                    <span>Ventas</span>
                 </div>
 
-                {/* Ventas */}
-                <div onClick={() => navigate('/admin/MenuVentas')} className={btnClass('usuarios')}>
-                    <User size={20} />
-                    <span>Ventas</span>
+                {/* MENSAJES - Icono MessageSquare (Burbuja de chat) */}
+                <div onClick={() => navigate('/admin/mensajes')} className={btnClass('mensajes')}>
+                    <MessageSquare size={20} />
+                    <span>Mensajes</span>
                 </div>
 
             </nav>
@@ -109,4 +116,4 @@ const SidebarAdmin = () => {
     )
 }
 
-export default SidebarAdmin
+export default SidebarAdmin;

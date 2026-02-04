@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom"
+/* import { Outlet } from "react-router-dom"
 
 const MedicosMenuAdmin = () => {
   return (
@@ -6,4 +6,4 @@ const MedicosMenuAdmin = () => {
   )
 }
 
-export default MedicosMenuAdmin
+export default MedicosMenuAdmin */
