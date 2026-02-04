@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import apiClient from '../utils/apiClient'; 
 import { useAuthStore } from '../store/useAuthStore';
 import Swal from 'sweetalert2';
-import { Search, ChevronLeft, ChevronRight, Eye, Edit, Trash2 } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Eye, Edit, Trash2, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const EmpleadoListaVentas = ({ endpoint, title }) => {
@@ -26,10 +26,8 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
     setLoading(true);
     setError(null);
     try {
-      // Si el endpoint es una función, la ejecutamos con el usuario (para sacar el ID)
       const url = typeof endpoint === 'function' ? endpoint(user) : endpoint;
       
-      // Mapeo simple de "modos" a URLs reales si usaste strings cortos en App.jsx
       let finalUrl = url;
       if (url === 'personal') finalUrl = `/ventasEmpleados/${user.idEmpleado || user.id}`;
       if (url === 'general') finalUrl = '/ventasEmpleados';
@@ -53,7 +51,6 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
     if (user) cargarVentas();
   }, [endpoint, user]); 
 
-  // Resetear a página 1 cuando se busca
   useEffect(() => {
     setPaginaActual(1);
   }, [busqueda]);
@@ -65,14 +62,20 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
   
   const ventasFiltradas = ventas.filter((venta) => {
     const termino = busqueda.toLowerCase();
+    
     const id = venta.idVentaE?.toString() || '';
-    const empleado = venta.nombreEmpleado?.toLowerCase() || '';
+    const dni = venta.dniEmpleado?.toString() || ''; 
+    const nombre = venta.nombreEmpleado?.toLowerCase() || '';
+    const apellido = venta.apellidoEmpleado?.toLowerCase() || ''; 
     const estado = venta.estado?.toLowerCase() || '';
     const metodo = venta.metodoPago?.toLowerCase() || '';
 
+    const nombreCompleto = `${nombre} ${apellido}`;
+
     return (
         id.includes(termino) ||
-        empleado.includes(termino) ||
+        dni.includes(termino) ||
+        nombreCompleto.includes(termino) ||
         estado.includes(termino) ||
         metodo.includes(termino)
     );
@@ -91,7 +94,7 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
   const handleAnular = (idVentaE) => {
     Swal.fire({
       title: '¿Estás seguro?',
-      text: `¡Vas a anular la venta #${idVentaE}!`,
+      text: `¡Vas a anular la venta #${idVentaE}! El stock se devolverá.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -108,6 +111,29 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
           Swal.fire('Error', err.response?.data?.error || 'No se pudo anular.', 'error');
         }
       }
+    });
+  };
+
+  const handleReactivar = (idVentaE) => {
+    Swal.fire({
+      title: '¿Reactivar venta?',
+      text: `La venta #${idVentaE} volverá a estar completada y se descontará el stock nuevamente.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10B981',
+      cancelButtonColor: '#6B7280',
+      confirmButtonText: 'Sí, reactivar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                await apiClient.put(`/ventasEmpleados/reactivar/${idVentaE}`);
+                Swal.fire('¡Reactivada!', `La venta #${idVentaE} está activa de nuevo.`, 'success');
+                cargarVentas();
+            } catch (err) {
+                Swal.fire('Error', err.response?.data?.error || 'No se pudo reactivar (revise stock).', 'error');
+            }
+        }
     });
   };
 
@@ -206,7 +232,7 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
                 <input 
                     type="text"
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full sm:w-1/2 md:w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                    placeholder="Buscar por ID, Empleado o Estado..."
+                    placeholder="Buscar por ID, DNI o Nombre..."
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
                 />
@@ -219,11 +245,15 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
                     <tr>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ID</th>
                         <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Detalle</th>
+                        
+                        {/* --- COLUMNAS SEPARADAS: FECHA Y HORA --- */}
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Fecha</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Hora</th>
+
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">DNI</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Empleado</th>
                         <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Total</th>
                         <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Estado</th>
-                        {/* AQUI EL FIX: Doble negación !! para evitar el 0 */}
                         {!!permisos.modificar_ventasE && (
                             <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Acciones</th>
                         )}
@@ -243,10 +273,25 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
                                     <Eye size={16} />
                                 </button>
                             </td>
+
+                            {/* --- COLUMNA FECHA --- */}
                             <td className="px-4 py-3 text-sm text-gray-700">
-                                {new Date(venta.fechaPago).toLocaleDateString()} <span className="text-gray-400 text-xs">{venta.horaPago}</span>
+                                {new Date(venta.fechaPago).toLocaleDateString()}
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-700 font-medium">{venta.nombreEmpleado}</td>
+
+                            {/* --- COLUMNA HORA --- */}
+                            <td className="px-4 py-3 text-sm text-gray-500 font-mono">
+                                {venta.horaPago}
+                            </td>
+
+                            <td className="px-4 py-3 text-sm text-gray-600 font-mono">
+                                {venta.dniEmpleado || '-'}
+                            </td>
+
+                            <td className="px-4 py-3 text-sm text-gray-700 font-medium">
+                                {venta.nombreEmpleado} {venta.apellidoEmpleado}
+                            </td>
+
                             <td className="px-4 py-3 text-sm text-gray-900 font-bold text-right">${venta.totalPago}</td>
                             <td className="px-4 py-3 text-center">
                                 <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -256,35 +301,43 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
                                 </span>
                             </td>
                             
-                            {/* AQUI EL FIX: Doble negación !! para evitar el 0 */}
                             {!!permisos.modificar_ventasE && (
                                 <td className="px-4 py-3 text-center text-sm">
                                     {venta.estado === 'completada' ? (
-                                    <div className="flex justify-center gap-2">
-                                        <button 
-                                            onClick={() => handleEditar(venta.idVentaE)}
-                                            className="p-1.5 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition"
-                                            title="Editar"
-                                        >
-                                            <Edit size={16} />
-                                        </button>
-                                        <button 
-                                            onClick={() => handleAnular(venta.idVentaE)}
-                                            className="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 transition"
-                                            title="Anular"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
+                                        <div className="flex justify-center gap-2">
+                                            <button 
+                                                onClick={() => handleEditar(venta.idVentaE)}
+                                                className="p-1.5 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition"
+                                                title="Editar"
+                                            >
+                                                <Edit size={16} />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleAnular(venta.idVentaE)}
+                                                className="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 transition"
+                                                title="Anular"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
                                     ) : (
-                                    <span className="text-xs text-gray-400 italic">Sin acciones</span>
+                                        <div className="flex justify-center gap-2">
+                                            <button 
+                                                onClick={() => handleReactivar(venta.idVentaE)}
+                                                className="p-1.5 bg-green-100 text-green-600 rounded hover:bg-green-200 transition"
+                                                title="Reactivar Venta"
+                                            >
+                                                <RotateCcw size={16} />
+                                            </button>
+                                        </div>
                                     )}
                                 </td>
                             )}
                         </tr>
                         ))
                     ) : (
-                        <tr><td colSpan="7" className="p-8 text-center text-gray-500">No se encontraron ventas.</td></tr>
+                        // Ajustado colSpan a 9 por la nueva columna
+                        <tr><td colSpan="9" className="p-8 text-center text-gray-500">No se encontraron ventas.</td></tr>
                     )}
                 </tbody>
                 </table>

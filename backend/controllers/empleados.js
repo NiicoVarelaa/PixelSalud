@@ -1,13 +1,13 @@
-const util = require("util")
+const util = require("util");
 const { conection } = require("../config/database");
-const bcryptjs = require("bcryptjs")
+const bcryptjs = require("bcryptjs");
 
 const query = util.promisify(conection.query).bind(conection);
 
 // controllers/empleados.js
 
 const getEmpleados = (req, res) => {
-  // Quitamos el "WHERE e.activo = true" para que traiga TODOS (activos y bajas)
+  // Quitamos el "WHERE e.activo = true" para que traiga TODOS
   const consulta = `
     SELECT e.*, 
            p.crear_productos, 
@@ -17,7 +17,6 @@ const getEmpleados = (req, res) => {
     FROM Empleados e
     LEFT JOIN Permisos p ON e.idEmpleado = p.idEmpleado
   `;
-  // (Nota: Si quieres ordenarlos, podrías agregar al final: ORDER BY e.activo DESC, e.apellidoEmpleado ASC)
 
   conection.query(consulta, (err, results) => {
     if (err) {
@@ -57,25 +56,24 @@ const getEmpleado = (req, res)=>{
 }
 
 const createEmpleado = async (req, res) => {
-  // 1. Recibimos también 'permisos'
-  const { nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado, permisos } = req.body;
+  // 1. Recibimos 'dniEmpleado' y 'permisos'
+  const { nombreEmpleado, apellidoEmpleado, dniEmpleado, emailEmpleado, contraEmpleado, permisos } = req.body;
 
   try {
       let salt = await bcryptjs.genSalt(10);
       let contraEncrip = await bcryptjs.hash(contraEmpleado, salt);
 
       // Verificar si existe
-      // (Nota: uso promesas manuales aquí para evitar el callback hell, pero mantengo tu estilo)
-      const existQuery = "SELECT * FROM Empleados WHERE emailEmpleado = ?";
+      const existQuery = "SELECT * FROM Empleados WHERE emailEmpleado = ? OR dniEmpleado = ?";
       
-      conection.query(existQuery, [emailEmpleado], (err, results) => {
-          if (err) return res.status(500).json({ error: "Error al verificar email" });
-          if (results.length > 0) return res.status(409).json({ error: "El email ya está registrado" });
+      conection.query(existQuery, [emailEmpleado, dniEmpleado], (err, results) => {
+          if (err) return res.status(500).json({ error: "Error al verificar datos" });
+          if (results.length > 0) return res.status(409).json({ error: "El email o DNI ya está registrado" });
 
-          // 2. Insertar Empleado
-          const insertEmpQuery = "INSERT INTO Empleados (nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado, activo) VALUES (?, ?, ?, ?, 1)";
+          // 2. Insertar Empleado (Incluyendo dniEmpleado)
+          const insertEmpQuery = "INSERT INTO Empleados (nombreEmpleado, apellidoEmpleado, dniEmpleado, emailEmpleado, contraEmpleado, activo) VALUES (?, ?, ?, ?, ?, 1)";
           
-          conection.query(insertEmpQuery, [nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEncrip], (err, resultEmp) => {
+          conection.query(insertEmpQuery, [nombreEmpleado, apellidoEmpleado, dniEmpleado, emailEmpleado, contraEncrip], (err, resultEmp) => {
               if (err) {
                   console.error("Error creando empleado:", err);
                   return res.status(500).json({ error: "Error al crear empleado" });
@@ -98,11 +96,9 @@ const createEmpleado = async (req, res) => {
                       permisos.ver_ventasTotalesE
                   ], (err) => {
                       if (err) console.error("Error guardando permisos (pero el empleado se creó):", err);
-                      // Respondemos éxito igual
                       res.status(201).json({ message: "Empleado y permisos creados correctamente" });
                   });
               } else {
-                  // Si no mandaron permisos, creamos el empleado sin fila en permisos (o podrías crear una vacía por defecto)
                   res.status(201).json({ message: "Empleado creado correctamente (sin permisos definidos)" });
               }
           });
@@ -114,28 +110,26 @@ const createEmpleado = async (req, res) => {
   }
 };
 
-// En controllers/empleados.js
-
 const updateEmpleado = async (req, res) => {
   const id = req.params.id;
-  const { nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEmpleado, permisos } = req.body;
+  const { nombreEmpleado, apellidoEmpleado, dniEmpleado, emailEmpleado, contraEmpleado, permisos } = req.body;
 
   try {
-    // --- LÓGICA DE SEGURIDAD DE CONTRASEÑA ---
+    // --- LÓGICA DE SEGURIDAD DE CONTRASEÑA Y DNI ---
     let queryEmp = "";
     let paramsEmp = [];
 
-    // SOLO si el usuario escribió algo en el campo de contraseña, la cambiamos.
+    // Si escribe contraseña nueva
     if (contraEmpleado && contraEmpleado.trim().length > 0) {
         const salt = await bcryptjs.genSalt(10);
         const contraEncrip = await bcryptjs.hash(contraEmpleado, salt);
         
-        queryEmp = "UPDATE Empleados SET nombreEmpleado=?, apellidoEmpleado=?, emailEmpleado=?, contraEmpleado=? WHERE idEmpleado=?";
-        paramsEmp = [nombreEmpleado, apellidoEmpleado, emailEmpleado, contraEncrip, id];
+        queryEmp = "UPDATE Empleados SET nombreEmpleado=?, apellidoEmpleado=?, dniEmpleado=?, emailEmpleado=?, contraEmpleado=? WHERE idEmpleado=?";
+        paramsEmp = [nombreEmpleado, apellidoEmpleado, dniEmpleado, emailEmpleado, contraEncrip, id];
     } else {
-        // Si NO escribió nada, NO tocamos la columna contraEmpleado.
-        queryEmp = "UPDATE Empleados SET nombreEmpleado=?, apellidoEmpleado=?, emailEmpleado=? WHERE idEmpleado=?";
-        paramsEmp = [nombreEmpleado, apellidoEmpleado, emailEmpleado, id];
+        // Si NO escribe contraseña
+        queryEmp = "UPDATE Empleados SET nombreEmpleado=?, apellidoEmpleado=?, dniEmpleado=?, emailEmpleado=? WHERE idEmpleado=?";
+        paramsEmp = [nombreEmpleado, apellidoEmpleado, dniEmpleado, emailEmpleado, id];
     }
     // -----------------------------------------
 
@@ -177,13 +171,9 @@ const darBajaEmpleado = (req, res) => {
   conection.query(consulta, [id], (err, result) => {
     if (err) {
       console.log("Error al eliminar/dar de baja al empleado:", err);
-      return res
-        .status(500)
-        .json({ error: "Error al eliminar/dar de baja al empleado" });
+      return res.status(500).json({ error: "Error al eliminar/dar de baja al empleado" });
     }
-    res
-      .status(201)
-      .json({ message: "Empleado dado de baja/eliminado con exito" });
+    res.status(201).json({ message: "Empleado dado de baja/eliminado con exito" });
   });
 };
 
