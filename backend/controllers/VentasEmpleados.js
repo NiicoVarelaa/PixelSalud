@@ -1,14 +1,12 @@
 const { conection } = require("../config/database");
 
 const registrarVentaEmpleado = (req, res) => {
-    // Recibimos 'productos' que ahora trae la propiedad 'recetaFisica' si aplica
     const { idEmpleado, totalPago, metodoPago, productos } = req.body;
 
     if (!idEmpleado || !productos || productos.length === 0) {
         return res.status(400).json({ error: "Faltan datos obligatorios" });
     }
 
-    // 1. Iniciar Transacción
     conection.beginTransaction((err) => {
         if (err) {
             console.error("Error al iniciar transacción:", err);
@@ -16,7 +14,6 @@ const registrarVentaEmpleado = (req, res) => {
         }
 
         let i = 0;
-        // Función recursiva para verificar stock (Igual que antes)
         const verificarStock = () => {
             if (i < productos.length) {
                 const prod = productos[i];
@@ -41,7 +38,6 @@ const registrarVentaEmpleado = (req, res) => {
         };
 
         const insertarVenta = () => {
-            // Agregamos el estado 'completada' por defecto
             conection.query('INSERT INTO VentasEmpleados (idEmpleado, totalPago, metodoPago, estado) VALUES (?, ?, ?, "completada")', 
                 [idEmpleado, totalPago, metodoPago], 
                 (err, resultVenta) => {
@@ -61,9 +57,6 @@ const registrarVentaEmpleado = (req, res) => {
             const procesarDetalle = () => {
                 if (j < productos.length) {
                     const prod = productos[j];
-                    
-                    // --- CAMBIO AQUÍ: Insertamos 'recetaFisica' ---
-                    // Si prod.recetaFisica tiene texto (ej: "Presentada"), se guarda. Si no, guarda NULL.
                     conection.query(
                         'INSERT INTO DetalleVentaEmpleado (idVentaE, idProducto, cantidad, precioUnitario, recetaFisica) VALUES (?, ?, ?, ?, ?)',
                         [idVentaE, prod.idProducto, prod.cantidad, prod.precioUnitario, prod.recetaFisica || null],
@@ -75,15 +68,14 @@ const registrarVentaEmpleado = (req, res) => {
                                 });
                             }
                             
-                            // Actualizar stock
                             conection.query('UPDATE Productos SET stock = stock - ? WHERE idProducto = ?',
                                 [prod.cantidad, prod.idProducto],
                                 (err) => {
                                      if (err) {
-                                        return conection.rollback(() => {
-                                            console.error("Error actualizando stock:", err);
-                                            res.status(500).json({ error: "Error al actualizar stock" });
-                                        });
+                                         return conection.rollback(() => {
+                                             console.error("Error actualizando stock:", err);
+                                             res.status(500).json({ error: "Error al actualizar stock" });
+                                         });
                                      }
                                      j++;
                                      procesarDetalle();
@@ -92,7 +84,6 @@ const registrarVentaEmpleado = (req, res) => {
                         }
                     );
                 } else {
-                    // Confirmar transacción
                     conection.commit((err) => {
                         if (err) {
                              return conection.rollback(() => {
@@ -111,12 +102,10 @@ const registrarVentaEmpleado = (req, res) => {
     });
 };
 
-
-
 const obtenerVentasEmpleado = (req, res) => {
-  // Asegúrate de que no haya NINGÚN espacio antes del `SELECT`
+  // --- CORRECCIÓN: Agregamos e.apellidoEmpleado y e.dniEmpleado ---
   const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado,
-           ve.totalPago, e.nombreEmpleado
+            ve.totalPago, e.nombreEmpleado, e.apellidoEmpleado, e.dniEmpleado
     FROM VentasEmpleados ve
     JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
     ORDER BY ve.idVentaE DESC;
@@ -125,9 +114,7 @@ const obtenerVentasEmpleado = (req, res) => {
   conection.query(consulta, (err, results) => {
     if (err) {
       console.error("Error al obtener ventas del empleado:", err.sqlMessage);
-      return res
-        .status(500)
-        .json({ error: "Error al obtener ventas del empleado" });
+      return res.status(500).json({ error: "Error al obtener ventas del empleado" });
     }
     if (results.length === 0) {
       return res.status(200).json({msg:"No hay ventas realizadas aun"})
@@ -138,9 +125,9 @@ const obtenerVentasEmpleado = (req, res) => {
 
 const obtenerLaVentaDeUnEmpleado = (req, res) => {
   const idEmpleado = req.params.idEmpleado;
-  // Asegúrate de que no haya NINGÚN espacio antes del `SELECT`
+  // --- CORRECCIÓN: Agregamos e.apellidoEmpleado y e.dniEmpleado ---
   const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado,
-           ve.totalPago, e.nombreEmpleado
+            ve.totalPago, e.nombreEmpleado, e.apellidoEmpleado, e.dniEmpleado
     FROM VentasEmpleados ve
     JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
     WHERE e.idEmpleado = ?
@@ -150,9 +137,7 @@ const obtenerLaVentaDeUnEmpleado = (req, res) => {
   conection.query(consulta, [idEmpleado], (err, results) => {
     if (err) {
       console.error("Error al obtener ventas del empleado:", err.sqlMessage);
-      return res
-        .status(500)
-        .json({ error: "Error al obtener ventas del empleado" });
+      return res.status(500).json({ error: "Error al obtener ventas del empleado" });
     }
     if (results.length === 0) {
       return res.status(200).json({msg:"El empleado no realizo ninguna venta aun"})
@@ -161,11 +146,8 @@ const obtenerLaVentaDeUnEmpleado = (req, res) => {
   });
 };
 
-
 const obtenerDetalleVentaEmpleado = (req, res) => {
   const { idVentaE } = req.params;
-
-  // ¡LA CORRECCIÓN! Agregamos 'dve.idProducto' al SELECT.
   const consulta = `
     SELECT dve.idProducto, p.nombreProducto, dve.cantidad, dve.precioUnitario
     FROM DetalleVentaEmpleado dve
@@ -186,8 +168,9 @@ const obtenerDetalleVentaEmpleado = (req, res) => {
 };
 
 const obtenerVentasAnuladas = (req, res) => {
+    // --- CORRECCIÓN: También aquí por si las dudas ---
     const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.totalPago, ve.estado,
-               e.nombreEmpleado
+                e.nombreEmpleado, e.apellidoEmpleado, e.dniEmpleado
         FROM VentasEmpleados ve
         JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
         WHERE ve.estado = 'anulada'
@@ -205,8 +188,9 @@ const obtenerVentasAnuladas = (req, res) => {
 
 
 const obtenerVentasCompletadas = (req, res) => {
+    // --- CORRECCIÓN: También aquí por si las dudas ---
     const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.totalPago, ve.estado,
-               e.nombreEmpleado
+                e.nombreEmpleado, e.apellidoEmpleado, e.dniEmpleado
         FROM VentasEmpleados ve
         JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
         WHERE ve.estado = 'completada'
@@ -224,7 +208,6 @@ const obtenerVentasCompletadas = (req, res) => {
 
 const updateVenta = (req, res) => {
     const idVentaE = req.params.idVentaE;
-    // 1. AHORA RECIBIMOS TAMBIÉN idEmpleado
     const { totalPago, metodoPago, productos, idEmpleado } = req.body;
 
     if (!idVentaE || !productos || productos.length === 0) {
@@ -256,7 +239,6 @@ const updateVenta = (req, res) => {
                         conection.query('DELETE FROM DetalleVentaEmpleado WHERE idVentaE = ?', [idVentaE], (err) => {
                             if (err) return conection.rollback(() => res.status(500).json({ error: "Error borrando detalles viejos" }));
                             
-                            // 2. AQUÍ ESTÁ LA CORRECCIÓN: Agregamos idEmpleado = ? al UPDATE
                             conection.query('UPDATE VentasEmpleados SET totalPago = ?, metodoPago = ?, idEmpleado = ? WHERE idVentaE = ?', 
                                 [totalPago, metodoPago, idEmpleado, idVentaE], 
                                 (err) => {
@@ -290,7 +272,7 @@ const updateVenta = (req, res) => {
                                      );
                                  }
                              );
-                        });
+                         });
                     } else {
                         conection.commit((err) => {
                             if (err) return conection.rollback(() => res.status(500).json({ error: "Error finalizando edición" }));
@@ -345,17 +327,69 @@ const anularVenta = (req, res) => {
     });
 };
 
+// --- NUEVA FUNCIÓN: REACTIVAR VENTA ---
+const reactivarVenta = (req, res) => {
+    const { idVentaE } = req.params;
+
+    conection.beginTransaction((err) => {
+        if (err) return res.status(500).json({ error: "Error al iniciar reactivación" });
+
+        // 1. Verificar estado actual
+        conection.query('SELECT estado FROM VentasEmpleados WHERE idVentaE = ? FOR UPDATE', [idVentaE], (err, results) => {
+            if (err) return conection.rollback(() => res.status(500).json({ error: "Error verificando venta" }));
+            if (results.length === 0) return conection.rollback(() => res.status(404).json({ error: "Venta no encontrada" }));
+            if (results[0].estado !== 'anulada') return conection.rollback(() => res.status(400).json({ error: "Solo se pueden reactivar ventas anuladas" }));
+
+            // 2. Obtener productos para verificar y descontar stock
+            conection.query('SELECT idProducto, cantidad FROM DetalleVentaEmpleado WHERE idVentaE = ?', [idVentaE], (err, detalles) => {
+                if (err) return conection.rollback(() => res.status(500).json({ error: "Error obteniendo detalles" }));
+
+                let i = 0;
+                const verificarYDescontarStock = () => {
+                    if (i < detalles.length) {
+                        const prod = detalles[i];
+                        // Verificar stock disponible
+                        conection.query('SELECT stock FROM Productos WHERE idProducto = ?', [prod.idProducto], (err, stockRes) => {
+                            if (err) return conection.rollback(() => res.status(500).json({ error: "Error consultando stock" }));
+                            if (stockRes.length === 0 || stockRes[0].stock < prod.cantidad) {
+                                return conection.rollback(() => res.status(400).json({ error: `Stock insuficiente para reactivar (ID Producto: ${prod.idProducto})` }));
+                            }
+
+                            // Descontar stock
+                            conection.query('UPDATE Productos SET stock = stock - ? WHERE idProducto = ?', 
+                                [prod.cantidad, prod.idProducto], 
+                                (err) => {
+                                    if (err) return conection.rollback(() => res.status(500).json({ error: "Error descontando stock" }));
+                                    i++;
+                                    verificarYDescontarStock();
+                                }
+                            );
+                        });
+                    } else {
+                        // 3. Cambiar estado a completada
+                        conection.query("UPDATE VentasEmpleados SET estado = 'completada' WHERE idVentaE = ?", [idVentaE], (err) => {
+                             if (err) return conection.rollback(() => res.status(500).json({ error: "Error actualizando estado" }));
+                             conection.commit((err) => {
+                                 if (err) return conection.rollback(() => res.status(500).json({ error: "Error finalizando reactivación" }));
+                                 res.status(200).json({ message: "Venta reactivada exitosamente" });
+                             });
+                        });
+                    }
+                };
+                verificarYDescontarStock();
+            });
+        });
+    });
+};
+
 
 const obtenerVentaPorId = (req, res) => {
   const { idVentaE } = req.params;
-
-  // Una consulta simple para traer la cabecera de UNA venta
   const consulta = `
     SELECT idVentaE, totalPago, metodoPago, estado
     FROM VentasEmpleados
     WHERE idVentaE = ?
   `;
-
   conection.query(consulta, [idVentaE], (err, results) => {
     if (err) {
       console.error("Error al obtener venta por ID:", err.sqlMessage);
@@ -364,7 +398,7 @@ const obtenerVentaPorId = (req, res) => {
     if (results.length === 0) {
       return res.status(404).json({ error: "Venta no encontrada" });
     }
-    res.status(200).json(results[0]); // Devuelve solo el objeto
+    res.status(200).json(results[0]);
   });
 };
 
@@ -378,5 +412,6 @@ module.exports = {
   obtenerVentasCompletadas,
   updateVenta,
   anularVenta,
+  reactivarVenta, // <--- EXPORTAMOS LA NUEVA FUNCIÓN
   obtenerVentaPorId
 };
