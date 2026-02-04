@@ -244,14 +244,17 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
                 <thead className="bg-gray-100 border-b border-gray-200">
                     <tr>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ID</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Empleado</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">DNI</th>
                         <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Detalle</th>
                         
-                        {/* --- COLUMNAS SEPARADAS: FECHA Y HORA --- */}
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Fecha</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Hora</th>
 
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">DNI</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Empleado</th>
+                        
+                        {/* --- NUEVA COLUMNA MÉTODO DE PAGO --- */}
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Método</th>
+
                         <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Total</th>
                         <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Estado</th>
                         {!!permisos.modificar_ventasE && (
@@ -264,6 +267,16 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
                         ventasActuales.map((venta) => (
                         <tr key={venta.idVentaE} className={`hover:bg-gray-50 transition ${venta.estado === 'anulada' ? 'bg-red-50 opacity-70' : ''}`}>
                             <td className="px-4 py-3 text-sm text-gray-700 font-mono">#{venta.idVentaE}</td>
+                         
+
+                            <td className="px-4 py-3 text-sm text-gray-700 font-medium">
+                                {venta.nombreEmpleado} {venta.apellidoEmpleado}
+                            </td>
+
+                            <td className="px-4 py-3 text-sm text-gray-600 font-mono">
+                                {venta.dniEmpleado || '-'}
+                            </td>
+
                             <td className="px-4 py-3 text-center">
                                 <button 
                                     onClick={() => handleVerDetalle(venta.idVentaE)}
@@ -272,24 +285,20 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
                                 >
                                     <Eye size={16} />
                                 </button>
-                            </td>
+                            </td>   
 
-                            {/* --- COLUMNA FECHA --- */}
                             <td className="px-4 py-3 text-sm text-gray-700">
                                 {new Date(venta.fechaPago).toLocaleDateString()}
                             </td>
-
-                            {/* --- COLUMNA HORA --- */}
                             <td className="px-4 py-3 text-sm text-gray-500 font-mono">
                                 {venta.horaPago}
                             </td>
 
-                            <td className="px-4 py-3 text-sm text-gray-600 font-mono">
-                                {venta.dniEmpleado || '-'}
-                            </td>
+                            
 
-                            <td className="px-4 py-3 text-sm text-gray-700 font-medium">
-                                {venta.nombreEmpleado} {venta.apellidoEmpleado}
+                            {/* --- DATO MÉTODO DE PAGO --- */}
+                            <td className="px-4 py-3 text-sm text-gray-700 capitalize">
+                                {venta.metodoPago}
                             </td>
 
                             <td className="px-4 py-3 text-sm text-gray-900 font-bold text-right">${venta.totalPago}</td>
@@ -336,8 +345,8 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
                         </tr>
                         ))
                     ) : (
-                        // Ajustado colSpan a 9 por la nueva columna
-                        <tr><td colSpan="9" className="p-8 text-center text-gray-500">No se encontraron ventas.</td></tr>
+                        // Ajustado colSpan a 10 por la nueva columna
+                        <tr><td colSpan="10" className="p-8 text-center text-gray-500">No se encontraron ventas.</td></tr>
                     )}
                 </tbody>
                 </table>
