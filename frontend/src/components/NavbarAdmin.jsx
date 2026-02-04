@@ -1,24 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link, NavLink } from "react-router-dom";
-// 1. Importa el store de autenticación unificado
 import { useAuthStore } from "../store/useAuthStore";
 import LogoPixelSalud from "../assets/LogoPixelSalud.webp";
-import profileIcon from "../assets/iconos/profile_icon.png";
-import logoutIcon from "../assets/iconos/logout.png";
-import closeIcon from "../assets/iconos/cross_icon.png";
-import { Menu } from "lucide-react"; // Usamos un ícono más estándar
+// Usamos iconos vectoriales de lucide-react para mayor nitidez y consistencia
+import { Menu, User, LogOut, X } from "lucide-react"; 
 
 const NavbarAdmin = () => {
   const navigate = useNavigate();
-  // 2. Obtiene el usuario y la función de logout del store
   const { user, logoutUser } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const menuRef = useRef(null);
   const profileRef = useRef(null);
 
-  // 3. El useEffect para buscar el empleado logueado se elimina.
-  // Este useEffect ahora solo maneja los clics fuera del menú.
+  // (El useEffect se mantiene igual, funciona bien para cerrar los menús)
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -28,188 +23,173 @@ const NavbarAdmin = () => {
         setIsProfileDropdownOpen(false);
       }
     };
-
     const handleEscape = (event) => {
       if (event.key === "Escape") {
-        setIsMenuOpen(false);
-        setIsProfileDropdownOpen(false);
+        setIsMenuOpen(false); setIsProfileDropdownOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscape);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
   }, []);
 
-  // 4. Se simplifica enormemente la función de logout
   const handleLogout = () => {
-    logoutUser(); // Llama a la acción del store
+    logoutUser();
     setIsProfileDropdownOpen(false);
     setIsMenuOpen(false);
-    navigate("/login"); // Redirige al login
+    navigate("/login");
   };
 
-  // Verificamos si el usuario es admin o empleado para mostrar el contenido
   const isAuthorized = user && (user.rol === 'admin' || user.rol === 'empleado');
 
   return (
-    <div className="py-5 font-medium relative bg-secondary-100 px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
-      <div className="flex items-center justify-between w-full mx-auto">
-        <Link to="/">
-          <img
-            className="w-auto h-9"
-            src={LogoPixelSalud}
-            alt="Logo Pixel Salud"
-          />
-        </Link>
+    // --- CAMBIO 1: Estilo moderno del contenedor principal (blanco, sticky, sombra sutil) ---
+    <nav className="sticky top-0 z-50 w-full bg-secondary-100 backdrop-blur-md border-b border-gray-100 shadow-sm py-4 px-4 sm:px-8">
+      
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        
+        {/* --- SECCIÓN IZQUIERDA (Logo) - Ocupa 1/3 del espacio y se alinea a la izquierda --- */}
+        <div className="flex-1 flex justify-start">
+          <Link>
+            <img
+              className="w-28 sm:w-32 h-auto transition-transform hover:scale-105"
+              src={LogoPixelSalud}
+              alt="Logo Pixel Salud"
+            />
+          </Link>
+        </div>
 
-        {/* Los links de navegación ahora dependen de si el usuario está autorizado */}
-        {isAuthorized && (
-           <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
-             <NavLink
-              to="/admin"
-              className="flex flex-col items-center gap-1 transition transform hover:scale-105 hover:text-green-500 duration-300"
-            >
-              <p>PANEL DE ADMINISTRACION</p>
-            </NavLink>
-          </ul>
-        )}
+        {/* --- SECCIÓN CENTRAL (Links) - Ocupa 1/3 y se centra perfectamente --- */}
+        <div className="flex-1 flex justify-center">
+          {isAuthorized && (
+            // Oculto en móviles, visible en tablets/escritorio
+            <ul className="hidden md:flex gap-8 font-semibold text-gray-600">
+              <NavLink
+                to="/admin"
+                // Efecto moderno de subrayado animado al hacer hover
+                className={({ isActive }) => `relative group py-2 ${isActive ? 'text-primary-600' : 'hover:text-primary-600'} transition-colors duration-300`}
+              >
+                <span>Panel de Administración</span>
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
+              </NavLink>
+            </ul>
+          )}
+        </div>
 
-        <div className="flex items-center gap-6">
-          <div className="group relative" ref={profileRef}>
-            {/* 5. La condición ahora se basa en 'isAuthorized' */}
+        {/* --- SECCIÓN DERECHA (Perfil/Menú) - Ocupa 1/3 y se alinea a la derecha --- */}
+        <div className="flex-1 flex justify-end items-center gap-4">
+          <div className="relative" ref={profileRef}>
             {isAuthorized ? (
               <>
                 <button
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                  className="w-6 h-6 cursor-pointer text-gray-700 hover:text-primary-700 transition-colors duration-200 flex items-center justify-center"
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-primary-50 hover:text-primary-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-100"
                   aria-label="Abrir menú de perfil"
                 >
-                  <img
-                    src={profileIcon}
-                    className="w-5 cursor-pointer"
-                    alt="profileIcon"
-                  />
+                  <User size={22} />
                 </button>
+                
+                {/* Dropdown de perfil mejorado */}
                 {isProfileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 overflow-hidden">
+                  <div className="absolute right-0 mt-3 w-56 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden animate-fadeIn origin-top-right">
+                    <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                        <p className="text-sm font-bold text-gray-800 truncate">{user.nombre} {user.apellido}</p>
+                        <p className="text-xs text-gray-500 capitalize">{user.rol}</p>
+                    </div>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-100 hover:text-red-600 transition-colors duration-200 cursor-pointer"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors duration-200 text-left"
                     >
-                      <img
-                        src={logoutIcon}
-                        className="w-5 cursor-pointer"
-                        alt="logoutIcon"
-                      />
+                      <LogOut size={18} />
                       Cerrar Sesión
                     </button>
                   </div>
                 )}
               </>
             ) : (
-              <NavLink to="/login">
-                <img
-                  src={profileIcon}
-                  className="w-5 cursor-pointer"
-                  alt="profileIcon"
-                />
+              <NavLink to="/login" className="flex items-center gap-2 font-bold text-primary-600 hover:text-primary-700 py-2 px-4 rounded-lg hover:bg-primary-50 transition-all">
+                <User size={20} />
+                <span>Ingresar</span>
               </NavLink>
             )}
           </div>
-          {/* Botón para menú móvil */}
+
+          {/* Botón hamburguesa (visible solo en móviles) */}
           <button
             onClick={() => setIsMenuOpen(true)}
-            className="sm:hidden"
-            aria-label="Abrir menú"
+            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none"
+            aria-label="Abrir menú móvil"
           >
-            <Menu className="w-6 h-6 text-gray-700" />
+            <Menu size={26} />
           </button>
         </div>
       </div>
 
-      {/* Menú móvil */}
-      <div
-        className={`fixed inset-0 z-50 transition-opacity duration-300 ${
-          isMenuOpen
-            ? "opacity-100"
-            : "opacity-0 pointer-events-none"
-        }`}
-      >
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+      {/* --- MENÚ MÓVIL (Drawer lateral) --- */}
+      <div className={`fixed inset-0 z-50 ${isMenuOpen ? "" : "pointer-events-none"}`}>
+        {/* Backdrop oscuro */}
+        <div 
+            className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${isMenuOpen ? "opacity-100" : "opacity-0"}`} 
+            onClick={() => setIsMenuOpen(false)}
+        />
 
+        {/* Panel lateral */}
         <div
           ref={menuRef}
-          className={`absolute top-0 right-0 h-full w-4/5 max-w-sm bg-white shadow-xl transform transition-transform duration-300 ${
+          className={`absolute top-0 right-0 h-full w-4/5 max-w-sm bg-white shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col ${
             isMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
-          <div className="flex justify-between items-center p-4 border-b border-gray-200">
-            <img
-              className="w-auto h-9"
-              src={LogoPixelSalud}
-              alt="Logo Pixel Salud"
-            />
-            <button
-              onClick={() => setIsMenuOpen(false)}
-              className="p-2 rounded-full cursor-pointer"
-              aria-label="Cerrar menú"
-            >
-              <img src={closeIcon} className="w-5" alt="Cerrar menú" />
+          <div className="flex justify-between items-center p-5 border-b border-gray-100">
+            <img className="w-auto h-9" src={LogoPixelSalud} alt="Logo" />
+            <button onClick={() => setIsMenuOpen(false)} className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all">
+              <X size={24} />
             </button>
           </div>
 
-          <nav className="flex flex-col p-4">
-            <NavLink
-              to="/admin"
-              onClick={() => setIsMenuOpen(false)}
-              className={({ isActive }) =>
-                `py-3 px-4 rounded-lg transition-colors ${
-                  isActive
-                    ? "bg-primary-100 text-primary-700"
-                    : "hover:bg-gray-50"
-                }`
-              }
-            >
-              PANEL DE ADMINISTRACION
-            </NavLink>
+          <nav className="flex-1 flex flex-col p-5 gap-2 overflow-y-auto">
+            {isAuthorized && (
+                <NavLink
+                to="/admin"
+                onClick={() => setIsMenuOpen(false)}
+                className={({ isActive }) =>
+                    `flex items-center p-3 rounded-xl font-semibold transition-all ${
+                    isActive ? "bg-primary-600 text-white shadow-md" : "text-gray-600 hover:bg-gray-100"
+                    }`
+                }
+                >
+                Panel de Administración
+                </NavLink>
+            )}
+            {/* Aquí puedes agregar más enlaces para el móvil si es necesario */}
           </nav>
 
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+          <div className="p-5 border-t border-gray-100">
             {isAuthorized ? (
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-3 w-full text-left py-3 px-4 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors duration-200"
+                className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-sm transition-all duration-200"
               >
-                <img
-                  src={logoutIcon}
-                  className="w-5 cursor-pointer"
-                  alt="logoutIcon"
-                />
+                <LogOut size={20} />
                 Cerrar Sesión
               </button>
             ) : (
               <NavLink
                 to="/login"
                 onClick={() => setIsMenuOpen(false)}
-                className="flex items-center gap-3 py-3 px-4 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-primary-700 transition-colors duration-200"
+                className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl font-bold text-white bg-primary-600 hover:bg-primary-700 shadow-sm transition-all duration-200"
               >
-                <img
-                  src={profileIcon}
-                  className="w-5 cursor-pointer"
-                  alt="profileIcon"
-                />
+                <User size={20} />
                 Iniciar Sesión
               </NavLink>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </nav>
   );
 };
 

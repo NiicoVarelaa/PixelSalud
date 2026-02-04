@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+/* import { useState, useEffect, useRef } from "react";
 import apiClient from "../utils/apiClient"; // Usamos tu cliente configurado
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -323,7 +323,6 @@ const AdminMedicos = () => {
           </button>
         </div>
         
-        {/* BUSCADOR */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <input
             type="text"
@@ -344,7 +343,7 @@ const AdminMedicos = () => {
           </select>
         </div>
 
-        {/* TABLA */}
+        
         <div className="bg-white rounded-xl shadow-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full divide-y divide-gray-200">
@@ -410,4 +409,4 @@ const AdminMedicos = () => {
   );
 };
 
-export default AdminMedicos;
+export default AdminMedicos; */
