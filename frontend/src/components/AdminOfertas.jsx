@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 
 const AdminOfertas = () => {
   const [ofertas, setOfertas] = useState([]);
-  
+
   const { productos, fetchProducts, categorias } = useProductStore();
   const token = useAuthStore((state) => state.token);
 
@@ -38,7 +38,7 @@ const AdminOfertas = () => {
   const fetchOfertas = async () => {
     setCargando(true);
     try {
-      await fetchProducts(); 
+      await fetchProducts();
       const response = await axios.get("http://localhost:5000/ofertas");
       setOfertas(response.data);
     } catch (error) {
@@ -86,13 +86,13 @@ const AdminOfertas = () => {
       ...oferta,
       img: prod?.img || "https://via.placeholder.com/50",
       categoria: prod?.categoria || "Sin Categoría",
-      nombreProducto: prod?.nombreProducto || oferta.nombreProducto 
+      nombreProducto: prod?.nombreProducto || oferta.nombreProducto
     };
   };
 
   const crearOferta = async () => {
     try {
-      if(!nuevaOferta.idProducto || !nuevaOferta.porcentajeDescuento) {
+      if (!nuevaOferta.idProducto || !nuevaOferta.porcentajeDescuento) {
         toast.error("Complete los datos obligatorios");
         return;
       }
@@ -113,7 +113,7 @@ const AdminOfertas = () => {
 
 
   const handleEditarOferta = async (ofertaRaw) => {
-    const oferta = getOfertaEnriquecida(ofertaRaw); 
+    const oferta = getOfertaEnriquecida(ofertaRaw);
 
     const { value: formValues } = await Swal.fire({
       title: `<h2 class="text-xl font-bold text-gray-700">✏️ Editar Oferta</h2>`,
@@ -146,11 +146,11 @@ const AdminOfertas = () => {
       confirmButtonColor: '#EAB308',
       preConfirm: () => {
         return {
-            porcentajeDescuento: document.getElementById('swal-descuento').value,
-            fechaInicio: document.getElementById('swal-inicio').value,
-            fechaFin: document.getElementById('swal-fin').value,
-            idProducto: oferta.idProducto,
-            esActiva: oferta.esActiva 
+          porcentajeDescuento: document.getElementById('swal-descuento').value,
+          fechaInicio: document.getElementById('swal-inicio').value,
+          fechaFin: document.getElementById('swal-fin').value,
+          idProducto: oferta.idProducto,
+          esActiva: oferta.esActiva
         };
       }
     });
@@ -158,9 +158,9 @@ const AdminOfertas = () => {
     if (formValues) {
       try {
         await axios.put(
-            `http://localhost:5000/ofertas/actualizar/${oferta.idOferta}`,
-            formValues,
-            getConfig()
+          `http://localhost:5000/ofertas/actualizar/${oferta.idOferta}`,
+          formValues,
+          getConfig()
         );
         Swal.fire('Actualizado', 'Oferta modificada correctamente', 'success');
         fetchOfertas();
@@ -196,7 +196,7 @@ const AdminOfertas = () => {
             `La oferta ha sido ${participio.toLowerCase()} correctamente.`,
             'success'
           );
-          fetchOfertas(); 
+          fetchOfertas();
         } catch (error) {
           Swal.fire('Error', 'No se pudo cambiar el estado', 'error');
         }
@@ -273,7 +273,7 @@ const AdminOfertas = () => {
                   >
                     <option value="">Seleccione un producto...</option>
                     {productos.filter(p => p.activo).map(p => (
-                        <option key={p.idProducto} value={p.idProducto}>{p.nombreProducto} (${p.precio})</option>
+                      <option key={p.idProducto} value={p.idProducto}>{p.nombreProducto} (${p.precio})</option>
                     ))}
                   </select>
                 </div>
@@ -282,14 +282,14 @@ const AdminOfertas = () => {
                   <input type="number" name="porcentajeDescuento" placeholder="Ej: 15" className="w-full px-3 py-2 border rounded-md" value={nuevaOferta.porcentajeDescuento} onChange={handleChange} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Inicio</label>
-                        <input type="date" name="fechaInicio" className="w-full px-3 py-2 border rounded-md" value={nuevaOferta.fechaInicio} onChange={handleChange} />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Fin</label>
-                        <input type="date" name="fechaFin" className="w-full px-3 py-2 border rounded-md" value={nuevaOferta.fechaFin} onChange={handleChange} />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Inicio</label>
+                    <input type="date" name="fechaInicio" className="w-full px-3 py-2 border rounded-md" value={nuevaOferta.fechaInicio} onChange={handleChange} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Fin</label>
+                    <input type="date" name="fechaFin" className="w-full px-3 py-2 border rounded-md" value={nuevaOferta.fechaFin} onChange={handleChange} />
+                  </div>
                 </div>
               </div>
 
@@ -350,7 +350,7 @@ const AdminOfertas = () => {
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-24">Categoría</th>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-24">Vence</th>
                   <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-20">Estado</th>
-                  <th className="px-3 py-3 text-right text-xs font-medium text-gray-800 uppercase tracking-wider w-40">Acciones</th>
+                  <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-40">Acciones</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -379,29 +379,25 @@ const AdminOfertas = () => {
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap text-right align-middle">
                         <div className="flex gap-1 justify-end">
-                          
+
                           {/* BOTÓN EDITAR (Icono solo) */}
+                          {/* BOTÓN EDITAR (Texto) */}
                           <button
                             onClick={() => handleEditarOferta(oferta)}
-                            className="p-1.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer"
+                            className="px-2 py-1 text-sm font-medium bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer"
                             title="Editar Oferta"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
+                            Editar
                           </button>
 
-                          {/* BOTÓN TOGGLE (Icono solo) */}
+                          {/* BOTÓN TOGGLE (Texto) */}
                           <button
                             onClick={() => toggleActiva(oferta.idOferta, oferta.esActiva)}
-                            className={`p-1.5 text-white rounded-md transition-colors cursor-pointer ${oferta.esActiva ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"}`}
+                            className={`px-2 py-1 text-sm font-medium text-white rounded-md transition-colors cursor-pointer ${oferta.esActiva ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+                              }`}
                             title={oferta.esActiva ? "Desactivar Oferta" : "Activar Oferta"}
                           >
-                            {oferta.esActiva ? (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                            ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                            )}
+                            {oferta.esActiva ? "Desactivar" : "Activar"}
                           </button>
 
                         </div>

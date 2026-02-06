@@ -402,6 +402,42 @@ const obtenerVentaPorId = (req, res) => {
   });
 };
 
+const obtenerVentasParaAdmin = (req, res) => {
+    // Agregamos ve.idEmpleado al SELECT
+    const consulta = `
+        SELECT ve.idVentaE, ve.idEmpleado, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado,
+               ve.totalPago, e.nombreEmpleado, e.apellidoEmpleado, e.dniEmpleado
+        FROM VentasEmpleados ve
+        JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
+        ORDER BY ve.idVentaE DESC;
+    `;
+
+    conection.query(consulta, (err, results) => {
+        if (err) {
+            console.error("Error Admin Ventas:", err);
+            return res.status(500).json({ error: "Error al cargar ventas" });
+        }
+        res.status(200).json(results);
+    });
+};
+
+// 2. Obtener una venta para Editar (Con ID de empleado)
+const obtenerVentaParaEditar = (req, res) => {
+    const { idVentaE } = req.params;
+    // Agregamos idEmpleado al SELECT
+    const consulta = `
+        SELECT idVentaE, idEmpleado, totalPago, metodoPago, estado 
+        FROM VentasEmpleados 
+        WHERE idVentaE = ?
+    `;
+    
+    conection.query(consulta, [idVentaE], (err, results) => {
+        if (err) return res.status(500).json({ error: "Error del servidor" });
+        if (results.length === 0) return res.status(404).json({ error: "Venta no encontrada" });
+        res.status(200).json(results[0]);
+    });
+};
+
 
 module.exports = {
   registrarVentaEmpleado,
@@ -413,5 +449,7 @@ module.exports = {
   updateVenta,
   anularVenta,
   reactivarVenta, // <--- EXPORTAMOS LA NUEVA FUNCIÓN
-  obtenerVentaPorId
+  obtenerVentaPorId,
+  obtenerVentaParaEditar,
+  obtenerVentasParaAdmin
 };

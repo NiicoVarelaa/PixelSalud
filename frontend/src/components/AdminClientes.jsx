@@ -16,14 +16,14 @@ import {
 const AdminClientes = () => {
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Estados de Filtros
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("todos"); // Nuevo filtro
 
   // --- ESTADOS PARA PAGINACIÓN ---
   const [paginaActual, setPaginaActual] = useState(1);
-  const itemsPorPagina = 4; 
+  const itemsPorPagina = 4;
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
@@ -211,7 +211,7 @@ const AdminClientes = () => {
           );
           obtenerClientes();
         } catch (error) {
-          console.error("Error cambiando estado:", error); 
+          console.error("Error cambiando estado:", error);
           Swal.fire("Error", "No se pudo cambiar el estado. Revisa la consola.", "error");
         }
       }
@@ -221,7 +221,7 @@ const AdminClientes = () => {
   // --- Lógica de Filtrado Actualizada ---
   const clientesFiltrados = clientes.filter((cli) => {
     const termino = busqueda.toLowerCase();
-    const coincideBusqueda = 
+    const coincideBusqueda =
       cli.nombreCliente.toLowerCase().includes(termino) ||
       cli.apellidoCliente.toLowerCase().includes(termino) ||
       cli.emailCliente.toLowerCase().includes(termino) ||
@@ -229,11 +229,11 @@ const AdminClientes = () => {
 
     // Lógica para estado activo/inactivo
     const esActivo = cli.activo !== 0 && cli.activo !== false;
-    
-    const coincideEstado = 
-        filtroEstado === "todos" ||
-        (filtroEstado === "activos" && esActivo) ||
-        (filtroEstado === "inactivos" && !esActivo);
+
+    const coincideEstado =
+      filtroEstado === "todos" ||
+      (filtroEstado === "activos" && esActivo) ||
+      (filtroEstado === "inactivos" && !esActivo);
 
     return coincideBusqueda && coincideEstado;
   });
@@ -247,7 +247,7 @@ const AdminClientes = () => {
   const cambiarPagina = (numeroPagina) => setPaginaActual(numeroPagina);
 
   const getPaginationNumbers = () => {
-    const delta = 1; 
+    const delta = 1;
     const range = [];
     const rangeWithDots = [];
 
@@ -284,161 +284,175 @@ const AdminClientes = () => {
               <Users className="text-green-600" size={32} /> Administración de Clientes
             </h1>
             <p className="text-gray-500 mt-1 text-sm">
-                Gestiona los usuarios registrados en la farmacia.
+              Gestiona los usuarios registrados en la farmacia.
             </p>
           </div>
-          
+
           <div className="flex gap-3">
-          <button
-            onClick={handleCrearCliente}
-            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"
-          >
-            <UserPlus size={20} /> Nuevo Cliente
-          </button>
-          <Link
+            <button
+              onClick={handleCrearCliente}
+              className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"
+            >
+              <UserPlus size={20} /> Nuevo Cliente
+            </button>
+            <Link
               to="/admin"
               className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium"
             >
               ← Volver
             </Link>
-            </div>
+          </div>
         </div>
 
         {/* Buscador y Filtros */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-            {/* Input Búsqueda */}
-            <div className="relative w-full md:w-1/3">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="text-gray-400" size={18} />
-                </div>
-                <input
-                    type="text"
-                    placeholder="Buscar cliente..."
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                    className="border p-2 pl-10 rounded w-full focus:outline-none focus:ring-1 focus:ring-green-500"
-                />
+          {/* Input Búsqueda */}
+          <div className="relative w-full md:w-1/3">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="text-gray-400" size={18} />
             </div>
+            <input
+              type="text"
+              placeholder="Buscar cliente..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="border p-2 pl-10 rounded w-full focus:outline-none focus:ring-1 focus:ring-green-500"
+            />
+          </div>
 
-            {/* Select Estado */}
-            <div className="w-full md:w-1/4">
-                <select
-                    value={filtroEstado}
-                    onChange={(e) => setFiltroEstado(e.target.value)}
-                    className="border p-2 rounded w-full focus:outline-none focus:ring-1 focus:ring-green-500"
-                >
-                    <option value="todos">Todos</option>
-                    <option value="activos">Activos</option>
-                    <option value="inactivos">Inactivos</option>
-                </select>
-            </div>
+          {/* Select Estado */}
+          <div className="w-full md:w-1/4">
+            <select
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value)}
+              className="border p-2 rounded w-full focus:outline-none focus:ring-1 focus:ring-green-500"
+            >
+              <option value="todos">Todos</option>
+              <option value="activos">Activos</option>
+              <option value="inactivos">Inactivos</option>
+            </select>
+          </div>
         </div>
 
         {/* Tabla de Clientes */}
         <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
           {loading ? (
-             <div className="p-12 text-center">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-4"></div>
-                <p className="text-gray-500">Cargando clientes...</p>
-             </div>
+            <div className="p-12 text-center">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-4"></div>
+              <p className="text-gray-500">Cargando clientes...</p>
+            </div>
           ) : (
             <div className="w-full">
-                <table className="w-full divide-y divide-gray-200 table-fixed">
+              <table className="w-full divide-y divide-gray-200 table-fixed">
                 <thead className="bg-green-100">
-                    <tr>
+                  <tr>
+                    {/* ID - Lo dejamos pequeño */}
                     <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-16">
-                        ID
+                      ID
                     </th>
+
+                    {/* CLIENTE - w-1/4 está bien para nombres largos */}
                     <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-1/4">
-                        Cliente
+                      Cliente
                     </th>
+
+                    {/* DNI - w-32 fijo */}
                     <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-32">
-                        DNI
+                      DNI
                     </th>
-                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-1/3">
-                        Email
+
+                    {/* EMAIL - AQUÍ ESTABA EL ERROR: Cambiamos w-1/3 por w-64 */}
+                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-64">
+                      Email
                     </th>
-                    <th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-24">
-                        Estado
+
+                    {/* ESTADO - w-32 para que tenga aire */}
+                    <th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-32">
+                      Estado
                     </th>
-                    <th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-800 uppercase tracking-wider w-32">
-                        Acciones
+
+                    {/* ACCIONES - w-40 para que entren los botones cómodos */}
+                    <th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-40">
+                      Acciones
                     </th>
-                    </tr>
+                  </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                    {itemsActuales.length > 0 ? (
-                        itemsActuales.map((cli) => {
-                            const esActivo = cli.activo !== 0 && cli.activo !== false;
-                            return (
-                                <tr key={cli.idCliente} className="hover:bg-gray-50 transition-colors">
-                                    {/* ID */}
-                                    <td className="px-3 py-3 whitespace-nowrap text-gray-500 font-mono text-xs">
-                                        #{cli.idCliente}
-                                    </td>
+                  {itemsActuales.length > 0 ? (
+                    itemsActuales.map((cli) => {
+                      const esActivo = cli.activo !== 0 && cli.activo !== false;
+                      return (
+                        <tr key={cli.idCliente} className="hover:bg-gray-50 transition-colors">
+                          {/* ID */}
+                          <td className="px-3 py-3 whitespace-nowrap text-gray-500 font-mono text-xs">
+                            #{cli.idCliente}
+                          </td>
 
-                                    {/* CLIENTE */}
-                                    <td className="px-3 py-3 align-middle">
-                                        <div className="text-sm font-medium text-gray-900 whitespace-normal break-words">
-                                            {cli.nombreCliente} {cli.apellidoCliente}
-                                        </div>
-                                    </td>
+                          {/* CLIENTE */}
+                          <td className="px-3 py-3 align-middle">
+                            <div className="text-sm font-medium text-gray-900 whitespace-normal break-words">
+                              {cli.nombreCliente} {cli.apellidoCliente}
+                            </div>
+                          </td>
 
-                                    {/* DNI */}
-                                    <td className="px-3 py-3 whitespace-nowrap align-middle text-sm text-gray-700">
-                                        {cli.dni || "---"}
-                                    </td>
+                          {/* DNI */}
+                          <td className="px-3 py-3 whitespace-nowrap align-middle text-sm text-gray-700">
+                            {cli.dni || "---"}
+                          </td>
 
-                                    {/* EMAIL */}
-                                    <td className="px-3 py-3 align-middle">
-                                        <div className="text-sm text-gray-600 whitespace-normal break-words break-all">
-                                            {cli.emailCliente}
-                                        </div>
-                                    </td>
+                          {/* EMAIL */}
+                          <td className="px-3 py-3 align-middle w-[100px]">
+                            <div
+                              className="text-sm text-gray-600 truncate max-w-[190px]"
+                              title={cli.emailCliente}
+                            >
+                              {cli.emailCliente}
+                            </div>
+                          </td>
 
-                                    {/* ESTADO */}
-                                    <td className="px-3 py-3 whitespace-nowrap text-center align-middle">
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                            esActivo ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                                        }`}>
-                                            {esActivo ? "Activo" : "Baja"}
-                                        </span>
-                                    </td>
+                          {/* ESTADO */}
+                          <td className="px-3 py-3 whitespace-nowrap text-center align-middle w-[100px]">
+                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${esActivo ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                              }`}>
+                              {esActivo ? "Activo" : "Baja"}
+                            </span>
+                          </td>
 
-                                    {/* ACCIONES (ICONOS SIN TEXTO) */}
-                                    <td className="px-3 py-3 whitespace-nowrap text-right align-middle">
-                                        <div className="flex gap-1 justify-end">
-                                            <button
-                                                onClick={() => handleEditarCliente(cli)}
-                                                className="p-1.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer"
-                                                title="Editar Cliente"
-                                            >
-                                                <Edit size={16} />
-                                            </button>
 
-                                            <button
-                                                onClick={() => handleCambiarEstado(cli)}
-                                                className={`p-1.5 text-white rounded-md transition-colors cursor-pointer ${
-                                                    esActivo ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
-                                                }`}
-                                                title={esActivo ? "Dar de Baja" : "Reactivar Cliente"}
-                                            >
-                                                {esActivo ? <UserX size={16} /> : <CheckCircle size={16} />}
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            );
-                        })
-                    ) : (
-                        <tr>
-                            <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                                No se encontraron clientes.
-                            </td>
+                          <td className="px-3 py-3 whitespace-nowrap text-right align-middle">
+                            <div className="flex gap-1 justify-end">
+                              {/* BOTÓN EDITAR CLIENTE */}
+                              <button
+                                onClick={() => handleEditarCliente(cli)}
+                                className="px-2 py-1 text-sm font-medium bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer"
+                                title="Editar Cliente"
+                              >
+                                Editar
+                              </button>
+
+                              {/* BOTÓN CAMBIAR ESTADO (Baja / Reactivar) */}
+                              <button
+                                onClick={() => handleCambiarEstado(cli)}
+                                className={`px-2 py-1 text-sm font-medium text-white rounded-md transition-colors cursor-pointer ${esActivo ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+                                  }`}
+                                title={esActivo ? "Dar de Baja" : "Reactivar Cliente"}
+                              >
+                                {esActivo ? "Desactivar" : "Activar"}
+                              </button>
+                            </div>
+                          </td>
                         </tr>
-                    )}
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                        No se encontraron clientes.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
-                </table>
+              </table>
             </div>
           )}
 
@@ -459,13 +473,12 @@ const AdminClientes = () => {
                     key={index}
                     onClick={() => typeof number === 'number' ? cambiarPagina(number) : null}
                     disabled={typeof number !== 'number'}
-                    className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
-                      number === paginaActual
-                        ? 'bg-blue-500 text-white' 
-                        : typeof number === 'number'
-                          ? 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' 
-                          : 'bg-white text-gray-400 cursor-default'
-                    }`}
+                    className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${number === paginaActual
+                      ? 'bg-blue-500 text-white'
+                      : typeof number === 'number'
+                        ? 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                        : 'bg-white text-gray-400 cursor-default'
+                      }`}
                   >
                     {number}
                   </button>

@@ -18,7 +18,7 @@ const AdminProductos = () => {
   // Estados para creación (Modal normal)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef();
-  
+
   // Estados de filtro
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("todas");
@@ -75,8 +75,8 @@ const AdminProductos = () => {
 
   // --- 1. FUNCIÓN EDITAR CON SWEETALERT CORREGIDA ---
   const handleEditarProducto = async (prod) => {
-    const opcionesCategorias = categorias.map(cat => 
-        `<option value="${cat}" ${cat === prod.categoria ? 'selected' : ''}>${cat}</option>`
+    const opcionesCategorias = categorias.map(cat =>
+      `<option value="${cat}" ${cat === prod.categoria ? 'selected' : ''}>${cat}</option>`
     ).join('');
 
     const { value: formValues } = await Swal.fire({
@@ -124,12 +124,12 @@ const AdminProductos = () => {
       width: '600px',
       preConfirm: () => {
         return {
-            nombreProducto: document.getElementById('swal-nombre').value.trim(),
-            categoria: document.getElementById('swal-categoria').value,
-            precio: document.getElementById('swal-precio').value,
-            stock: document.getElementById('swal-stock').value,
-            img: document.getElementById('swal-img').value.trim(),
-            descripcion: document.getElementById('swal-desc').value.trim(),
+          nombreProducto: document.getElementById('swal-nombre').value.trim(),
+          categoria: document.getElementById('swal-categoria').value,
+          precio: document.getElementById('swal-precio').value,
+          stock: document.getElementById('swal-stock').value,
+          img: document.getElementById('swal-img').value.trim(),
+          descripcion: document.getElementById('swal-desc').value.trim(),
         };
       }
     });
@@ -137,14 +137,14 @@ const AdminProductos = () => {
     if (formValues) {
       try {
         await axios.put(
-            `http://localhost:5000/productos/actualizar/${prod.idProducto}`,
-            { 
-              ...formValues, 
-              precio: Number(formValues.precio),
-              stock: Number(formValues.stock),
-              activo: prod.activo 
-            },
-            getConfig()
+          `http://localhost:5000/productos/actualizar/${prod.idProducto}`,
+          {
+            ...formValues,
+            precio: Number(formValues.precio),
+            stock: Number(formValues.stock),
+            activo: prod.activo
+          },
+          getConfig()
         );
         Swal.fire('Actualizado', 'Producto modificado correctamente', 'success');
         fetchProducts();
@@ -179,36 +179,36 @@ const AdminProductos = () => {
   // --- 3. FUNCIÓN TOGGLE ACTIVO ---
   const handleToggleActiva = (prod) => {
     const accion = prod.activo ? "Desactivar" : "Activar";
-    const participio = prod.activo ? "Desactivado" : "Activado"; 
-    
+    const participio = prod.activo ? "Desactivado" : "Activado";
+
     const colorBtn = prod.activo ? "#d33" : "#059669";
 
     Swal.fire({
-        title: `¿${accion} producto?`,
-        text: `El producto "${prod.nombreProducto}" ${prod.activo ? 'dejará de ser' : 'será'} visible para los clientes.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: colorBtn,
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: `Sí, ${accion.toLowerCase()}`
+      title: `¿${accion} producto?`,
+      text: `El producto "${prod.nombreProducto}" ${prod.activo ? 'dejará de ser' : 'será'} visible para los clientes.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: colorBtn,
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: `Sí, ${accion.toLowerCase()}`
     }).then(async (result) => {
-        if (result.isConfirmed) {
-            try {
-                await axios.put(`http://localhost:5000/productos/actualizar/activo/${prod.idProducto}`, {
-                    activo: !prod.activo, 
-                }, getConfig());
-                
-                Swal.fire(
-                    `${participio}!`,
-                    `El producto ha sido ${participio.toLowerCase()} correctamente.`,
-                    'success'
-                );
-                fetchProducts();
-            } catch (error) {
-                console.error("Error estado:", error);
-                Swal.fire('Error', 'No se pudo cambiar el estado', 'error');
-            }
+      if (result.isConfirmed) {
+        try {
+          await axios.put(`http://localhost:5000/productos/actualizar/activo/${prod.idProducto}`, {
+            activo: !prod.activo,
+          }, getConfig());
+
+          Swal.fire(
+            `${participio}!`,
+            `El producto ha sido ${participio.toLowerCase()} correctamente.`,
+            'success'
+          );
+          fetchProducts();
+        } catch (error) {
+          console.error("Error estado:", error);
+          Swal.fire('Error', 'No se pudo cambiar el estado', 'error');
         }
+      }
     });
   }
 
@@ -263,22 +263,22 @@ const AdminProductos = () => {
           </div>
 
           <div className="flex gap-3">
-             <button
-                onClick={() => setIsModalOpen(true)}
-                className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"
-             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                Agregar Producto
-             </button>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+              Agregar Producto
+            </button>
 
-             <Link 
-                to="/admin/MenuProductos" 
-                className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium"
-             >
-                ← Volver
-             </Link>
+            <Link
+              to="/admin/MenuProductos"
+              className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium"
+            >
+              ← Volver
+            </Link>
           </div>
         </div>
 
@@ -325,41 +325,41 @@ const AdminProductos = () => {
                     </svg>
                   </button>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                   <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">URL Imagen</label>
-                        <input type="text" name="img" value={nuevoProducto.img} onChange={(e) => setNuevoProducto({...nuevoProducto, img: e.target.value})} className="w-full px-3 py-2 border rounded-md" placeholder="https://..." />
-                        {nuevoProducto.img && (
-                          <div className="mt-2">
-                            <p className="text-xs text-gray-500 mb-1">Vista previa:</p>
-                            <img src={nuevoProducto.img} alt="Preview" className="h-20 w-20 object-cover rounded border" onError={(e) => e.target.src = 'https://via.placeholder.com/100'} />
-                          </div>
-                        )}
-                   </div>
-                   <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                        <input type="text" name="nombreProducto" value={nuevoProducto.nombreProducto} onChange={(e) => setNuevoProducto({...nuevoProducto, nombreProducto: e.target.value})} className="w-full px-3 py-2 border rounded-md" placeholder="Nombre" />
-                   </div>
-                   <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                        <textarea name="descripcion" value={nuevoProducto.descripcion} onChange={(e) => setNuevoProducto({...nuevoProducto, descripcion: e.target.value})} className="w-full px-3 py-2 border rounded-md" rows="2" placeholder="Detalles..." />
-                   </div>
-                   <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
-                        <input type="number" name="precio" value={nuevoProducto.precio} onChange={(e) => setNuevoProducto({...nuevoProducto, precio: e.target.value})} className="w-full px-3 py-2 border rounded-md" placeholder="0.00" />
-                   </div>
-                   <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
-                        <input type="number" name="stock" value={nuevoProducto.stock} onChange={(e) => setNuevoProducto({...nuevoProducto, stock: e.target.value})} className="w-full px-3 py-2 border rounded-md" placeholder="0" />
-                   </div>
-                   <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-                        <select name="categoria" value={nuevoProducto.categoria} onChange={(e) => setNuevoProducto({...nuevoProducto, categoria: e.target.value})} className="w-full px-3 py-2 border rounded-md">
-                            <option value="">Seleccione...</option>
-                            {categorias.map((c, i) => <option key={i} value={c}>{c}</option>)}
-                        </select>
-                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">URL Imagen</label>
+                    <input type="text" name="img" value={nuevoProducto.img} onChange={(e) => setNuevoProducto({ ...nuevoProducto, img: e.target.value })} className="w-full px-3 py-2 border rounded-md" placeholder="https://..." />
+                    {nuevoProducto.img && (
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500 mb-1">Vista previa:</p>
+                        <img src={nuevoProducto.img} alt="Preview" className="h-20 w-20 object-cover rounded border" onError={(e) => e.target.src = 'https://via.placeholder.com/100'} />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                    <input type="text" name="nombreProducto" value={nuevoProducto.nombreProducto} onChange={(e) => setNuevoProducto({ ...nuevoProducto, nombreProducto: e.target.value })} className="w-full px-3 py-2 border rounded-md" placeholder="Nombre" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                    <textarea name="descripcion" value={nuevoProducto.descripcion} onChange={(e) => setNuevoProducto({ ...nuevoProducto, descripcion: e.target.value })} className="w-full px-3 py-2 border rounded-md" rows="2" placeholder="Detalles..." />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+                    <input type="number" name="precio" value={nuevoProducto.precio} onChange={(e) => setNuevoProducto({ ...nuevoProducto, precio: e.target.value })} className="w-full px-3 py-2 border rounded-md" placeholder="0.00" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+                    <input type="number" name="stock" value={nuevoProducto.stock} onChange={(e) => setNuevoProducto({ ...nuevoProducto, stock: e.target.value })} className="w-full px-3 py-2 border rounded-md" placeholder="0" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <select name="categoria" value={nuevoProducto.categoria} onChange={(e) => setNuevoProducto({ ...nuevoProducto, categoria: e.target.value })} className="w-full px-3 py-2 border rounded-md">
+                      <option value="">Seleccione...</option>
+                      {categorias.map((c, i) => <option key={i} value={c}>{c}</option>)}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4">
@@ -383,7 +383,7 @@ const AdminProductos = () => {
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-24">Categoría</th>
                   <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-16">Stock</th>
                   <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-20">Estado</th>
-                  <th className="px-3 py-3 text-right text-xs font-medium text-gray-800 uppercase tracking-wider w-40">Acciones</th>
+                  <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-40">Acciones</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -418,29 +418,24 @@ const AdminProductos = () => {
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap text-right align-middle">
                         <div className="flex gap-1 justify-end">
-                          
+
                           {/* BOTÓN EDITAR (Icono solo) */}
                           <button
-                            onClick={() => handleEditarProducto(prod)}
-                            className="p-1.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer"
-                            title="Editar Producto"
+                            onClick={() => handleEditarOferta(oferta)}
+                            className="px-2 py-1 text-sm font-medium bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer"
+                            title="Editar Oferta"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
+                            Editar
                           </button>
 
                           {/* BOTÓN TOGGLE (Icono solo) */}
                           <button
                             onClick={() => handleToggleActiva(prod)}
-                            className={`p-1.5 text-white rounded-md transition-colors cursor-pointer ${prod.activo ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"}`}
+                            className={`px-2 text-white rounded-md transition-colors cursor-pointer ${prod.activo ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+                              }`}
                             title={prod.activo ? "Desactivar Producto" : "Activar Producto"}
                           >
-                            {prod.activo ? (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                            ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                            )}
+                            {prod.activo ? "Desactivar" : "Activar"}
                           </button>
 
                         </div>
