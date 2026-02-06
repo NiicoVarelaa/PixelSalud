@@ -1,4 +1,4 @@
-require("dotenv").config()
+require("dotenv").config();
 const express = require("express");
 
 const { conection } = require("./config/database");
@@ -13,12 +13,13 @@ const loginRoutes = require("./routes/login");
 const routesEmpleados = require("./routes/Empleados");
 const routesOnlines = require("./routes/ventasOnline");
 const ventasEmpleados = require("./routes/VentasEmpleados");
-const favoritosRoutes = require('./routes/favoritos');
-const routesMercadoPago = require("./routes/mercadopago"); 
-const routesPermisos = require("./routes/permisos")
-const routesMedicos = require("./routes/medicos")
-const mensajesRoutes = require('./routes/mensajes'); 
-const routesRecetas = require("./routes/recetas")
+const favoritosRoutes = require("./routes/favoritos");
+const routesMercadoPago = require("./routes/mercadopago");
+const routesPermisos = require("./routes/permisos");
+const routesMedicos = require("./routes/medicos");
+const mensajesRoutes = require("./routes/mensajes");
+const routesRecetas = require("./routes/recetas");
+const routesReportes = require("./routes/reportes");
 
 const app = express();
 
@@ -37,12 +38,13 @@ app.use("/", routesClientes);
 app.use("/", loginRoutes);
 app.use("/", registroRouter);
 app.use("/", routesEmpleados);
-app.use('/favoritos', favoritosRoutes); 
+app.use("/favoritos", favoritosRoutes);
 app.use("/mercadopago", routesMercadoPago);
-app.use("/",routesPermisos)
-app.use("/",routesMedicos)
-app.use('/mensajes', mensajesRoutes);
-app.use("/", routesRecetas)
+app.use("/", routesPermisos);
+app.use("/", routesMedicos);
+app.use("/mensajes", mensajesRoutes);
+app.use("/", routesRecetas);
+app.use("/", routesReportes);
 
 conection.connect((err) => {
   if (err) {
