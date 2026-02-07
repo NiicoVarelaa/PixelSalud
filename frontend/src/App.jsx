@@ -43,7 +43,7 @@ import AdminMensajes from "./pages/AdminMensajes";
 import AdminEmpleados from "./components/AdminEmpleados";
 import MenuVentas from "./components/MenuVentas";
 import AdminVentasE from "./components/AdminVentasE";
-
+import AdminReportes from "./components/AdminReportes";
 
 // (Nota: AdminVentasO lo tenías importado pero no usado en rutas, lo omití para limpiar)
 
@@ -68,7 +68,6 @@ import LegalesPromocion from "./pages/LegalesPromocion";
 import AdminVentasO from "./components/AdminVentasO";
 import OpcionesVentas from "./components/OpcionesVentas";
 
-
 const App = () => {
   return (
     <>
@@ -82,19 +81,19 @@ const App = () => {
           <Route path="registro" element={<Registro />} />
           <Route path="login" element={<Login />} />
           <Route path="recuperarContraseña" element={<RecuperarContrasena />} />
-          
+
           {/* 2. NUEVA RUTA AQUÍ */}
           {/* Esta ruta recibe el token por URL (?token=...) y muestra el form para cambiar la clave */}
           <Route path="reset-password" element={<RestablecerContrasena />} />
-          
+
           <Route path="productos" element={<Productos />} />
           <Route path="productos/:idProducto" element={<Producto />} />
           <Route path="productos/:categoria?" element={<Productos />} />
-          
+
           <Route path="carrito" element={<Carrito />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="checkout/success" element={<CheckoutSuccess />} />
-          
+
           <Route path="sobreNosotros" element={<SobreNosotros />} />
           <Route path="contacto" element={<Contacto />} />
 
@@ -107,7 +106,7 @@ const App = () => {
         </Route>
 
         {/* ... (RUTAS ADMIN, EMPLEADO Y MÉDICO QUEDAN IGUAL) ... */}
-        
+
         {/* =========================================
             RUTAS ADMINISTRADOR
            ========================================= */}
@@ -119,7 +118,10 @@ const App = () => {
               <Route index element={<OpcionesProductos />} />
               <Route path="productos" element={<AdminProductos />} />
               <Route path="ofertas" element={<AdminOfertas />} />
-              <Route path="productosActivos" element={<AdminProductosActivos />} />
+              <Route
+                path="productosActivos"
+                element={<AdminProductosActivos />}
+              />
               <Route path="productosBaja" element={<AdminProductosBaja />} />
             </Route>
 
@@ -141,21 +143,41 @@ const App = () => {
               <Route index element={<AdminMedicos />} />
             </Route> */}
 
+            <Route path="reportes" element={<AdminReportes />} />
             <Route path="mensajes" element={<AdminMensajes />} />
           </Route>
         </Route>
-        
+
         {/* =========================================
             RUTAS EMPLEADO
            ========================================= */}
         <Route element={<ProtectedRoute allowedRoles={["empleado"]} />}>
           <Route path="/panelempleados" element={<PanelEmpleados />}>
-             <Route index element={<VistaInicialCards />} /> 
-             <Route path="venta" element={<EmpleadoRealizarVenta />} />
-             <Route path="productos" element={<EmpleadoProductos />} />
-             <Route path="misventas" element={<EmpleadoListaVentas endpoint="personal" title="Mis Ventas Personales" />} />
-             <Route path="ventastotales" element={<EmpleadoListaVentas endpoint="general" title="Ventas Totales" />} />
-             <Route path="editar-venta/:idVenta" element={<EmpleadoEditarVenta />} />
+            <Route index element={<VistaInicialCards />} />
+            <Route path="venta" element={<EmpleadoRealizarVenta />} />
+            <Route path="productos" element={<EmpleadoProductos />} />
+            <Route
+              path="misventas"
+              element={
+                <EmpleadoListaVentas
+                  endpoint="personal"
+                  title="Mis Ventas Personales"
+                />
+              }
+            />
+            <Route
+              path="ventastotales"
+              element={
+                <EmpleadoListaVentas
+                  endpoint="general"
+                  title="Ventas Totales"
+                />
+              }
+            />
+            <Route
+              path="editar-venta/:idVenta"
+              element={<EmpleadoEditarVenta />}
+            />
           </Route>
         </Route>
 
@@ -164,9 +186,9 @@ const App = () => {
            ========================================= */}
         <Route element={<ProtectedRoute allowedRoles={["medico"]} />}>
           <Route path="/panelMedico" element={<PanelMedicos />}>
-             <Route index element={<VistaMenuMedico />} />
-             <Route path="nuevareceta" element={<MedicoNuevaReceta />} />
-             <Route path="misrecetas" element={<MedicoMisRecetas />} />
+            <Route index element={<VistaMenuMedico />} />
+            <Route path="nuevareceta" element={<MedicoNuevaReceta />} />
+            <Route path="misrecetas" element={<MedicoMisRecetas />} />
           </Route>
         </Route>
 
