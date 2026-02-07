@@ -51,7 +51,7 @@ const estilosExcel = {
 };
 
 // ==========================================
-// 1. REPORTE DE VENTAS ONLINE
+// 1. REPORTE DE VENTAS ONLINE (Sin Cambios)
 // ==========================================
 const reporteVentasOnline = async (req, res) => {
   try {
@@ -260,20 +260,21 @@ const reporteVentasOnline = async (req, res) => {
 };
 
 // ==========================================
-// 2. REPORTE DE VENTAS EMPLEADOS
+// 2. REPORTE DE VENTAS EMPLEADOS (CORREGIDO PARA ADMIN)
 // ==========================================
 const reporteVentasEmpleados = async (req, res) => {
   try {
     const { fechaDesde, fechaHasta, estado, metodoPago, idEmpleado } =
       req.query;
 
+    // --- CAMBIO: Usamos LEFT JOIN y COALESCE para traer nombre de Empleado O Admin ---
     let sql = `
             SELECT 
                 v.idVentaE,
                 v.fechaPago,
                 v.horaPago,
-                CONCAT(e.nombreEmpleado, ' ', e.apellidoEmpleado) as empleado,
-                e.dniEmpleado,
+                COALESCE(CONCAT(e.nombreEmpleado, ' ', e.apellidoEmpleado), a.nombreAdmin) as empleado,
+                COALESCE(e.dniEmpleado, a.dniAdmin) as dniEmpleado,
                 v.metodoPago,
                 v.estado,
                 v.totalPago,
@@ -282,7 +283,8 @@ const reporteVentasEmpleados = async (req, res) => {
                     SEPARATOR ', '
                 ) as productos
             FROM VentasEmpleados v
-            JOIN Empleados e ON v.idEmpleado = e.idEmpleado
+            LEFT JOIN Empleados e ON v.idEmpleado = e.idEmpleado
+            LEFT JOIN Admins a ON v.idAdmin = a.idAdmin
             JOIN DetalleVentaEmpleado d ON v.idVentaE = d.idVentaE
             JOIN Productos p ON d.idProducto = p.idProducto
             WHERE 1=1
@@ -306,6 +308,7 @@ const reporteVentasEmpleados = async (req, res) => {
       sql += " AND v.metodoPago = ?";
       params.push(metodoPago);
     }
+    // Si se filtra por idEmpleado, mantenemos esa lógica
     if (idEmpleado) {
       sql += " AND v.idEmpleado = ?";
       params.push(idEmpleado);
@@ -315,7 +318,8 @@ const reporteVentasEmpleados = async (req, res) => {
 
     const ventas = await query(sql, params);
 
-    // Ranking de empleados
+    // Ranking de empleados (MANTENEMOS SOLO EMPLEADOS)
+    // Usualmente no queremos que el Admin compita en el ranking de vendedores
     const sqlRanking = `
             SELECT 
                 CONCAT(e.nombreEmpleado, ' ', e.apellidoEmpleado) as empleado,
@@ -431,7 +435,7 @@ const reporteVentasEmpleados = async (req, res) => {
       "ID Venta",
       "Fecha",
       "Hora",
-      "Empleado",
+      "Vendedor", // Cambiamos etiqueta "Empleado" por "Vendedor"
       "DNI",
       "Método Pago",
       "Estado",
@@ -466,7 +470,7 @@ const reporteVentasEmpleados = async (req, res) => {
           pattern: "solid",
           fgColor: { argb: "FFD4EDDA" },
         };
-      } else if (venta.estado === "cancelada") {
+      } else if (venta.estado === "cancelada" || venta.estado === "anulada") {
         estadoCell.fill = {
           type: "pattern",
           pattern: "solid",
@@ -510,13 +514,13 @@ const reporteVentasEmpleados = async (req, res) => {
 };
 
 // ==========================================
-// 3. REPORTE CONSOLIDADO
+// 3. REPORTE CONSOLIDADO (CORREGIDO PARA ADMIN)
 // ==========================================
 const reporteConsolidado = async (req, res) => {
   try {
     const { fechaDesde, fechaHasta } = req.query;
 
-    // Ventas Online
+    // Ventas Online (Sin cambios)
     let sqlOnline = `
             SELECT 
                 'Online' as canal,
@@ -541,18 +545,19 @@ const reporteConsolidado = async (req, res) => {
       paramsOnline.push(fechaHasta);
     }
 
-    // Ventas Empleados
+    // Ventas Empleados (CORREGIDO: LEFT JOIN con Admins y COALESCE)
     let sqlEmpleados = `
             SELECT 
                 'Local' as canal,
                 v.idVentaE as idVenta,
                 v.fechaPago as fecha,
-                CONCAT(e.nombreEmpleado, ' ', e.apellidoEmpleado) as vendedor,
+                COALESCE(CONCAT(e.nombreEmpleado, ' ', e.apellidoEmpleado), a.nombreAdmin) as vendedor,
                 v.metodoPago,
                 v.estado,
                 v.totalPago
             FROM VentasEmpleados v
-            JOIN Empleados e ON v.idEmpleado = e.idEmpleado
+            LEFT JOIN Empleados e ON v.idEmpleado = e.idEmpleado
+            LEFT JOIN Admins a ON v.idAdmin = a.idAdmin
             WHERE 1=1
         `;
 
@@ -572,6 +577,8 @@ const reporteConsolidado = async (req, res) => {
     ]);
 
     // Productos más vendidos
+    // NOTA: Aquí no necesitamos JOIN con Empleados/Admins, solo VentasEmpleados,
+    // por lo que las ventas del Admin ya se cuentan correctamente en el stock.
     let sqlProductos = `
             SELECT 
                 p.nombreProducto,
@@ -817,8 +824,10 @@ const reporteConsolidado = async (req, res) => {
 };
 
 // ==========================================
-// 4. REPORTE DE PRODUCTOS VENDIDOS
+// 4. REPORTE DE PRODUCTOS VENDIDOS (SIN CAMBIOS NECESARIOS)
 // ==========================================
+// Explicación: Este reporte usa JOIN con VentasEmpleados directamente para contar stock,
+// no filtra por empleado, así que las ventas del Admin ya se cuentan bien.
 const reporteProductosVendidos = async (req, res) => {
   try {
     const { fechaDesde, fechaHasta, categoria } = req.query;

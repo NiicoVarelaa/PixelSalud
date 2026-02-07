@@ -21,8 +21,10 @@ const ventaReducer = (state, action) => {
 };
 
 const AdminVentasE = () => {
+    // CAMBIO: Agregamos idAdmin al estado inicial
     const initialState = {
-        idEmpleado: "", 
+        idEmpleado: null, 
+        idAdmin: null,
         totalPago: 0,
         metodoPago: "Efectivo",
         productos: [],
@@ -35,7 +37,7 @@ const AdminVentasE = () => {
     
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState(null);
-    const [nombreVendedorOriginal, setNombreVendedorOriginal] = useState(""); // Para mostrar en el modal
+    const [nombreVendedorOriginal, setNombreVendedorOriginal] = useState(""); 
 
     const [paginaActual, setPaginaActual] = useState(1);
     const itemsPorPagina = 8; 
@@ -53,18 +55,23 @@ const AdminVentasE = () => {
     const { user } = useAuthStore();
     const permisos = user?.permisos || {}; 
 
-    // --- AUTO-DETECTAR USUARIO PARA NUEVAS VENTAS ---
+    // --- AUTO-DETECTAR USUARIO (ADMIN O EMPLEADO) ---
     useEffect(() => {
         if (user && !isEditing) {
-            // Usamos tu ID (gracias al Empleado Espejo ID 1)
-            dispatch({ type: 'SET_FIELD', field: 'idEmpleado', value: user.id });
+            // CAMBIO: Lógica para detectar si es Admin o Empleado
+            if (user.rol === 'admin') {
+                dispatch({ type: 'SET_FIELD', field: 'idAdmin', value: user.id });
+                dispatch({ type: 'SET_FIELD', field: 'idEmpleado', value: null });
+            } else {
+                dispatch({ type: 'SET_FIELD', field: 'idEmpleado', value: user.id });
+                dispatch({ type: 'SET_FIELD', field: 'idAdmin', value: null });
+            }
         }
     }, [user, isEditing]);
 
     const obtenerVentas = async () => {
         try {
             setCargando(true);
-            // CAMBIO: Usamos la ruta nueva exclusiva para Admin
             const res = await apiClient.get("/ventasEmpleados/admin/listado");
             const data = Array.isArray(res.data) ? res.data : [];
             setVentas(data);
@@ -160,18 +167,24 @@ const AdminVentasE = () => {
         dispatch({ type: 'RESET', initialState });
         setProductoSeleccionado(null);
         setTerminoBusqueda('');
-        if (user) dispatch({ type: 'SET_FIELD', field: 'idEmpleado', value: user.id });
+        
+        // Reiniciamos IDs según el usuario logueado
+        if (user) {
+            if (user.rol === 'admin') {
+                dispatch({ type: 'SET_FIELD', field: 'idAdmin', value: user.id });
+            } else {
+                dispatch({ type: 'SET_FIELD', field: 'idEmpleado', value: user.id });
+            }
+        }
         setIsModalOpen(true);
     };
 
     const handleEditarVenta = async (venta) => {
         Swal.fire({ title: 'Cargando venta...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         try {
-            // 1. Traemos los detalles (productos) - Ruta estándar
             const resDetalles = await apiClient.get(`/ventasEmpleados/detalle/${venta.idVentaE}`);
             const detalles = resDetalles.data;
             
-            // 2. Traemos la DATA CRUDA usando la NUEVA RUTA ADMIN para obtener el ID real del empleado
             const resVentaRaw = await apiClient.get(`/ventasEmpleados/admin/detalle/${venta.idVentaE}`);
             const datosReales = resVentaRaw.data; 
 
@@ -186,11 +199,12 @@ const AdminVentasE = () => {
             setEditingId(venta.idVentaE);
             setNombreVendedorOriginal(`${venta.nombreEmpleado} ${venta.apellidoEmpleado}`);
 
-            // 3. Cargamos el formulario con el ID REAL
+            // CAMBIO: Carga condicional de ID
             dispatch({ 
                 type: 'LOAD_SALE', 
                 payload: {
-                    idEmpleado: datosReales.idEmpleado, 
+                    idEmpleado: datosReales.idEmpleado || null, 
+                    idAdmin: datosReales.idAdmin || null, // Cargamos Admin si existe
                     metodoPago: venta.metodoPago,
                     totalPago: venta.totalPago,
                     productos: productosFormateados
@@ -208,9 +222,11 @@ const AdminVentasE = () => {
     };
 
     const handleSubmit = async () => {
-        // Validar
-        if (!ventaForm.idEmpleado || ventaForm.productos.length === 0) {
-            toast.error("El ticket está vacío o falta el ID del empleado.");
+        // CAMBIO: Validación flexible (acepta Empleado O Admin)
+        const tieneVendedor = ventaForm.idEmpleado || ventaForm.idAdmin;
+        
+        if (!tieneVendedor || ventaForm.productos.length === 0) {
+            toast.error("El ticket está vacío o no se identificó al vendedor.");
             return;
         }
 
@@ -446,7 +462,7 @@ const AdminVentasE = () => {
                     <div className="flex gap-3"><button onClick={abrirModalRegistro} className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg transition shadow-md font-medium cursor-pointer"><Plus size={20} /> Nueva Venta</button><Link to="/admin/MenuVentas" className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium">← Volver</Link></div>
                 </div>
                 <div className="flex flex-col md:flex-row gap-4 mb-6">
-                    <div className="relative w-full md:w-96"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Search className="text-gray-400" size={18} /></div><input type="text" placeholder="Buscar por ID, DNI o Empleado..." value={filtro} onChange={(e) => { setFiltro(e.target.value); setPaginaActual(1); }} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow" /></div>
+                    <div className="relative w-full md:w-96"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Search className="text-gray-400" size={18} /></div><input type="text" placeholder="Buscar por ID, DNI o Vendedor..." value={filtro} onChange={(e) => { setFiltro(e.target.value); setPaginaActual(1); }} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow" /></div>
                     <div className="w-full md:w-48"><select value={filtroEstado} onChange={(e) => { setFiltroEstado(e.target.value); setPaginaActual(1); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"><option value="todas">📁 Todas</option><option value="completada">✅ Completadas</option><option value="anulada">🚫 Anuladas</option></select></div>
                 </div>
                 <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col border border-gray-100">
@@ -455,7 +471,7 @@ const AdminVentasE = () => {
                             <table className="w-full divide-y divide-gray-200 table-fixed">
                                 <thead className="bg-primary-50">
                                     <tr>
-                                        <th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[5%]">ID</th><th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[17%]">Empleado</th><th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[10%]">DNI</th><th className="px-2 py-3 text-center text-xs font-bold text-gray-600 uppercase w-[8%]">Detalle</th><th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[10%]">Fecha</th><th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[8%]">Hora</th><th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[10%]">Método</th><th className="px-2 py-3 text-right text-xs font-bold text-gray-600 uppercase w-[11%]">Total</th><th className="px-2 py-3 text-center text-xs font-bold text-gray-600 uppercase w-[10%]">Estado</th><th className="px-2 py-3 text-center text-xs font-bold text-gray-600 uppercase w-[11%]">Acciones</th>
+                                        <th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[5%]">ID</th><th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[17%]">Vendedor</th><th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[10%]">DNI</th><th className="px-2 py-3 text-center text-xs font-bold text-gray-600 uppercase w-[8%]">Detalle</th><th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[10%]">Fecha</th><th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[8%]">Hora</th><th className="px-2 py-3 text-left text-xs font-bold text-gray-600 uppercase w-[10%]">Método</th><th className="px-2 py-3 text-right text-xs font-bold text-gray-600 uppercase w-[11%]">Total</th><th className="px-2 py-3 text-center text-xs font-bold text-gray-600 uppercase w-[10%]">Estado</th><th className="px-2 py-3 text-center text-xs font-bold text-gray-600 uppercase w-[11%]">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">

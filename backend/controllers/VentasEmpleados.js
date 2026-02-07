@@ -1,10 +1,12 @@
 const { conection } = require("../config/database");
 
 const registrarVentaEmpleado = (req, res) => {
-    const { idEmpleado, totalPago, metodoPago, productos } = req.body;
+    // --- CAMBIO ADMIN: Ahora recibimos idEmpleado O idAdmin ---
+    const { idEmpleado, idAdmin, totalPago, metodoPago, productos } = req.body;
 
-    if (!idEmpleado || !productos || productos.length === 0) {
-        return res.status(400).json({ error: "Faltan datos obligatorios" });
+    // Validamos que venga al menos UNO de los dos IDs
+    if ((!idEmpleado && !idAdmin) || !productos || productos.length === 0) {
+        return res.status(400).json({ error: "Faltan datos obligatorios (Empleado o Admin y productos)" });
     }
 
     conection.beginTransaction((err) => {
@@ -38,8 +40,11 @@ const registrarVentaEmpleado = (req, res) => {
         };
 
         const insertarVenta = () => {
-            conection.query('INSERT INTO VentasEmpleados (idEmpleado, totalPago, metodoPago, estado) VALUES (?, ?, ?, "completada")', 
-                [idEmpleado, totalPago, metodoPago], 
+            // --- CAMBIO ADMIN: Insertamos idEmpleado O idAdmin según corresponda ---
+            // Si idEmpleado es undefined, se guarda NULL. Si idAdmin es undefined, se guarda NULL.
+            conection.query(
+                'INSERT INTO VentasEmpleados (idEmpleado, idAdmin, totalPago, metodoPago, estado) VALUES (?, ?, ?, ?, "completada")', 
+                [idEmpleado || null, idAdmin || null, totalPago, metodoPago], 
                 (err, resultVenta) => {
                     if (err) {
                         return conection.rollback(() => {
@@ -103,18 +108,23 @@ const registrarVentaEmpleado = (req, res) => {
 };
 
 const obtenerVentasEmpleado = (req, res) => {
-  // --- CORRECCIÓN: Agregamos e.apellidoEmpleado y e.dniEmpleado ---
-  const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado,
-            ve.totalPago, e.nombreEmpleado, e.apellidoEmpleado, e.dniEmpleado
+  // CAMBIO: Usamos LEFT JOIN y COALESCE para que aparezcan ventas de Empleados Y Admins
+  const consulta = `
+    SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado,
+           ve.totalPago, 
+           COALESCE(e.nombreEmpleado, a.nombreAdmin) AS nombreEmpleado, 
+           COALESCE(e.apellidoEmpleado, ' (Admin)') AS apellidoEmpleado, 
+           COALESCE(e.dniEmpleado, a.dniAdmin) AS dniEmpleado
     FROM VentasEmpleados ve
-    JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
+    LEFT JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
+    LEFT JOIN Admins a ON ve.idAdmin = a.idAdmin
     ORDER BY ve.idVentaE DESC;
   `;
 
   conection.query(consulta, (err, results) => {
     if (err) {
-      console.error("Error al obtener ventas del empleado:", err.sqlMessage);
-      return res.status(500).json({ error: "Error al obtener ventas del empleado" });
+      console.error("Error al obtener ventas:", err.sqlMessage);
+      return res.status(500).json({ error: "Error al obtener ventas" });
     }
     if (results.length === 0) {
       return res.status(200).json({msg:"No hay ventas realizadas aun"})
@@ -125,7 +135,6 @@ const obtenerVentasEmpleado = (req, res) => {
 
 const obtenerLaVentaDeUnEmpleado = (req, res) => {
   const idEmpleado = req.params.idEmpleado;
-  // --- CORRECCIÓN: Agregamos e.apellidoEmpleado y e.dniEmpleado ---
   const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado,
             ve.totalPago, e.nombreEmpleado, e.apellidoEmpleado, e.dniEmpleado
     FROM VentasEmpleados ve
@@ -168,11 +177,15 @@ const obtenerDetalleVentaEmpleado = (req, res) => {
 };
 
 const obtenerVentasAnuladas = (req, res) => {
-    // --- CORRECCIÓN: También aquí por si las dudas ---
-    const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.totalPago, ve.estado,
-                e.nombreEmpleado, e.apellidoEmpleado, e.dniEmpleado
+    // --- CAMBIO ADMIN: Usamos LEFT JOIN y COALESCE para traer nombre de Empleado O Admin ---
+    const consulta = `
+        SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.totalPago, ve.estado,
+               COALESCE(e.nombreEmpleado, a.nombreAdmin) AS nombreEmpleado, 
+               COALESCE(e.apellidoEmpleado, ' (Admin)') AS apellidoEmpleado,
+               COALESCE(e.dniEmpleado, a.dniAdmin) AS dniEmpleado
         FROM VentasEmpleados ve
-        JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
+        LEFT JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
+        LEFT JOIN Admins a ON ve.idAdmin = a.idAdmin
         WHERE ve.estado = 'anulada'
         ORDER BY ve.idVentaE DESC
     `;
@@ -186,13 +199,16 @@ const obtenerVentasAnuladas = (req, res) => {
     });
 };
 
-
 const obtenerVentasCompletadas = (req, res) => {
-    // --- CORRECCIÓN: También aquí por si las dudas ---
-    const consulta = `SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.totalPago, ve.estado,
-                e.nombreEmpleado, e.apellidoEmpleado, e.dniEmpleado
+    // --- CAMBIO ADMIN: Usamos LEFT JOIN y COALESCE ---
+    const consulta = `
+        SELECT ve.idVentaE, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.totalPago, ve.estado,
+               COALESCE(e.nombreEmpleado, a.nombreAdmin) AS nombreEmpleado, 
+               COALESCE(e.apellidoEmpleado, ' (Admin)') AS apellidoEmpleado,
+               COALESCE(e.dniEmpleado, a.dniAdmin) AS dniEmpleado
         FROM VentasEmpleados ve
-        JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
+        LEFT JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
+        LEFT JOIN Admins a ON ve.idAdmin = a.idAdmin
         WHERE ve.estado = 'completada'
         ORDER BY ve.idVentaE DESC
     `;
@@ -208,7 +224,8 @@ const obtenerVentasCompletadas = (req, res) => {
 
 const updateVenta = (req, res) => {
     const idVentaE = req.params.idVentaE;
-    const { totalPago, metodoPago, productos, idEmpleado } = req.body;
+    // --- CAMBIO ADMIN: Recibimos idEmpleado e idAdmin ---
+    const { totalPago, metodoPago, productos, idEmpleado, idAdmin } = req.body;
 
     if (!idVentaE || !productos || productos.length === 0) {
         return res.status(400).json({ error: "Faltan datos para editar" });
@@ -239,8 +256,10 @@ const updateVenta = (req, res) => {
                         conection.query('DELETE FROM DetalleVentaEmpleado WHERE idVentaE = ?', [idVentaE], (err) => {
                             if (err) return conection.rollback(() => res.status(500).json({ error: "Error borrando detalles viejos" }));
                             
-                            conection.query('UPDATE VentasEmpleados SET totalPago = ?, metodoPago = ?, idEmpleado = ? WHERE idVentaE = ?', 
-                                [totalPago, metodoPago, idEmpleado, idVentaE], 
+                            // --- CAMBIO ADMIN: Actualizamos idEmpleado o idAdmin ---
+                            conection.query(
+                                'UPDATE VentasEmpleados SET totalPago = ?, metodoPago = ?, idEmpleado = ?, idAdmin = ? WHERE idVentaE = ?', 
+                                [totalPago, metodoPago, idEmpleado || null, idAdmin || null, idVentaE], 
                                 (err) => {
                                     if (err) return conection.rollback(() => res.status(500).json({ error: "Error actualizando cabecera" }));
                                     insertarNuevosDetalles();
@@ -327,20 +346,17 @@ const anularVenta = (req, res) => {
     });
 };
 
-// --- NUEVA FUNCIÓN: REACTIVAR VENTA ---
 const reactivarVenta = (req, res) => {
     const { idVentaE } = req.params;
 
     conection.beginTransaction((err) => {
         if (err) return res.status(500).json({ error: "Error al iniciar reactivación" });
 
-        // 1. Verificar estado actual
         conection.query('SELECT estado FROM VentasEmpleados WHERE idVentaE = ? FOR UPDATE', [idVentaE], (err, results) => {
             if (err) return conection.rollback(() => res.status(500).json({ error: "Error verificando venta" }));
             if (results.length === 0) return conection.rollback(() => res.status(404).json({ error: "Venta no encontrada" }));
             if (results[0].estado !== 'anulada') return conection.rollback(() => res.status(400).json({ error: "Solo se pueden reactivar ventas anuladas" }));
 
-            // 2. Obtener productos para verificar y descontar stock
             conection.query('SELECT idProducto, cantidad FROM DetalleVentaEmpleado WHERE idVentaE = ?', [idVentaE], (err, detalles) => {
                 if (err) return conection.rollback(() => res.status(500).json({ error: "Error obteniendo detalles" }));
 
@@ -348,14 +364,12 @@ const reactivarVenta = (req, res) => {
                 const verificarYDescontarStock = () => {
                     if (i < detalles.length) {
                         const prod = detalles[i];
-                        // Verificar stock disponible
                         conection.query('SELECT stock FROM Productos WHERE idProducto = ?', [prod.idProducto], (err, stockRes) => {
                             if (err) return conection.rollback(() => res.status(500).json({ error: "Error consultando stock" }));
                             if (stockRes.length === 0 || stockRes[0].stock < prod.cantidad) {
                                 return conection.rollback(() => res.status(400).json({ error: `Stock insuficiente para reactivar (ID Producto: ${prod.idProducto})` }));
                             }
 
-                            // Descontar stock
                             conection.query('UPDATE Productos SET stock = stock - ? WHERE idProducto = ?', 
                                 [prod.cantidad, prod.idProducto], 
                                 (err) => {
@@ -366,7 +380,6 @@ const reactivarVenta = (req, res) => {
                             );
                         });
                     } else {
-                        // 3. Cambiar estado a completada
                         conection.query("UPDATE VentasEmpleados SET estado = 'completada' WHERE idVentaE = ?", [idVentaE], (err) => {
                              if (err) return conection.rollback(() => res.status(500).json({ error: "Error actualizando estado" }));
                              conection.commit((err) => {
@@ -381,7 +394,6 @@ const reactivarVenta = (req, res) => {
         });
     });
 };
-
 
 const obtenerVentaPorId = (req, res) => {
   const { idVentaE } = req.params;
@@ -403,12 +415,19 @@ const obtenerVentaPorId = (req, res) => {
 };
 
 const obtenerVentasParaAdmin = (req, res) => {
-    // Agregamos ve.idEmpleado al SELECT
+    // --- CAMBIO ADMIN: Query maestra ---
+    // Usamos LEFT JOIN en Empleados y Admins.
+    // Usamos COALESCE: Si nombreEmpleado es NULL, usa nombreAdmin.
+    // Esto permite que la lista muestre nombres de admins y de empleados mezclados.
     const consulta = `
-        SELECT ve.idVentaE, ve.idEmpleado, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado,
-               ve.totalPago, e.nombreEmpleado, e.apellidoEmpleado, e.dniEmpleado
+        SELECT ve.idVentaE, ve.idEmpleado, ve.idAdmin, ve.fechaPago, ve.horaPago, ve.metodoPago, ve.estado,
+               ve.totalPago, 
+               COALESCE(e.nombreEmpleado, a.nombreAdmin) AS nombreEmpleado, 
+               COALESCE(e.apellidoEmpleado, ' (Admin)') AS apellidoEmpleado,
+               COALESCE(e.dniEmpleado, a.dniAdmin) AS dniEmpleado
         FROM VentasEmpleados ve
-        JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
+        LEFT JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
+        LEFT JOIN Admins a ON ve.idAdmin = a.idAdmin
         ORDER BY ve.idVentaE DESC;
     `;
 
@@ -421,12 +440,11 @@ const obtenerVentasParaAdmin = (req, res) => {
     });
 };
 
-// 2. Obtener una venta para Editar (Con ID de empleado)
 const obtenerVentaParaEditar = (req, res) => {
     const { idVentaE } = req.params;
-    // Agregamos idEmpleado al SELECT
+    // --- CAMBIO ADMIN: Traemos también idAdmin ---
     const consulta = `
-        SELECT idVentaE, idEmpleado, totalPago, metodoPago, estado 
+        SELECT idVentaE, idEmpleado, idAdmin, totalPago, metodoPago, estado 
         FROM VentasEmpleados 
         WHERE idVentaE = ?
     `;
@@ -448,7 +466,7 @@ module.exports = {
   obtenerVentasCompletadas,
   updateVenta,
   anularVenta,
-  reactivarVenta, // <--- EXPORTAMOS LA NUEVA FUNCIÓN
+  reactivarVenta,
   obtenerVentaPorId,
   obtenerVentaParaEditar,
   obtenerVentasParaAdmin

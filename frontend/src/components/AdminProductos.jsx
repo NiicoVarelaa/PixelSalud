@@ -421,9 +421,9 @@ const AdminProductos = () => {
 
                           {/* BOTÓN EDITAR (Icono solo) */}
                           <button
-                            onClick={() => handleEditarOferta(oferta)}
+                            onClick={() => handleEditarProducto(prod)}
                             className="px-2 py-1 text-sm font-medium bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer"
-                            title="Editar Oferta"
+                            title="Editar Producto"
                           >
                             Editar
                           </button>
