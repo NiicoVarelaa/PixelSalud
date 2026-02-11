@@ -8,4 +8,5 @@ module.exports = {
   OfertasRepository: require("./OfertasRepository"),
   CarritoRepository: require("./CarritoRepository"),
   ClientesRepository: require("./ClientesRepository"),
+  EmpleadosRepository: require("./EmpleadosRepository"),
 };
