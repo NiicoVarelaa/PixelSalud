@@ -190,4 +190,4 @@ class OfertasRepository extends BaseRepository {
   }
 }
 
-module.exports = OfertasRepository;
+module.exports = new OfertasRepository();

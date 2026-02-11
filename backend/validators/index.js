@@ -4,6 +4,7 @@
  */
 module.exports = {
   productoSchemas: require("./productoSchemas"),
+  carritoSchemas: require("./carritoSchemas"),
   // clienteSchemas: require('./clienteSchemas'),   // Ejemplo
   // authSchemas: require('./authSchemas'),         // Ejemplo
 };

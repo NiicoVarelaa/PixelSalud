@@ -1,5 +1,5 @@
-const ProductosRepository = require("../repositories/ProductosRepository");
-const OfertasRepository = require("../repositories/OfertasRepository");
+const productosRepository = require("../repositories/ProductosRepository");
+const ofertasRepository = require("../repositories/OfertasRepository");
 const { NotFoundError, ValidationError, ConflictError } = require("../errors");
 
 /**
@@ -7,8 +7,8 @@ const { NotFoundError, ValidationError, ConflictError } = require("../errors");
  */
 class ProductosService {
   constructor() {
-    this.productosRepo = new ProductosRepository();
-    this.ofertasRepo = new OfertasRepository();
+    this.productosRepo = productosRepository;
+    this.ofertasRepo = ofertasRepository;
   }
 
   /**

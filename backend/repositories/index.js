@@ -6,5 +6,6 @@ module.exports = {
   BaseRepository: require("./BaseRepository"),
   ProductosRepository: require("./ProductosRepository"),
   OfertasRepository: require("./OfertasRepository"),
+  CarritoRepository: require("./CarritoRepository"),
   // ClientesRepository: require('./ClientesRepository'), // Ejemplo
 };

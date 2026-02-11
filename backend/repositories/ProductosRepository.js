@@ -217,4 +217,4 @@ class ProductosRepository extends BaseRepository {
   }
 }
 
-module.exports = ProductosRepository;
+module.exports = new ProductosRepository();
