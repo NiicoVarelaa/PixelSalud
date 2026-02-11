@@ -5,6 +5,6 @@
 module.exports = {
   ProductosService: require("./ProductosService"),
   CarritoService: require("./CarritoService"),
-  // ClientesService: require('./ClientesService'),   // Ejemplo
+  ClientesService: require("./ClientesService"),
   // AuthService: require('./AuthService'),           // Ejemplo
 };

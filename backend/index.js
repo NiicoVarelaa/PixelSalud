@@ -31,21 +31,21 @@ app.get("/", (req, res) => {
   res.send("Bienvenido a Pixel Salud ❤");
 });
 
-app.use("/", routesProductos);
-app.use("/", routesCarrito);
-app.use("/", routesOnlines);
-app.use("/", ventasEmpleados);
-app.use("/", routesClientes);
-app.use("/", loginRoutes);
-app.use("/", registroRouter);
-app.use("/", routesEmpleados);
-app.use("/favoritos", favoritosRoutes);
-app.use("/mercadopago", routesMercadoPago);
-app.use("/", routesPermisos);
-app.use("/", routesMedicos);
-app.use("/mensajes", mensajesRoutes);
-app.use("/", routesRecetas);
-app.use("/", routesReportes);
+app.use("/api", routesProductos);
+app.use("/api", routesCarrito);
+app.use("/api", routesOnlines);
+app.use("/api", ventasEmpleados);
+app.use("/api", routesClientes);
+app.use("/api", loginRoutes);
+app.use("/api", registroRouter);
+app.use("/api", routesEmpleados);
+app.use("/api/favoritos", favoritosRoutes);
+app.use("/api/mercadopago", routesMercadoPago);
+app.use("/api", routesPermisos);
+app.use("/api", routesMedicos);
+app.use("/api/mensajes", mensajesRoutes);
+app.use("/api", routesRecetas);
+app.use("/api", routesReportes);
 
 // Middleware de manejo de errores (DEBE IR AL FINAL, después de todas las rutas)
 app.use(notFoundHandler); // Maneja rutas no encontradas (404)

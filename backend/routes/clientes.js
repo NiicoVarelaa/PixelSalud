@@ -1,4 +1,22 @@
 const express = require("express");
+const validate = require("../middlewares/validate");
+const auth = require("../middlewares/auth");
+const { verificarRol } = require("../middlewares/verificarPermisos");
+
+// Importar schemas de validación
+const {
+  idClienteParamSchema,
+  idParamSchema,
+  dniParamSchema,
+  createClienteSchema,
+  updateClienteSchema,
+  registroExpressSchema,
+  olvidePasswordSchema,
+  restablecerPasswordSchema,
+  tokenParamSchema,
+} = require("../validators/clienteSchemas");
+
+// Importar controladores
 const {
   getClientes,
   getClienteBajados,
@@ -9,32 +27,137 @@ const {
   activarCliente,
   buscarClientePorDNI,
   registrarPacienteExpress,
-  // --- IMPORTANTE: Agregamos las nuevas funciones aquí ---
   olvideContrasena,
-  nuevoPassword
+  nuevoPassword,
 } = require("../controllers/clientes");
-
-const auth = require("../middlewares/auth");
-const { verificarRol } = require("../middlewares/verificarPermisos");
 
 const router = express.Router();
 
-// --- Rutas existentes ---
-router.get("/clientes/buscar/:dni", auth, verificarRol(["medico", "admin", "empleado"]), buscarClientePorDNI);
+// ==========================================
+// RUTAS DE CLIENTES
+// ==========================================
+
+/**
+ * GET /clientes - Obtiene todos los clientes
+ * Acceso: Admin
+ */
 router.get("/clientes", auth, verificarRol(["admin"]), getClientes);
-router.get("/clientes/bajados", auth, verificarRol(["admin"]), getClienteBajados);
-router.get("/clientes/:id", auth, verificarRol(["admin", "cliente"]), getCliente);
-router.post("/clientes/crear", crearCliente);
-router.put("/clientes/actualizar/:idCliente", auth, verificarRol(["admin", "cliente"]), updateCliente);
-router.put("/clientes/darBaja/:id", auth, verificarRol(["admin", "cliente"]), darBajaCliente);
-router.put("/clientes/activar/:id", auth, verificarRol(["admin", "cliente"]), activarCliente);
-router.post("/clientes/express", auth, verificarRol(["medico", "admin"]), registrarPacienteExpress);
 
-// --- NUEVAS RUTAS DE RECUPERACIÓN (Públicas, SIN auth) ---
-// 1. Solicitar el correo
-router.post("/clientes/olvide-password", olvideContrasena);
+/**
+ * GET /clientes/bajados - Obtiene clientes inactivos
+ * Acceso: Admin
+ */
+router.get(
+  "/clientes/bajados",
+  auth,
+  verificarRol(["admin"]),
+  getClienteBajados,
+);
 
-// 2. Restablecer la contraseña usando el token
-router.post("/clientes/restablecer-password/:token", nuevoPassword);
+/**
+ * GET /clientes/buscar/:dni - Busca un cliente por DNI
+ * Acceso: Médico, Admin, Empleado
+ */
+router.get(
+  "/clientes/buscar/:dni",
+  auth,
+  verificarRol(["medico", "admin", "empleado"]),
+  validate({ params: dniParamSchema }),
+  buscarClientePorDNI,
+);
+
+/**
+ * GET /clientes/:id - Obtiene un cliente por ID
+ * Acceso: Admin, Cliente (solo su propio ID)
+ */
+router.get(
+  "/clientes/:id",
+  auth,
+  verificarRol(["admin", "cliente"]),
+  validate({ params: idParamSchema }),
+  getCliente,
+);
+
+/**
+ * POST /clientes/crear - Crea un nuevo cliente (registro público)
+ * Acceso: Público
+ */
+router.post(
+  "/clientes/crear",
+  validate({ body: createClienteSchema }),
+  crearCliente,
+);
+
+/**
+ * POST /clientes/express - Registro express de paciente (para médicos)
+ * Acceso: Médico, Admin
+ */
+router.post(
+  "/clientes/express",
+  auth,
+  verificarRol(["medico", "admin"]),
+  validate({ body: registroExpressSchema }),
+  registrarPacienteExpress,
+);
+
+/**
+ * PUT /clientes/actualizar/:idCliente - Actualiza un cliente
+ * Acceso: Admin, Cliente (solo su propio ID)
+ */
+router.put(
+  "/clientes/actualizar/:idCliente",
+  auth,
+  verificarRol(["admin", "cliente"]),
+  validate({ params: idClienteParamSchema, body: updateClienteSchema }),
+  updateCliente,
+);
+
+/**
+ * PUT /clientes/darBaja/:id - Da de baja un cliente
+ * Acceso: Admin, Cliente (solo su propio ID)
+ */
+router.put(
+  "/clientes/darBaja/:id",
+  auth,
+  verificarRol(["admin", "cliente"]),
+  validate({ params: idParamSchema }),
+  darBajaCliente,
+);
+
+/**
+ * PUT /clientes/activar/:id - Activa un cliente
+ * Acceso: Admin, Cliente (solo su propio ID)
+ */
+router.put(
+  "/clientes/activar/:id",
+  auth,
+  verificarRol(["admin", "cliente"]),
+  validate({ params: idParamSchema }),
+  activarCliente,
+);
+
+// ==========================================
+// RUTAS DE RECUPERACIÓN DE CONTRASEÑA (Públicas)
+// ==========================================
+
+/**
+ * POST /clientes/olvide-password - Solicita recuperación de contraseña
+ * Acceso: Público
+ */
+router.post(
+  "/clientes/olvide-password",
+  validate({ body: olvidePasswordSchema }),
+  olvideContrasena,
+);
+
+/**
+ * POST /clientes/restablecer-password/:token - Restablece contraseña con token
+ * Acceso: Público
+ */
+router.post(
+  "/clientes/restablecer-password/:token",
+  validate({ params: tokenParamSchema, body: restablecerPasswordSchema }),
+  nuevoPassword,
+);
 
 module.exports = router;

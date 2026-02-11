@@ -24,10 +24,13 @@ const errorHandler = (err, req, res, next) => {
   // Manejo de errores de Zod (validación)
   if (err instanceof z.ZodError) {
     const message = "Error de validación";
-    const errors = err.errors.map((e) => ({
-      field: e.path.join("."),
-      message: e.message,
-    }));
+    const errors =
+      err.errors && Array.isArray(err.errors)
+        ? err.errors.map((e) => ({
+            field: e.path.join("."),
+            message: e.message,
+          }))
+        : [];
 
     return res.status(400).json({
       status: "fail",

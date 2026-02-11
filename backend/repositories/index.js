@@ -7,5 +7,5 @@ module.exports = {
   ProductosRepository: require("./ProductosRepository"),
   OfertasRepository: require("./OfertasRepository"),
   CarritoRepository: require("./CarritoRepository"),
-  // ClientesRepository: require('./ClientesRepository'), // Ejemplo
+  ClientesRepository: require("./ClientesRepository"),
 };
