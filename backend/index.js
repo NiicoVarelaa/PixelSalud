@@ -20,6 +20,7 @@ const routesMedicos = require("./routes/medicos");
 const mensajesRoutes = require("./routes/mensajes");
 const routesRecetas = require("./routes/recetas");
 const routesReportes = require("./routes/reportes");
+const { errorHandler, notFoundHandler } = require("./middlewares/errorHandler");
 
 const app = express();
 
@@ -45,6 +46,10 @@ app.use("/", routesMedicos);
 app.use("/mensajes", mensajesRoutes);
 app.use("/", routesRecetas);
 app.use("/", routesReportes);
+
+// Middleware de manejo de errores (DEBE IR AL FINAL, después de todas las rutas)
+app.use(notFoundHandler); // Maneja rutas no encontradas (404)
+app.use(errorHandler); // Maneja todos los errores de forma centralizada
 
 conection.connect((err) => {
   if (err) {

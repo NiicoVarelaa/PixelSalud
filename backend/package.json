@@ -24,6 +24,7 @@
     "mysql2": "^3.14.1",
     "nodemailer": "^7.0.9",
     "nodemon": "^3.1.10",
-    "sweetalert2": "^11.26.3"
+    "sweetalert2": "^11.26.3",
+    "zod": "^4.3.6"
   }
 }
