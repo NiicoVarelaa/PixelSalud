@@ -1,65 +1,256 @@
 const express = require("express");
+const validate = require("../middlewares/validate");
+const auth = require("../middlewares/auth");
 const {
-  // Rutas de Productos
+  verificarPermisos,
+  verificarRol,
+} = require("../middlewares/verificarPermisos");
+
+// Importar schemas de validación
+const {
+  idProductoParamSchema,
+  idOfertaParamSchema,
+  idParamSchema,
+  buscarProductosQuerySchema,
+  createProductoSchema,
+  updateProductoSchema,
+  updateActivoSchema,
+  createOfertaSchema,
+  updateOfertaSchema,
+  updateEsActivaSchema,
+  createOfertaMasivaSchema,
+} = require("../validators/productoSchemas");
+
+// Importar controladores
+const {
+  // Productos
   getProductos,
   getProducto,
   getProductoBajado,
   createProducto,
   updateProducto,
+  updateProductosActivo,
   darBajaProducto,
   activarProducto,
+  buscarProductos,
   getOfertasDestacadas,
 
-  // Rutas de Ofertas (CRUD)
-  createOferta,
+  // Ofertas
   getOfertas,
   getOferta,
+  createOferta,
   updateOferta,
   updateOfertaEsActiva,
   deleteOferta,
   ofertaCyberMonday,
   getCyberMondayOffers,
-  updateProductosActivo,
-  buscarProductos,
-} = require("../controllers/productos"); // Importa todas las funciones necesarias
-
-const auth = require("../middlewares/auth")
-const {verificarPermisos, verificarRol }= require("../middlewares/verificarPermisos")
+} = require("../controllers/productos");
 
 const router = express.Router();
 
+// ==========================================
+// RUTAS DE PRODUCTOS
+// ==========================================
+
+/**
+ * GET /productos - Obtiene todos los productos con ofertas
+ * Acceso: Público
+ */
 router.get("/productos", getProductos);
-router.get("/productos/bajados", auth,verificarRol(["admin","empleado"]), getProductoBajado);
-router.get('/productos/buscar', buscarProductos);
-router.post("/productos/crear", auth,verificarRol(["admin","empleado"]),verificarPermisos("crear_productos"), createProducto);
-router.get("/productos/:idProducto", getProducto);
-router.put("/productos/actualizar/:idProducto",auth,verificarRol(["admin","empleado"]),verificarPermisos("modificar_productos"), updateProducto);
-router.put("/productos/actualizar/activo/:idProducto", updateProductosActivo)
-router.put("/productos/darBaja/:id",auth,verificarRol(["admin", "empleado"]), verificarPermisos("modificar_productos"),darBajaProducto)
-router.put("/productos/activar/:id", auth, verificarRol(["admin", "empleado"]), verificarPermisos("modificar_productos"),activarProducto)
 
-// ------------------------------------------------------------------
-// --- RUTAS CRUD DE OFERTAS (Administración de Promociones) ---
-// ------------------------------------------------------------------
+/**
+ * GET /productos/bajados - Obtiene productos inactivos
+ * Acceso: Admin, Empleado
+ */
+router.get(
+  "/productos/bajados",
+  auth,
+  verificarRol(["admin", "empleado"]),
+  getProductoBajado,
+);
+
+/**
+ * GET /productos/buscar - Busca productos por término
+ * Acceso: Público
+ */
+router.get(
+  "/productos/buscar",
+  validate({ query: buscarProductosQuerySchema }),
+  buscarProductos,
+);
+
+/**
+ * GET /productos/ofertas-destacadas - Obtiene ofertas destacadas
+ * Acceso: Público
+ */
 router.get("/productos/ofertas-destacadas", getOfertasDestacadas);
-// POST: Crear una nueva oferta
-router.post("/ofertas/crear",auth, verificarRol(["admin"]), createOferta);
 
-// GET: Obtener todas las ofertas (para el panel de administración)
+/**
+ * POST /productos/crear - Crea un nuevo producto
+ * Acceso: Admin, Empleado con permiso
+ */
+router.post(
+  "/productos/crear",
+  auth,
+  verificarRol(["admin", "empleado"]),
+  verificarPermisos("crear_productos"),
+  validate({ body: createProductoSchema }),
+  createProducto,
+);
+
+/**
+ * GET /productos/:idProducto - Obtiene un producto por ID
+ * Acceso: Público
+ */
+router.get(
+  "/productos/:idProducto",
+  validate({ params: idProductoParamSchema }),
+  getProducto,
+);
+
+/**
+ * PUT /productos/actualizar/:idProducto - Actualiza un producto
+ * Acceso: Admin, Empleado con permiso
+ */
+router.put(
+  "/productos/actualizar/:idProducto",
+  auth,
+  verificarRol(["admin", "empleado"]),
+  verificarPermisos("modificar_productos"),
+  validate({
+    params: idProductoParamSchema,
+    body: updateProductoSchema,
+  }),
+  updateProducto,
+);
+
+/**
+ * PUT /productos/actualizar/activo/:idProducto - Actualiza solo estado activo
+ * Acceso: Admin, Empleado
+ */
+router.put(
+  "/productos/actualizar/activo/:idProducto",
+  validate({
+    params: idProductoParamSchema,
+    body: updateActivoSchema,
+  }),
+  updateProductosActivo,
+);
+
+/**
+ * PUT /productos/darBaja/:id - Da de baja un producto
+ * Acceso: Admin, Empleado con permiso
+ */
+router.put(
+  "/productos/darBaja/:id",
+  auth,
+  verificarRol(["admin", "empleado"]),
+  verificarPermisos("modificar_productos"),
+  validate({ params: idParamSchema }),
+  darBajaProducto,
+);
+
+/**
+ * PUT /productos/activar/:id - Activa un producto
+ * Acceso: Admin, Empleado con permiso
+ */
+router.put(
+  "/productos/activar/:id",
+  auth,
+  verificarRol(["admin", "empleado"]),
+  verificarPermisos("modificar_productos"),
+  validate({ params: idParamSchema }),
+  activarProducto,
+);
+
+// ==========================================
+// RUTAS DE OFERTAS
+// ==========================================
+
+/**
+ * GET /ofertas - Obtiene todas las ofertas
+ * Acceso: Público
+ */
 router.get("/ofertas", getOfertas);
-router.get("/ofertas/:idOferta", getOferta);
 
-// PUT: Actualizar los detalles de una oferta (cambiar porcentaje, fechas, o desactivar 'esActiva')
-router.put("/ofertas/actualizar/:idOferta",auth, verificarRol(["admin"]), updateOferta);
+/**
+ * GET /ofertas/:idOferta - Obtiene una oferta por ID
+ * Acceso: Público
+ */
+router.get(
+  "/ofertas/:idOferta",
+  validate({ params: idOfertaParamSchema }),
+  getOferta,
+);
 
-router.put("/ofertas/esActiva/:idOferta", updateOfertaEsActiva);
+/**
+ * POST /ofertas/crear - Crea una nueva oferta
+ * Acceso: Admin
+ */
+router.post(
+  "/ofertas/crear",
+  auth,
+  verificarRol(["admin"]),
+  validate({ body: createOfertaSchema }),
+  createOferta,
+);
 
-// DELETE: Eliminar una oferta
-router.delete("/ofertas/eliminar/:idOferta",auth,verificarRol(["admin"]), deleteOferta);
+/**
+ * PUT /ofertas/actualizar/:idOferta - Actualiza una oferta
+ * Acceso: Admin
+ */
+router.put(
+  "/ofertas/actualizar/:idOferta",
+  auth,
+  verificarRol(["admin"]),
+  validate({
+    params: idOfertaParamSchema,
+    body: updateOfertaSchema,
+  }),
+  updateOferta,
+);
 
-// POST: Crea la oferta masiva de Cyber Monday
-router.post("/ofertas/crear-cyber-monday",auth,verificarRol(["admin"]), ofertaCyberMonday);
+/**
+ * PUT /ofertas/esActiva/:idOferta - Actualiza solo estado activo de oferta
+ * Acceso: Admin
+ */
+router.put(
+  "/ofertas/esActiva/:idOferta",
+  validate({
+    params: idOfertaParamSchema,
+    body: updateEsActivaSchema,
+  }),
+  updateOfertaEsActiva,
+);
+
+/**
+ * DELETE /ofertas/eliminar/:idOferta - Elimina una oferta
+ * Acceso: Admin
+ */
+router.delete(
+  "/ofertas/eliminar/:idOferta",
+  auth,
+  verificarRol(["admin"]),
+  validate({ params: idOfertaParamSchema }),
+  deleteOferta,
+);
+
+/**
+ * POST /ofertas/crear-cyber-monday - Crea ofertas masivas
+ * Acceso: Admin
+ */
+router.post(
+  "/ofertas/crear-cyber-monday",
+  auth,
+  verificarRol(["admin"]),
+  validate({ body: createOfertaMasivaSchema }),
+  ofertaCyberMonday,
+);
+
+/**
+ * GET /productos/ofertas/cyber-monday - Obtiene ofertas Cyber Monday
+ * Acceso: Público
+ */
 router.get("/productos/ofertas/cyber-monday", getCyberMondayOffers);
-
 
 module.exports = router;
