@@ -18,7 +18,7 @@ const favoritosRoutes = require("./routes/FavoritosRoutes");
 const routesMercadoPago = require("./routes/mercadopago");
 const routesPermisos = require("./routes/PermisosRoutes");
 const routesMedicos = require("./routes/MedicosRoutes");
-const mensajesRoutes = require("./routes/mensajes");
+const routesMensajes = require("./routes/MensajesRoutes");
 const routesRecetas = require("./routes/RecetasRoutes");
 const routesReportes = require("./routes/reportes");
 const { errorHandler, notFoundHandler } = require("./middlewares/ErrorHandler");
@@ -47,7 +47,7 @@ app.use("/favoritos", favoritosRoutes);
 app.use("/mercadopago", routesMercadoPago);
 app.use("/", routesPermisos);
 app.use("/", routesMedicos);
-app.use("/mensajes", mensajesRoutes);
+app.use("/mensajes", routesMensajes);
 app.use("/", routesRecetas);
 app.use("/", routesReportes);
 

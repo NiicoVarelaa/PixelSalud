@@ -17,4 +17,5 @@ module.exports = {
   RecetasRepository: require("./RecetasRepository"),
   VentasOnlineRepository: require("./VentasOnlineRepository"),
   VentasEmpleadosRepository: require("./VentasEmpleadosRepository"),
+  MensajesRepository: require("./MensajesRepository"),
 };
