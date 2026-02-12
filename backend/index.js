@@ -19,7 +19,7 @@ const routesMercadoPago = require("./routes/mercadopago");
 const routesPermisos = require("./routes/PermisosRoutes");
 const routesMedicos = require("./routes/MedicosRoutes");
 const mensajesRoutes = require("./routes/mensajes");
-const routesRecetas = require("./routes/recetas");
+const routesRecetas = require("./routes/RecetasRoutes");
 const routesReportes = require("./routes/reportes");
 const { errorHandler, notFoundHandler } = require("./middlewares/ErrorHandler");
 

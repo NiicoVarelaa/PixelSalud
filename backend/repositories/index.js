@@ -14,4 +14,5 @@ module.exports = {
   AuthRepository: require("./AuthRepository"),
   MedicosRepository: require("./MedicosRepository"),
   PermisosRepository: require("./PermisosRepository"),
+  RecetasRepository: require("./RecetasRepository"),
 };

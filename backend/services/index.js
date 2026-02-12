@@ -10,5 +10,6 @@ module.exports = {
   favoritosService: require("./FavoritosService"),
   MedicosService: require("./MedicosService"),
   PermisosService: require("./PermisosService"),
+  RecetasService: require("./RecetasService"),
   // AuthService: require('./AuthService'),           // Ejemplo
 };
