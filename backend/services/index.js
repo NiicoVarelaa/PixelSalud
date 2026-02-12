@@ -12,5 +12,6 @@ module.exports = {
   PermisosService: require("./PermisosService"),
   RecetasService: require("./RecetasService"),
   VentasOnlineService: require("./VentasOnlineService"),
+  VentasEmpleadosService: require("./VentasEmpleadosService"),
   // AuthService: require('./AuthService'),           // Ejemplo
 };
