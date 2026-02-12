@@ -18,4 +18,5 @@ module.exports = {
   VentasOnlineRepository: require("./VentasOnlineRepository"),
   VentasEmpleadosRepository: require("./VentasEmpleadosRepository"),
   MensajesRepository: require("./MensajesRepository"),
+  ReportesRepository: require("./ReportesRepository"),
 };

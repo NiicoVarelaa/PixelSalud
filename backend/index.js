@@ -20,7 +20,7 @@ const routesPermisos = require("./routes/PermisosRoutes");
 const routesMedicos = require("./routes/MedicosRoutes");
 const routesMensajes = require("./routes/MensajesRoutes");
 const routesRecetas = require("./routes/RecetasRoutes");
-const routesReportes = require("./routes/reportes");
+const routesReportes = require("./routes/ReportesRoutes");
 const { errorHandler, notFoundHandler } = require("./middlewares/ErrorHandler");
 
 const app = express();
