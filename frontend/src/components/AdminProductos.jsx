@@ -122,7 +122,7 @@ const AdminProductos = () => {
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase">Precio</label>
-                    <input id="swal-precio" type="text" placeholder="0.00 o 16.246,00" class="w-full p-2.5 border rounded" value="${prod.precioRegular || prod.precioFinal}">
+                    <input id="swal-precio" type="text" placeholder="0.00 o 16.246,00" class="w-full p-2.5 border rounded" value="${prod.precioRegular}">
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase">Stock</label>
@@ -147,12 +147,24 @@ const AdminProductos = () => {
       width: "600px",
       preConfirm: () => {
         const precioRaw = document.getElementById("swal-precio").value;
-        // Limpiar formato argentino: "16.246,00" → "16246.00"
-        const precioLimpio = precioRaw
-          .replace(/\$/g, "") // Eliminar símbolo $
-          .replace(/\s/g, "") // Eliminar espacios
-          .replace(/\./g, "") // Eliminar puntos (miles)
-          .replace(",", "."); // Reemplazar coma por punto (decimal)
+
+        // Detectar formato del precio
+        // Si tiene coma, es formato argentino "16.246,00"
+        // Si solo tiene punto al final, es formato US "16246.00"
+        let precioLimpio;
+        if (precioRaw.includes(",")) {
+          // Formato argentino: "16.246,00" → "16246.00"
+          precioLimpio = precioRaw
+            .replace(/\$/g, "") // Eliminar símbolo $
+            .replace(/\s/g, "") // Eliminar espacios
+            .replace(/\./g, "") // Eliminar puntos (miles)
+            .replace(",", "."); // Reemplazar coma por punto (decimal)
+        } else {
+          // Formato US o ya limpio: solo eliminar $ y espacios
+          precioLimpio = precioRaw
+            .replace(/\$/g, "") // Eliminar símbolo $
+            .replace(/\s/g, ""); // Eliminar espacios
+        }
 
         return {
           nombreProducto: document.getElementById("swal-nombre").value.trim(),

@@ -2,10 +2,12 @@ const authService = require("../services/AuthService");
 
 /**
  * Controlador de autenticación
- * NOTA: Este archivo mantiene compatibilidad con el sistema antiguo
- * Se recomienda migrar a AuthController.js
  */
 
+/**
+ * Login de usuario
+ * POST /login
+ */
 const login = async (req, res, next) => {
   try {
     const { email, contrasenia } = req.body;
@@ -16,4 +18,6 @@ const login = async (req, res, next) => {
   }
 };
 
-module.exports = { login };
+module.exports = {
+  login,
+};

@@ -11,4 +11,5 @@ module.exports = {
   FavoritosRepository: require("./FavoritosRepository"),
   CampanasRepository: require("./CampanasRepository"),
   ProductosCampanasRepository: require("./ProductosCampanasRepository"),
+  AuthRepository: require("./AuthRepository"),
 };

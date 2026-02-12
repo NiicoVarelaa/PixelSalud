@@ -9,7 +9,7 @@ import { Users, UserPlus, Shield, Mail, Search } from "lucide-react";
 const AdminEmpleados = () => {
   const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Filtros
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("todos");
@@ -30,14 +30,29 @@ const AdminEmpleados = () => {
   const obtenerEmpleados = async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get("/empleados");
-      if (res.data.results && Array.isArray(res.data.results)) {
-        setEmpleados(res.data.results);
-      } else if (Array.isArray(res.data)) {
-        setEmpleados(res.data);
-      } else {
-        setEmpleados([]);
+      // Obtener empleados activos
+      const resActivos = await apiClient.get("/empleados");
+      let activos = [];
+      if (resActivos.data.results && Array.isArray(resActivos.data.results)) {
+        activos = resActivos.data.results;
+      } else if (Array.isArray(resActivos.data)) {
+        activos = resActivos.data;
       }
+
+      // Obtener empleados inactivos
+      let inactivos = [];
+      try {
+        const resBajados = await apiClient.get("/Empleados/Bajados");
+        if (Array.isArray(resBajados.data)) {
+          inactivos = resBajados.data;
+        }
+      } catch (error) {
+        // Si no hay empleados bajados, no es un error crítico
+        console.log("No hay empleados inactivos o error al obtenerlos");
+      }
+
+      // Combinar ambos arrays
+      setEmpleados([...activos, ...inactivos]);
     } catch (error) {
       console.error("Error al obtener empleados", error);
       toast.error("No se pudieron cargar los empleados.");
@@ -56,7 +71,8 @@ const AdminEmpleados = () => {
   }, [busqueda, filtroEstado]);
 
   const generarHtmlPermisos = (emp = {}) => {
-    const isChecked = (key) => (emp[key] == 1 || emp[key] === true) ? "checked" : "";
+    const isChecked = (key) =>
+      emp[key] == 1 || emp[key] === true ? "checked" : "";
     return `
       <div class="mt-4 text-left bg-blue-50 p-4 rounded-lg border border-blue-100">
         <h3 class="text-sm font-bold text-blue-800 mb-3 flex items-center gap-2">
@@ -91,7 +107,8 @@ const AdminEmpleados = () => {
     }
 
     const { value: formValues } = await Swal.fire({
-      title: '<h2 class="text-2xl font-bold text-gray-800">👤 Nuevo Empleado</h2>',
+      title:
+        '<h2 class="text-2xl font-bold text-gray-800">👤 Nuevo Empleado</h2>',
       html: `
         <div class="flex flex-col gap-4 text-left">
             <div class="grid grid-cols-2 gap-4">
@@ -161,10 +178,18 @@ const AdminEmpleados = () => {
     if (formValues) {
       try {
         await apiClient.post("/empleados/crear", formValues);
-        Swal.fire("Creado", "Empleado y permisos registrados correctamente.", "success");
+        Swal.fire(
+          "Creado",
+          "Empleado y permisos registrados correctamente.",
+          "success",
+        );
         obtenerEmpleados();
       } catch (error) {
-        Swal.fire("Error", error.response?.data?.error || "No se pudo crear", "error");
+        Swal.fire(
+          "Error",
+          error.response?.data?.error || "No se pudo crear",
+          "error",
+        );
       }
     }
   };
@@ -192,7 +217,7 @@ const AdminEmpleados = () => {
              <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase">DNI</label>
-                    <input id="swal-dni" type="number" class="w-full p-2.5 border border-gray-300 rounded-lg" value="${emp.dniEmpleado || ''}">
+                    <input id="swal-dni" type="number" class="w-full p-2.5 border border-gray-300 rounded-lg" value="${emp.dniEmpleado || ""}">
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase">Email</label>
@@ -221,7 +246,9 @@ const AdminEmpleados = () => {
 
         return {
           nombreEmpleado: document.getElementById("swal-nombre").value.trim(),
-          apellidoEmpleado: document.getElementById("swal-apellido").value.trim(),
+          apellidoEmpleado: document
+            .getElementById("swal-apellido")
+            .value.trim(),
           dniEmpleado: document.getElementById("swal-dni").value.trim(),
           emailEmpleado: document.getElementById("swal-email").value.trim(),
           contraEmpleado: document.getElementById("swal-pass").value.trim(),
@@ -232,8 +259,15 @@ const AdminEmpleados = () => {
 
     if (formValues) {
       try {
-        await apiClient.put(`/empleados/actualizar/${emp.idEmpleado}`, formValues);
-        Swal.fire("Actualizado", "Datos y permisos modificados correctamente", "success");
+        await apiClient.put(
+          `/empleados/actualizar/${emp.idEmpleado}`,
+          formValues,
+        );
+        Swal.fire(
+          "Actualizado",
+          "Datos y permisos modificados correctamente",
+          "success",
+        );
         obtenerEmpleados();
       } catch (error) {
         Swal.fire("Error", "No se pudo actualizar", "error");
@@ -244,7 +278,7 @@ const AdminEmpleados = () => {
   const handleCambiarEstado = (emp) => {
     const esActivo = emp.activo !== 0 && emp.activo !== false;
     const accion = esActivo ? "Dar de Baja" : "Reactivar";
-    const color = esActivo ? "#d33" : "#059669"; 
+    const color = esActivo ? "#d33" : "#059669";
 
     Swal.fire({
       title: `¿${accion}?`,
@@ -261,7 +295,11 @@ const AdminEmpleados = () => {
             : `/empleados/reactivar/${emp.idEmpleado}`;
 
           await apiClient.put(endpoint);
-          Swal.fire("Estado Actualizado", `Empleado ${accion.toLowerCase()} con éxito`, "success");
+          Swal.fire(
+            "Estado Actualizado",
+            `Empleado ${accion.toLowerCase()} con éxito`,
+            "success",
+          );
           obtenerEmpleados();
         } catch (error) {
           console.error("Error cambiando estado:", error);
@@ -273,25 +311,28 @@ const AdminEmpleados = () => {
 
   const empleadosFiltrados = empleados.filter((emp) => {
     const termino = busqueda.toLowerCase();
-    const coincideBusqueda = 
+    const coincideBusqueda =
       emp.nombreEmpleado.toLowerCase().includes(termino) ||
       emp.apellidoEmpleado.toLowerCase().includes(termino) ||
       emp.emailEmpleado.toLowerCase().includes(termino) ||
-      (emp.dniEmpleado && emp.dniEmpleado.toString().includes(termino)) || 
+      (emp.dniEmpleado && emp.dniEmpleado.toString().includes(termino)) ||
       emp.idEmpleado.toString().includes(termino);
 
     const esActivo = emp.activo !== 0 && emp.activo !== false;
-    const coincideEstado = 
-        filtroEstado === "todos" ||
-        (filtroEstado === "activos" && esActivo) ||
-        (filtroEstado === "inactivos" && !esActivo);
+    const coincideEstado =
+      filtroEstado === "todos" ||
+      (filtroEstado === "activos" && esActivo) ||
+      (filtroEstado === "inactivos" && !esActivo);
 
     return coincideBusqueda && coincideEstado;
   });
 
   const indiceUltimoItem = paginaActual * itemsPorPagina;
   const indicePrimerItem = indiceUltimoItem - itemsPorPagina;
-  const itemsActuales = empleadosFiltrados.slice(indicePrimerItem, indiceUltimoItem);
+  const itemsActuales = empleadosFiltrados.slice(
+    indicePrimerItem,
+    indiceUltimoItem,
+  );
   const totalPaginas = Math.ceil(empleadosFiltrados.length / itemsPorPagina);
 
   const cambiarPagina = (numeroPagina) => setPaginaActual(numeroPagina);
@@ -301,7 +342,11 @@ const AdminEmpleados = () => {
     const range = [];
     const rangeWithDots = [];
     for (let i = 1; i <= totalPaginas; i++) {
-      if (i === 1 || i === totalPaginas || (i >= paginaActual - delta && i <= paginaActual + delta)) {
+      if (
+        i === 1 ||
+        i === totalPaginas ||
+        (i >= paginaActual - delta && i <= paginaActual + delta)
+      ) {
         range.push(i);
       }
     }
@@ -328,17 +373,24 @@ const AdminEmpleados = () => {
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <Shield className="text-blue-600" size={32} /> Administración de Empleados
+              <Shield className="text-blue-600" size={32} /> Administración de
+              Empleados
             </h1>
             <p className="text-gray-500 mt-1 text-sm">
               Gestiona el acceso y permisos del personal.
             </p>
           </div>
           <div className="flex gap-3">
-            <button onClick={handleCrearEmpleado} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer">
+            <button
+              onClick={handleCrearEmpleado}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"
+            >
               <UserPlus size={20} /> Agregar Empleado
             </button>
-            <Link to="/admin" className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium">
+            <Link
+              to="/admin"
+              className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium"
+            >
               ← Volver
             </Link>
           </div>
@@ -350,27 +402,27 @@ const AdminEmpleados = () => {
               <Search className="text-gray-400" size={18} />
             </div>
             {/* CORRECCIÓN: Input con autoComplete off y name único para despistar al navegador */}
-            <input 
-                type="text" 
-                name="search_empleados_unique_id"
-                id="search_empleados"
-                autoComplete="off"
-                placeholder="Buscar por nombre, DNI o email..." 
-                value={busqueda} 
-                onChange={(e) => setBusqueda(e.target.value)} 
-                className="border p-2 pl-10 rounded w-full focus:outline-none focus:ring-1 focus:ring-blue-500" 
+            <input
+              type="text"
+              name="search_empleados_unique_id"
+              id="search_empleados"
+              autoComplete="off"
+              placeholder="Buscar por nombre, DNI o email..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="border p-2 pl-10 rounded w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
           <div className="w-full md:w-1/4">
             <select
-                value={filtroEstado}
-                onChange={(e) => setFiltroEstado(e.target.value)}
-                className="border p-2 rounded w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value)}
+              className="border p-2 rounded w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
-                <option value="todos">Todos</option>
-                <option value="activos">Activos</option>
-                <option value="inactivos">Inactivos</option>
+              <option value="todos">Todos</option>
+              <option value="activos">Activos</option>
+              <option value="inactivos">Inactivos</option>
             </select>
           </div>
         </div>
@@ -386,12 +438,24 @@ const AdminEmpleados = () => {
               <table className="w-full divide-y divide-gray-200 table-fixed">
                 <thead className="bg-blue-100">
                   <tr>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-16">ID</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-1/4">Nombre</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-32">DNI</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-64">Email</th>
-                    <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-32">Estado</th>
-                    <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-40">Acciones</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-16">
+                      ID
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-1/4">
+                      Nombre
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-32">
+                      DNI
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-64">
+                      Email
+                    </th>
+                    <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-32">
+                      Estado
+                    </th>
+                    <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-40">
+                      Acciones
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -399,8 +463,13 @@ const AdminEmpleados = () => {
                     itemsActuales.map((emp) => {
                       const esActivo = emp.activo !== 0 && emp.activo !== false;
                       return (
-                        <tr key={emp.idEmpleado} className={`hover:bg-blue-50/40 transition duration-150 ${!esActivo ? "opacity-60 bg-gray-50" : ""}`}>
-                          <td className="px-3 py-3 text-gray-500 font-mono text-xs whitespace-nowrap">#{emp.idEmpleado}</td>
+                        <tr
+                          key={emp.idEmpleado}
+                          className={`hover:bg-blue-50/40 transition duration-150 ${!esActivo ? "opacity-60 bg-gray-50" : ""}`}
+                        >
+                          <td className="px-3 py-3 text-gray-500 font-mono text-xs whitespace-nowrap">
+                            #{emp.idEmpleado}
+                          </td>
                           <td className="px-3 py-3 align-middle">
                             <div className="flex items-center gap-2">
                               <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
@@ -412,31 +481,42 @@ const AdminEmpleados = () => {
                             </div>
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap align-middle text-sm text-gray-700">
-                             {emp.dniEmpleado || "---"}
+                            {emp.dniEmpleado || "---"}
                           </td>
                           <td className="px-3 py-3 align-middle">
-                            <div className="flex items-center gap-2 text-sm text-gray-600 max-w-[240px] truncate" title={emp.emailEmpleado}>
-                              <Mail size={14} className="text-gray-400 flex-shrink-0" /> {emp.emailEmpleado}
+                            <div
+                              className="flex items-center gap-2 text-sm text-gray-600 max-w-[240px] truncate"
+                              title={emp.emailEmpleado}
+                            >
+                              <Mail
+                                size={14}
+                                className="text-gray-400 flex-shrink-0"
+                              />{" "}
+                              {emp.emailEmpleado}
                             </div>
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap text-center align-middle">
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${esActivo ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${esActivo ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                            >
                               {esActivo ? "Activo" : "Baja"}
                             </span>
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap text-right align-middle">
                             <div className="flex gap-1 justify-end">
-                              <button 
-                                onClick={() => handleEditarEmpleado(emp)} 
-                                className="px-2 py-1 text-sm font-medium bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer" 
+                              <button
+                                onClick={() => handleEditarEmpleado(emp)}
+                                className="px-2 py-1 text-sm font-medium bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer"
                                 title="Editar Empleado"
                               >
                                 Editar
                               </button>
-                              <button 
-                                onClick={() => handleCambiarEstado(emp)} 
-                                className={`px-2 py-1 text-sm font-medium text-white rounded-md transition-colors cursor-pointer ${esActivo ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"}`} 
-                                title={esActivo ? "Dar Baja" : "Reactivar Empleado"}
+                              <button
+                                onClick={() => handleCambiarEstado(emp)}
+                                className={`px-2 py-1 text-sm font-medium text-white rounded-md transition-colors cursor-pointer ${esActivo ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"}`}
+                                title={
+                                  esActivo ? "Dar Baja" : "Reactivar Empleado"
+                                }
                               >
                                 {esActivo ? "Desactivar" : "Activar"}
                               </button>
@@ -446,7 +526,14 @@ const AdminEmpleados = () => {
                       );
                     })
                   ) : (
-                    <tr><td colSpan="6" className="px-6 py-4 text-center text-gray-500">No hay empleados registrados.</td></tr>
+                    <tr>
+                      <td
+                        colSpan="6"
+                        className="px-6 py-4 text-center text-gray-500"
+                      >
+                        No hay empleados registrados.
+                      </td>
+                    </tr>
                   )}
                 </tbody>
               </table>
@@ -456,15 +543,32 @@ const AdminEmpleados = () => {
           {!loading && itemsActuales.length > 0 && (
             <div className="flex justify-center py-6 bg-white border-t border-gray-200">
               <nav className="flex items-center gap-1" aria-label="Pagination">
-                <button onClick={() => cambiarPagina(Math.max(1, paginaActual - 1))} disabled={paginaActual === 1} className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === 1 ? "opacity-50 cursor-not-allowed text-gray-400 hover:bg-white" : "cursor-pointer"}`}>
+                <button
+                  onClick={() => cambiarPagina(Math.max(1, paginaActual - 1))}
+                  disabled={paginaActual === 1}
+                  className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === 1 ? "opacity-50 cursor-not-allowed text-gray-400 hover:bg-white" : "cursor-pointer"}`}
+                >
                   &lt;
                 </button>
                 {getPaginationNumbers().map((number, index) => (
-                  <button key={index} onClick={() => typeof number === "number" ? cambiarPagina(number) : null} disabled={typeof number !== "number"} className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${number === paginaActual ? "bg-blue-500 text-white" : typeof number === "number" ? "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50" : "bg-white text-gray-400 cursor-default"}`}>
+                  <button
+                    key={index}
+                    onClick={() =>
+                      typeof number === "number" ? cambiarPagina(number) : null
+                    }
+                    disabled={typeof number !== "number"}
+                    className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${number === paginaActual ? "bg-blue-500 text-white" : typeof number === "number" ? "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50" : "bg-white text-gray-400 cursor-default"}`}
+                  >
                     {number}
                   </button>
                 ))}
-                <button onClick={() => cambiarPagina(Math.min(totalPaginas, paginaActual + 1))} disabled={paginaActual === totalPaginas} className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === totalPaginas ? "opacity-50 cursor-not-allowed text-gray-400 hover:bg-white" : "cursor-pointer"}`}>
+                <button
+                  onClick={() =>
+                    cambiarPagina(Math.min(totalPaginas, paginaActual + 1))
+                  }
+                  disabled={paginaActual === totalPaginas}
+                  className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === totalPaginas ? "opacity-50 cursor-not-allowed text-gray-400 hover:bg-white" : "cursor-pointer"}`}
+                >
                   &gt;
                 </button>
               </nav>

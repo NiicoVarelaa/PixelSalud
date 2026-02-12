@@ -65,7 +65,14 @@ const buscarClientePorDNI = async (req, res, next) => {
  */
 const crearCliente = async (req, res, next) => {
   try {
-    const resultado = await clientesService.crearCliente(req.body);
+    // Normalizar dniCliente a dni si viene del schema
+    const clienteData = {
+      ...req.body,
+      dni: req.body.dniCliente || req.body.dni,
+    };
+    delete clienteData.dniCliente;
+
+    const resultado = await clientesService.crearCliente(clienteData);
     res.status(201).json(resultado);
   } catch (error) {
     next(error);
@@ -79,9 +86,17 @@ const crearCliente = async (req, res, next) => {
 const updateCliente = async (req, res, next) => {
   try {
     const { idCliente } = req.params;
+
+    // Normalizar dniCliente a dni si viene del schema
+    const updateData = {
+      ...req.body,
+      dni: req.body.dniCliente || req.body.dni,
+    };
+    delete updateData.dniCliente;
+
     const resultado = await clientesService.actualizarCliente(
       idCliente,
-      req.body,
+      updateData,
     );
     res.status(200).json(resultado);
   } catch (error) {

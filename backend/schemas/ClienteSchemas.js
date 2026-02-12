@@ -50,16 +50,18 @@ const createClienteSchema = z.object({
     .toLowerCase()
     .trim(),
   dniCliente: z
-    .string({ required_error: "dniCliente es requerido" })
-    .regex(/^\d{7,8}$/, "DNI debe tener 7 u 8 dígitos")
-    .or(
+    .union([
+      z.string().regex(/^\d{7,8}$/, "DNI debe tener 7 u 8 dígitos"),
       z
         .number()
         .int()
         .min(1000000, "DNI inválido")
         .max(99999999, "DNI inválido")
         .transform(String),
-    ),
+    ])
+    .refine((val) => typeof val === "string", {
+      message: "dniCliente es requerido",
+    }),
   telefonoCliente: z
     .string()
     .max(20, "telefonoCliente no puede exceder 20 caracteres")
@@ -99,16 +101,20 @@ const updateClienteSchema = z.object({
     .trim()
     .optional(),
   dniCliente: z
-    .string()
-    .regex(/^\d{7,8}$/, "DNI debe tener 7 u 8 dígitos")
-    .optional()
-    .or(
+    .union([
+      z.string().regex(/^\d{7,8}$/, "DNI debe tener 7 u 8 dígitos"),
       z
         .number()
         .int()
         .min(1000000, "DNI inválido")
         .max(99999999, "DNI inválido")
-        .transform(String)
+        .transform(String),
+    ])
+    .optional()
+    .or(
+      z
+        .string()
+        .regex(/^\d{7,8}$/, "DNI debe tener 7 u 8 dígitos")
         .optional(),
     ),
   telefonoCliente: z

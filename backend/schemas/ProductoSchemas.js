@@ -63,7 +63,7 @@ const createProductoSchema = z.object({
     .union([z.number(), z.string()])
     .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
     .refine((val) => !isNaN(val) && val > 0, "El precio debe ser mayor a 0")
-    .refine((val) => val <= 999999.99, "El precio es demasiado alto"),
+    .refine((val) => val <= 99999999.99, "El precio es demasiado alto"),
 
   img: z
     .string()
@@ -118,7 +118,7 @@ const updateProductoSchema = z
       .union([z.number(), z.string()])
       .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
       .refine((val) => !isNaN(val) && val > 0, "El precio debe ser mayor a 0")
-      .refine((val) => val <= 999999.99, "El precio es demasiado alto")
+      .refine((val) => val <= 99999999.99, "El precio es demasiado alto")
       .optional(),
 
     img: z
