@@ -8,5 +8,7 @@ module.exports = {
   ClientesService: require("./ClientesService"),
   EmpleadosService: require("./EmpleadosService"),
   favoritosService: require("./FavoritosService"),
+  MedicosService: require("./MedicosService"),
+  PermisosService: require("./PermisosService"),
   // AuthService: require('./AuthService'),           // Ejemplo
 };
