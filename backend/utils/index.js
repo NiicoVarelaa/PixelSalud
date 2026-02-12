@@ -1,8 +1,5 @@
-/**
- * Exportación centralizada de utilidades
- */
 module.exports = {
-  dateUtils: require("./dateUtils"),
-  priceUtils: require("./priceUtils"),
-  stringUtils: require("./stringUtils"),
+  dateUtils: require("./DateUtils"),
+  priceUtils: require("./PriceUtils"),
+  stringUtils: require("./StringUtils"),
 };

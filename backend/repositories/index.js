@@ -1,12 +1,14 @@
 /**
  * Exportación centralizada de todos los repositories
- * A medida que agregues nuevos repositories, impórtalos aquí
+ * Todos los repositories ahora usan programación funcional
  */
 module.exports = {
-  BaseRepository: require("./BaseRepository"),
   ProductosRepository: require("./ProductosRepository"),
   OfertasRepository: require("./OfertasRepository"),
   CarritoRepository: require("./CarritoRepository"),
   ClientesRepository: require("./ClientesRepository"),
   EmpleadosRepository: require("./EmpleadosRepository"),
+  FavoritosRepository: require("./FavoritosRepository"),
+  CampanasRepository: require("./CampanasRepository"),
+  ProductosCampanasRepository: require("./ProductosCampanasRepository"),
 };

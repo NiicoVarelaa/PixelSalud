@@ -1,7 +1,7 @@
 const express = require("express");
 const validate = require("../middlewares/validate");
-const auth = require("../middlewares/auth");
-const { verificarRol } = require("../middlewares/verificarPermisos");
+const auth = require("../middlewares/Auth");
+const { verificarRol } = require("../middlewares/VerificarPermisos");
 
 // Importar schemas de validación
 const {
@@ -9,7 +9,7 @@ const {
   eliminarProductoParamsSchema,
   agregarCarritoSchema,
   modificarCantidadSchema,
-} = require("../validators/carritoSchemas");
+} = require("../schemas/CarritoSchemas");
 
 // Importar controladores
 const {
@@ -19,7 +19,7 @@ const {
   vaciarCarrito,
   incrementCarrito,
   decrementCarrito,
-} = require("../controllers/carrito");
+} = require("../controllers/CarritoController");
 
 const router = express.Router();
 

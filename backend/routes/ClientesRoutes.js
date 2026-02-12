@@ -1,7 +1,7 @@
 const express = require("express");
 const validate = require("../middlewares/validate");
-const auth = require("../middlewares/auth");
-const { verificarRol } = require("../middlewares/verificarPermisos");
+const auth = require("../middlewares/Auth");
+const { verificarRol } = require("../middlewares/VerificarPermisos");
 
 // Importar schemas de validación
 const {
@@ -14,7 +14,7 @@ const {
   olvidePasswordSchema,
   restablecerPasswordSchema,
   tokenParamSchema,
-} = require("../validators/clienteSchemas");
+} = require("../schemas/ClienteSchemas");
 
 // Importar controladores
 const {
@@ -29,7 +29,7 @@ const {
   registrarPacienteExpress,
   olvideContrasena,
   nuevoPassword,
-} = require("../controllers/clientes");
+} = require("../controllers/ClientesController");
 
 const router = express.Router();
 

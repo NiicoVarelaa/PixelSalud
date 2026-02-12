@@ -1,14 +1,14 @@
 const express = require("express");
 const validate = require("../middlewares/validate");
-const auth = require("../middlewares/auth");
-const { verificarRol } = require("../middlewares/verificarPermisos");
+const auth = require("../middlewares/Auth");
+const { verificarRol } = require("../middlewares/VerificarPermisos");
 
 // Importar schemas de validación
 const {
   idEmpleadoParamSchema,
   createEmpleadoSchema,
   updateEmpleadoSchema,
-} = require("../validators/empleadoSchemas");
+} = require("../schemas/EmpleadoSchemas");
 
 // Importar controladores
 const {
@@ -19,7 +19,7 @@ const {
   updateEmpleado,
   reactivarEmpleado,
   darBajaEmpleado,
-} = require("../controllers/empleados");
+} = require("../controllers/EmpleadosController");
 
 const router = express.Router();
 
