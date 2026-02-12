@@ -12,4 +12,5 @@ module.exports = {
   CampanasRepository: require("./CampanasRepository"),
   ProductosCampanasRepository: require("./ProductosCampanasRepository"),
   AuthRepository: require("./AuthRepository"),
+  MedicosRepository: require("./MedicosRepository"),
 };
