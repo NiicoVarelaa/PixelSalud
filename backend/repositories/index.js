@@ -15,4 +15,5 @@ module.exports = {
   MedicosRepository: require("./MedicosRepository"),
   PermisosRepository: require("./PermisosRepository"),
   RecetasRepository: require("./RecetasRepository"),
+  VentasOnlineRepository: require("./VentasOnlineRepository"),
 };
