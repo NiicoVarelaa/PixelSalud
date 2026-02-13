@@ -8,8 +8,7 @@ import {
   XCircle, 
   CalendarDays, 
   CreditCard, 
-  ChevronDown, 
-  ChevronUp,
+  ChevronDown,
   ShoppingBag,
   ArrowRight
 } from "lucide-react";

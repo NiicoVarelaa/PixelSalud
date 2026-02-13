@@ -1,4 +1,4 @@
-const pool = require("../config/database");
+const { pool } = require("../config/database");
 
 /**
  * Obtiene todas las ventas online de un cliente con detalles de productos
@@ -14,7 +14,6 @@ const findByClienteId = async (idCliente) => {
       v.metodoPago, 
       v.totalPago, 
       v.estado,
-      v.tipoEntrega,
       p.nombreProducto, 
       p.img, 
       d.cantidad, 

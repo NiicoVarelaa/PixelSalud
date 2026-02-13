@@ -19,4 +19,5 @@ module.exports = {
   VentasEmpleadosRepository: require("./VentasEmpleadosRepository"),
   MensajesRepository: require("./MensajesRepository"),
   ReportesRepository: require("./ReportesRepository"),
+  MercadoPagoRepository: require("./MercadoPagoRepository"),
 };

@@ -15,5 +15,6 @@ module.exports = {
   VentasEmpleadosService: require("./VentasEmpleadosService"),
   MensajesService: require("./MensajesService"),
   ReportesService: require("./ReportesService"),
+  MercadoPagoService: require("./MercadoPagoService"),
   // AuthService: require('./AuthService'),           // Ejemplo
 };

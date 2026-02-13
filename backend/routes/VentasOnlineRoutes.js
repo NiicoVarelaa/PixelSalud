@@ -46,7 +46,7 @@ router.get(
   "/ventasOnline/detalle/:idVentaO",
   auth,
   verificarRol(["admin", "empleado"]),
-  validate(idVentaOParamSchema, "params"),
+  validate({ params: idVentaOParamSchema }),
   obtenerDetalleVentaOnline,
 );
 
@@ -59,7 +59,7 @@ router.post(
   "/ventaOnline/crear",
   auth,
   verificarRol(["admin", "empleado", "cliente"]),
-  validate(createVentaOnlineSchema, "body"),
+  validate({ body: createVentaOnlineSchema }),
   registrarVentaOnline,
 );
 
@@ -72,7 +72,7 @@ router.put(
   "/ventaOnline/estado",
   auth,
   verificarRol(["admin", "empleado"]),
-  validate(updateEstadoVentaSchema, "body"),
+  validate({ body: updateEstadoVentaSchema }),
   actualizarEstadoVenta,
 );
 
@@ -85,8 +85,8 @@ router.put(
   "/ventaOnline/actualizar/:idVentaO",
   auth,
   verificarRol(["admin", "empleado"]),
-  validate(idVentaOParamSchema, "params"),
-  validate(updateVentaOnlineSchema, "body"),
+  validate({ params: idVentaOParamSchema }),
+  validate({ body: updateVentaOnlineSchema }),
   actualizarVentaOnline,
 );
 
