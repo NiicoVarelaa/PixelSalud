@@ -53,15 +53,17 @@ const registroClienteBodySchema = z.object({
     })
     .email("El email debe tener un formato válido")
     .max(255, "El email no puede superar los 255 caracteres"),
-  dniCliente: z.union([
-    z.string().regex(/^\d{7,8}$/, "DNI debe tener 7 u 8 dígitos"),
-    z
-      .number()
-      .int()
-      .min(1000000, "DNI inválido")
-      .max(99999999, "DNI inválido")
-      .transform(String),
-  ]),
+  dniCliente: z
+    .union([
+      z.string().regex(/^\d{7,8}$/, "DNI debe tener 7 u 8 dígitos"),
+      z
+        .number()
+        .int()
+        .min(1000000, "DNI inválido")
+        .max(99999999, "DNI inválido")
+        .transform(String),
+    ])
+    .optional(),
 });
 
 module.exports = {

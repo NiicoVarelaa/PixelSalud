@@ -186,9 +186,14 @@ const updateVentaEstadoPendiente = async (externalReference, status) => {
  */
 const getDetallesVenta = async (idVentaO) => {
   const sql = `
-    SELECT idProducto, cantidad 
-    FROM DetalleVentaOnline 
-    WHERE idVentaO = ?
+    SELECT 
+      d.idProducto, 
+      d.cantidad,
+      d.precioUnitario,
+      p.nombreProducto
+    FROM DetalleVentaOnline d
+    JOIN Productos p ON d.idProducto = p.idProducto
+    WHERE d.idVentaO = ?
   `;
 
   const [rows] = await pool.query(sql, [idVentaO]);

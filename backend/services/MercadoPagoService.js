@@ -1,6 +1,8 @@
 const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
 const crypto = require("crypto");
 const mercadoPagoRepository = require("../repositories/MercadoPagoRepository");
+const clientesRepository = require("../repositories/ClientesRepository");
+const { enviarConfirmacionCompra } = require("../helps/EnvioMail");
 const { ValidationError, NotFoundError } = require("../errors");
 
 // Configuración del cliente de Mercado Pago
@@ -418,6 +420,33 @@ const updatePaymentInDatabase = async (paymentDetails) => {
     console.log(
       `🗑️ Carrito del cliente ${venta.idCliente} limpiado exitosamente`,
     );
+
+    // Enviar email de confirmación
+    try {
+      const cliente = await clientesRepository.findById(venta.idCliente);
+      const detallesVenta = await mercadoPagoRepository.getDetallesVenta(
+        venta.idVentaO,
+      );
+
+      if (cliente && cliente.emailCliente && detallesVenta.length > 0) {
+        await enviarConfirmacionCompra(
+          cliente.emailCliente,
+          cliente.nombreCliente,
+          venta.idVentaO,
+          venta.totalPago,
+          detallesVenta,
+        );
+        console.log(
+          `📧 Email de confirmación enviado a ${cliente.emailCliente}`,
+        );
+      }
+    } catch (emailError) {
+      console.error(
+        `⚠️ Error enviando email de confirmación:`,
+        emailError.message,
+      );
+      // No lanzamos el error para que no afecte el flujo principal
+    }
   }
   // Pago rechazado o cancelado
   else if (

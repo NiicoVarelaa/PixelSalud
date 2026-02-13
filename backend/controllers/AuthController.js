@@ -1,4 +1,5 @@
 const authService = require("../services/AuthService");
+const clientesService = require("../services/ClientesService");
 
 /**
  * Controlador de autenticación
@@ -18,6 +19,38 @@ const login = async (req, res, next) => {
   }
 };
 
+/**
+ * Registra un nuevo cliente
+ * POST /registroCliente
+ */
+const registrarCliente = async (req, res, next) => {
+  try {
+    const {
+      nombreCliente,
+      apellidoCliente,
+      contraCliente,
+      emailCliente,
+      dniCliente,
+    } = req.body;
+
+    const resultado = await clientesService.crearCliente({
+      nombreCliente,
+      apellidoCliente,
+      contraCliente,
+      emailCliente,
+      dni: dniCliente,
+    });
+
+    res.status(201).json({
+      mensaje: "Cliente registrado exitosamente",
+      idCliente: resultado.insertId,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   login,
+  registrarCliente,
 };
