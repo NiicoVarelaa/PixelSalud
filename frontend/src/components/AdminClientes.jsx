@@ -68,7 +68,8 @@ const AdminClientes = () => {
   // 3. Crear Cliente
   const handleCrearCliente = async () => {
     const { value: formValues } = await Swal.fire({
-      title: '<h2 class="text-2xl font-bold text-green-700">👤 Nuevo Cliente</h2>',
+      title:
+        '<h2 class="text-2xl font-bold text-green-700">👤 Nuevo Cliente</h2>',
       html: `
         <div class="flex flex-col gap-4 text-left">
             <div class="grid grid-cols-2 gap-4">
@@ -83,7 +84,7 @@ const AdminClientes = () => {
             </div>
             <div>
                 <label class="text-xs font-bold text-gray-500 uppercase">DNI</label>
-                <input id="swal-dni" type="number" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" placeholder="12345678">
+                <input id="swal-dni" type="text" pattern="\d{7,8}" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" placeholder="12345678" maxlength="8">
             </div>
             <div>
                 <label class="text-xs font-bold text-gray-500 uppercase">Email</label>
@@ -115,7 +116,7 @@ const AdminClientes = () => {
         return {
           nombreCliente: nombre,
           apellidoCliente: apellido,
-          dni,
+          dniCliente: dni,
           emailCliente: email,
           contraCliente: contra,
         };
@@ -128,7 +129,11 @@ const AdminClientes = () => {
         Swal.fire("Creado", "Cliente registrado correctamente.", "success");
         obtenerClientes();
       } catch (error) {
-        Swal.fire("Error", error.response?.data?.error || "No se pudo crear", "error");
+        Swal.fire(
+          "Error",
+          error.response?.data?.error || "No se pudo crear",
+          "error",
+        );
       }
     }
   };
@@ -151,7 +156,7 @@ const AdminClientes = () => {
             </div>
             <div>
                 <label class="text-xs font-bold text-gray-500 uppercase">DNI</label>
-                <input id="swal-dni" type="number" class="w-full p-2.5 border rounded" value="${cli.dni || ''}">
+                <input id="swal-dni" type="text" pattern="\d{7,8}" class="w-full p-2.5 border rounded" value="${cli.dni || ""}" maxlength="8">
             </div>
             <div>
                 <label class="text-xs font-bold text-gray-500 uppercase">Email</label>
@@ -160,25 +165,30 @@ const AdminClientes = () => {
         </div>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Guardar Cambios',
-      confirmButtonColor: '#EAB308',
+      confirmButtonText: "Guardar Cambios",
+      confirmButtonColor: "#EAB308",
       preConfirm: () => {
         return {
-          nombreCliente: document.getElementById('swal-nombre').value.trim(),
-          apellidoCliente: document.getElementById('swal-apellido').value.trim(),
-          dni: document.getElementById('swal-dni').value.trim(),
-          emailCliente: document.getElementById('swal-email').value.trim(),
+          nombreCliente: document.getElementById("swal-nombre").value.trim(),
+          apellidoCliente: document
+            .getElementById("swal-apellido")
+            .value.trim(),
+          dniCliente: document.getElementById("swal-dni").value.trim(),
+          emailCliente: document.getElementById("swal-email").value.trim(),
         };
-      }
+      },
     });
 
     if (formValues) {
       try {
-        await apiClient.put(`/clientes/actualizar/${cli.idCliente}`, formValues);
-        Swal.fire('Actualizado', 'Datos modificados correctamente', 'success');
+        await apiClient.put(
+          `/clientes/actualizar/${cli.idCliente}`,
+          formValues,
+        );
+        Swal.fire("Actualizado", "Datos modificados correctamente", "success");
         obtenerClientes();
       } catch (error) {
-        Swal.fire('Error', 'No se pudo actualizar', 'error');
+        Swal.fire("Error", "No se pudo actualizar", "error");
       }
     }
   };
@@ -207,12 +217,16 @@ const AdminClientes = () => {
           Swal.fire(
             "Estado Actualizado",
             `Cliente ${accion.toLowerCase()} con éxito`,
-            "success"
+            "success",
           );
           obtenerClientes();
         } catch (error) {
           console.error("Error cambiando estado:", error);
-          Swal.fire("Error", "No se pudo cambiar el estado. Revisa la consola.", "error");
+          Swal.fire(
+            "Error",
+            "No se pudo cambiar el estado. Revisa la consola.",
+            "error",
+          );
         }
       }
     });
@@ -241,7 +255,10 @@ const AdminClientes = () => {
   // --- LÓGICA DE PAGINACIÓN ---
   const indiceUltimoItem = paginaActual * itemsPorPagina;
   const indicePrimerItem = indiceUltimoItem - itemsPorPagina;
-  const itemsActuales = clientesFiltrados.slice(indicePrimerItem, indiceUltimoItem);
+  const itemsActuales = clientesFiltrados.slice(
+    indicePrimerItem,
+    indiceUltimoItem,
+  );
   const totalPaginas = Math.ceil(clientesFiltrados.length / itemsPorPagina);
 
   const cambiarPagina = (numeroPagina) => setPaginaActual(numeroPagina);
@@ -252,7 +269,11 @@ const AdminClientes = () => {
     const rangeWithDots = [];
 
     for (let i = 1; i <= totalPaginas; i++) {
-      if (i === 1 || i === totalPaginas || (i >= paginaActual - delta && i <= paginaActual + delta)) {
+      if (
+        i === 1 ||
+        i === totalPaginas ||
+        (i >= paginaActual - delta && i <= paginaActual + delta)
+      ) {
         range.push(i);
       }
     }
@@ -263,7 +284,7 @@ const AdminClientes = () => {
         if (i - l === 2) {
           rangeWithDots.push(l + 1);
         } else if (i - l !== 1) {
-          rangeWithDots.push('...');
+          rangeWithDots.push("...");
         }
       }
       rangeWithDots.push(i);
@@ -281,7 +302,8 @@ const AdminClientes = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <Users className="text-green-600" size={32} /> Administración de Clientes
+              <Users className="text-green-600" size={32} /> Administración de
+              Clientes
             </h1>
             <p className="text-gray-500 mt-1 text-sm">
               Gestiona los usuarios registrados en la farmacia.
@@ -347,32 +369,50 @@ const AdminClientes = () => {
                 <thead className="bg-green-100">
                   <tr>
                     {/* ID - Lo dejamos pequeño */}
-                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-16">
+                    <th
+                      scope="col"
+                      className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-16"
+                    >
                       ID
                     </th>
 
                     {/* CLIENTE - w-1/4 está bien para nombres largos */}
-                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-1/4">
+                    <th
+                      scope="col"
+                      className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-1/4"
+                    >
                       Cliente
                     </th>
 
                     {/* DNI - w-32 fijo */}
-                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-32">
+                    <th
+                      scope="col"
+                      className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-32"
+                    >
                       DNI
                     </th>
 
                     {/* EMAIL - AQUÍ ESTABA EL ERROR: Cambiamos w-1/3 por w-64 */}
-                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-64">
+                    <th
+                      scope="col"
+                      className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-64"
+                    >
                       Email
                     </th>
 
                     {/* ESTADO - w-32 para que tenga aire */}
-                    <th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-32">
+                    <th
+                      scope="col"
+                      className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-32"
+                    >
                       Estado
                     </th>
 
                     {/* ACCIONES - w-40 para que entren los botones cómodos */}
-                    <th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-40">
+                    <th
+                      scope="col"
+                      className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-40"
+                    >
                       Acciones
                     </th>
                   </tr>
@@ -382,7 +422,10 @@ const AdminClientes = () => {
                     itemsActuales.map((cli) => {
                       const esActivo = cli.activo !== 0 && cli.activo !== false;
                       return (
-                        <tr key={cli.idCliente} className="hover:bg-gray-50 transition-colors">
+                        <tr
+                          key={cli.idCliente}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
                           {/* ID */}
                           <td className="px-3 py-3 whitespace-nowrap text-gray-500 font-mono text-xs">
                             #{cli.idCliente}
@@ -412,12 +455,16 @@ const AdminClientes = () => {
 
                           {/* ESTADO */}
                           <td className="px-3 py-3 whitespace-nowrap text-center align-middle w-[100px]">
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${esActivo ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                              }`}>
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                esActivo
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
                               {esActivo ? "Activo" : "Baja"}
                             </span>
                           </td>
-
 
                           <td className="px-3 py-3 whitespace-nowrap text-right align-middle">
                             <div className="flex gap-1 justify-end">
@@ -433,9 +480,14 @@ const AdminClientes = () => {
                               {/* BOTÓN CAMBIAR ESTADO (Baja / Reactivar) */}
                               <button
                                 onClick={() => handleCambiarEstado(cli)}
-                                className={`px-2 py-1 text-sm font-medium text-white rounded-md transition-colors cursor-pointer ${esActivo ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
-                                  }`}
-                                title={esActivo ? "Dar de Baja" : "Reactivar Cliente"}
+                                className={`px-2 py-1 text-sm font-medium text-white rounded-md transition-colors cursor-pointer ${
+                                  esActivo
+                                    ? "bg-red-500 hover:bg-red-600"
+                                    : "bg-green-500 hover:bg-green-600"
+                                }`}
+                                title={
+                                  esActivo ? "Dar de Baja" : "Reactivar Cliente"
+                                }
                               >
                                 {esActivo ? "Desactivar" : "Activar"}
                               </button>
@@ -446,7 +498,10 @@ const AdminClientes = () => {
                     })
                   ) : (
                     <tr>
-                      <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                      <td
+                        colSpan="6"
+                        className="px-6 py-4 text-center text-gray-500"
+                      >
                         No se encontraron clientes.
                       </td>
                     </tr>
@@ -463,7 +518,7 @@ const AdminClientes = () => {
                 <button
                   onClick={() => cambiarPagina(Math.max(1, paginaActual - 1))}
                   disabled={paginaActual === 1}
-                  className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === 1 ? 'opacity-50 cursor-not-allowed text-gray-400 hover:bg-white' : 'cursor-pointer'}`}
+                  className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === 1 ? "opacity-50 cursor-not-allowed text-gray-400 hover:bg-white" : "cursor-pointer"}`}
                 >
                   &lt;
                 </button>
@@ -471,23 +526,28 @@ const AdminClientes = () => {
                 {getPaginationNumbers().map((number, index) => (
                   <button
                     key={index}
-                    onClick={() => typeof number === 'number' ? cambiarPagina(number) : null}
-                    disabled={typeof number !== 'number'}
-                    className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${number === paginaActual
-                      ? 'bg-blue-500 text-white'
-                      : typeof number === 'number'
-                        ? 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-                        : 'bg-white text-gray-400 cursor-default'
-                      }`}
+                    onClick={() =>
+                      typeof number === "number" ? cambiarPagina(number) : null
+                    }
+                    disabled={typeof number !== "number"}
+                    className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
+                      number === paginaActual
+                        ? "bg-blue-500 text-white"
+                        : typeof number === "number"
+                          ? "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                          : "bg-white text-gray-400 cursor-default"
+                    }`}
                   >
                     {number}
                   </button>
                 ))}
 
                 <button
-                  onClick={() => cambiarPagina(Math.min(totalPaginas, paginaActual + 1))}
+                  onClick={() =>
+                    cambiarPagina(Math.min(totalPaginas, paginaActual + 1))
+                  }
                   disabled={paginaActual === totalPaginas}
-                  className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === totalPaginas ? 'opacity-50 cursor-not-allowed text-gray-400 hover:bg-white' : 'cursor-pointer'}`}
+                  className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === totalPaginas ? "opacity-50 cursor-not-allowed text-gray-400 hover:bg-white" : "cursor-pointer"}`}
                 >
                   &gt;
                 </button>

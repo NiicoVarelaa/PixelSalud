@@ -5,21 +5,23 @@ const { conection } = require("./config/database");
 
 const cors = require("cors");
 
-const routesProductos = require("./routes/productos");
-const routesCarrito = require("./routes/carrito");
-const routesClientes = require("./routes/clientes");
-const registroRouter = require("./routes/registro");
-const loginRoutes = require("./routes/login");
-const routesEmpleados = require("./routes/Empleados");
-const routesOnlines = require("./routes/ventasOnline");
-const ventasEmpleados = require("./routes/VentasEmpleados");
-const favoritosRoutes = require("./routes/favoritos");
-const routesMercadoPago = require("./routes/mercadopago");
-const routesPermisos = require("./routes/permisos");
-const routesMedicos = require("./routes/medicos");
-const mensajesRoutes = require("./routes/mensajes");
-const routesRecetas = require("./routes/recetas");
-const routesReportes = require("./routes/reportes");
+const routesProductos = require("./routes/ProductosRoutes");
+const routesOfertas = require("./routes/OfertasRoutes");
+const routesCampanas = require("./routes/CampanasRoutes");
+const routesCarrito = require("./routes/CarritoRoutes");
+const routesClientes = require("./routes/ClientesRoutes");
+const routesAuth = require("./routes/AuthRoutes");
+const routesEmpleados = require("./routes/EmpleadosRoutes");
+const routesOnlines = require("./routes/VentasOnlineRoutes");
+const routesVentasEmpleados = require("./routes/VentasEmpleadosRoutes");
+const favoritosRoutes = require("./routes/FavoritosRoutes");
+const routesMercadoPago = require("./routes/MercadoPagoRoutes");
+const routesPermisos = require("./routes/PermisosRoutes");
+const routesMedicos = require("./routes/MedicosRoutes");
+const routesMensajes = require("./routes/MensajesRoutes");
+const routesRecetas = require("./routes/RecetasRoutes");
+const routesReportes = require("./routes/ReportesRoutes");
+const { errorHandler, notFoundHandler } = require("./middlewares/ErrorHandler");
 
 const app = express();
 
@@ -30,21 +32,28 @@ app.get("/", (req, res) => {
   res.send("Bienvenido a Pixel Salud ❤");
 });
 
+// Rutas sin prefijo /api (compatibilidad con frontend actual)
+// TODO: Cuando refactoricemos el frontend, agregar prefijo /api
 app.use("/", routesProductos);
+app.use("/ofertas", routesOfertas);
+app.use("/campanas", routesCampanas);
 app.use("/", routesCarrito);
 app.use("/", routesOnlines);
-app.use("/", ventasEmpleados);
+app.use("/", routesVentasEmpleados);
 app.use("/", routesClientes);
-app.use("/", loginRoutes);
-app.use("/", registroRouter);
+app.use("/", routesAuth);
 app.use("/", routesEmpleados);
 app.use("/favoritos", favoritosRoutes);
 app.use("/mercadopago", routesMercadoPago);
 app.use("/", routesPermisos);
 app.use("/", routesMedicos);
-app.use("/mensajes", mensajesRoutes);
+app.use("/mensajes", routesMensajes);
 app.use("/", routesRecetas);
 app.use("/", routesReportes);
+
+// Middleware de manejo de errores (DEBE IR AL FINAL, después de todas las rutas)
+app.use(notFoundHandler); // Maneja rutas no encontradas (404)
+app.use(errorHandler); // Maneja todos los errores de forma centralizada
 
 conection.connect((err) => {
   if (err) {
