@@ -1,2 +1,6 @@
 node_modules/
 .env
+
+# Documentación (solo local, no subir a GitHub)
+README.md
+docs/
