@@ -4,6 +4,7 @@ const mercadoPagoRepository = require("../repositories/MercadoPagoRepository");
 const clientesRepository = require("../repositories/ClientesRepository");
 const { enviarConfirmacionCompra } = require("../helps/EnvioMail");
 const { ValidationError, NotFoundError } = require("../errors");
+const { withTransaction } = require("../utils/transaction");
 
 // Configuración del cliente de Mercado Pago
 const client = new MercadoPagoConfig({
@@ -408,18 +409,73 @@ const updatePaymentInDatabase = async (paymentDetails) => {
       return;
     }
 
-    // Actualizar venta a "retirado" (aprobado)
-    await mercadoPagoRepository.updateVentaEstado(venta.idVentaO, "retirado");
-    console.log(`✅ Venta ${venta.idVentaO} actualizada a 'retirado'`);
+    // ========================================
+    // BLOQUE TRANSACCIONAL (ACID)
+    // ========================================
+    // Todas estas operaciones se ejecutan de forma atómica:
+    // - Si alguna falla, TODAS se revierten (ROLLBACK)
+    // - Si todas tienen éxito, se confirman (COMMIT)
+    try {
+      await withTransaction(async (connection) => {
+        // 1. Actualizar venta a "retirado" (aprobado)
+        await mercadoPagoRepository.updateVentaEstadoTx(
+          connection,
+          venta.idVentaO,
+          "retirado",
+        );
+        console.log(`✅ Venta ${venta.idVentaO} actualizada a 'retirado'`);
 
-    // Actualizar stock
-    await updateStockForOrder(venta.idVentaO);
+        // 2. Obtener detalles de la venta
+        const detallesVenta = await mercadoPagoRepository.getDetallesVentaTx(
+          connection,
+          venta.idVentaO,
+        );
 
-    // Limpiar carrito del cliente
-    await mercadoPagoRepository.clearUserCart(venta.idCliente);
-    console.log(
-      `🗑️ Carrito del cliente ${venta.idCliente} limpiado exitosamente`,
-    );
+        if (detallesVenta.length === 0) {
+          throw new Error(
+            `No se encontraron detalles para la venta ${venta.idVentaO}`,
+          );
+        }
+
+        // 3. Actualizar stock (con validación y bloqueo)
+        const itemsToUpdate = detallesVenta.map((d) => ({
+          idProducto: d.idProducto,
+          quantity: d.cantidad,
+        }));
+
+        await mercadoPagoRepository.updateProductStockTx(
+          connection,
+          itemsToUpdate,
+        );
+        console.log(
+          `✅ Stock actualizado para ${detallesVenta.length} productos`,
+        );
+
+        // 4. Limpiar carrito del cliente
+        await mercadoPagoRepository.clearUserCartTx(
+          connection,
+          venta.idCliente,
+        );
+        console.log(
+          `🗑️ Carrito del cliente ${venta.idCliente} limpiado exitosamente`,
+        );
+
+        // Si llegamos aquí, todas las operaciones fueron exitosas
+        // withTransaction hará COMMIT automáticamente
+      });
+
+      console.log(
+        `🎉 Transacción completada exitosamente para venta ${venta.idVentaO}`,
+      );
+    } catch (transactionError) {
+      console.error(
+        `❌ Error en transacción para venta ${venta.idVentaO}:`,
+        transactionError.message,
+      );
+      // La transacción ya hizo ROLLBACK automáticamente
+      // Puedes agregar lógica adicional aquí (notificaciones, logs, etc.)
+      throw transactionError; // Propagar el error
+    }
 
     // Enviar email de confirmación
     try {

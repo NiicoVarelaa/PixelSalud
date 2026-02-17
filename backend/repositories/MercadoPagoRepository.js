@@ -242,6 +242,107 @@ const clearUserCart = async (idCliente) => {
   return result.affectedRows > 0;
 };
 
+// ========================================
+// MÉTODOS TRANSACCIONALES
+// ========================================
+// Estos métodos aceptan una conexión como parámetro para ser usados dentro de transacciones
+
+/**
+ * Actualiza el estado de una venta (versión transaccional)
+ * @param {Object} connection - Conexión de la transacción
+ * @param {number} idVentaO - ID de la venta
+ * @param {string} estado - Nuevo estado
+ * @returns {Promise<boolean>}
+ */
+const updateVentaEstadoTx = async (connection, idVentaO, estado) => {
+  const sql = `
+    UPDATE VentasOnlines 
+    SET estado = ?,
+        fechaPago = CURRENT_DATE,
+        horaPago = CURRENT_TIME
+    WHERE idVentaO = ?
+  `;
+
+  const [result] = await connection.query(sql, [estado, idVentaO]);
+  return result.affectedRows > 0;
+};
+
+/**
+ * Actualiza el stock de productos (versión transaccional con validación)
+ * @param {Object} connection - Conexión de la transacción
+ * @param {Array} items - Items con idProducto y quantity
+ * @returns {Promise<void>}
+ * @throws {Error} Si no hay stock suficiente
+ */
+const updateProductStockTx = async (connection, items) => {
+  for (const item of items) {
+    // Primero verificar stock disponible con bloqueo (SELECT FOR UPDATE)
+    const [products] = await connection.query(
+      `SELECT stock FROM Productos WHERE idProducto = ? FOR UPDATE`,
+      [item.idProducto],
+    );
+
+    if (products.length === 0) {
+      throw new Error(`Producto ${item.idProducto} no encontrado`);
+    }
+
+    const currentStock = products[0].stock;
+
+    if (currentStock < item.quantity) {
+      throw new Error(
+        `Stock insuficiente para producto ${item.idProducto}. ` +
+          `Disponible: ${currentStock}, Solicitado: ${item.quantity}`,
+      );
+    }
+
+    // Actualizar stock
+    const [result] = await connection.query(
+      `UPDATE Productos SET stock = stock - ? WHERE idProducto = ?`,
+      [item.quantity, item.idProducto],
+    );
+
+    if (result.affectedRows === 0) {
+      throw new Error(
+        `No se pudo actualizar stock del producto ${item.idProducto}`,
+      );
+    }
+  }
+};
+
+/**
+ * Obtiene los detalles de una venta (versión transaccional)
+ * @param {Object} connection - Conexión de la transacción
+ * @param {number} idVentaO - ID de la venta
+ * @returns {Promise<Array>}
+ */
+const getDetallesVentaTx = async (connection, idVentaO) => {
+  const sql = `
+    SELECT 
+      d.idProducto, 
+      d.cantidad,
+      d.precioUnitario,
+      p.nombreProducto
+    FROM DetalleVentaOnline d
+    JOIN Productos p ON d.idProducto = p.idProducto
+    WHERE d.idVentaO = ?
+  `;
+
+  const [rows] = await connection.query(sql, [idVentaO]);
+  return rows;
+};
+
+/**
+ * Limpia el carrito de un cliente (versión transaccional)
+ * @param {Object} connection - Conexión de la transacción
+ * @param {number} idCliente - ID del cliente
+ * @returns {Promise<boolean>}
+ */
+const clearUserCartTx = async (connection, idCliente) => {
+  const sql = `DELETE FROM Carrito WHERE idCliente = ?`;
+  const [result] = await connection.query(sql, [idCliente]);
+  return result.affectedRows > 0;
+};
+
 module.exports = {
   getProductsByIds,
   createVentaOnline,
@@ -254,4 +355,9 @@ module.exports = {
   getDetallesVenta,
   getUserOrders,
   clearUserCart,
+  // Métodos transaccionales
+  updateVentaEstadoTx,
+  updateProductStockTx,
+  getDetallesVentaTx,
+  clearUserCartTx,
 };
