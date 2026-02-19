@@ -1,9 +1,9 @@
 module.exports = {
-  AppError: require("./AppError"),
-  NotFoundError: require("./NotFoundError"),
-  ValidationError: require("./ValidationError"),
-  UnauthorizedError: require("./UnauthorizedError"),
-  ForbiddenError: require("./ForbiddenError"),
-  ConflictError: require("./ConflictError"),
-  DatabaseError: require("./DatabaseError"),
+  createAppError: require("./AppError"),
+  createNotFoundError: require("./NotFoundError"),
+  createValidationError: require("./ValidationError"),
+  createUnauthorizedError: require("./UnauthorizedError"),
+  createForbiddenError: require("./ForbiddenError"),
+  createConflictError: require("./ConflictError"),
+  createDatabaseError: require("./DatabaseError"),
 };

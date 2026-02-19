@@ -3,18 +3,21 @@
  * A medida que agregues nuevos services, impórtalos aquí
  */
 module.exports = {
-  ProductosService: require("./ProductosService"),
+  AuthService: require("./AuthService"),
+  CampanasService: require("./CampanasService"),
   CarritoService: require("./CarritoService"),
   ClientesService: require("./ClientesService"),
+  CuponesService: require("./CuponesService"),
   EmpleadosService: require("./EmpleadosService"),
-  favoritosService: require("./FavoritosService"),
+  FavoritosService: require("./FavoritosService"),
   MedicosService: require("./MedicosService"),
-  PermisosService: require("./PermisosService"),
-  RecetasService: require("./RecetasService"),
-  VentasOnlineService: require("./VentasOnlineService"),
-  VentasEmpleadosService: require("./VentasEmpleadosService"),
   MensajesService: require("./MensajesService"),
-  ReportesService: require("./ReportesService"),
   MercadoPagoService: require("./MercadoPagoService"),
-  // AuthService: require('./AuthService'),           // Ejemplo
+  OfertasService: require("./OfertasService"),
+  PermisosService: require("./PermisosService"),
+  ProductosService: require("./ProductosService"),
+  RecetasService: require("./RecetasService"),
+  ReportesService: require("./ReportesService"),
+  VentasEmpleadosService: require("./VentasEmpleadosService"),
+  VentasOnlineService: require("./VentasOnlineService"),
 };

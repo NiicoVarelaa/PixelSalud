@@ -1,5 +1,9 @@
 const productosRepository = require("../repositories/ProductosRepository");
-const { NotFoundError, ValidationError, ConflictError } = require("../errors");
+const {
+  createNotFoundError,
+  createValidationError,
+  createConflictError,
+} = require("../errors");
 
 /**
  * Service para la lógica de negocio de Productos
@@ -23,7 +27,7 @@ const obtenerProductoPorId = async (idProducto) => {
   const producto = await productosRepository.findByIdWithOfertas(idProducto);
 
   if (!producto) {
-    throw new NotFoundError("Producto no encontrado");
+    throw createNotFoundError("Producto no encontrado");
   }
 
   return producto;
@@ -38,7 +42,7 @@ const obtenerProductosInactivos = async () => {
   const productos = await productosRepository.findInactivos();
 
   if (productos.length === 0) {
-    throw new NotFoundError("No hay productos dados de baja");
+    throw createNotFoundError("No hay productos dados de baja");
   }
 
   return productos;
@@ -52,7 +56,7 @@ const obtenerProductosInactivos = async () => {
  */
 const buscarProductos = async (term) => {
   if (!term || term.length < 3) {
-    throw new ValidationError(
+    throw createValidationError(
       "El término de búsqueda debe tener al menos 3 caracteres",
     );
   }
@@ -70,11 +74,11 @@ const buscarProductos = async (term) => {
 const crearProducto = async (data) => {
   // Validaciones de negocio
   if (data.precio < 0) {
-    throw new ValidationError("El precio no puede ser negativo");
+    throw createValidationError("El precio no puede ser negativo");
   }
 
   if (data.stock < 0) {
-    throw new ValidationError("El stock no puede ser negativo");
+    throw createValidationError("El stock no puede ser negativo");
   }
 
   // Verificar si ya existe un producto con el mismo nombre
@@ -83,7 +87,7 @@ const crearProducto = async (data) => {
   });
 
   if (existe) {
-    throw new ConflictError("Ya existe un producto con ese nombre");
+    throw createConflictError("Ya existe un producto con ese nombre");
   }
 
   // Agregar activo = true por defecto
@@ -108,16 +112,16 @@ const actualizarProducto = async (idProducto, data) => {
   // Verificar que el producto existe
   const existe = await productosRepository.findById(idProducto);
   if (!existe) {
-    throw new NotFoundError("Producto no encontrado");
+    throw createNotFoundError("Producto no encontrado");
   }
 
   // Validaciones de negocio
   if (data.precio !== undefined && data.precio < 0) {
-    throw new ValidationError("El precio no puede ser negativo");
+    throw createValidationError("El precio no puede ser negativo");
   }
 
   if (data.stock !== undefined && data.stock < 0) {
-    throw new ValidationError("El stock no puede ser negativo");
+    throw createValidationError("El stock no puede ser negativo");
   }
 
   const actualizado = await productosRepository.update(idProducto, data);
@@ -139,7 +143,7 @@ const actualizarProducto = async (idProducto, data) => {
 const actualizarEstadoActivo = async (idProducto, activo) => {
   const existe = await productosRepository.findById(idProducto);
   if (!existe) {
-    throw new NotFoundError("Producto no encontrado");
+    throw createNotFoundError("Producto no encontrado");
   }
 
   return await productosRepository.updateActivo(idProducto, activo);
@@ -154,7 +158,7 @@ const actualizarEstadoActivo = async (idProducto, activo) => {
 const darBajaProducto = async (idProducto) => {
   const existe = await productosRepository.findById(idProducto);
   if (!existe) {
-    throw new NotFoundError("Producto no encontrado");
+    throw createNotFoundError("Producto no encontrado");
   }
 
   return await productosRepository.darBaja(idProducto);
@@ -169,7 +173,7 @@ const darBajaProducto = async (idProducto) => {
 const activarProducto = async (idProducto) => {
   const existe = await productosRepository.findById(idProducto);
   if (!existe) {
-    throw new NotFoundError("Producto no encontrado");
+    throw createNotFoundError("Producto no encontrado");
   }
 
   return await productosRepository.activar(idProducto);

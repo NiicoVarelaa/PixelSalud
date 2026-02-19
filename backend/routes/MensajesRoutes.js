@@ -10,6 +10,8 @@ const {
   crearMensaje,
   actualizarEstadoMensaje,
   eliminarMensaje,
+  marcarComoLeido,
+  responderMensaje,
 } = require("../controllers/MensajesController");
 
 // Middlewares
@@ -24,6 +26,7 @@ const {
   estadoParamSchema,
   createMensajeSchema,
   updateEstadoMensajeSchema,
+  responderMensajeSchema,
 } = require("../schemas/MensajeSchemas");
 
 // ====================================
@@ -98,6 +101,32 @@ router.put(
   verificarRol(["admin"]),
   validate(updateEstadoMensajeSchema),
   actualizarEstadoMensaje,
+);
+
+/**
+ * PATCH /mensajes/:idMensaje/leido
+ * Marca un mensaje como leído
+ * Requiere: auth + admin
+ */
+router.patch(
+  "/:idMensaje/leido",
+  auth,
+  verificarRol(["admin"]),
+  validate(idMensajeParamSchema, "params"),
+  marcarComoLeido,
+);
+
+/**
+ * POST /mensajes/:idMensaje/responder
+ * Responde a un mensaje
+ * Requiere: auth + admin
+ */
+router.post(
+  "/:idMensaje/responder",
+  auth,
+  verificarRol(["admin"]),
+  validate(responderMensajeSchema),
+  responderMensaje,
 );
 
 /**

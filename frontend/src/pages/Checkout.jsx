@@ -26,6 +26,7 @@ const Checkout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
+  const [appliedCouponCode, setAppliedCouponCode] = useState(null); // Guardar código aplicado
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -54,117 +55,165 @@ const Checkout = () => {
 
   const total = Math.max(subtotal - appliedDiscount, 0);
 
-  const handleApplyDiscount = () => {
-    if (discountCode.trim().toUpperCase() === "PIXEL2025") {
-      const discount = subtotal * 0.1;
-      setAppliedDiscount(discount);
-      toast.success(`¡Cupón aplicado! Descuento: ${formatPrice(discount)}`);
-    } else {
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) {
+      toast.error("Ingresa un código de cupón");
+      return;
+    }
+
+    try {
+      const backendUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const response = await fetch(`${backendUrl}/cupones/validar`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          auth: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          codigo: discountCode.trim().toUpperCase(),
+          montoCompra: subtotal,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setAppliedDiscount(data.data.descuento);
+        setAppliedCouponCode(discountCode.trim().toUpperCase());
+        toast.success(
+          `¡Cupón aplicado! Descuento: ${formatPrice(data.data.descuento)}`,
+        );
+      } else {
+        setAppliedDiscount(0);
+        setAppliedCouponCode(null);
+        toast.error(data.message || "Cupón no válido");
+      }
+    } catch (error) {
+      console.error("Error validando cupón:", error);
       setAppliedDiscount(0);
-      toast.error("Cupón no válido");
+      setAppliedCouponCode(null);
+      toast.error("Error al validar el cupón");
     }
   };
 
-const onSubmit = useCallback(async (data) => {       
-  if (!token) {
-      toast.error("Sesión expirada. Por favor inicia sesión nuevamente.");
-      navigate("/login");
-      return;
-  }
+  const handleRemoveDiscount = () => {
+    setAppliedDiscount(0);
+    setAppliedCouponCode(null);
+    setDiscountCode("");
+    toast.info("Cupón removido");
+  };
 
-  setIsProcessing(true);
-  try {
-    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    const urlApiCompleta = `${backendUrl}/mercadopago/create-order`;
+  const onSubmit = useCallback(
+    async (data) => {
+      if (!token) {
+        toast.error("Sesión expirada. Por favor inicia sesión nuevamente.");
+        navigate("/login");
+        return;
+      }
 
-    console.log("📤 Enviando solicitud al backend...");
+      setIsProcessing(true);
+      try {
+        const backendUrl =
+          import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const urlApiCompleta = `${backendUrl}/mercadopago/create-order`;
 
-    const response = await fetch(urlApiCompleta, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        auth: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        products: carrito.map((product) => ({
-          id: product.idProducto,
-          quantity: product.cantidad,
-        })),
-        customer_info: {
-          name: data.nombre.split(" ")[0] || "",
-          surname: data.nombre.split(" ").slice(1).join(" ") || "",
-          email: data.email,
-          phone: data.telefono,
-          address: {
-              street_name: "Retiro en tienda", 
-              street_number: "0",
-              zip_code: "0000",
+        console.log("📤 Enviando solicitud al backend...");
+
+        const response = await fetch(urlApiCompleta, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            auth: `Bearer ${token}`,
           },
-        },
-        discount: appliedDiscount,
-      }),
-    });
+          body: JSON.stringify({
+            products: carrito.map((product) => ({
+              id: product.idProducto,
+              quantity: product.cantidad,
+            })),
+            customer_info: {
+              name: data.nombre.split(" ")[0] || "",
+              surname: data.nombre.split(" ").slice(1).join(" ") || "",
+              email: data.email,
+              phone: data.telefono,
+              address: {
+                street_name: "Retiro en tienda",
+                street_number: "0",
+                zip_code: "0000",
+              },
+            },
+            discount: appliedDiscount,
+            codigoCupon: appliedCouponCode, // Enviar código del cupón al backend
+          }),
+        });
 
-    const responseData = await response.json();
+        const responseData = await response.json();
 
-    console.log("📦 Respuesta del backend:", JSON.stringify(responseData, null, 2));
+        console.log(
+          "📦 Respuesta del backend:",
+          JSON.stringify(responseData, null, 2),
+        );
 
-    if (!response.ok) {
-      throw new Error(responseData.message || `Error ${response.status}`);
-    }
+        if (!response.ok) {
+          throw new Error(responseData.message || `Error ${response.status}`);
+        }
 
-    // ✅ ADAPTACIÓN PARA FORZAR SANDBOX LOCALMENTE
-    // El backend ahora devuelve la URL de sandbox en el campo init_point
-    const initPoint = responseData.init_point;
-    
-    if (!initPoint) {
-      throw new Error("No se recibió URL de pago del servidor");
-    }
+        // ✅ ADAPTACIÓN PARA FORZAR SANDBOX LOCALMENTE
+        // El backend ahora devuelve la URL de sandbox en el campo init_point
+        const initPoint = responseData.init_point;
 
-    // Información del Pago simplificada para pruebas locales
-    const paymentMode = "PRUEBAS (FORZADO)";
+        if (!initPoint) {
+          throw new Error("No se recibió URL de pago del servidor");
+        }
 
-    console.log("\n🎯 Información del Pago:");
-    console.log("- Modo:", paymentMode);
-    console.log("- URL de pago (Sandbox):", initPoint);
-    console.log("- Preference ID:", responseData.id);
-    console.log("- Total:", responseData.total);
-    console.log("⚠️ MODO PRUEBAS (FORZADO):");
-    console.log("  - Usar tarjetas de prueba de Mercado Pago");
-    console.log("  - Los pagos NO son reales");
-    
-    if (responseData.success) {
-      const toastMessage = "Redirigiendo a Mercado Pago (Modo Pruebas)...";
-        
-      toast.info(toastMessage, {
-        autoClose: 2000,
-      });
-      
-      // Pequeño delay para que se vea el toast
-      setTimeout(() => {
-        console.log("🚀 Redirigiendo a:", initPoint);
-        window.location.href = initPoint; 
-      }, 1000);
-      
-      return;
-    } else {
-      throw new Error(responseData.message || "No se pudo crear la URL de pago");
-    }
-  } catch (error) {
-    console.error("❌ Error creating order:", error);
-    
-    if (error.message.includes("401") || error.message.includes("Token")) {
-      toast.error("Sesión expirada. Por favor inicia sesión nuevamente.");
-      navigate("/login");
-    } else {
-      toast.error(
-        error.message || "Error al conectar con el servicio de pago"
-      );
-    }
-  } finally {
-    setIsProcessing(false);
-  }
-}, [carrito, appliedDiscount, navigate, token]);
+        // Información del Pago simplificada para pruebas locales
+        const paymentMode = "PRUEBAS (FORZADO)";
+
+        console.log("\n🎯 Información del Pago:");
+        console.log("- Modo:", paymentMode);
+        console.log("- URL de pago (Sandbox):", initPoint);
+        console.log("- Preference ID:", responseData.id);
+        console.log("- Total:", responseData.total);
+        console.log("⚠️ MODO PRUEBAS (FORZADO):");
+        console.log("  - Usar tarjetas de prueba de Mercado Pago");
+        console.log("  - Los pagos NO son reales");
+
+        if (responseData.success) {
+          const toastMessage = "Redirigiendo a Mercado Pago (Modo Pruebas)...";
+
+          toast.info(toastMessage, {
+            autoClose: 2000,
+          });
+
+          // Pequeño delay para que se vea el toast
+          setTimeout(() => {
+            console.log("🚀 Redirigiendo a:", initPoint);
+            window.location.href = initPoint;
+          }, 1000);
+
+          return;
+        } else {
+          throw new Error(
+            responseData.message || "No se pudo crear la URL de pago",
+          );
+        }
+      } catch (error) {
+        console.error("❌ Error creating order:", error);
+
+        if (error.message.includes("401") || error.message.includes("Token")) {
+          toast.error("Sesión expirada. Por favor inicia sesión nuevamente.");
+          navigate("/login");
+        } else {
+          toast.error(
+            error.message || "Error al conectar con el servicio de pago",
+          );
+        }
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    [carrito, appliedDiscount, navigate, token],
+  );
 
   const formatPrecio = (price) => {
     const numericPrice =
@@ -290,7 +339,7 @@ const onSubmit = useCallback(async (data) => {
                       parseFloat(
                         product.precioFinal ||
                           product.precioRegular ||
-                          product.precio
+                          product.precio,
                       ) || 0;
                     const total = price * product.cantidad;
 
@@ -330,24 +379,48 @@ const onSubmit = useCallback(async (data) => {
                     <FiTag className="w-4 h-4 mr-1 text-primary-600" />
                     Cupón de descuento
                   </label>
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      placeholder="Ingresar cupón"
-                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-                      value={discountCode}
-                      onChange={(e) => setDiscountCode(e.target.value)}
-                      onKeyPress={(e) =>
-                        e.key === "Enter" && handleApplyDiscount()
-                      }
-                    />
-                    <button
-                      onClick={handleApplyDiscount}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors text-sm"
-                    >
-                      Aplicar
-                    </button>
-                  </div>
+
+                  {appliedCouponCode ? (
+                    // Cupón aplicado - mostrar con botón para remover
+                    <div className="flex space-x-2">
+                      <div className="flex-1 px-3 py-2 bg-green-50 border-2 border-green-500 rounded-lg flex items-center justify-between">
+                        <span className="text-green-700 font-medium text-sm">
+                          {appliedCouponCode} aplicado
+                        </span>
+                        <span className="text-green-600 font-semibold text-sm">
+                          - {formatPrice(appliedDiscount)}
+                        </span>
+                      </div>
+                      <button
+                        onClick={handleRemoveDiscount}
+                        className="px-4 py-2 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition-colors text-sm"
+                        title="Quitar cupón"
+                      >
+                        Quitar
+                      </button>
+                    </div>
+                  ) : (
+                    // Sin cupón - mostrar input y botón aplicar
+                    <div className="flex space-x-2">
+                      <input
+                        type="text"
+                        placeholder="Ingresar cupón"
+                        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                        value={discountCode}
+                        onChange={(e) => setDiscountCode(e.target.value)}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && handleApplyDiscount()
+                        }
+                      />
+                      <button
+                        onClick={handleApplyDiscount}
+                        className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                      >
+                        Aplicar
+                      </button>
+                    </div>
+                  )}
+
                   {discountCode.toUpperCase() === "PIXEL2025" &&
                     !appliedDiscount && (
                       <p className="text-green-600 text-xs mt-1">

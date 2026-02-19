@@ -1,6 +1,10 @@
 const carritoRepository = require("../repositories/CarritoRepository");
 const productosRepository = require("../repositories/ProductosRepository");
-const { NotFoundError, ValidationError, ConflictError } = require("../errors");
+const {
+  createNotFoundError,
+  createValidationError,
+  createConflictError,
+} = require("../errors");
 
 /**
  * Servicio para la lógica de negocio del carrito de compras
@@ -28,17 +32,17 @@ const agregarProducto = async (idCliente, idProducto, cantidad = 1) => {
   // Validar cantidad
   const cantidadInt = parseInt(cantidad);
   if (isNaN(cantidadInt) || cantidadInt < 1) {
-    throw new ValidationError("La cantidad debe ser un número mayor a 0");
+    throw createValidationError("La cantidad debe ser un número mayor a 0");
   }
 
   // Verificar que el producto existe y está activo
   const producto = await productosRepository.findByIdWithOfertas(idProducto);
   if (!producto) {
-    throw new NotFoundError("Producto no encontrado");
+    throw createNotFoundError("Producto no encontrado");
   }
 
   if (!producto.activo) {
-    throw new ConflictError("El producto no está disponible");
+    throw createConflictError("El producto no está disponible");
   }
 
   // Verificar stock disponible
@@ -49,7 +53,7 @@ const agregarProducto = async (idCliente, idProducto, cantidad = 1) => {
   const cantidadTotal = cantidadActualEnCarrito + cantidadInt;
 
   if (cantidadTotal > producto.stock) {
-    throw new ConflictError(
+    throw createConflictError(
       `Stock insuficiente. Disponible: ${producto.stock}, En carrito: ${cantidadActualEnCarrito}`,
     );
   }
@@ -93,13 +97,13 @@ const incrementarCantidad = async (idCliente, idProducto) => {
   // Verificar que el item existe en el carrito
   const itemExiste = await carritoRepository.existsItem(idCliente, idProducto);
   if (!itemExiste) {
-    throw new NotFoundError("Producto no encontrado en el carrito");
+    throw createNotFoundError("Producto no encontrado en el carrito");
   }
 
   // Verificar stock disponible
   const producto = await productosRepository.findByIdWithOfertas(idProducto);
   if (!producto) {
-    throw new NotFoundError("Producto no encontrado");
+    throw createNotFoundError("Producto no encontrado");
   }
 
   const cantidadActual = await carritoRepository.getItemQuantity(
@@ -109,7 +113,7 @@ const incrementarCantidad = async (idCliente, idProducto) => {
   const cantidadNueva = cantidadActual + 1;
 
   if (cantidadNueva > producto.stock) {
-    throw new ConflictError(
+    throw createConflictError(
       `No se puede incrementar. Stock máximo: ${producto.stock}`,
     );
   }
@@ -132,7 +136,7 @@ const decrementarCantidad = async (idCliente, idProducto) => {
   // Verificar que el item existe en el carrito
   const itemExiste = await carritoRepository.existsItem(idCliente, idProducto);
   if (!itemExiste) {
-    throw new NotFoundError("Producto no encontrado en el carrito");
+    throw createNotFoundError("Producto no encontrado en el carrito");
   }
 
   await carritoRepository.decrementQuantity(idCliente, idProducto);
@@ -158,13 +162,13 @@ const eliminarProducto = async (idCliente, idProducto) => {
   // Verificar que el item existe
   const itemExiste = await carritoRepository.existsItem(idCliente, idProducto);
   if (!itemExiste) {
-    throw new NotFoundError("Producto no encontrado en el carrito");
+    throw createNotFoundError("Producto no encontrado en el carrito");
   }
 
   const result = await carritoRepository.deleteItem(idCliente, idProducto);
 
   if (result.affectedRows === 0) {
-    throw new NotFoundError("No se pudo eliminar el producto del carrito");
+    throw createNotFoundError("No se pudo eliminar el producto del carrito");
   }
 
   return {

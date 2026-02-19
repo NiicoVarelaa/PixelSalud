@@ -1,30 +1,69 @@
 const mercadoPagoService = require("../services/MercadoPagoService");
+const cuponesService = require("../services/CuponesService");
 
 /**
  * Crea una nueva orden de compra en MercadoPago
  */
 const createOrder = async (req, res, next) => {
   try {
-    const { products, customer_info, discount } = req.body;
+    const { products, customer_info, discount, codigoCupon } = req.body;
     const userId = req.user.id;
 
     console.log("\n=== NUEVA ORDEN DE COMPRA ===");
     console.log("Usuario ID:", userId);
     console.log("Productos:", products?.length || 0);
     console.log("Cliente:", customer_info?.email);
+    console.log("Cupón:", codigoCupon || "Sin cupón");
+
+    let descuentoFinal = discount || 0;
+    let cuponAplicado = null;
+
+    if (codigoCupon) {
+      const subtotal = products.reduce(
+        (sum, p) => sum + p.unit_price * p.quantity,
+        0,
+      );
+
+      const validacion = await cuponesService.validarYCalcularDescuento(
+        codigoCupon.toUpperCase(),
+        userId,
+        subtotal,
+      );
+
+      if (!validacion.valido) {
+        return res.status(400).json({
+          success: false,
+          message: validacion.mensaje,
+        });
+      }
+
+      descuentoFinal = validacion.descuento;
+      cuponAplicado = validacion.cupon;
+
+      console.log(`✅ Cupón ${codigoCupon} aplicado: -$${descuentoFinal}`);
+    }
 
     const result = await mercadoPagoService.createOrder({
       products,
       customer_info,
-      discount,
+      discount: descuentoFinal,
       userId,
+      cuponAplicado, // Pasar info del cupón para guardarlo después
     });
 
     console.log("✅ Orden creada exitosamente");
     console.log("Preference ID:", result.id);
     console.log("Venta ID:", result.idVentaO);
 
-    res.json(result);
+    res.json({
+      ...result,
+      cuponAplicado: cuponAplicado
+        ? {
+            codigo: cuponAplicado.codigo,
+            descuento: descuentoFinal,
+          }
+        : null,
+    });
   } catch (error) {
     console.error("❌ Error creando orden:", error.message);
     next(error);

@@ -1,6 +1,10 @@
 const ofertasRepository = require("../repositories/OfertasRepository");
 const productosRepository = require("../repositories/ProductosRepository");
-const { NotFoundError, ValidationError, ConflictError } = require("../errors");
+const {
+  createNotFoundError,
+  createValidationError,
+  createConflictError,
+} = require("../errors");
 
 /**
  * Service para la lógica de negocio de Ofertas
@@ -24,7 +28,7 @@ const obtenerOfertaPorId = async (idOferta) => {
   const oferta = await ofertasRepository.findByIdWithProducto(idOferta);
 
   if (!oferta) {
-    throw new NotFoundError("Oferta no encontrada");
+    throw createNotFoundError("Oferta no encontrada");
   }
 
   return oferta;
@@ -42,7 +46,7 @@ const crearOferta = async (data) => {
 
   // Validaciones de negocio
   if (porcentajeDescuento < 0 || porcentajeDescuento > 100) {
-    throw new ValidationError(
+    throw createValidationError(
       "El porcentaje de descuento debe estar entre 0 y 100",
     );
   }
@@ -51,7 +55,7 @@ const crearOferta = async (data) => {
   const fechaFinDate = new Date(fechaFin);
 
   if (fechaFinDate <= fechaInicioDate) {
-    throw new ValidationError(
+    throw createValidationError(
       "La fecha de fin debe ser posterior a la fecha de inicio",
     );
   }
@@ -59,13 +63,13 @@ const crearOferta = async (data) => {
   // Verificar que el producto existe
   const producto = await productosRepository.findById(idProducto, "idProducto");
   if (!producto) {
-    throw new NotFoundError("Producto no encontrado");
+    throw createNotFoundError("Producto no encontrado");
   }
 
   // Verificar si ya tiene una oferta activa
   const tieneOferta = await ofertasRepository.hasActiveOferta(idProducto);
   if (tieneOferta) {
-    throw new ConflictError("El producto ya tiene una oferta activa");
+    throw createConflictError("El producto ya tiene una oferta activa");
   }
 
   const ofertaData = {
@@ -91,7 +95,7 @@ const crearOferta = async (data) => {
 const actualizarOferta = async (idOferta, data) => {
   const existe = await ofertasRepository.findById(idOferta);
   if (!existe) {
-    throw new NotFoundError("Oferta no encontrada");
+    throw createNotFoundError("Oferta no encontrada");
   }
 
   // Validaciones
@@ -99,7 +103,7 @@ const actualizarOferta = async (idOferta, data) => {
     data.porcentajeDescuento !== undefined &&
     (data.porcentajeDescuento < 0 || data.porcentajeDescuento > 100)
   ) {
-    throw new ValidationError(
+    throw createValidationError(
       "El porcentaje de descuento debe estar entre 0 y 100",
     );
   }
@@ -109,7 +113,7 @@ const actualizarOferta = async (idOferta, data) => {
     const fechaFinDate = new Date(data.fechaFin);
 
     if (fechaFinDate <= fechaInicioDate) {
-      throw new ValidationError(
+      throw createValidationError(
         "La fecha de fin debe ser posterior a la fecha de inicio",
       );
     }
@@ -134,7 +138,7 @@ const actualizarOferta = async (idOferta, data) => {
 const actualizarEstadoOferta = async (idOferta, esActiva) => {
   const existe = await ofertasRepository.findById(idOferta);
   if (!existe) {
-    throw new NotFoundError("Oferta no encontrada");
+    throw createNotFoundError("Oferta no encontrada");
   }
 
   return await ofertasRepository.updateEsActiva(idOferta, esActiva);
@@ -149,7 +153,7 @@ const actualizarEstadoOferta = async (idOferta, esActiva) => {
 const eliminarOferta = async (idOferta) => {
   const existe = await ofertasRepository.findById(idOferta);
   if (!existe) {
-    throw new NotFoundError("Oferta no encontrada");
+    throw createNotFoundError("Oferta no encontrada");
   }
 
   return await ofertasRepository.delete(idOferta);
@@ -169,11 +173,11 @@ const crearOfertasMasivas = async (
   fechaFin = "2026-12-31 23:59:59",
 ) => {
   if (!Array.isArray(productIds) || productIds.length === 0) {
-    throw new ValidationError("Se requiere al menos un ID de producto");
+    throw createValidationError("Se requiere al menos un ID de producto");
   }
 
   if (porcentajeDescuento < 0 || porcentajeDescuento > 100) {
-    throw new ValidationError(
+    throw createValidationError(
       "El porcentaje de descuento debe estar entre 0 y 100",
     );
   }

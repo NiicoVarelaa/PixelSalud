@@ -1,4 +1,4 @@
-const { AppError } = require("../errors");
+const { createAppError } = require("../errors");
 const { z } = require("zod");
 
 /**
@@ -73,8 +73,8 @@ const errorHandler = (err, req, res, next) => {
     error.message = "Token expirado";
   }
 
-  // Si es un error operacional conocido (AppError)
-  if (err instanceof AppError) {
+  // Si es un error operacional conocido (tiene statusCode)
+  if (err.statusCode && err.isOperational) {
     return res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
@@ -99,7 +99,7 @@ const errorHandler = (err, req, res, next) => {
  * Debe ir antes del errorHandler
  */
 const notFoundHandler = (req, res, next) => {
-  const error = new AppError(
+  const error = createAppError(
     `Ruta no encontrada: ${req.method} ${req.originalUrl}`,
     404,
   );

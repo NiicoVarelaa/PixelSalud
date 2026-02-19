@@ -2,8 +2,9 @@ const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
 const crypto = require("crypto");
 const mercadoPagoRepository = require("../repositories/MercadoPagoRepository");
 const clientesRepository = require("../repositories/ClientesRepository");
+const cuponesRepository = require("../repositories/CuponesRepository");
 const { enviarConfirmacionCompra } = require("../helps/EnvioMail");
-const { ValidationError, NotFoundError } = require("../errors");
+const { createValidationError, createNotFoundError } = require("../errors");
 const { withTransaction } = require("../utils/transaction");
 
 // Configuración del cliente de Mercado Pago
@@ -31,14 +32,17 @@ const createOrder = async ({
   customer_info,
   discount = 0,
   userId,
+  cuponAplicado = null,
 }) => {
   // Validaciones
   if (!products || products.length === 0) {
-    throw new ValidationError("No se proporcionaron productos para la compra");
+    throw createValidationError(
+      "No se proporcionaron productos para la compra",
+    );
   }
 
   if (!customer_info || !customer_info.email) {
-    throw new ValidationError("Información del cliente incompleta");
+    throw createValidationError("Información del cliente incompleta");
   }
 
   // Limpiar y validar URLs
@@ -59,7 +63,7 @@ const createOrder = async ({
   const dbProducts = await mercadoPagoRepository.getProductsByIds(productIds);
 
   if (dbProducts.length !== products.length) {
-    throw new ValidationError("Algunos productos no fueron encontrados");
+    throw createValidationError("Algunos productos no fueron encontrados");
   }
 
   // Verificar stock disponible
@@ -76,7 +80,7 @@ const createOrder = async ({
   });
 
   if (stockErrors.length > 0) {
-    throw new ValidationError("Stock insuficiente para algunos productos", {
+    throw createValidationError("Stock insuficiente para algunos productos", {
       errors: stockErrors,
     });
   }
@@ -167,6 +171,7 @@ const createOrder = async ({
     totalPago: total,
     estado: "pendiente",
     externalReference: externalReference,
+    idCuponAplicado: cuponAplicado?.idCupon || null,
   });
 
   // Crear detalles de la venta
@@ -459,6 +464,19 @@ const updatePaymentInDatabase = async (paymentDetails) => {
         console.log(
           `🗑️ Carrito del cliente ${venta.idCliente} limpiado exitosamente`,
         );
+
+        // 5. Registrar uso de cupón si fue aplicado
+        if (venta.idCuponAplicado) {
+          const montoOriginal = venta.totalPago;
+          await cuponesRepository.aplicarCuponTx(connection, {
+            idCupon: venta.idCuponAplicado,
+            idCliente: venta.idCliente,
+            idVentaO: venta.idVentaO,
+            montoDescuento: 0,
+            montoOriginal: montoOriginal,
+            montoFinal: venta.totalPago,
+          });
+        }
 
         // Si llegamos aquí, todas las operaciones fueron exitosas
         // withTransaction hará COMMIT automáticamente

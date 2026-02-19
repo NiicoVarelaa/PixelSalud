@@ -3,10 +3,20 @@
  * A medida que agregues nuevos schemas, impórtalos aquí
  */
 module.exports = {
-  productoSchemas: require("./ProductoSchemas"),
-  carritoSchemas: require("./CarritoSchemas"),
-  clienteSchemas: require("./ClienteSchemas"),
-  empleadoSchemas: require("./EmpleadoSchemas"),
-  favoritoSchemas: require("./FavoritoSchemas"),
-  // authSchemas: require('./authSchemas'),         // Ejemplo
+  AuthSchemas: require("./AuthSchemas"),
+  CampanasSchemas: require("./CampanasSchemas"),
+  CarritoSchemas: require("./CarritoSchemas"),
+  ClienteSchemas: require("./ClienteSchemas"),
+  EmpleadoSchemas: require("./EmpleadoSchemas"),
+  FavoritoSchemas: require("./FavoritoSchemas"),
+  MedicoSchemas: require("./MedicoSchemas"),
+  MensajeSchemas: require("./MensajeSchemas"),
+  MercadoPagoSchemas: require("./MercadoPagoSchemas"),
+  OfertasSchemas: require("./OfertasSchemas"),
+  PermisoSchemas: require("./PermisoSchemas"),
+  ProductoSchemas: require("./ProductoSchemas"),
+  RecetaSchemas: require("./RecetaSchemas"),
+  ReporteSchemas: require("./ReporteSchemas"),
+  VentaEmpleadoSchemas: require("./VentaEmpleadoSchemas"),
+  VentaOnlineSchemas: require("./VentaOnlineSchemas"),
 };

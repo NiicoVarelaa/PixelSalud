@@ -1,6 +1,6 @@
 const mensajesRepository = require("../repositories/MensajesRepository");
 const { enviarConfirmacionCliente } = require("../helps/EnvioMail");
-const { NotFoundError, ValidationError } = require("../errors");
+const { createNotFoundError, createValidationError } = require("../errors");
 
 /**
  * Obtiene todos los mensajes
@@ -20,7 +20,7 @@ const obtenerMensajePorId = async (idMensaje) => {
   const mensaje = await mensajesRepository.findById(idMensaje);
 
   if (!mensaje) {
-    throw new NotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
+    throw createNotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
   }
 
   return mensaje;
@@ -45,7 +45,7 @@ const obtenerMensajesPorCliente = async (idCliente) => {
   // Verificar que el cliente existe
   const clienteExists = await mensajesRepository.existsCliente(idCliente);
   if (!clienteExists) {
-    throw new NotFoundError(`Cliente con ID ${idCliente} no encontrado`);
+    throw createNotFoundError(`Cliente con ID ${idCliente} no encontrado`);
   }
 
   const mensajes = await mensajesRepository.findByClienteId(idCliente);
@@ -67,7 +67,7 @@ const crearMensaje = async ({
 }) => {
   // Validaciones
   if (!idCliente || !nombre || !email || !mensaje) {
-    throw new ValidationError(
+    throw createValidationError(
       "Faltan datos obligatorios (idCliente, nombre, email, mensaje)",
     );
   }
@@ -77,7 +77,7 @@ const crearMensaje = async ({
     mensaje.trim().length < 10 ||
     mensaje.trim().length > 1000
   ) {
-    throw new ValidationError(
+    throw createValidationError(
       "El mensaje debe tener entre 10 y 1000 caracteres",
     );
   }
@@ -85,7 +85,7 @@ const crearMensaje = async ({
   // Verificar que el cliente existe
   const clienteExists = await mensajesRepository.existsCliente(idCliente);
   if (!clienteExists) {
-    throw new NotFoundError(`Cliente con ID ${idCliente} no encontrado`);
+    throw createNotFoundError(`Cliente con ID ${idCliente} no encontrado`);
   }
 
   // Asignar asunto por defecto si no se proporciona
@@ -123,7 +123,7 @@ const actualizarEstado = async (idMensaje, estado) => {
   // Verificar que el mensaje existe
   const mensaje = await mensajesRepository.findById(idMensaje);
   if (!mensaje) {
-    throw new NotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
+    throw createNotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
   }
 
   // Actualizar estado
@@ -143,7 +143,7 @@ const eliminarMensaje = async (idMensaje) => {
   // Verificar que el mensaje existe
   const mensaje = await mensajesRepository.findById(idMensaje);
   if (!mensaje) {
-    throw new NotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
+    throw createNotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
   }
 
   // Eliminar mensaje
@@ -151,6 +151,63 @@ const eliminarMensaje = async (idMensaje) => {
 
   return {
     message: "Mensaje eliminado correctamente",
+  };
+};
+
+/**
+ * Marca un mensaje como leído
+ * @param {number} idMensaje - ID del mensaje
+ * @returns {Promise<Object>}
+ */
+const marcarComoLeido = async (idMensaje) => {
+  // Verificar que el mensaje existe
+  const mensaje = await mensajesRepository.findById(idMensaje);
+  if (!mensaje) {
+    throw createNotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
+  }
+
+  // Marcar como leído
+  await mensajesRepository.markAsRead(idMensaje);
+
+  return {
+    message: "Mensaje marcado como leído",
+  };
+};
+
+/**
+ * Responde a un mensaje
+ * @param {number} idMensaje - ID del mensaje
+ * @param {string} respuesta - Texto de la respuesta
+ * @param {string} respondidoPor - Nombre del admin que responde
+ * @returns {Promise<Object>}
+ */
+const responderMensaje = async (idMensaje, respuesta, respondidoPor) => {
+  // Verificar que el mensaje existe
+  const mensaje = await mensajesRepository.findById(idMensaje);
+  if (!mensaje) {
+    throw createNotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
+  }
+
+  // Validar respuesta
+  if (
+    !respuesta ||
+    typeof respuesta !== "string" ||
+    respuesta.trim().length < 5
+  ) {
+    throw createValidationError(
+      "La respuesta debe tener al menos 5 caracteres",
+    );
+  }
+
+  // Responder mensaje
+  await mensajesRepository.responder(
+    idMensaje,
+    respuesta.trim(),
+    respondidoPor,
+  );
+
+  return {
+    message: "Mensaje respondido correctamente",
   };
 };
 
@@ -162,4 +219,6 @@ module.exports = {
   crearMensaje,
   actualizarEstado,
   eliminarMensaje,
+  marcarComoLeido,
+  responderMensaje,
 };
