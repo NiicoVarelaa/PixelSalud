@@ -6,6 +6,7 @@ import {
   DollarSign,
   MessageSquare,
   FileSpreadsheet,
+  Tag,
 } from "lucide-react";
 
 const AdminMenu = () => {
@@ -44,6 +45,13 @@ const AdminMenu = () => {
       icono: <FileSpreadsheet size={40} className="text-indigo-600" />,
       colorBg: "bg-indigo-100",
       desc: "Informes exportables",
+    },
+    {
+      titulo: "Cupones",
+      ruta: "/admin/cupones",
+      icono: <Tag size={40} className="text-pink-600" />,
+      colorBg: "bg-pink-100",
+      desc: "Gestión de descuentos",
     },
     {
       titulo: "Mensajes",

@@ -165,8 +165,113 @@ async function enviarConfirmacionCompra(
   await transporter.sendMail(mailOptions);
 }
 
+/**
+ * Envía un email con el cupón de bienvenida
+ * @param {string} to - Email del cliente
+ * @param {string} nombre - Nombre del cliente
+ * @param {string} codigoCupon - Código del cupón
+ * @param {number} valorDescuento - Porcentaje de descuento
+ * @param {string} fechaVencimiento - Fecha de vencimiento
+ */
+async function enviarCuponBienvenida(
+  to,
+  nombre,
+  codigoCupon,
+  valorDescuento,
+  fechaVencimiento,
+) {
+  const fechaFormateada = new Date(fechaVencimiento).toLocaleDateString(
+    "es-AR",
+    {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    },
+  );
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM || "PixelSalud <no-reply@pixelsalud.com>",
+    to,
+    subject: `🎁 ¡Bienvenido a PixelSalud! Tu cupón de ${valorDescuento}% OFF te espera`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+        <h1 style="color: #16a34a; border-bottom: 3px solid #16a34a; padding-bottom: 10px;">
+          ¡Bienvenido/a a PixelSalud! 🎉
+        </h1>
+        
+        <p style="font-size: 16px;">Hola <b>${nombre}</b>,</p>
+        
+        <p>¡Nos encanta tenerte con nosotros! Como regalo de bienvenida, queremos ofrecerte un descuento especial en tu primera compra:</p>
+        
+        <div style="background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%); padding: 30px; border-radius: 15px; margin: 30px 0; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <p style="color: white; font-size: 18px; margin: 0 0 15px 0; font-weight: 600;">TU CUPÓN DE DESCUENTO</p>
+          
+          <div style="background-color: white; padding: 20px; border-radius: 10px; display: inline-block; margin: 15px 0;">
+            <p style="margin: 0; color: #16a34a; font-size: 32px; font-weight: bold; letter-spacing: 3px; font-family: 'Courier New', monospace;">
+              ${codigoCupon}
+            </p>
+          </div>
+          
+          <p style="color: white; font-size: 28px; margin: 15px 0 0 0; font-weight: bold;">
+            ${valorDescuento}% OFF
+          </p>
+          <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">
+            en tu primera compra
+          </p>
+        </div>
+
+        <div style="background-color: #f0fdf4; padding: 20px; border-radius: 10px; margin: 25px 0; border-left: 4px solid #16a34a;">
+          <h3 style="color: #16a34a; margin-top: 0;">📋 Cómo usar tu cupón:</h3>
+          <ol style="color: #333; line-height: 1.8; margin-bottom: 0;">
+            <li>Agrega productos a tu carrito</li>
+            <li>Ve al checkout</li>
+            <li>Ingresa el código <b>${codigoCupon}</b></li>
+            <li>¡Disfruta tu descuento!</li>
+          </ol>
+        </div>
+
+        <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin: 25px 0; text-align: center;">
+          <p style="margin: 0; color: #92400e; font-size: 14px;">
+            ⏰ <b>Válido hasta:</b> ${fechaFormateada}
+          </p>
+        </div>
+
+        <div style="text-align: center; margin: 35px 0;">
+          <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}" 
+             style="background-color: #16a34a; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            Comenzar a Comprar
+          </a>
+        </div>
+
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 30px 0;">
+          <h3 style="color: #16a34a; margin-top: 0; font-size: 16px;">✨ ¿Por qué elegirnos?</h3>
+          <ul style="color: #666; line-height: 1.8; margin-bottom: 0;">
+            <li>🚀 Envío rápido y seguro</li>
+            <li>💳 Pagos seguros con MercadoPago</li>
+            <li>🏥 Productos farmacéuticos de calidad</li>
+            <li>💚 Atención personalizada</li>
+          </ul>
+        </div>
+
+        <p style="color: #666; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+          Este es un mensaje automático, por favor no responder.<br>
+          Si tenés consultas, contactanos a través de nuestro sitio web.
+        </p>
+        
+        <div style="text-align: center; margin-top: 30px;">
+          <p style="color: #16a34a; font-weight: bold; font-size: 18px;">¡Que disfrutes tu compra! ❤️</p>
+          <p style="color: #666; font-size: 14px;">Equipo de PixelSalud</p>
+        </div>
+      </div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
 module.exports = {
   enviarConfirmacionCliente,
   enviarCorreoRecuperacion,
   enviarConfirmacionCompra,
+  enviarCuponBienvenida,
 };

@@ -7,6 +7,7 @@ module.exports = {
   OfertasRepository: require("./OfertasRepository"),
   CarritoRepository: require("./CarritoRepository"),
   ClientesRepository: require("./ClientesRepository"),
+  CuponesRepository: require("./CuponesRepository"),
   EmpleadosRepository: require("./EmpleadosRepository"),
   FavoritosRepository: require("./FavoritosRepository"),
   CampanasRepository: require("./CampanasRepository"),

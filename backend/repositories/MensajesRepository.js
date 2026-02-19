@@ -6,7 +6,7 @@ const { pool } = require("../config/database");
  */
 const findAll = async () => {
   const [rows] = await pool.query(
-    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado 
+    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
      FROM MensajesClientes 
      ORDER BY fechaEnvio DESC`,
   );
@@ -20,7 +20,7 @@ const findAll = async () => {
  */
 const findById = async (idMensaje) => {
   const [rows] = await pool.query(
-    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado 
+    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
      FROM MensajesClientes 
      WHERE idMensaje = ?`,
     [idMensaje],
@@ -35,7 +35,7 @@ const findById = async (idMensaje) => {
  */
 const findByEstado = async (estado) => {
   const [rows] = await pool.query(
-    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado 
+    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
      FROM MensajesClientes 
      WHERE estado = ? 
      ORDER BY fechaEnvio DESC`,
@@ -51,7 +51,7 @@ const findByEstado = async (estado) => {
  */
 const findByClienteId = async (idCliente) => {
   const [rows] = await pool.query(
-    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado 
+    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
      FROM MensajesClientes 
      WHERE idCliente = ? 
      ORDER BY fechaEnvio DESC`,
@@ -118,6 +118,38 @@ const deleteById = async (idMensaje) => {
 };
 
 /**
+ * Marca un mensaje como leído
+ * @param {number} idMensaje - ID del mensaje
+ * @returns {Promise<boolean>} - true si se actualizó correctamente
+ */
+const markAsRead = async (idMensaje) => {
+  const [result] = await pool.query(
+    `UPDATE MensajesClientes 
+     SET leido = 1 
+     WHERE idMensaje = ?`,
+    [idMensaje],
+  );
+  return result.affectedRows > 0;
+};
+
+/**
+ * Responde a un mensaje
+ * @param {number} idMensaje - ID del mensaje
+ * @param {string} respuesta - Texto de la respuesta
+ * @param {string} respondidoPor - Nombre del admin que responde
+ * @returns {Promise<boolean>} - true si se actualizó correctamente
+ */
+const responder = async (idMensaje, respuesta, respondidoPor) => {
+  const [result] = await pool.query(
+    `UPDATE MensajesClientes 
+     SET respuesta = ?, fechaRespuesta = NOW(), respondidoPor = ?, estado = 'respondido', leido = 1 
+     WHERE idMensaje = ?`,
+    [respuesta, respondidoPor, idMensaje],
+  );
+  return result.affectedRows > 0;
+};
+
+/**
  * Verifica si existe un cliente
  * @param {number} idCliente - ID del cliente
  * @returns {Promise<boolean>}
@@ -138,5 +170,7 @@ module.exports = {
   create,
   updateEstado,
   deleteById,
+  markAsRead,
+  responder,
   existsCliente,
 };

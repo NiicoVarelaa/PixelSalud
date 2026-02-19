@@ -1,5 +1,5 @@
 const recetasRepository = require("../repositories/RecetasRepository");
-const { NotFoundError, ValidationError } = require("../errors");
+const { createNotFoundError, createValidationError } = require("../errors");
 
 /**
  * Obtiene todas las recetas de un médico específico
@@ -10,7 +10,7 @@ const obtenerRecetasPorMedico = async (idMedico) => {
   // Verificar que el médico existe
   const medicoExists = await recetasRepository.existsMedico(idMedico);
   if (!medicoExists) {
-    throw new NotFoundError(`Médico con ID ${idMedico} no encontrado`);
+    throw createNotFoundError(`Médico con ID ${idMedico} no encontrado`);
   }
 
   const recetas = await recetasRepository.findByMedicoId(idMedico);
@@ -37,7 +37,7 @@ const obtenerRecetasActivasCliente = async (dniCliente) => {
   // Verificar que el cliente existe
   const clienteExists = await recetasRepository.existsCliente(dniCliente);
   if (!clienteExists) {
-    throw new NotFoundError(`Cliente con DNI ${dniCliente} no encontrado`);
+    throw createNotFoundError(`Cliente con DNI ${dniCliente} no encontrado`);
   }
 
   const recetas = await recetasRepository.findActivasByClienteDni(dniCliente);
@@ -57,7 +57,7 @@ const obtenerRecetaPorId = async (idReceta) => {
   const receta = await recetasRepository.findById(idReceta);
 
   if (!receta) {
-    throw new NotFoundError(`Receta con ID ${idReceta} no encontrada`);
+    throw createNotFoundError(`Receta con ID ${idReceta} no encontrada`);
   }
 
   return {
@@ -77,19 +77,19 @@ const obtenerRecetaPorId = async (idReceta) => {
 const crearRecetas = async ({ dniCliente, idMedico, productos }) => {
   // Validar que hay productos
   if (!productos || productos.length === 0) {
-    throw new ValidationError("No hay productos en la receta");
+    throw createValidationError("No hay productos en la receta");
   }
 
   // Verificar que el cliente existe
   const clienteExists = await recetasRepository.existsCliente(dniCliente);
   if (!clienteExists) {
-    throw new ValidationError("El DNI del paciente no existe en el sistema");
+    throw createValidationError("El DNI del paciente no existe en el sistema");
   }
 
   // Verificar que el médico existe
   const medicoExists = await recetasRepository.existsMedico(idMedico);
   if (!medicoExists) {
-    throw new NotFoundError(`Médico con ID ${idMedico} no encontrado`);
+    throw createNotFoundError(`Médico con ID ${idMedico} no encontrado`);
   }
 
   // Verificar que todos los productos existen
@@ -98,14 +98,14 @@ const crearRecetas = async ({ dniCliente, idMedico, productos }) => {
       prod.idProducto,
     );
     if (!productoExists) {
-      throw new ValidationError(
+      throw createValidationError(
         `Producto con ID ${prod.idProducto} no encontrado`,
       );
     }
 
     // Validar cantidad
     if (!prod.cantidad || prod.cantidad <= 0) {
-      throw new ValidationError(
+      throw createValidationError(
         `La cantidad para el producto ${prod.idProducto} debe ser mayor a 0`,
       );
     }
@@ -139,17 +139,17 @@ const marcarRecetaUsada = async (idReceta) => {
   // Verificar que la receta existe
   const receta = await recetasRepository.findById(idReceta);
   if (!receta) {
-    throw new NotFoundError(`Receta con ID ${idReceta} no encontrada`);
+    throw createNotFoundError(`Receta con ID ${idReceta} no encontrada`);
   }
 
   // Verificar que no esté ya usada
   if (receta.usada) {
-    throw new ValidationError("La receta ya ha sido utilizada");
+    throw createValidationError("La receta ya ha sido utilizada");
   }
 
   // Verificar que esté activa
   if (!receta.activo) {
-    throw new ValidationError("La receta no está activa");
+    throw createValidationError("La receta no está activa");
   }
 
   await recetasRepository.marcarComoUsada(idReceta);
@@ -168,12 +168,12 @@ const darBajaReceta = async (idReceta) => {
   // Verificar que la receta existe
   const receta = await recetasRepository.findById(idReceta);
   if (!receta) {
-    throw new NotFoundError(`Receta con ID ${idReceta} no encontrada`);
+    throw createNotFoundError(`Receta con ID ${idReceta} no encontrada`);
   }
 
   // Verificar que no esté ya inactiva
   if (!receta.activo) {
-    throw new ValidationError("La receta ya está inactiva");
+    throw createValidationError("La receta ya está inactiva");
   }
 
   await recetasRepository.darBaja(idReceta);
@@ -192,12 +192,12 @@ const reactivarReceta = async (idReceta) => {
   // Verificar que la receta existe
   const receta = await recetasRepository.findById(idReceta);
   if (!receta) {
-    throw new NotFoundError(`Receta con ID ${idReceta} no encontrada`);
+    throw createNotFoundError(`Receta con ID ${idReceta} no encontrada`);
   }
 
   // Verificar que esté inactiva
   if (receta.activo) {
-    throw new ValidationError("La receta ya está activa");
+    throw createValidationError("La receta ya está activa");
   }
 
   await recetasRepository.reactivar(idReceta);

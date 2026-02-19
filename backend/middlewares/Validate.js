@@ -1,5 +1,5 @@
 const { z } = require("zod");
-const { ValidationError } = require("../errors");
+const { createValidationError } = require("../errors");
 
 /**
  * Middleware genérico para validar request con esquemas de Zod
@@ -36,7 +36,7 @@ const validate = (schema) => {
       if (error instanceof z.ZodError) {
         next(error);
       } else {
-        next(new ValidationError("Error de validación", error));
+        next(createValidationError("Error de validación", error));
       }
     }
   };

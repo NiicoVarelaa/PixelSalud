@@ -100,10 +100,28 @@ const createMensajeSchema = z.object({
 const updateEstadoMensajeSchema = z.object({
   params: idMensajeParamSchema.shape,
   body: z.object({
-    estado: z.enum(["nuevo", "leido", "respondido"], {
+    estado: z.enum(["nuevo", "en_proceso", "respondido", "cerrado"], {
       required_error: "El estado es requerido",
-      invalid_type_error: "El estado debe ser: nuevo, leido o respondido",
+      invalid_type_error:
+        "El estado debe ser: nuevo, en_proceso, respondido o cerrado",
     }),
+  }),
+});
+
+/**
+ * Schema para validar la respuesta a un mensaje
+ */
+const responderMensajeSchema = z.object({
+  params: idMensajeParamSchema.shape,
+  body: z.object({
+    respuesta: z
+      .string({
+        required_error: "La respuesta es requerida",
+        invalid_type_error: "La respuesta debe ser texto",
+      })
+      .min(5, "La respuesta debe tener al menos 5 caracteres")
+      .max(2000, "La respuesta no debe exceder 2000 caracteres")
+      .trim(),
   }),
 });
 
@@ -113,4 +131,5 @@ module.exports = {
   estadoParamSchema,
   createMensajeSchema,
   updateEstadoMensajeSchema,
+  responderMensajeSchema,
 };

@@ -1,5 +1,9 @@
 const clientesRepository = require("../repositories/ClientesRepository");
-const { NotFoundError, ValidationError, ConflictError } = require("../errors");
+const {
+  createNotFoundError,
+  createValidationError,
+  createConflictError,
+} = require("../errors");
 const bcryptjs = require("bcryptjs");
 const crypto = require("crypto");
 const { enviarCorreoRecuperacion } = require("../helps/EnvioMail");
@@ -25,7 +29,7 @@ const obtenerClientesInactivos = async () => {
   const clientes = await clientesRepository.findInactivos();
 
   if (clientes.length === 0) {
-    throw new NotFoundError("No hay clientes dados de baja");
+    throw createNotFoundError("No hay clientes dados de baja");
   }
 
   return clientes;
@@ -40,7 +44,7 @@ const obtenerClientePorId = async (idCliente) => {
   const cliente = await clientesRepository.findById(idCliente);
 
   if (!cliente) {
-    throw new NotFoundError("Cliente no encontrado");
+    throw createNotFoundError("Cliente no encontrado");
   }
 
   return cliente;
@@ -55,7 +59,7 @@ const buscarClientePorDNI = async (dni) => {
   const cliente = await clientesRepository.findByDNI(dni);
 
   if (!cliente) {
-    throw new NotFoundError("Paciente no encontrado");
+    throw createNotFoundError("Paciente no encontrado");
   }
 
   return cliente;
@@ -73,7 +77,7 @@ const crearCliente = async (clienteData) => {
   // Validar que el email sea único
   const emailExiste = await clientesRepository.existsByEmail(emailCliente);
   if (emailExiste) {
-    throw new ConflictError(
+    throw createConflictError(
       "El usuario que intentas crear, ya se encuentra creado",
     );
   }
@@ -107,7 +111,7 @@ const actualizarCliente = async (idCliente, updates) => {
   // Verificar que el cliente existe
   const clienteExiste = await clientesRepository.findById(idCliente);
   if (!clienteExiste) {
-    throw new NotFoundError("Cliente no encontrado");
+    throw createNotFoundError("Cliente no encontrado");
   }
 
   // Validar email único si se está actualizando
@@ -117,7 +121,7 @@ const actualizarCliente = async (idCliente, updates) => {
       idCliente,
     );
     if (emailEnUso) {
-      throw new ConflictError("El email ya está en uso por otro cliente");
+      throw createConflictError("El email ya está en uso por otro cliente");
     }
   }
 
@@ -143,7 +147,7 @@ const actualizarCliente = async (idCliente, updates) => {
   );
 
   if (!hayActualizaciones) {
-    throw new ValidationError("No se enviaron datos para actualizar");
+    throw createValidationError("No se enviaron datos para actualizar");
   }
 
   // Actualizar
@@ -163,7 +167,7 @@ const darBajaCliente = async (idCliente) => {
   const result = await clientesRepository.updateEstado(idCliente, false);
 
   if (result.affectedRows === 0) {
-    throw new NotFoundError("Cliente no encontrado");
+    throw createNotFoundError("Cliente no encontrado");
   }
 
   return {
@@ -180,7 +184,7 @@ const activarCliente = async (idCliente) => {
   const result = await clientesRepository.updateEstado(idCliente, true);
 
   if (result.affectedRows === 0) {
-    throw new NotFoundError("Cliente no encontrado");
+    throw createNotFoundError("Cliente no encontrado");
   }
 
   return {
@@ -199,7 +203,7 @@ const registrarPacienteExpress = async (pacienteData) => {
 
   // Validar campos obligatorios
   if (!nombre || !apellido || !dni || !email) {
-    throw new ValidationError("Todos los campos son obligatorios");
+    throw createValidationError("Todos los campos son obligatorios");
   }
 
   // Verificar duplicados
@@ -207,7 +211,7 @@ const registrarPacienteExpress = async (pacienteData) => {
   const dniExiste = await clientesRepository.existsByDNI(dni);
 
   if (emailExiste || dniExiste) {
-    throw new ConflictError(
+    throw createConflictError(
       "El DNI o Email ya están registrados en el sistema",
     );
   }
@@ -241,14 +245,14 @@ const registrarPacienteExpress = async (pacienteData) => {
  */
 const solicitarRecuperacion = async (email) => {
   if (!email) {
-    throw new ValidationError("El email es obligatorio");
+    throw createValidationError("El email es obligatorio");
   }
 
   // Buscar cliente por email
   const cliente = await clientesRepository.findByEmail(email);
 
   if (!cliente) {
-    throw new NotFoundError("No existe un usuario con este email");
+    throw createNotFoundError("No existe un usuario con este email");
   }
 
   // Generar token y fecha de expiración (1 hora)
@@ -278,14 +282,14 @@ const solicitarRecuperacion = async (email) => {
  */
 const restablecerPassword = async (token, nuevaPassword) => {
   if (!token || !nuevaPassword) {
-    throw new ValidationError("Datos incompletos");
+    throw createValidationError("Datos incompletos");
   }
 
   // Buscar cliente con token válido
   const cliente = await clientesRepository.findByValidToken(token);
 
   if (!cliente) {
-    throw new ValidationError("Token inválido o expirado");
+    throw createValidationError("Token inválido o expirado");
   }
 
   // Hash de la nueva contraseña

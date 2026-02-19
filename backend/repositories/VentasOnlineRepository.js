@@ -40,7 +40,6 @@ const findAll = async () => {
       v.horaPago, 
       v.metodoPago, 
       v.estado,
-      v.tipoEntrega,
       c.nombreCliente, 
       c.apellidoCliente, 
       c.dni,

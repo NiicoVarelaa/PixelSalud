@@ -1,5 +1,5 @@
 const ventasEmpleadosRepository = require("../repositories/VentasEmpleadosRepository");
-const { NotFoundError, ValidationError } = require("../errors");
+const { createNotFoundError, createValidationError } = require("../errors");
 
 /**
  * Obtiene todas las ventas de empleados
@@ -25,7 +25,7 @@ const obtenerVentasPorEmpleado = async (idEmpleado) => {
   const empleadoExists =
     await ventasEmpleadosRepository.existsEmpleado(idEmpleado);
   if (!empleadoExists) {
-    throw new NotFoundError(`Empleado con ID ${idEmpleado} no encontrado`);
+    throw createNotFoundError(`Empleado con ID ${idEmpleado} no encontrado`);
   }
 
   const ventas = await ventasEmpleadosRepository.findByEmpleadoId(idEmpleado);
@@ -47,7 +47,7 @@ const obtenerDetalleVenta = async (idVentaE) => {
     await ventasEmpleadosRepository.findDetallesByVentaId(idVentaE);
 
   if (!detalles || detalles.length === 0) {
-    throw new NotFoundError(
+    throw createNotFoundError(
       `No se encontraron detalles para la venta con ID ${idVentaE}`,
     );
   }
@@ -82,7 +82,7 @@ const obtenerVentaPorId = async (idVentaE) => {
   const venta = await ventasEmpleadosRepository.findByIdSimple(idVentaE);
 
   if (!venta) {
-    throw new NotFoundError(`Venta con ID ${idVentaE} no encontrada`);
+    throw createNotFoundError(`Venta con ID ${idVentaE} no encontrada`);
   }
 
   return venta;
@@ -97,7 +97,7 @@ const obtenerVentaCompleta = async (idVentaE) => {
   const venta = await ventasEmpleadosRepository.findById(idVentaE);
 
   if (!venta) {
-    throw new NotFoundError(`Venta con ID ${idVentaE} no encontrada`);
+    throw createNotFoundError(`Venta con ID ${idVentaE} no encontrada`);
   }
 
   return venta;
@@ -120,7 +120,7 @@ const registrarVenta = async ({
 }) => {
   // Validaciones básicas
   if (!idEmpleado || !productos || productos.length === 0) {
-    throw new ValidationError(
+    throw createValidationError(
       "Faltan datos obligatorios para registrar la venta",
     );
   }
@@ -129,7 +129,7 @@ const registrarVenta = async ({
   const empleadoExists =
     await ventasEmpleadosRepository.existsEmpleado(idEmpleado);
   if (!empleadoExists) {
-    throw new NotFoundError(`Empleado con ID ${idEmpleado} no encontrado`);
+    throw createNotFoundError(`Empleado con ID ${idEmpleado} no encontrado`);
   }
 
   // 1. Verificar stock de todos los productos
@@ -138,13 +138,13 @@ const registrarVenta = async ({
       await ventasEmpleadosRepository.getProductoStockYNombre(prod.idProducto);
 
     if (!productoData) {
-      throw new NotFoundError(
+      throw createNotFoundError(
         `Producto con ID ${prod.idProducto} no encontrado`,
       );
     }
 
     if (productoData.stock < prod.cantidad) {
-      throw new ValidationError(
+      throw createValidationError(
         `Stock insuficiente para: ${productoData.nombreProducto}. Disponible: ${productoData.stock}, Solicitado: ${prod.cantidad}`,
       );
     }
@@ -192,25 +192,25 @@ const actualizarVenta = async (
   { totalPago, metodoPago, productos, idEmpleado },
 ) => {
   if (!idVentaE || !productos || productos.length === 0) {
-    throw new ValidationError("Faltan datos para actualizar la venta");
+    throw createValidationError("Faltan datos para actualizar la venta");
   }
 
   // Verificar que la venta existe
   const venta = await ventasEmpleadosRepository.findByIdSimple(idVentaE);
   if (!venta) {
-    throw new NotFoundError(`Venta con ID ${idVentaE} no encontrada`);
+    throw createNotFoundError(`Venta con ID ${idVentaE} no encontrada`);
   }
 
   // Verificar que no esté anulada
   if (venta.estado === "anulada") {
-    throw new ValidationError("No se puede editar una venta anulada");
+    throw createValidationError("No se puede editar una venta anulada");
   }
 
   // Verificar que el empleado existe
   const empleadoExists =
     await ventasEmpleadosRepository.existsEmpleado(idEmpleado);
   if (!empleadoExists) {
-    throw new NotFoundError(`Empleado con ID ${idEmpleado} no encontrado`);
+    throw createNotFoundError(`Empleado con ID ${idEmpleado} no encontrado`);
   }
 
   // 1. Obtener detalles viejos para devolver stock
@@ -235,13 +235,13 @@ const actualizarVenta = async (
     );
 
     if (stock === null) {
-      throw new NotFoundError(
+      throw createNotFoundError(
         `Producto con ID ${prod.idProducto} no encontrado`,
       );
     }
 
     if (stock < prod.cantidad) {
-      throw new ValidationError(
+      throw createValidationError(
         `Stock insuficiente para producto ID ${prod.idProducto}. Disponible: ${stock}, Solicitado: ${prod.cantidad}`,
       );
     }
@@ -285,12 +285,12 @@ const anularVenta = async (idVentaE) => {
   // Verificar que la venta existe
   const venta = await ventasEmpleadosRepository.findByIdSimple(idVentaE);
   if (!venta) {
-    throw new NotFoundError(`Venta con ID ${idVentaE} no encontrada`);
+    throw createNotFoundError(`Venta con ID ${idVentaE} no encontrada`);
   }
 
   // Verificar que no esté ya anulada
   if (venta.estado === "anulada") {
-    throw new ValidationError("La venta ya está anulada");
+    throw createValidationError("La venta ya está anulada");
   }
 
   // 1. Obtener detalles para devolver stock
@@ -323,12 +323,12 @@ const reactivarVenta = async (idVentaE) => {
   // Verificar que la venta existe
   const venta = await ventasEmpleadosRepository.findByIdSimple(idVentaE);
   if (!venta) {
-    throw new NotFoundError(`Venta con ID ${idVentaE} no encontrada`);
+    throw createNotFoundError(`Venta con ID ${idVentaE} no encontrada`);
   }
 
   // Verificar que esté anulada
   if (venta.estado !== "anulada") {
-    throw new ValidationError("Solo se pueden reactivar ventas anuladas");
+    throw createValidationError("Solo se pueden reactivar ventas anuladas");
   }
 
   // 1. Obtener detalles para verificar y descontar stock
@@ -342,13 +342,13 @@ const reactivarVenta = async (idVentaE) => {
     );
 
     if (stock === null) {
-      throw new NotFoundError(
+      throw createNotFoundError(
         `Producto con ID ${det.idProducto} no encontrado`,
       );
     }
 
     if (stock < det.cantidad) {
-      throw new ValidationError(
+      throw createValidationError(
         `Stock insuficiente para reactivar (Producto ID: ${det.idProducto}). Disponible: ${stock}, Necesario: ${det.cantidad}`,
       );
     }

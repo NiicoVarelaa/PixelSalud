@@ -44,6 +44,7 @@ import AdminEmpleados from "./components/AdminEmpleados";
 import MenuVentas from "./components/MenuVentas";
 import AdminVentasE from "./components/AdminVentasE";
 import AdminReportes from "./components/AdminReportes";
+import AdminCupones from "./components/AdminCupones";
 
 // (Nota: AdminVentasO lo tenías importado pero no usado en rutas, lo omití para limpiar)
 
@@ -144,6 +145,7 @@ const App = () => {
             </Route> */}
 
             <Route path="reportes" element={<AdminReportes />} />
+            <Route path="cupones" element={<AdminCupones />} />
             <Route path="mensajes" element={<AdminMensajes />} />
           </Route>
         </Route>

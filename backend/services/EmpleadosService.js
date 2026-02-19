@@ -1,5 +1,9 @@
 const empleadosRepository = require("../repositories/EmpleadosRepository");
-const { NotFoundError, ValidationError, ConflictError } = require("../errors");
+const {
+  createNotFoundError,
+  createValidationError,
+  createConflictError,
+} = require("../errors");
 const bcryptjs = require("bcryptjs");
 
 /**
@@ -22,7 +26,7 @@ const obtenerEmpleadosInactivos = async () => {
   const empleados = await empleadosRepository.findInactivos();
 
   if (empleados.length === 0) {
-    throw new NotFoundError("No hay empleados dados de baja");
+    throw createNotFoundError("No hay empleados dados de baja");
   }
 
   return empleados;
@@ -37,7 +41,7 @@ const obtenerEmpleadoPorId = async (idEmpleado) => {
   const empleado = await empleadosRepository.findByIdWithPermisos(idEmpleado);
 
   if (!empleado) {
-    throw new NotFoundError("Empleado no encontrado");
+    throw createNotFoundError("Empleado no encontrado");
   }
 
   return empleado;
@@ -55,14 +59,14 @@ const crearEmpleado = async (empleadoData, permisos) => {
     empleadoData.emailEmpleado,
   );
   if (existeEmail) {
-    throw new ConflictError("El email ya está registrado");
+    throw createConflictError("El email ya está registrado");
   }
 
   const existeDNI = await empleadosRepository.findByDNI(
     empleadoData.dniEmpleado,
   );
   if (existeDNI) {
-    throw new ConflictError("El DNI ya está registrado");
+    throw createConflictError("El DNI ya está registrado");
   }
 
   // Hashear contraseña
@@ -102,7 +106,7 @@ const actualizarEmpleado = async (idEmpleado, empleadoData, permisos) => {
   const empleadoExiste =
     await empleadosRepository.findByIdWithPermisos(idEmpleado);
   if (!empleadoExiste) {
-    throw new NotFoundError("Empleado no encontrado");
+    throw createNotFoundError("Empleado no encontrado");
   }
 
   // Validar unicidad de email (si se está actualizando)
@@ -112,7 +116,7 @@ const actualizarEmpleado = async (idEmpleado, empleadoData, permisos) => {
       idEmpleado,
     );
     if (emailEnUso) {
-      throw new ConflictError("El email ya está en uso por otro empleado");
+      throw createConflictError("El email ya está en uso por otro empleado");
     }
   }
 
@@ -123,7 +127,7 @@ const actualizarEmpleado = async (idEmpleado, empleadoData, permisos) => {
       idEmpleado,
     );
     if (dniEnUso) {
-      throw new ConflictError("El DNI ya está en uso por otro empleado");
+      throw createConflictError("El DNI ya está en uso por otro empleado");
     }
   }
 
@@ -167,11 +171,11 @@ const darBajaEmpleado = async (idEmpleado) => {
   const empleado = await empleadosRepository.findByIdWithPermisos(idEmpleado);
 
   if (!empleado) {
-    throw new NotFoundError("Empleado no encontrado");
+    throw createNotFoundError("Empleado no encontrado");
   }
 
   if (!empleado.activo) {
-    throw new ValidationError("El empleado ya está dado de baja");
+    throw createValidationError("El empleado ya está dado de baja");
   }
 
   await empleadosRepository.updateEstado(idEmpleado, false);
@@ -186,11 +190,11 @@ const reactivarEmpleado = async (idEmpleado) => {
   const empleado = await empleadosRepository.findByIdWithPermisos(idEmpleado);
 
   if (!empleado) {
-    throw new NotFoundError("Empleado no encontrado");
+    throw createNotFoundError("Empleado no encontrado");
   }
 
   if (empleado.activo) {
-    throw new ValidationError("El empleado ya está activo");
+    throw createValidationError("El empleado ya está activo");
   }
 
   await empleadosRepository.updateEstado(idEmpleado, true);

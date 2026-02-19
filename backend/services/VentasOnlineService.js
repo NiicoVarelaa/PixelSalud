@@ -1,5 +1,5 @@
 const ventasOnlineRepository = require("../repositories/VentasOnlineRepository");
-const { NotFoundError, ValidationError } = require("../errors");
+const { createNotFoundError, createValidationError } = require("../errors");
 
 /**
  * Obtiene todas las ventas online de un cliente
@@ -44,7 +44,7 @@ const obtenerDetalleVenta = async (idVentaO) => {
   const detalles = await ventasOnlineRepository.findDetallesByVentaId(idVentaO);
 
   if (!detalles || detalles.length === 0) {
-    throw new NotFoundError(
+    throw createNotFoundError(
       `No se encontraron detalles para la venta con ID ${idVentaO}`,
     );
   }
@@ -77,7 +77,7 @@ const registrarVentaOnline = async ({
     productos.length === 0 ||
     !tipoEntrega
   ) {
-    throw new ValidationError(
+    throw createValidationError(
       "Faltan datos obligatorios para registrar la venta",
     );
   }
@@ -85,7 +85,7 @@ const registrarVentaOnline = async ({
   // Verificar que el cliente existe
   const clienteExists = await ventasOnlineRepository.existsCliente(idCliente);
   if (!clienteExists) {
-    throw new NotFoundError(`Cliente con ID ${idCliente} no encontrado`);
+    throw createNotFoundError(`Cliente con ID ${idCliente} no encontrado`);
   }
 
   // 1. Verificar stock de todos los productos
@@ -95,13 +95,13 @@ const registrarVentaOnline = async ({
     );
 
     if (stock === null) {
-      throw new NotFoundError(
+      throw createNotFoundError(
         `Producto con ID ${prod.idProducto} no encontrado`,
       );
     }
 
     if (stock < prod.cantidad) {
-      throw new ValidationError(
+      throw createValidationError(
         `Stock insuficiente del producto ID ${prod.idProducto}. Disponible: ${stock}, Solicitado: ${prod.cantidad}`,
       );
     }
@@ -111,7 +111,7 @@ const registrarVentaOnline = async ({
   let idDireccion = null;
   if (tipoEntrega === "Envio") {
     if (!direccionEnvio) {
-      throw new ValidationError(
+      throw createValidationError(
         "Se requiere dirección de envío para entregas tipo 'Envio'",
       );
     }
@@ -167,13 +167,13 @@ const registrarVentaOnline = async ({
  */
 const actualizarEstadoVenta = async (idVentaO, nuevoEstado) => {
   if (!idVentaO || !nuevoEstado) {
-    throw new ValidationError("Faltan datos para actualizar el estado");
+    throw createValidationError("Faltan datos para actualizar el estado");
   }
 
   // Verificar que la venta existe
   const venta = await ventasOnlineRepository.findById(idVentaO);
   if (!venta) {
-    throw new NotFoundError(`Venta con ID ${idVentaO} no encontrada`);
+    throw createNotFoundError(`Venta con ID ${idVentaO} no encontrada`);
   }
 
   const affectedRows = await ventasOnlineRepository.updateEstado(
@@ -182,7 +182,7 @@ const actualizarEstadoVenta = async (idVentaO, nuevoEstado) => {
   );
 
   if (affectedRows === 0) {
-    throw new NotFoundError(`Venta con ID ${idVentaO} no encontrada`);
+    throw createNotFoundError(`Venta con ID ${idVentaO} no encontrada`);
   }
 
   return {
@@ -202,13 +202,13 @@ const actualizarEstadoVenta = async (idVentaO, nuevoEstado) => {
  */
 const actualizarVentaOnline = async (idVentaO, { metodoPago, productos }) => {
   if (!idVentaO || !productos || productos.length === 0) {
-    throw new ValidationError("Faltan datos para actualizar la venta");
+    throw createValidationError("Faltan datos para actualizar la venta");
   }
 
   // Verificar que la venta existe
   const venta = await ventasOnlineRepository.findById(idVentaO);
   if (!venta) {
-    throw new NotFoundError(`Venta con ID ${idVentaO} no encontrada`);
+    throw createNotFoundError(`Venta con ID ${idVentaO} no encontrada`);
   }
 
   // 1. Obtener detalles viejos para devolver stock
@@ -231,21 +231,21 @@ const actualizarVentaOnline = async (idVentaO, { metodoPago, productos }) => {
     const cant = Number(prod.cantidad);
 
     if (!idProd || cant <= 0) {
-      throw new ValidationError("Producto o cantidad inválida");
+      throw createValidationError("Producto o cantidad inválida");
     }
 
     // Obtener precio y stock actual del producto
     const prodDB = await ventasOnlineRepository.getProductoPrecioYStock(idProd);
 
     if (!prodDB) {
-      throw new NotFoundError(`Producto con ID ${idProd} no encontrado`);
+      throw createNotFoundError(`Producto con ID ${idProd} no encontrado`);
     }
 
     const { precio, stock } = prodDB;
 
     // Verificar stock disponible
     if (stock < cant) {
-      throw new ValidationError(
+      throw createValidationError(
         `Stock insuficiente para producto ID ${idProd}. Disponible: ${stock}, Solicitado: ${cant}`,
       );
     }

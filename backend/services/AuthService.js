@@ -1,7 +1,7 @@
 const authRepository = require("../repositories/AuthRepository");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { UnauthorizedError, ValidationError } = require("../errors");
+const { createUnauthorizedError, createValidationError } = require("../errors");
 
 /**
  * Servicio de autenticación
@@ -17,20 +17,20 @@ const { UnauthorizedError, ValidationError } = require("../errors");
 const login = async (email, contrasenia) => {
   // Validaciones
   if (!email || !contrasenia) {
-    throw new ValidationError("El campo email o contraseña está vacío");
+    throw createValidationError("El campo email o contraseña está vacío");
   }
 
   // Buscar usuario en todas las tablas
   const { user, tipo } = await authRepository.findUserByEmail(email);
 
   if (!user) {
-    throw new UnauthorizedError("Email y/o contraseña incorrectos");
+    throw createUnauthorizedError("Email y/o contraseña incorrectos");
   }
 
   // Verificar contraseña
   const passCheck = await bcryptjs.compare(contrasenia, user.contra);
   if (!passCheck) {
-    throw new UnauthorizedError("Email y/o contraseña incorrectos");
+    throw createUnauthorizedError("Email y/o contraseña incorrectos");
   }
 
   // Obtener permisos según el tipo de usuario

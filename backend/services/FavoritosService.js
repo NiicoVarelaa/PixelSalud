@@ -1,6 +1,6 @@
 const favoritosRepository = require("../repositories/FavoritosRepository");
 const productosRepository = require("../repositories/ProductosRepository");
-const { NotFoundError, ValidationError } = require("../errors");
+const { createNotFoundError, createValidationError } = require("../errors");
 
 /**
  * Servicio para la lógica de negocio de Favoritos
@@ -17,11 +17,11 @@ const toggleFavorito = async (idCliente, idProducto) => {
   const producto = await productosRepository.findByIdWithOfertas(idProducto);
 
   if (!producto) {
-    throw new NotFoundError("Producto no encontrado");
+    throw createNotFoundError("Producto no encontrado");
   }
 
   if (!producto.activo) {
-    throw new ValidationError(
+    throw createValidationError(
       "No se puede agregar a favoritos un producto inactivo",
     );
   }

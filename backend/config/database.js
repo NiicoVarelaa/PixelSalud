@@ -1,7 +1,6 @@
 const mysql2 = require("mysql2");
 const mysql2Promise = require("mysql2/promise");
 
-// Conexión legacy (callback-based) - Se mantendrá temporalmente para compatibilidad
 const conection = mysql2.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -9,7 +8,6 @@ const conection = mysql2.createConnection({
   database: process.env.DB_NAME,
 });
 
-// Pool moderno con Promesas - Usar este para nuevo código
 const pool = mysql2Promise.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -33,6 +31,6 @@ pool
   });
 
 module.exports = {
-  conection, // Legacy (callback-based)
-  pool, // Moderno (promise-based) - USAR ESTE
+  conection, 
+  pool, 
 };

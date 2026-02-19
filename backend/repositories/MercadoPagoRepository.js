@@ -50,10 +50,11 @@ const createVentaOnline = async ({
   totalPago,
   estado = "pendiente",
   externalReference,
+  idCuponAplicado = null,
 }) => {
   const sql = `
-    INSERT INTO VentasOnlines (idCliente, totalPago, metodoPago, estado, fechaPago, horaPago, externalReference) 
-    VALUES (?, ?, 'Mercado Pago', ?, CURRENT_DATE, CURRENT_TIME, ?)
+    INSERT INTO VentasOnlines (idCliente, totalPago, metodoPago, estado, fechaPago, horaPago, externalReference, idCuponAplicado) 
+    VALUES (?, ?, 'Mercado Pago', ?, CURRENT_DATE, CURRENT_TIME, ?, ?)
   `;
 
   const [result] = await pool.query(sql, [
@@ -61,6 +62,7 @@ const createVentaOnline = async ({
     totalPago,
     estado,
     externalReference,
+    idCuponAplicado,
   ]);
   return result.insertId;
 };

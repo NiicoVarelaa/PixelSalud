@@ -1,6 +1,6 @@
 const permisosRepository = require("../repositories/PermisosRepository");
 const { EmpleadosRepository } = require("../repositories");
-const { NotFoundError, ConflictError } = require("../errors");
+const { createNotFoundError, createConflictError } = require("../errors");
 
 /**
  * Obtiene todos los permisos
@@ -10,7 +10,7 @@ const obtenerPermisos = async () => {
   const permisos = await permisosRepository.findAll();
 
   if (!permisos || permisos.length === 0) {
-    throw new NotFoundError("No se encontraron permisos registrados");
+    throw createNotFoundError("No se encontraron permisos registrados");
   }
 
   return {
@@ -28,7 +28,7 @@ const obtenerPermisosPorEmpleado = async (idEmpleado) => {
   const permisos = await permisosRepository.findByEmpleadoId(idEmpleado);
 
   if (!permisos) {
-    throw new NotFoundError(
+    throw createNotFoundError(
       `No se encontraron permisos para el empleado con ID ${idEmpleado}`,
     );
   }
@@ -49,14 +49,14 @@ const crearPermisos = async (idEmpleado, permisoData) => {
   // Verificar que el empleado existe
   const empleado = await EmpleadosRepository.findById(idEmpleado);
   if (!empleado) {
-    throw new NotFoundError(`Empleado con ID ${idEmpleado} no encontrado`);
+    throw createNotFoundError(`Empleado con ID ${idEmpleado} no encontrado`);
   }
 
   // Verificar que el empleado no tenga permisos ya asignados
   const permisosExistentes =
     await permisosRepository.existsByEmpleadoId(idEmpleado);
   if (permisosExistentes) {
-    throw new ConflictError(
+    throw createConflictError(
       `El empleado con ID ${idEmpleado} ya tiene permisos asignados`,
     );
   }
@@ -83,14 +83,14 @@ const actualizarPermisos = async (idEmpleado, permisoData) => {
   // Verificar que el empleado existe
   const empleado = await EmpleadosRepository.findById(idEmpleado);
   if (!empleado) {
-    throw new NotFoundError(`Empleado con ID ${idEmpleado} no encontrado`);
+    throw createNotFoundError(`Empleado con ID ${idEmpleado} no encontrado`);
   }
 
   // Verificar que el empleado tiene permisos asignados
   const permisosExistentes =
     await permisosRepository.findByEmpleadoId(idEmpleado);
   if (!permisosExistentes) {
-    throw new NotFoundError(
+    throw createNotFoundError(
       `El empleado con ID ${idEmpleado} no tiene permisos asignados`,
     );
   }
@@ -113,7 +113,7 @@ const eliminarPermisos = async (idEmpleado) => {
   const permisosExistentes =
     await permisosRepository.findByEmpleadoId(idEmpleado);
   if (!permisosExistentes) {
-    throw new NotFoundError(
+    throw createNotFoundError(
       `El empleado con ID ${idEmpleado} no tiene permisos asignados`,
     );
   }

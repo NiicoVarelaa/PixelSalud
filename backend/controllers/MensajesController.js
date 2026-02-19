@@ -119,6 +119,45 @@ const eliminarMensaje = async (req, res, next) => {
   }
 };
 
+/**
+ * Marca un mensaje como leído
+ * @param {Object} req - Request con idMensaje en params
+ * @param {Object} res - Response
+ * @param {Function} next - Next middleware
+ */
+const marcarComoLeido = async (req, res, next) => {
+  try {
+    const idMensaje = parseInt(req.params.idMensaje, 10);
+    const resultado = await mensajesService.marcarComoLeido(idMensaje);
+    res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Responde a un mensaje
+ * @param {Object} req - Request con idMensaje en params y respuesta en body
+ * @param {Object} res - Response
+ * @param {Function} next - Next middleware
+ */
+const responderMensaje = async (req, res, next) => {
+  try {
+    const idMensaje = parseInt(req.params.idMensaje, 10);
+    const { respuesta } = req.body;
+    const respondidoPor =
+      req.user?.nombre || req.user?.nombreEmpleado || "Admin";
+    const resultado = await mensajesService.responderMensaje(
+      idMensaje,
+      respuesta,
+      respondidoPor,
+    );
+    res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   listarMensajes,
   obtenerMensaje,
@@ -127,4 +166,6 @@ module.exports = {
   crearMensaje,
   actualizarEstadoMensaje,
   eliminarMensaje,
+  marcarComoLeido,
+  responderMensaje,
 };

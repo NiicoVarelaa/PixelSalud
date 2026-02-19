@@ -5,6 +5,7 @@ import {
   Briefcase, // Para Empleados
   BarChart2, // Para Ventas (Estadísticas/Historial)
   FileSpreadsheet, // Para Reportes
+  Tag, // Para Cupones
   MessageSquare, // Para Mensajes
   LogOut,
 } from "lucide-react";
@@ -113,6 +114,15 @@ const SidebarAdmin = () => {
         >
           <FileSpreadsheet size={20} />
           <span>Reportes</span>
+        </div>
+
+        {/* CUPONES - Icono Tag (Etiqueta) */}
+        <div
+          onClick={() => navigate("/admin/cupones")}
+          className={btnClass("cupones")}
+        >
+          <Tag size={20} />
+          <span>Cupones</span>
         </div>
 
         {/* MENSAJES - Icono MessageSquare (Burbuja de chat) */}
