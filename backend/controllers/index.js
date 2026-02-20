@@ -1,14 +1,3 @@
-/**
- * Exportación centralizada de todos los controllers
- *
- * Esto permite hacer:
- *   const { ProductosController, ClientesController } = require('../controllers');
- *
- * En lugar de:
- *   const ProductosController = require('../controllers/ProductosController');
- *   const ClientesController = require('../controllers/ClientesController');
- */
-
 module.exports = {
   AuthController: require("./AuthController"),
   CampanasController: require("./CampanasController"),

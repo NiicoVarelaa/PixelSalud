@@ -1,8 +1,5 @@
 const { favoritosService } = require("../services");
 
-/**
- * Toggle de favoritos (agregar o quitar)
- */
 const toggleFavorito = async (req, res, next) => {
   try {
     const { idProducto } = req.body;
@@ -19,9 +16,6 @@ const toggleFavorito = async (req, res, next) => {
   }
 };
 
-/**
- * Obtener favoritos de un cliente
- */
 const obtenerFavoritosPorCliente = async (req, res, next) => {
   try {
     const idCliente = req.user.id;

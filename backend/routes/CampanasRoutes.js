@@ -5,39 +5,30 @@ const validate = require("../middlewares/validate");
 const auth = require("../middlewares/Auth");
 const { verificarRol } = require("../middlewares/VerificarPermisos");
 const campanasSchemas = require("../schemas/CampanasSchemas");
+const { mutationLimiter } = require("../config/rateLimiters");
 
-// ==================== RUTAS PÚBLICAS ====================
-
-// Obtener todas las campañas activas
 router.get("/activas", campanasController.getCampanasActivas);
 
-// Obtener campaña específica con productos
 router.get(
   "/:idCampana/productos",
   validate({ params: campanasSchemas.idCampanaParam }),
   campanasController.getCampanaConProductos,
 );
 
-// Obtener mejor descuento para un producto
 router.get(
   "/productos/:idProducto/mejor-descuento",
   validate({ params: campanasSchemas.idProductoParam }),
   campanasController.getMejorDescuento,
 );
 
-// Obtener campañas de un producto
 router.get(
   "/productos/:idProducto/campanas",
   validate({ params: campanasSchemas.idProductoParam }),
   campanasController.getCampanasDeProducto,
 );
 
-// ==================== RUTAS PROTEGIDAS (ADMIN) ====================
-
-// Obtener todas las campañas (con conteo de productos)
 router.get("/", auth, verificarRol(["admin"]), campanasController.getCampanas);
 
-// Obtener campaña por ID
 router.get(
   "/:idCampana",
   auth,
@@ -46,18 +37,18 @@ router.get(
   campanasController.getCampana,
 );
 
-// Crear campaña
 router.post(
   "/",
+  mutationLimiter,
   auth,
   verificarRol(["admin"]),
   validate({ body: campanasSchemas.createCampanaSchema }),
   campanasController.createCampana,
 );
 
-// Actualizar campaña
 router.put(
   "/:idCampana",
+  mutationLimiter,
   auth,
   verificarRol(["admin"]),
   validate({ params: campanasSchemas.idCampanaParam }),
@@ -65,24 +56,23 @@ router.put(
   campanasController.updateCampana,
 );
 
-// Eliminar campaña
 router.delete(
   "/:idCampana",
+  mutationLimiter,
   auth,
   verificarRol(["admin"]),
   validate({ params: campanasSchemas.idCampanaParam }),
   campanasController.deleteCampana,
 );
 
-// Obtener productos de campaña (con query param activos=true/false)
 router.get(
   "/:idCampana/productos-lista",
   campanasController.getProductosCampana,
 );
 
-// Agregar productos a campaña (uno o varios)
 router.post(
   "/:idCampana/productos",
+  mutationLimiter,
   auth,
   verificarRol(["admin"]),
   validate({ params: campanasSchemas.idCampanaParam }),
@@ -90,9 +80,9 @@ router.post(
   campanasController.addProductosCampana,
 );
 
-// Quitar productos de campaña (uno o varios)
 router.delete(
   "/:idCampana/productos",
+  mutationLimiter,
   auth,
   verificarRol(["admin"]),
   validate({ params: campanasSchemas.idCampanaParam }),
@@ -100,9 +90,9 @@ router.delete(
   campanasController.removeProductosCampana,
 );
 
-// Actualizar descuento override de relación producto-campaña
 router.patch(
   "/relaciones/:id/override",
+  mutationLimiter,
   auth,
   verificarRol(["admin"]),
   validate({ params: campanasSchemas.idRelacionParam }),
@@ -110,7 +100,6 @@ router.patch(
   campanasController.updateOverride,
 );
 
-// Obtener campañas próximas a vencer (query param: dias=7)
 router.get(
   "/admin/proximas-a-vencer",
   auth,

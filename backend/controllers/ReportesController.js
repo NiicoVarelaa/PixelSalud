@@ -1,13 +1,6 @@
 const ExcelJS = require("exceljs");
 const reportesService = require("../services/ReportesService");
 
-// ==========================================
-// UTILIDADES
-// ==========================================
-
-/**
- * Función para formatear fecha
- */
 const formatearFecha = (fecha) => {
   if (!fecha) return "";
   const date = new Date(fecha);
@@ -17,9 +10,6 @@ const formatearFecha = (fecha) => {
   return `${dia}/${mes}/${año}`;
 };
 
-/**
- * Estilos comunes para Excel
- */
 const estilosExcel = {
   headerStyle: {
     font: { bold: true, color: { argb: "FFFFFFFF" }, size: 12 },
@@ -48,9 +38,6 @@ const estilosExcel = {
   },
 };
 
-/**
- * Configura el encabezado del reporte
- */
 const configurarEncabezado = (worksheet, titulo, filtros) => {
   // Título
   worksheet.mergeCells("A1:K1");
@@ -84,9 +71,6 @@ const configurarEncabezado = (worksheet, titulo, filtros) => {
   filtroCell.font = { size: 9, color: { argb: "FF666666" } };
 };
 
-/**
- * Configura el resumen ejecutivo
- */
 const configurarResumenEjecutivo = (
   worksheet,
   estadisticas,
@@ -111,13 +95,6 @@ const configurarResumenEjecutivo = (
   worksheet.getCell(`G${filaInicio + 1}`).font = { bold: true };
 };
 
-// ==========================================
-// CONTROLADORES
-// ==========================================
-
-/**
- * Genera reporte de ventas online en Excel
- */
 const reporteVentasOnline = async (req, res, next) => {
   try {
     const filters = {
@@ -128,23 +105,19 @@ const reporteVentasOnline = async (req, res, next) => {
     };
 
     const { ventas, estadisticas } =
-      await reportesService.generarReporteVentasOnline(filters);
+    await reportesService.generarReporteVentasOnline(filters);
 
-    // Crear workbook
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Ventas Online");
 
-    // Configurar encabezado
     configurarEncabezado(
       worksheet,
       "📦 REPORTE DE VENTAS ONLINE - PIXEL SALUD",
       filters,
     );
 
-    // Resumen ejecutivo
     configurarResumenEjecutivo(worksheet, estadisticas);
 
-    // Cabecera de tabla
     worksheet.getRow(8).values = [
       "ID Venta",
       "Fecha",
@@ -163,7 +136,6 @@ const reporteVentasOnline = async (req, res, next) => {
       cell.style = estilosExcel.headerStyle;
     });
 
-    // Datos
     ventas.forEach((venta, index) => {
       const row = worksheet.getRow(9 + index);
       row.values = [
@@ -180,7 +152,6 @@ const reporteVentasOnline = async (req, res, next) => {
         venta.productos,
       ];
 
-      // Formato condicional por estado
       const estadoCell = row.getCell(9);
       if (venta.estado === "pendiente" || venta.estado === "Pendiente") {
         estadoCell.fill = {
@@ -202,11 +173,9 @@ const reporteVentasOnline = async (req, res, next) => {
         };
       }
 
-      // Formato de moneda
       row.getCell(10).numFmt = '"$"#,##0.00';
     });
 
-    // Ajustar anchos de columna
     worksheet.columns = [
       { key: "idVentaO", width: 10 },
       { key: "fecha", width: 12 },
@@ -221,7 +190,6 @@ const reporteVentasOnline = async (req, res, next) => {
       { key: "productos", width: 50 },
     ];
 
-    // Enviar archivo
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -238,9 +206,6 @@ const reporteVentasOnline = async (req, res, next) => {
   }
 };
 
-/**
- * Genera reporte de ventas empleados en Excel
- */
 const reporteVentasEmpleados = async (req, res, next) => {
   try {
     const filters = {
@@ -252,13 +217,11 @@ const reporteVentasEmpleados = async (req, res, next) => {
     };
 
     const { ventas, ranking, estadisticas } =
-      await reportesService.generarReporteVentasEmpleados(filters);
+    await reportesService.generarReporteVentasEmpleados(filters);
 
-    // Crear workbook
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Ventas Empleados");
 
-    // Configurar encabezado (ajustado para 9 columnas)
     worksheet.mergeCells("A1:I1");
     const titleCell = worksheet.getCell("A1");
     titleCell.value = "🏪 REPORTE DE VENTAS EMPLEADOS - PIXEL SALUD";
@@ -287,7 +250,6 @@ const reporteVentasEmpleados = async (req, res, next) => {
     filtroCell.alignment = { horizontal: "center" };
     filtroCell.font = { size: 9, color: { argb: "FF666666" } };
 
-    // Resumen ejecutivo
     worksheet.getRow(5).values = ["RESUMEN EJECUTIVO"];
     worksheet.mergeCells("A5:C5");
     worksheet.getCell("A5").style = estilosExcel.subHeaderStyle;
@@ -306,7 +268,6 @@ const reporteVentasEmpleados = async (req, res, next) => {
     worksheet.getCell("D6").font = { bold: true };
     worksheet.getCell("G6").font = { bold: true };
 
-    // Ranking de empleados
     worksheet.getRow(8).values = ["🏆 TOP 10 EMPLEADOS"];
     worksheet.mergeCells("A8:D8");
     worksheet.getCell("A8").style = estilosExcel.subHeaderStyle;
@@ -332,7 +293,6 @@ const reporteVentasEmpleados = async (req, res, next) => {
       row.getCell(3).numFmt = '"$"#,##0.00';
     });
 
-    // Tabla de ventas
     const filaInicio = 10 + ranking.length + 2;
     worksheet.getRow(filaInicio).values = ["DETALLE DE VENTAS"];
     worksheet.mergeCells(`A${filaInicio}:I${filaInicio}`);
@@ -368,7 +328,6 @@ const reporteVentasEmpleados = async (req, res, next) => {
         venta.productos,
       ];
 
-      // Formato condicional por estado
       const estadoCell = row.getCell(7);
       if (venta.estado === "completada") {
         estadoCell.fill = {
@@ -387,7 +346,6 @@ const reporteVentasEmpleados = async (req, res, next) => {
       row.getCell(8).numFmt = '"$"#,##0.00';
     });
 
-    // Ajustar anchos
     worksheet.columns = [
       { key: "idVentaE", width: 10 },
       { key: "fecha", width: 12 },
@@ -400,7 +358,6 @@ const reporteVentasEmpleados = async (req, res, next) => {
       { key: "productos", width: 50 },
     ];
 
-    // Enviar archivo
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -417,9 +374,6 @@ const reporteVentasEmpleados = async (req, res, next) => {
   }
 };
 
-/**
- * Genera reporte consolidado en Excel
- */
 const reporteConsolidado = async (req, res, next) => {
   try {
     const filters = {
@@ -439,11 +393,9 @@ const reporteConsolidado = async (req, res, next) => {
       porcentajeLocal,
     } = await reportesService.generarReporteConsolidado(filters);
 
-    // Crear workbook
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Consolidado");
 
-    // Título
     worksheet.mergeCells("A1:H1");
     const titleCell = worksheet.getCell("A1");
     titleCell.value = "📊 REPORTE CONSOLIDADO - PIXEL SALUD";
@@ -468,7 +420,6 @@ const reporteConsolidado = async (req, res, next) => {
     filtroCell.alignment = { horizontal: "center" };
     filtroCell.font = { size: 9, color: { argb: "FF666666" } };
 
-    // Resumen general
     worksheet.getRow(5).values = ["RESUMEN GENERAL"];
     worksheet.mergeCells("A5:D5");
     worksheet.getCell("A5").style = estilosExcel.subHeaderStyle;
@@ -483,7 +434,6 @@ const reporteConsolidado = async (req, res, next) => {
     worksheet.getCell("A6").font = { bold: true };
     worksheet.getCell("D6").font = { bold: true };
 
-    // Comparativa por canal
     worksheet.getRow(8).values = ["COMPARATIVA POR CANAL"];
     worksheet.mergeCells("A8:E8");
     worksheet.getCell("A8").style = estilosExcel.subHeaderStyle;
@@ -519,7 +469,6 @@ const reporteConsolidado = async (req, res, next) => {
     worksheet.getRow(11).getCell(3).numFmt = '"$"#,##0.00';
     worksheet.getRow(11).getCell(5).numFmt = '"$"#,##0.00';
 
-    // Productos más vendidos
     worksheet.getRow(13).values = ["TOP 20 PRODUCTOS MÁS VENDIDOS"];
     worksheet.mergeCells("A13:D13");
     worksheet.getCell("A13").style = estilosExcel.subHeaderStyle;
@@ -545,7 +494,6 @@ const reporteConsolidado = async (req, res, next) => {
       row.getCell(4).numFmt = '"$"#,##0.00';
     });
 
-    // Ajustar anchos
     worksheet.columns = [
       { key: "col1", width: 35 },
       { key: "col2", width: 20 },
@@ -554,7 +502,6 @@ const reporteConsolidado = async (req, res, next) => {
       { key: "col5", width: 15 },
     ];
 
-    // Enviar archivo
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -571,9 +518,6 @@ const reporteConsolidado = async (req, res, next) => {
   }
 };
 
-/**
- * Genera reporte de productos vendidos en Excel
- */
 const reporteProductosVendidos = async (req, res, next) => {
   try {
     const filters = {
@@ -589,11 +533,9 @@ const reporteProductosVendidos = async (req, res, next) => {
       ingresoTotalProductos,
     } = await reportesService.generarReporteProductosVendidos(filters);
 
-    // Crear workbook
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Productos Vendidos");
 
-    // Título
     worksheet.mergeCells("A1:G1");
     const titleCell = worksheet.getCell("A1");
     titleCell.value = "📦 REPORTE DE PRODUCTOS VENDIDOS - PIXEL SALUD";
@@ -618,7 +560,6 @@ const reporteProductosVendidos = async (req, res, next) => {
     filtroCell.alignment = { horizontal: "center" };
     filtroCell.font = { size: 9, color: { argb: "FF666666" } };
 
-    // Resumen
     worksheet.getRow(5).values = ["RESUMEN"];
     worksheet.mergeCells("A5:C5");
     worksheet.getCell("A5").style = estilosExcel.subHeaderStyle;
@@ -633,7 +574,6 @@ const reporteProductosVendidos = async (req, res, next) => {
     worksheet.getCell("A6").font = { bold: true };
     worksheet.getCell("D6").font = { bold: true };
 
-    // Ventas por categoría
     worksheet.getRow(8).values = ["VENTAS POR CATEGORÍA"];
     worksheet.mergeCells("A8:C8");
     worksheet.getCell("A8").style = estilosExcel.subHeaderStyle;
@@ -653,7 +593,6 @@ const reporteProductosVendidos = async (req, res, next) => {
       row.getCell(3).numFmt = '"$"#,##0.00';
     });
 
-    // Productos más vendidos
     const filaInicio = 10 + categorias.length + 2;
     worksheet.getRow(filaInicio).values = ["TOP PRODUCTOS"];
     worksheet.mergeCells(`A${filaInicio}:D${filaInicio}`);
@@ -680,7 +619,6 @@ const reporteProductosVendidos = async (req, res, next) => {
       row.getCell(4).numFmt = '"$"#,##0.00';
     });
 
-    // Ajustar anchos
     worksheet.columns = [
       { key: "col1", width: 35 },
       { key: "col2", width: 20 },
@@ -688,7 +626,6 @@ const reporteProductosVendidos = async (req, res, next) => {
       { key: "col4", width: 15 },
     ];
 
-    // Enviar archivo
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

@@ -11,6 +11,7 @@ const {
 const auth = require("../middlewares/Auth");
 const { verificarRol } = require("../middlewares/VerificarPermisos");
 const { validate } = require("../middlewares/validate");
+const { mutationLimiter } = require("../config/rateLimiters");
 const {
   idVentaOParamSchema,
   createVentaOnlineSchema,
@@ -18,18 +19,8 @@ const {
   updateVentaOnlineSchema,
 } = require("../schemas/VentaOnlineSchemas");
 
-/**
- * @route GET /mis-compras
- * @desc Obtiene las compras/ventas online del cliente logueado
- * @access Cliente
- */
 router.get("/mis-compras", auth, verificarRol(["cliente"]), getUserOrders);
 
-/**
- * @route GET /ventasOnline/todas
- * @desc Obtiene todas las ventas online del sistema
- * @access Admin, Empleado
- */
 router.get(
   "/ventasOnline/todas",
   auth,
@@ -37,11 +28,6 @@ router.get(
   mostrarTodasLasVentas,
 );
 
-/**
- * @route GET /ventasOnline/detalle/:idVentaO
- * @desc Obtiene los detalles de una venta online específica
- * @access Admin, Empleado
- */
 router.get(
   "/ventasOnline/detalle/:idVentaO",
   auth,
@@ -50,37 +36,24 @@ router.get(
   obtenerDetalleVentaOnline,
 );
 
-/**
- * @route POST /ventaOnline/crear
- * @desc Registra una nueva venta online
- * @access Admin, Empleado, Cliente
- */
 router.post(
   "/ventaOnline/crear",
+  mutationLimiter,
   auth,
   verificarRol(["admin", "empleado", "cliente"]),
   validate({ body: createVentaOnlineSchema }),
   registrarVentaOnline,
 );
 
-/**
- * @route PUT /ventaOnline/estado
- * @desc Actualiza el estado de una venta online
- * @access Admin, Empleado
- */
 router.put(
   "/ventaOnline/estado",
+  mutationLimiter,
   auth,
   verificarRol(["admin", "empleado"]),
   validate({ body: updateEstadoVentaSchema }),
   actualizarEstadoVenta,
 );
 
-/**
- * @route PUT /ventaOnline/actualizar/:idVentaO
- * @desc Actualiza una venta online completa (productos y método de pago)
- * @access Admin, Empleado
- */
 router.put(
   "/ventaOnline/actualizar/:idVentaO",
   auth,

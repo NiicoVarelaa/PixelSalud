@@ -1,10 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schemas de validación Zod para el módulo de Médicos
- */
-
-// Schema para validar idMedico en params
 const idMedicoParamSchema = z.object({
   id: z
     .string()
@@ -13,7 +8,6 @@ const idMedicoParamSchema = z.object({
     .refine((val) => val > 0, "id debe ser mayor a 0"),
 });
 
-// Schema para crear médico
 const createMedicoSchema = z.object({
   nombreMedico: z
     .string({ required_error: "nombreMedico es requerido" })
@@ -42,7 +36,6 @@ const createMedicoSchema = z.object({
     .max(100, "La contraseña no puede exceder 100 caracteres"),
 });
 
-// Schema para actualizar médico (todos los campos opcionales)
 const updateMedicoSchema = z.object({
   nombreMedico: z
     .string()

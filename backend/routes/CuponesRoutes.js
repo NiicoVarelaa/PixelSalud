@@ -3,32 +3,17 @@ const router = express.Router();
 const cuponesController = require("../controllers/CuponesController");
 const Auth = require("../middlewares/Auth");
 const { verificarRol } = require("../middlewares/VerificarPermisos");
+const { mutationLimiter, paymentLimiter } = require("../config/rateLimiters");
 
-// ========================================
-// RUTAS PÚBLICAS/CLIENTES (requieren auth)
-// ========================================
+router.post(
+  "/cupones/validar",
+  paymentLimiter,
+  Auth,
+  cuponesController.validarCupon,
+);
 
-/**
- * Validar cupón y calcular descuento
- * POST /cupones/validar
- * Body: { codigo: string, montoCompra: number }
- */
-router.post("/cupones/validar", Auth, cuponesController.validarCupon);
-
-/**
- * Obtener historial de cupones del cliente
- * GET /cupones/mis-cupones
- */
 router.get("/cupones/mis-cupones", Auth, cuponesController.obtenerMisCupones);
 
-// ========================================
-// RUTAS ADMIN/EMPLEADO
-// ========================================
-
-/**
- * Obtener historial completo de uso de cupones (admin)
- * GET /cupones/historial
- */
 router.get(
   "/cupones/historial",
   Auth,
@@ -36,10 +21,6 @@ router.get(
   cuponesController.obtenerHistorial,
 );
 
-/**
- * Obtener todos los cupones (admin)
- * GET /cupones
- */
 router.get(
   "/cupones",
   Auth,
@@ -47,10 +28,6 @@ router.get(
   cuponesController.obtenerTodosCupones,
 );
 
-/**
- * Obtener cupones activos (admin)
- * GET /cupones/activos
- */
 router.get(
   "/cupones/activos",
   Auth,
@@ -58,32 +35,14 @@ router.get(
   cuponesController.obtenerCuponesActivos,
 );
 
-/**
- * Crear cupón personalizado (admin)
- * POST /cupones
- * Body: {
- *   codigo?: string,
- *   tipoCupon: 'porcentaje' | 'monto_fijo',
- *   valorDescuento: number,
- *   descripcion: string,
- *   fechaInicio: string (YYYY-MM-DD),
- *   fechaVencimiento: string (YYYY-MM-DD),
- *   usoMaximo?: number,
- *   tipoUsuario?: 'nuevo' | 'todos' | 'vip',
- *   montoMinimo?: number
- * }
- */
 router.post(
   "/cupones",
+  mutationLimiter,
   Auth,
   verificarRol(["admin"]),
   cuponesController.crearCupon,
 );
 
-/**
- * Obtener cupón por código (admin)
- * GET /cupones/:codigo
- */
 router.get(
   "/cupones/:codigo",
   Auth,
@@ -91,24 +50,17 @@ router.get(
   cuponesController.obtenerCuponPorCodigo,
 );
 
-/**
- * Actualizar estado de cupón (admin)
- * PATCH /cupones/:id/estado
- * Body: { estado: 'activo' | 'inactivo' }
- */
 router.patch(
   "/cupones/:id/estado",
+  mutationLimiter,
   Auth,
   verificarRol(["admin"]),
   cuponesController.actualizarEstado,
 );
 
-/**
- * Eliminar cupón (admin - solo si no fue usado)
- * DELETE /cupones/:id
- */
 router.delete(
   "/cupones/:id",
+  mutationLimiter,
   Auth,
   verificarRol(["admin"]),
   cuponesController.eliminarCupon,

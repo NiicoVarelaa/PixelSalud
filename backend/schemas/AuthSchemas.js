@@ -1,11 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schemas de validación para autenticación
- * Usando Zod para validar requests de login y registro
- */
-
-// Schema para login
 const loginBodySchema = z.object({
   email: z
     .string({
@@ -23,7 +17,6 @@ const loginBodySchema = z.object({
     .min(6, "La contraseña debe tener al menos 6 caracteres"),
 });
 
-// Schema para registro de cliente
 const registroClienteBodySchema = z.object({
   nombreCliente: z
     .string({

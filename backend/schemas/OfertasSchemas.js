@@ -1,12 +1,5 @@
 const { z } = require("zod");
 
-// ==========================================
-// SCHEMAS DE VALIDACIÓN PARA OFERTAS
-// ==========================================
-
-/**
- * Schema para validar ID de oferta en params
- */
 const idOfertaParamSchema = z.object({
   idOferta: z
     .string()
@@ -14,9 +7,6 @@ const idOfertaParamSchema = z.object({
     .transform((val) => parseInt(val, 10)),
 });
 
-/**
- * Schema para crear una nueva oferta
- */
 const createOfertaSchema = z
   .object({
     idProducto: z
@@ -66,9 +56,6 @@ const createOfertaSchema = z
     path: ["fechaFin"],
   });
 
-/**
- * Schema para actualizar una oferta (todos los campos opcionales)
- */
 const updateOfertaSchema = z
   .object({
     idProducto: z
@@ -128,9 +115,6 @@ const updateOfertaSchema = z
     message: "Debe proporcionar al menos un campo para actualizar",
   });
 
-/**
- * Schema para actualizar solo el estado activo de una oferta
- */
 const updateEsActivaSchema = z.object({
   esActiva: z.union([z.boolean(), z.number(), z.string()]).transform((val) => {
     if (typeof val === "boolean") return val;
@@ -141,9 +125,6 @@ const updateEsActivaSchema = z.object({
   }),
 });
 
-/**
- * Schema para crear ofertas masivas (Cyber Monday)
- */
 const createOfertaMasivaSchema = z.object({
   productIds: z
     .array(z.number().int().positive())
@@ -161,7 +142,6 @@ const createOfertaMasivaSchema = z.object({
     .default(25.0),
 });
 
-// Exporta los schemas
 module.exports = {
   idOfertaParamSchema,
   createOfertaSchema,

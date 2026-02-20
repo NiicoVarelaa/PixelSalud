@@ -6,22 +6,10 @@ const {
 } = require("../errors");
 const bcryptjs = require("bcryptjs");
 
-/**
- * Servicio para la lógica de negocio de Empleados
- * Maneja validaciones, hash de contraseñas, y gestión de permisos
- */
-/**
- * Obtiene todos los empleados activos con permisos
- * @returns {Promise<Array>}
- */
 const obtenerEmpleados = async () => {
   return await empleadosRepository.findAllWithPermisos();
 };
 
-/**
- * Obtiene empleados inactivos
- * @returns {Promise<Array>}
- */
 const obtenerEmpleadosInactivos = async () => {
   const empleados = await empleadosRepository.findInactivos();
 
@@ -32,11 +20,6 @@ const obtenerEmpleadosInactivos = async () => {
   return empleados;
 };
 
-/**
- * Obtiene un empleado por ID con sus permisos
- * @param {number} idEmpleado
- * @returns {Promise<Object>}
- */
 const obtenerEmpleadoPorId = async (idEmpleado) => {
   const empleado = await empleadosRepository.findByIdWithPermisos(idEmpleado);
 
@@ -47,14 +30,7 @@ const obtenerEmpleadoPorId = async (idEmpleado) => {
   return empleado;
 };
 
-/**
- * Crea un nuevo empleado con permisos
- * @param {Object} empleadoData
- * @param {Object} permisos
- * @returns {Promise<Object>}
- */
 const crearEmpleado = async (empleadoData, permisos) => {
-  // Validar que email y DNI no existan
   const existeEmail = await empleadosRepository.findByEmail(
     empleadoData.emailEmpleado,
   );
@@ -69,17 +45,14 @@ const crearEmpleado = async (empleadoData, permisos) => {
     throw createConflictError("El DNI ya está registrado");
   }
 
-  // Hashear contraseña
   const salt = await bcryptjs.genSalt(10);
   const contraHash = await bcryptjs.hash(empleadoData.contraEmpleado, salt);
 
-  // Crear empleado
   const idEmpleado = await empleadosRepository.create({
     ...empleadoData,
     contraEmpleado: contraHash,
   });
 
-  // Crear permisos si se proporcionaron
   if (permisos) {
     await empleadosRepository.createPermisos(idEmpleado, permisos);
   }
@@ -94,22 +67,13 @@ const crearEmpleado = async (empleadoData, permisos) => {
   };
 };
 
-/**
- * Actualiza un empleado y sus permisos
- * @param {number} idEmpleado
- * @param {Object} empleadoData
- * @param {Object} permisos
- * @returns {Promise<void>}
- */
 const actualizarEmpleado = async (idEmpleado, empleadoData, permisos) => {
-  // Verificar que el empleado existe
   const empleadoExiste =
     await empleadosRepository.findByIdWithPermisos(idEmpleado);
   if (!empleadoExiste) {
     throw createNotFoundError("Empleado no encontrado");
   }
 
-  // Validar unicidad de email (si se está actualizando)
   if (empleadoData.emailEmpleado) {
     const emailEnUso = await empleadosRepository.existsEmailExcept(
       empleadoData.emailEmpleado,
@@ -120,7 +84,6 @@ const actualizarEmpleado = async (idEmpleado, empleadoData, permisos) => {
     }
   }
 
-  // Validar unicidad de DNI (si se está actualizando)
   if (empleadoData.dniEmpleado) {
     const dniEnUso = await empleadosRepository.existsDNIExcept(
       empleadoData.dniEmpleado,
@@ -131,7 +94,6 @@ const actualizarEmpleado = async (idEmpleado, empleadoData, permisos) => {
     }
   }
 
-  // Hashear contraseña si se proporciona
   if (
     empleadoData.contraEmpleado &&
     empleadoData.contraEmpleado.trim().length > 0
@@ -142,14 +104,11 @@ const actualizarEmpleado = async (idEmpleado, empleadoData, permisos) => {
       salt,
     );
   } else {
-    // No actualizar contraseña si no se proporciona
     delete empleadoData.contraEmpleado;
   }
 
-  // Actualizar empleado
   await empleadosRepository.update(idEmpleado, empleadoData);
 
-  // Actualizar permisos si se proporcionaron
   if (permisos) {
     const existenPermisos =
       await empleadosRepository.existsPermisos(idEmpleado);
@@ -162,11 +121,6 @@ const actualizarEmpleado = async (idEmpleado, empleadoData, permisos) => {
   }
 };
 
-/**
- * Da de baja (soft delete) a un empleado
- * @param {number} idEmpleado
- * @returns {Promise<void>}
- */
 const darBajaEmpleado = async (idEmpleado) => {
   const empleado = await empleadosRepository.findByIdWithPermisos(idEmpleado);
 
@@ -181,11 +135,6 @@ const darBajaEmpleado = async (idEmpleado) => {
   await empleadosRepository.updateEstado(idEmpleado, false);
 };
 
-/**
- * Reactiva un empleado dado de baja
- * @param {number} idEmpleado
- * @returns {Promise<void>}
- */
 const reactivarEmpleado = async (idEmpleado) => {
   const empleado = await empleadosRepository.findByIdWithPermisos(idEmpleado);
 

@@ -1,7 +1,5 @@
 const { pool } = require("../config/database");
 
-// ==================== CAMPAÑAS ====================
-
 const findAll = async () => {
   const [rows] = await pool.query(
     `SELECT 
@@ -206,8 +204,6 @@ const deleteCampana = async (idCampana) => {
   );
   return result.affectedRows;
 };
-
-// ==================== ESTADÍSTICAS ====================
 
 const countProductos = async (idCampana) => {
   const [rows] = await pool.query(

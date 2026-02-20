@@ -1,28 +1,14 @@
 const medicosRepository = require("../repositories/MedicosRepository");
 const {
   createNotFoundError,
-  createValidationError,
   createConflictError,
 } = require("../errors");
 const bcryptjs = require("bcryptjs");
 
-/**
- * Servicio para la lógica de negocio de Médicos
- * Maneja validaciones, hash de contraseñas
- */
-
-/**
- * Obtiene todos los médicos activos
- * @returns {Promise<Array>}
- */
 const obtenerMedicos = async () => {
   return await medicosRepository.findAll();
 };
 
-/**
- * Obtiene médicos inactivos
- * @returns {Promise<Array>}
- */
 const obtenerMedicosInactivos = async () => {
   const medicos = await medicosRepository.findInactivos();
 
@@ -33,11 +19,6 @@ const obtenerMedicosInactivos = async () => {
   return medicos;
 };
 
-/**
- * Obtiene un médico por ID
- * @param {number} idMedico
- * @returns {Promise<Object>}
- */
 const obtenerMedicoPorId = async (idMedico) => {
   const medico = await medicosRepository.findById(idMedico);
 
@@ -48,16 +29,10 @@ const obtenerMedicoPorId = async (idMedico) => {
   return medico;
 };
 
-/**
- * Crea un nuevo médico
- * @param {Object} medicoData
- * @returns {Promise<Object>}
- */
 const crearMedico = async (medicoData) => {
   const { nombreMedico, apellidoMedico, matricula, emailMedico, contraMedico } =
     medicoData;
 
-  // Validar que email y matrícula no existan
   const existeEmail = await medicosRepository.findByEmail(emailMedico);
   if (existeEmail) {
     throw createConflictError(
@@ -70,11 +45,9 @@ const crearMedico = async (medicoData) => {
     throw createConflictError("La matrícula ya está registrada");
   }
 
-  // Hash de la contraseña
   const salt = await bcryptjs.genSalt(10);
   const contraEncrip = await bcryptjs.hash(contraMedico, salt);
 
-  // Crear médico
   const idMedico = await medicosRepository.create({
     nombreMedico,
     apellidoMedico,
@@ -93,20 +66,12 @@ const crearMedico = async (medicoData) => {
   };
 };
 
-/**
- * Actualiza un médico
- * @param {number} idMedico
- * @param {Object} medicoData
- * @returns {Promise<Object>}
- */
 const actualizarMedico = async (idMedico, medicoData) => {
-  // Verificar que el médico existe
   const medicoExistente = await medicosRepository.findById(idMedico);
   if (!medicoExistente) {
     throw createNotFoundError("Médico no encontrado");
   }
 
-  // Validar email único si se está actualizando
   if (medicoData.emailMedico) {
     const emailDuplicado = await medicosRepository.existsEmailExcept(
       medicoData.emailMedico,
@@ -117,7 +82,6 @@ const actualizarMedico = async (idMedico, medicoData) => {
     }
   }
 
-  // Validar matrícula única si se está actualizando
   if (medicoData.matricula) {
     const matriculaDuplicada = await medicosRepository.existsMatriculaExcept(
       medicoData.matricula,
@@ -128,7 +92,6 @@ const actualizarMedico = async (idMedico, medicoData) => {
     }
   }
 
-  // Hash de contraseña si se proporciona
   if (medicoData.contraMedico) {
     const salt = await bcryptjs.genSalt(10);
     medicoData.contraMedico = await bcryptjs.hash(
@@ -137,7 +100,6 @@ const actualizarMedico = async (idMedico, medicoData) => {
     );
   }
 
-  // Actualizar médico
   await medicosRepository.update(idMedico, medicoData);
 
   return {
@@ -145,13 +107,7 @@ const actualizarMedico = async (idMedico, medicoData) => {
   };
 };
 
-/**
- * Da de baja un médico (soft delete)
- * @param {number} idMedico
- * @returns {Promise<Object>}
- */
 const darBajaMedico = async (idMedico) => {
-  // Verificar que el médico existe
   const medico = await medicosRepository.findById(idMedico);
   if (!medico) {
     throw createNotFoundError("Médico no encontrado");
@@ -164,13 +120,7 @@ const darBajaMedico = async (idMedico) => {
   };
 };
 
-/**
- * Reactiva un médico
- * @param {number} idMedico
- * @returns {Promise<Object>}
- */
 const reactivarMedico = async (idMedico) => {
-  // Verificar que el médico existe
   const medico = await medicosRepository.findById(idMedico);
   if (!medico) {
     throw createNotFoundError("Médico no encontrado");

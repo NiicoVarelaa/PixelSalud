@@ -1,8 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schema para validar el ID de venta online en los parámetros de ruta
- */
 const idVentaOParamSchema = z.object({
   idVentaO: z.coerce
     .number({
@@ -13,9 +10,6 @@ const idVentaOParamSchema = z.object({
     .positive("El ID de la venta online debe ser mayor a 0"),
 });
 
-/**
- * Schema para validar un producto en la venta online
- */
 const productoVentaSchema = z.object({
   idProducto: z
     .number({
@@ -41,9 +35,6 @@ const productoVentaSchema = z.object({
     .positive("El precio unitario debe ser mayor a 0"),
 });
 
-/**
- * Schema para validar datos de dirección de envío
- */
 const direccionEnvioSchema = z.object({
   nombreDestinatario: z
     .string({
@@ -100,9 +91,6 @@ const direccionEnvioSchema = z.object({
     .optional(),
 });
 
-/**
- * Schema para crear una venta online
- */
 const createVentaOnlineSchema = z.object({
   metodoPago: z
     .string({
@@ -136,9 +124,6 @@ const createVentaOnlineSchema = z.object({
   direccionEnvio: direccionEnvioSchema.optional(),
 });
 
-/**
- * Schema para actualizar el estado de una venta online
- */
 const updateEstadoVentaSchema = z.object({
   idVentaO: z
     .number({
@@ -157,10 +142,6 @@ const updateEstadoVentaSchema = z.object({
     .trim(),
 });
 
-/**
- * Schema para actualizar una venta online (productos y método de pago)
- * Los productos no llevan precioUnitario porque se toma de la BD
- */
 const productoActualizarVentaSchema = z.object({
   idProducto: z
     .number({

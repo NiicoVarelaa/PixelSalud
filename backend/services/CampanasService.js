@@ -1,12 +1,9 @@
 const campanasRepository = require("../repositories/CampanasRepository");
 const productosCampanasRepository = require("../repositories/ProductosCampanasRepository");
 
-// ==================== CAMPAÑAS ====================
-
 const obtenerCampanas = async () => {
   const campanas = await campanasRepository.findAll();
 
-  // Agregar contador de productos a cada campaña
   const campanasConConteo = await Promise.all(
     campanas.map(async (campana) => {
       const totalProductos = await campanasRepository.countProductos(
@@ -62,7 +59,6 @@ const obtenerCampanaConProductos = async (idCampana) => {
     throw new Error("Campaña no encontrada");
   }
 
-  // Agrupar productos bajo la campaña
   const campana = {
     idCampana: productos[0].idCampana,
     nombreCampana: productos[0].nombreCampana,
@@ -92,7 +88,6 @@ const obtenerCampanaConProductos = async (idCampana) => {
 };
 
 const crearCampana = async (campanaData) => {
-  // Verificar que no exista una campaña con el mismo nombre
   const existe = await campanasRepository.findByNombre(
     campanaData.nombreCampana,
   );
@@ -100,7 +95,6 @@ const crearCampana = async (campanaData) => {
     throw new Error("Ya existe una campaña con ese nombre");
   }
 
-  // Validar fechas
   const fechaInicio = new Date(campanaData.fechaInicio);
   const fechaFin = new Date(campanaData.fechaFin);
 
@@ -119,7 +113,6 @@ const actualizarCampana = async (idCampana, campanaData) => {
     throw new Error("Campaña no encontrada");
   }
 
-  // Si se actualiza el nombre, verificar que no exista otra con ese nombre
   if (
     campanaData.nombreCampana &&
     campanaData.nombreCampana !== campanaExiste.nombreCampana
@@ -132,7 +125,6 @@ const actualizarCampana = async (idCampana, campanaData) => {
     }
   }
 
-  // Validar fechas si se proporcionan ambas
   if (campanaData.fechaInicio && campanaData.fechaFin) {
     const fechaInicio = new Date(campanaData.fechaInicio);
     const fechaFin = new Date(campanaData.fechaFin);
@@ -155,13 +147,10 @@ const eliminarCampana = async (idCampana) => {
     throw new Error("Campaña no encontrada");
   }
 
-  // FK CASCADE eliminará automáticamente las relaciones en productos_campanas
   await campanasRepository.delete(idCampana);
 
   return { mensaje: "Campaña eliminada correctamente" };
 };
-
-// ==================== PRODUCTOS EN CAMPAÑAS ====================
 
 const agregarProducto = async (
   idCampana,
@@ -258,8 +247,6 @@ const actualizarDescuentoOverride = async (id, porcentajeDescuentoOverride) => {
   return { mensaje: "Descuento override actualizado" };
 };
 
-// ==================== CONSULTAS DE PRODUCTOS ====================
-
 const obtenerProductosDeCampana = async (idCampana, soloActivos = false) => {
   const campana = await campanasRepository.findById(idCampana);
   if (!campana) {
@@ -285,7 +272,6 @@ const obtenerMejorDescuento = async (idProducto) => {
     return null;
   }
 
-  // Filtrar campañas activas y vigentes
   const campanasActivas = campanas.filter((c) => {
     const ahora = new Date();
     const inicio = new Date(c.fechaInicio);
@@ -297,7 +283,6 @@ const obtenerMejorDescuento = async (idProducto) => {
     return null;
   }
 
-  // Ordenar por prioridad (mayor primero) y luego por descuento (mayor primero)
   campanasActivas.sort((a, b) => {
     if (a.prioridad !== b.prioridad) {
       return b.prioridad - a.prioridad;
@@ -307,8 +292,6 @@ const obtenerMejorDescuento = async (idProducto) => {
 
   return campanasActivas[0];
 };
-
-// ==================== ESTADÍSTICAS ====================
 
 const obtenerCampanasProximasAVencer = async (dias = 7) => {
   const campanas = await campanasRepository.findExpiringIn(dias);

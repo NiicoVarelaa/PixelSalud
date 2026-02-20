@@ -1,25 +1,18 @@
 const nodemailer = require("nodemailer");
 
-// Configura tu transporte SMTP aquí
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
   port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 465,
-  secure: true, // true para 465, false para otros puertos
+  secure: true, 
   auth: {
-    user: process.env.SMTP_USER, // tu email
-    pass: process.env.SMTP_PASS, // tu contraseña o app password
+    user: process.env.SMTP_USER, 
+    pass: process.env.SMTP_PASS, 
   },
   tls: {
-    rejectUnauthorized: false, // Permitir certificados autofirmados (solo desarrollo)
+    rejectUnauthorized: false,
   },
 });
 
-/**
- * Envía un email de confirmación al cliente
- * @param {string} to - Email del cliente
- * @param {string} nombre - Nombre del cliente
- * @param {string} asunto - Asunto del mensaje original
- */
 async function enviarConfirmacionCliente(to, nombre, asunto) {
   const mailOptions = {
     from: process.env.SMTP_FROM || "PixelSalud <no-reply@pixelsalud.com>",
@@ -33,9 +26,7 @@ async function enviarConfirmacionCliente(to, nombre, asunto) {
   await transporter.sendMail(mailOptions);
 }
 
-const enviarCorreoRecuperacion = async (to, nombre, token) => {
-  // Ajusta el puerto del frontend si es distinto a 5173
-  // IMPORTANTE: Uso '?token=' porque así lo espera tu frontend en useLocation()
+const enviarCorreoRecuperacion = async (to, nombre, token) => {  
   const link = `http://localhost:5173/reset-password?token=${token}`;
 
   const mailOptions = {
@@ -58,14 +49,6 @@ const enviarCorreoRecuperacion = async (to, nombre, token) => {
   await transporter.sendMail(mailOptions);
 };
 
-/**
- * Envía un email de confirmación de compra al cliente
- * @param {string} to - Email del cliente
- * @param {string} nombre - Nombre del cliente
- * @param {number} idVentaO - ID de la venta
- * @param {number} totalPago - Total pagado
- * @param {Array} productos - Array de productos comprados
- */
 async function enviarConfirmacionCompra(
   to,
   nombre,
@@ -165,14 +148,6 @@ async function enviarConfirmacionCompra(
   await transporter.sendMail(mailOptions);
 }
 
-/**
- * Envía un email con el cupón de bienvenida
- * @param {string} to - Email del cliente
- * @param {string} nombre - Nombre del cliente
- * @param {string} codigoCupon - Código del cupón
- * @param {number} valorDescuento - Porcentaje de descuento
- * @param {string} fechaVencimiento - Fecha de vencimiento
- */
 async function enviarCuponBienvenida(
   to,
   nombre,

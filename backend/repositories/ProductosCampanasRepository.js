@@ -1,7 +1,5 @@
 const { pool } = require("../config/database");
 
-// ==================== RELACIONES ====================
-
 const findByCampana = async (idCampana) => {
   const [rows] = await pool.query(
     `SELECT 
@@ -84,8 +82,6 @@ const exists = async (idCampana, idProducto) => {
   return rows[0].existe > 0;
 };
 
-// ==================== CREAR/ACTUALIZAR ====================
-
 const create = async (
   idCampana,
   idProducto,
@@ -111,7 +107,7 @@ const addMultiple = async (
     idCampana,
     idProducto,
     porcentajeDescuentoOverride,
-    1, // esActivo
+    1, 
   ]);
 
   const [result] = await pool.query(
@@ -144,8 +140,6 @@ const toggleActivo = async (id, esActivo) => {
   );
   return result.affectedRows;
 };
-
-// ==================== ELIMINAR ====================
 
 const deleteRelacion = async (id) => {
   const [result] = await pool.query(

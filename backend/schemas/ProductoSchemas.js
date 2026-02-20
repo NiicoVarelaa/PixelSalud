@@ -1,12 +1,5 @@
 const { z } = require("zod");
 
-// ==========================================
-// SCHEMAS PARA PARÁMETROS
-// ==========================================
-
-/**
- * Schema para validar ID de producto en params
- */
 const idProductoParamSchema = z.object({
   idProducto: z
     .string()
@@ -15,9 +8,6 @@ const idProductoParamSchema = z.object({
     .refine((val) => val > 0, "ID debe ser mayor a 0"),
 });
 
-/**
- * Schema para validar ID genérico en params
- */
 const idParamSchema = z.object({
   id: z
     .string()
@@ -26,13 +16,6 @@ const idParamSchema = z.object({
     .refine((val) => val > 0, "ID debe ser mayor a 0"),
 });
 
-// ==========================================
-// SCHEMAS PARA QUERY PARAMS
-// ==========================================
-
-/**
- * Schema para búsqueda de productos
- */
 const buscarProductosQuerySchema = z.object({
   term: z
     .string()
@@ -40,13 +23,6 @@ const buscarProductosQuerySchema = z.object({
     .max(100, "El término de búsqueda es demasiado largo"),
 });
 
-// ==========================================
-// SCHEMAS PARA PRODUCTOS
-// ==========================================
-
-/**
- * Schema para crear un nuevo producto
- */
 const createProductoSchema = z.object({
   nombreProducto: z
     .string()
@@ -97,9 +73,6 @@ const createProductoSchema = z.object({
     .default(false),
 });
 
-/**
- * Schema para actualizar un producto (todos los campos opcionales)
- */
 const updateProductoSchema = z
   .object({
     nombreProducto: z
@@ -169,9 +142,6 @@ const updateProductoSchema = z
     message: "Debe proporcionar al menos un campo para actualizar",
   });
 
-/**
- * Schema para actualizar solo el estado activo
- */
 const updateActivoSchema = z.object({
   activo: z.union([z.boolean(), z.number(), z.string()]).transform((val) => {
     if (typeof val === "boolean") return val;
@@ -183,14 +153,9 @@ const updateActivoSchema = z.object({
 });
 
 module.exports = {
-  // Params
   idProductoParamSchema,
   idParamSchema,
-
-  // Query
   buscarProductosQuerySchema,
-
-  // Productos
   createProductoSchema,
   updateProductoSchema,
   updateActivoSchema,

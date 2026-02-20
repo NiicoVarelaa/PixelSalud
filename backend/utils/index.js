@@ -1,13 +1,6 @@
-/**
- * Exportación centralizada de utilidades
- *
- * Esto permite hacer:
- *   const { dateUtils, priceUtils, withTransaction } = require('../utils');
- */
-
 module.exports = {
-  dateUtils: require("./DateUtils"),
-  priceUtils: require("./PriceUtils"),
+  dateUtils: require("./dateUtils"),
+  priceUtils: require("./priceUtils"),
   stringUtils: require("./stringUtils"),
   transaction: require("./transaction"),
 };

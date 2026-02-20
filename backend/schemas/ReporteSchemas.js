@@ -1,8 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schema para validar filtros de reporte de ventas online
- */
 const reporteVentasOnlineSchema = z.object({
   query: z.object({
     fechaDesde: z
@@ -41,9 +38,6 @@ const reporteVentasOnlineSchema = z.object({
   }),
 });
 
-/**
- * Schema para validar filtros de reporte de ventas empleados
- */
 const reporteVentasEmpleadosSchema = z.object({
   query: z.object({
     fechaDesde: z
@@ -90,9 +84,6 @@ const reporteVentasEmpleadosSchema = z.object({
   }),
 });
 
-/**
- * Schema para validar filtros de reporte consolidado
- */
 const reporteConsolidadoSchema = z.object({
   query: z.object({
     fechaDesde: z
@@ -119,9 +110,6 @@ const reporteConsolidadoSchema = z.object({
   }),
 });
 
-/**
- * Schema para validar filtros de reporte de productos vendidos
- */
 const reporteProductosVendidosSchema = z.object({
   query: z.object({
     fechaDesde: z

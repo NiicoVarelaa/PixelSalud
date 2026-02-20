@@ -8,23 +8,10 @@ const bcryptjs = require("bcryptjs");
 const crypto = require("crypto");
 const { enviarCorreoRecuperacion } = require("../helps/EnvioMail");
 
-/**
- * Servicio para la lógica de negocio de Clientes
- * Maneja validaciones, hash de contraseñas, tokens de recuperación
- */
-
-/**
- * Obtiene todos los clientes activos
- * @returns {Promise<Array>}
- */
 const obtenerClientes = async () => {
   return await clientesRepository.findAll();
 };
-
-/**
- * Obtiene clientes inactivos
- * @returns {Promise<Array>}
- */
+ 
 const obtenerClientesInactivos = async () => {
   const clientes = await clientesRepository.findInactivos();
 
@@ -35,11 +22,6 @@ const obtenerClientesInactivos = async () => {
   return clientes;
 };
 
-/**
- * Obtiene un cliente por ID
- * @param {number} idCliente
- * @returns {Promise<Object>}
- */
 const obtenerClientePorId = async (idCliente) => {
   const cliente = await clientesRepository.findById(idCliente);
 
@@ -50,11 +32,6 @@ const obtenerClientePorId = async (idCliente) => {
   return cliente;
 };
 
-/**
- * Busca un cliente por DNI
- * @param {string} dni
- * @returns {Promise<Object>}
- */
 const buscarClientePorDNI = async (dni) => {
   const cliente = await clientesRepository.findByDNI(dni);
 
@@ -65,16 +42,10 @@ const buscarClientePorDNI = async (dni) => {
   return cliente;
 };
 
-/**
- * Crea un nuevo cliente
- * @param {Object} clienteData
- * @returns {Promise<Object>}
- */
 const crearCliente = async (clienteData) => {
   const { nombreCliente, apellidoCliente, contraCliente, emailCliente, dni } =
     clienteData;
 
-  // Validar que el email sea único
   const emailExiste = await clientesRepository.existsByEmail(emailCliente);
   if (emailExiste) {
     throw createConflictError(
@@ -82,11 +53,9 @@ const crearCliente = async (clienteData) => {
     );
   }
 
-  // Hash de la contraseña
   const salt = await bcryptjs.genSalt(10);
   const contraEncrip = await bcryptjs.hash(contraCliente, salt);
 
-  // Crear cliente
   const result = await clientesRepository.create({
     nombreCliente,
     apellidoCliente,
@@ -101,20 +70,12 @@ const crearCliente = async (clienteData) => {
   };
 };
 
-/**
- * Actualiza un cliente existente
- * @param {number} idCliente
- * @param {Object} updates
- * @returns {Promise<Object>}
- */
 const actualizarCliente = async (idCliente, updates) => {
-  // Verificar que el cliente existe
   const clienteExiste = await clientesRepository.findById(idCliente);
   if (!clienteExiste) {
     throw createNotFoundError("Cliente no encontrado");
   }
 
-  // Validar email único si se está actualizando
   if (updates.emailCliente) {
     const emailEnUso = await clientesRepository.existsEmailExcept(
       updates.emailCliente,
@@ -125,13 +86,11 @@ const actualizarCliente = async (idCliente, updates) => {
     }
   }
 
-  // Hash de contraseña si se está actualizando
   if (updates.contraCliente) {
     const salt = await bcryptjs.genSalt(10);
     updates.contraCliente = await bcryptjs.hash(updates.contraCliente, salt);
   }
 
-  // Validar que haya campos para actualizar
   const camposActualizables = [
     "nombreCliente",
     "apellidoCliente",
@@ -150,7 +109,6 @@ const actualizarCliente = async (idCliente, updates) => {
     throw createValidationError("No se enviaron datos para actualizar");
   }
 
-  // Actualizar
   await clientesRepository.update(idCliente, updates);
 
   return {
@@ -158,11 +116,6 @@ const actualizarCliente = async (idCliente, updates) => {
   };
 };
 
-/**
- * Da de baja un cliente (activo = false)
- * @param {number} idCliente
- * @returns {Promise<Object>}
- */
 const darBajaCliente = async (idCliente) => {
   const result = await clientesRepository.updateEstado(idCliente, false);
 
@@ -175,11 +128,6 @@ const darBajaCliente = async (idCliente) => {
   };
 };
 
-/**
- * Activa un cliente (activo = true)
- * @param {number} idCliente
- * @returns {Promise<Object>}
- */
 const activarCliente = async (idCliente) => {
   const result = await clientesRepository.updateEstado(idCliente, true);
 
@@ -192,21 +140,13 @@ const activarCliente = async (idCliente) => {
   };
 };
 
-/**
- * Registra un paciente de forma express (para médicos)
- * Usa el DNI como contraseña inicial
- * @param {Object} pacienteData
- * @returns {Promise<Object>}
- */
 const registrarPacienteExpress = async (pacienteData) => {
   const { nombre, apellido, dni, email } = pacienteData;
 
-  // Validar campos obligatorios
   if (!nombre || !apellido || !dni || !email) {
     throw createValidationError("Todos los campos son obligatorios");
   }
 
-  // Verificar duplicados
   const emailExiste = await clientesRepository.existsByEmail(email);
   const dniExiste = await clientesRepository.existsByDNI(dni);
 
@@ -216,11 +156,9 @@ const registrarPacienteExpress = async (pacienteData) => {
     );
   }
 
-  // Hash del DNI como contraseña
   const salt = await bcryptjs.genSalt(10);
   const contraHasheada = await bcryptjs.hash(dni.toString(), salt);
 
-  // Crear cliente
   const result = await clientesRepository.create({
     nombreCliente: nombre,
     apellidoCliente: apellido,
@@ -237,36 +175,26 @@ const registrarPacienteExpress = async (pacienteData) => {
   };
 };
 
-/**
- * Solicita recuperación de contraseña
- * Genera token y envía email
- * @param {string} email
- * @returns {Promise<Object>}
- */
 const solicitarRecuperacion = async (email) => {
   if (!email) {
     throw createValidationError("El email es obligatorio");
   }
 
-  // Buscar cliente por email
   const cliente = await clientesRepository.findByEmail(email);
 
   if (!cliente) {
     throw createNotFoundError("No existe un usuario con este email");
   }
 
-  // Generar token y fecha de expiración (1 hora)
   const token = crypto.randomBytes(32).toString("hex");
-  const expiracion = new Date(Date.now() + 3600000); // 1 hora
+  const expiracion = new Date(Date.now() + 3600000); 
 
-  // Guardar token en BD
   await clientesRepository.saveRecoveryToken(
     cliente.idCliente,
     token,
     expiracion,
   );
 
-  // Enviar email
   await enviarCorreoRecuperacion(email, cliente.nombreCliente, token);
 
   return {
@@ -274,29 +202,20 @@ const solicitarRecuperacion = async (email) => {
   };
 };
 
-/**
- * Restablece la contraseña usando el token
- * @param {string} token
- * @param {string} nuevaPassword
- * @returns {Promise<Object>}
- */
 const restablecerPassword = async (token, nuevaPassword) => {
   if (!token || !nuevaPassword) {
     throw createValidationError("Datos incompletos");
   }
 
-  // Buscar cliente con token válido
   const cliente = await clientesRepository.findByValidToken(token);
 
   if (!cliente) {
     throw createValidationError("Token inválido o expirado");
   }
 
-  // Hash de la nueva contraseña
   const salt = await bcryptjs.genSalt(10);
   const contraEncrip = await bcryptjs.hash(nuevaPassword, salt);
 
-  // Actualizar contraseña y limpiar token
   await clientesRepository.updatePassword(cliente.idCliente, contraEncrip);
 
   return {

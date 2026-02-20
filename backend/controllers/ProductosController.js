@@ -1,12 +1,5 @@
 const productosService = require("../services/ProductosService");
 
-// ==========================================
-// CONTROLADORES DE PRODUCTOS
-// ==========================================
-
-/**
- * Obtiene todos los productos con información de ofertas
- */
 const getProductos = async (req, res, next) => {
   try {
     const productos = await productosService.obtenerProductos();
@@ -16,9 +9,6 @@ const getProductos = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene un producto por ID con información de ofertas
- */
 const getProducto = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
@@ -29,9 +19,6 @@ const getProducto = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene productos inactivos (dados de baja)
- */
 const getProductoBajado = async (req, res, next) => {
   try {
     const productos = await productosService.obtenerProductosInactivos();
@@ -41,9 +28,6 @@ const getProductoBajado = async (req, res, next) => {
   }
 };
 
-/**
- * Busca productos por término de búsqueda
- */
 const buscarProductos = async (req, res, next) => {
   try {
     const { term } = req.query;
@@ -54,9 +38,6 @@ const buscarProductos = async (req, res, next) => {
   }
 };
 
-/**
- * Crea un nuevo producto
- */
 const createProducto = async (req, res, next) => {
   try {
     const producto = await productosService.crearProducto(req.body);
@@ -69,9 +50,6 @@ const createProducto = async (req, res, next) => {
   }
 };
 
-/**
- * Actualiza un producto existente
- */
 const updateProducto = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
@@ -88,9 +66,6 @@ const updateProducto = async (req, res, next) => {
   }
 };
 
-/**
- * Actualiza solo el estado activo de un producto
- */
 const updateProductoActivo = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
@@ -104,9 +79,6 @@ const updateProductoActivo = async (req, res, next) => {
   }
 };
 
-/**
- * Da de baja un producto (activo = false)
- */
 const deleteProducto = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
@@ -119,9 +91,6 @@ const deleteProducto = async (req, res, next) => {
   }
 };
 
-/**
- * Activa un producto (activo = true)
- */
 const activarProducto = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
@@ -133,10 +102,6 @@ const activarProducto = async (req, res, next) => {
     next(error);
   }
 };
-
-// ==========================================
-// EXPORTACIONES
-// ==========================================
 
 module.exports = {
   getProductos,

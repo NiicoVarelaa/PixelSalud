@@ -2,20 +2,11 @@ const mensajesRepository = require("../repositories/MensajesRepository");
 const { enviarConfirmacionCliente } = require("../helps/EnvioMail");
 const { createNotFoundError, createValidationError } = require("../errors");
 
-/**
- * Obtiene todos los mensajes
- * @returns {Promise<Array>}
- */
 const obtenerMensajes = async () => {
   const mensajes = await mensajesRepository.findAll();
   return mensajes || [];
 };
 
-/**
- * Obtiene un mensaje por ID
- * @param {number} idMensaje - ID del mensaje
- * @returns {Promise<Object>}
- */
 const obtenerMensajePorId = async (idMensaje) => {
   const mensaje = await mensajesRepository.findById(idMensaje);
 
@@ -26,23 +17,12 @@ const obtenerMensajePorId = async (idMensaje) => {
   return mensaje;
 };
 
-/**
- * Obtiene mensajes por estado
- * @param {string} estado - Estado del mensaje
- * @returns {Promise<Array>}
- */
 const obtenerMensajesPorEstado = async (estado) => {
   const mensajes = await mensajesRepository.findByEstado(estado);
   return mensajes || [];
 };
 
-/**
- * Obtiene mensajes de un cliente
- * @param {number} idCliente - ID del cliente
- * @returns {Promise<Array>}
- */
 const obtenerMensajesPorCliente = async (idCliente) => {
-  // Verificar que el cliente existe
   const clienteExists = await mensajesRepository.existsCliente(idCliente);
   if (!clienteExists) {
     throw createNotFoundError(`Cliente con ID ${idCliente} no encontrado`);
@@ -52,11 +32,6 @@ const obtenerMensajesPorCliente = async (idCliente) => {
   return mensajes || [];
 };
 
-/**
- * Crea un nuevo mensaje y envía email de confirmación
- * @param {Object} mensajeData - Datos del mensaje
- * @returns {Promise<Object>}
- */
 const crearMensaje = async ({
   idCliente,
   nombre,
@@ -65,7 +40,6 @@ const crearMensaje = async ({
   mensaje,
   fechaEnvio,
 }) => {
-  // Validaciones
   if (!idCliente || !nombre || !email || !mensaje) {
     throw createValidationError(
       "Faltan datos obligatorios (idCliente, nombre, email, mensaje)",
@@ -82,16 +56,13 @@ const crearMensaje = async ({
     );
   }
 
-  // Verificar que el cliente existe
   const clienteExists = await mensajesRepository.existsCliente(idCliente);
   if (!clienteExists) {
     throw createNotFoundError(`Cliente con ID ${idCliente} no encontrado`);
   }
 
-  // Asignar asunto por defecto si no se proporciona
   const asuntoFinal = asunto && asunto.trim() ? asunto.trim() : "Sin Asunto";
 
-  // Crear el mensaje
   const idMensaje = await mensajesRepository.create({
     idCliente,
     nombre: nombre.trim(),
@@ -102,7 +73,6 @@ const crearMensaje = async ({
     estado: "nuevo",
   });
 
-  // Enviar email de confirmación (no bloquear respuesta si falla)
   enviarConfirmacionCliente(email, nombre, asuntoFinal).catch((error) =>
     console.error("Error enviando email de confirmación:", error),
   );
@@ -113,20 +83,12 @@ const crearMensaje = async ({
   };
 };
 
-/**
- * Actualiza el estado de un mensaje
- * @param {number} idMensaje - ID del mensaje
- * @param {string} estado - Nuevo estado
- * @returns {Promise<Object>}
- */
 const actualizarEstado = async (idMensaje, estado) => {
-  // Verificar que el mensaje existe
   const mensaje = await mensajesRepository.findById(idMensaje);
   if (!mensaje) {
     throw createNotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
   }
 
-  // Actualizar estado
   await mensajesRepository.updateEstado(idMensaje, estado);
 
   return {
@@ -134,19 +96,12 @@ const actualizarEstado = async (idMensaje, estado) => {
   };
 };
 
-/**
- * Elimina un mensaje
- * @param {number} idMensaje - ID del mensaje
- * @returns {Promise<Object>}
- */
 const eliminarMensaje = async (idMensaje) => {
-  // Verificar que el mensaje existe
   const mensaje = await mensajesRepository.findById(idMensaje);
   if (!mensaje) {
     throw createNotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
   }
 
-  // Eliminar mensaje
   await mensajesRepository.deleteById(idMensaje);
 
   return {
@@ -154,19 +109,12 @@ const eliminarMensaje = async (idMensaje) => {
   };
 };
 
-/**
- * Marca un mensaje como leído
- * @param {number} idMensaje - ID del mensaje
- * @returns {Promise<Object>}
- */
 const marcarComoLeido = async (idMensaje) => {
-  // Verificar que el mensaje existe
   const mensaje = await mensajesRepository.findById(idMensaje);
   if (!mensaje) {
     throw createNotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
   }
 
-  // Marcar como leído
   await mensajesRepository.markAsRead(idMensaje);
 
   return {
@@ -174,21 +122,12 @@ const marcarComoLeido = async (idMensaje) => {
   };
 };
 
-/**
- * Responde a un mensaje
- * @param {number} idMensaje - ID del mensaje
- * @param {string} respuesta - Texto de la respuesta
- * @param {string} respondidoPor - Nombre del admin que responde
- * @returns {Promise<Object>}
- */
 const responderMensaje = async (idMensaje, respuesta, respondidoPor) => {
-  // Verificar que el mensaje existe
   const mensaje = await mensajesRepository.findById(idMensaje);
   if (!mensaje) {
     throw createNotFoundError(`Mensaje con ID ${idMensaje} no encontrado`);
   }
 
-  // Validar respuesta
   if (
     !respuesta ||
     typeof respuesta !== "string" ||
@@ -199,7 +138,6 @@ const responderMensaje = async (idMensaje, respuesta, respondidoPor) => {
     );
   }
 
-  // Responder mensaje
   await mensajesRepository.responder(
     idMensaje,
     respuesta.trim(),

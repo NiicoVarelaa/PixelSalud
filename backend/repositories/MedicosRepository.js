@@ -1,14 +1,5 @@
 const { pool } = require("../config/database");
 
-/**
- * Repository para la tabla Medicos
- * Maneja acceso a datos de médicos
- */
-
-/**
- * Obtiene todos los médicos activos
- * @returns {Promise<Array>}
- */
 const findAll = async () => {
   const sql = `
     SELECT 
@@ -26,10 +17,6 @@ const findAll = async () => {
   return rows;
 };
 
-/**
- * Obtiene médicos inactivos
- * @returns {Promise<Array>}
- */
 const findInactivos = async () => {
   const sql = `
     SELECT 
@@ -47,11 +34,6 @@ const findInactivos = async () => {
   return rows;
 };
 
-/**
- * Busca médico por ID
- * @param {number} idMedico
- * @returns {Promise<Object|null>}
- */
 const findById = async (idMedico) => {
   const sql = `
     SELECT 
@@ -68,34 +50,18 @@ const findById = async (idMedico) => {
   return results[0] || null;
 };
 
-/**
- * Busca médico por email (incluye contraseña para autenticación)
- * @param {string} emailMedico
- * @returns {Promise<Object|null>}
- */
 const findByEmail = async (emailMedico) => {
   const sql = `SELECT * FROM Medicos WHERE emailMedico = ?`;
   const [results] = await pool.query(sql, [emailMedico]);
   return results[0] || null;
 };
 
-/**
- * Busca médico por matrícula
- * @param {string} matricula
- * @returns {Promise<Object|null>}
- */
 const findByMatricula = async (matricula) => {
   const sql = `SELECT * FROM Medicos WHERE matricula = ?`;
   const [results] = await pool.query(sql, [matricula]);
   return results[0] || null;
 };
 
-/**
- * Verifica si existe un email excluyendo un ID específico
- * @param {string} emailMedico
- * @param {number} excludeId
- * @returns {Promise<boolean>}
- */
 const existsEmailExcept = async (emailMedico, excludeId) => {
   const sql = `
     SELECT COUNT(*) as count 
@@ -106,12 +72,6 @@ const existsEmailExcept = async (emailMedico, excludeId) => {
   return results[0].count > 0;
 };
 
-/**
- * Verifica si existe una matrícula excluyendo un ID específico
- * @param {string} matricula
- * @param {number} excludeId
- * @returns {Promise<boolean>}
- */
 const existsMatriculaExcept = async (matricula, excludeId) => {
   const sql = `
     SELECT COUNT(*) as count 
@@ -122,11 +82,6 @@ const existsMatriculaExcept = async (matricula, excludeId) => {
   return results[0].count > 0;
 };
 
-/**
- * Crea un nuevo médico
- * @param {Object} medicoData
- * @returns {Promise<number>} idMedico insertado
- */
 const create = async (medicoData) => {
   const sql = `
     INSERT INTO Medicos 
@@ -145,12 +100,6 @@ const create = async (medicoData) => {
   return result.insertId;
 };
 
-/**
- * Actualiza un médico
- * @param {number} idMedico
- * @param {Object} updates
- * @returns {Promise<void>}
- */
 const update = async (idMedico, updates) => {
   const fields = [];
   const values = [];
@@ -185,21 +134,11 @@ const update = async (idMedico, updates) => {
   await pool.query(sql, values);
 };
 
-/**
- * Da de baja un médico (soft delete)
- * @param {number} idMedico
- * @returns {Promise<void>}
- */
 const darBaja = async (idMedico) => {
   const sql = `UPDATE Medicos SET activo = false WHERE idMedico = ?`;
   await pool.query(sql, [idMedico]);
 };
 
-/**
- * Reactiva un médico
- * @param {number} idMedico
- * @returns {Promise<void>}
- */
 const reactivar = async (idMedico) => {
   const sql = `UPDATE Medicos SET activo = true WHERE idMedico = ?`;
   await pool.query(sql, [idMedico]);

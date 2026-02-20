@@ -1,17 +1,6 @@
 const { pool } = require("../config/database");
 
-/**
- * Repository para operaciones de autenticación
- * Maneja consultas de login en múltiples tablas de usuarios
- */
-
-/**
- * Busca un usuario por email en todas las tablas (Admins, Medicos, Empleados, Clientes)
- * @param {string} email - Email del usuario
- * @returns {Promise<{user: Object|null, tipo: string|null}>}
- */
 const findUserByEmail = async (email) => {
-  // Buscar en Admins
   const sqlAdmin = `
     SELECT idAdmin AS id, nombreAdmin AS nombre, 
            emailAdmin AS email, contraAdmin AS contra, rol, 'admin' as tipo
@@ -22,7 +11,6 @@ const findUserByEmail = async (email) => {
     return { user: admins[0], tipo: "admin" };
   }
 
-  // Buscar en Médicos
   const sqlMedico = `
     SELECT idMedico AS id, nombreMedico AS nombre, apellidoMedico AS apellido, 
            emailMedico AS email, contraMedico AS contra, 'medico' as rol, 'medico' as tipo
@@ -33,7 +21,6 @@ const findUserByEmail = async (email) => {
     return { user: medicos[0], tipo: "medico" };
   }
 
-  // Buscar en Empleados
   const sqlEmpleado = `
     SELECT idEmpleado AS id, nombreEmpleado AS nombre, apellidoEmpleado AS apellido, 
            emailEmpleado AS email, contraEmpleado AS contra, rol, 'empleado' as tipo
@@ -44,7 +31,6 @@ const findUserByEmail = async (email) => {
     return { user: empleados[0], tipo: "empleado" };
   }
 
-  // Buscar en Clientes
   const sqlCliente = `
     SELECT idCliente AS id, nombreCliente AS nombre, apellidoCliente AS apellido, 
            emailCliente AS email, contraCliente AS contra, rol, dni, 'cliente' as tipo
@@ -58,22 +44,12 @@ const findUserByEmail = async (email) => {
   return { user: null, tipo: null };
 };
 
-/**
- * Obtiene los permisos de un admin
- * @param {number} idAdmin - ID del admin
- * @returns {Promise<Object|null>}
- */
 const findPermisosByAdmin = async (idAdmin) => {
   const sql = "SELECT * FROM Permisos WHERE idAdmin = ? AND idEmpleado IS NULL";
   const [results] = await pool.query(sql, [idAdmin]);
   return results[0] || null;
 };
 
-/**
- * Obtiene los permisos de un empleado
- * @param {number} idEmpleado - ID del empleado
- * @returns {Promise<Object|null>}
- */
 const findPermisosByEmpleado = async (idEmpleado) => {
   const sql = "SELECT * FROM Permisos WHERE idEmpleado = ? AND idAdmin IS NULL";
   const [results] = await pool.query(sql, [idEmpleado]);

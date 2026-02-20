@@ -1,10 +1,5 @@
 const reportesRepository = require("../repositories/ReportesRepository");
 
-/**
- * Calcula estadísticas de ventas
- * @param {Array} ventas - Array de ventas
- * @returns {Object} - Estadísticas calculadas
- */
 const calcularEstadisticas = (ventas) => {
   const totalIngresos = ventas.reduce(
     (sum, v) => sum + parseFloat(v.totalPago || 0),
@@ -21,11 +16,6 @@ const calcularEstadisticas = (ventas) => {
   };
 };
 
-/**
- * Genera datos para reporte de ventas online
- * @param {Object} filters - Filtros de búsqueda
- * @returns {Promise<Object>}
- */
 const generarReporteVentasOnline = async (filters) => {
   const ventas = await reportesRepository.getVentasOnline(filters);
   const estadisticas = calcularEstadisticas(ventas);
@@ -38,11 +28,6 @@ const generarReporteVentasOnline = async (filters) => {
   };
 };
 
-/**
- * Genera datos para reporte de ventas empleados
- * @param {Object} filters - Filtros de búsqueda
- * @returns {Promise<Object>}
- */
 const generarReporteVentasEmpleados = async (filters) => {
   const ventas = await reportesRepository.getVentasEmpleados(filters);
   const ranking = await reportesRepository.getRankingEmpleados({
@@ -60,27 +45,19 @@ const generarReporteVentasEmpleados = async (filters) => {
   };
 };
 
-/**
- * Genera datos para reporte consolidado
- * @param {Object} filters - Filtros de búsqueda
- * @returns {Promise<Object>}
- */
 const generarReporteConsolidado = async (filters) => {
   const { ventasOnline, ventasEmpleados } =
     await reportesRepository.getComparativaCanales(filters);
   const productosTop = await reportesRepository.getProductosTop(filters);
 
-  // Estadísticas por canal
   const estadisticasOnline = calcularEstadisticas(ventasOnline);
   const estadisticasEmpleados = calcularEstadisticas(ventasEmpleados);
 
-  // Totales generales
   const totalGeneral =
     estadisticasOnline.totalIngresos + estadisticasEmpleados.totalIngresos;
   const ventasGenerales =
     estadisticasOnline.cantidadVentas + estadisticasEmpleados.cantidadVentas;
 
-  // Porcentajes por canal
   const porcentajeOnline =
     totalGeneral > 0
       ? ((estadisticasOnline.totalIngresos / totalGeneral) * 100).toFixed(2)
@@ -105,17 +82,11 @@ const generarReporteConsolidado = async (filters) => {
   };
 };
 
-/**
- * Genera datos para reporte de productos vendidos
- * @param {Object} filters - Filtros de búsqueda
- * @returns {Promise<Object>}
- */
 const generarReporteProductosVendidos = async (filters) => {
   const productosTop = await reportesRepository.getProductosTop(filters);
   const ventasDetalladas =
     await reportesRepository.getVentasConDetalles(filters);
 
-  // Agrupar por categoría
   const ventasPorCategoria = ventasDetalladas.reduce((acc, venta) => {
     const cat = venta.categoria || "Sin Categoría";
     if (!acc[cat]) {
@@ -134,7 +105,6 @@ const generarReporteProductosVendidos = async (filters) => {
     (a, b) => b.ingresoTotal - a.ingresoTotal,
   );
 
-  // Calcular totales
   const totalUnidadesVendidas = productosTop.reduce(
     (sum, p) => sum + parseInt(p.cantidadVendida || 0),
     0,

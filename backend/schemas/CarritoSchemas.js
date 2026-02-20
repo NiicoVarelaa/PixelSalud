@@ -1,10 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schemas de validación Zod para el módulo de Carrito
- */
-
-// Schema para validar idCliente en params
 const idClienteParamSchema = z.object({
   idCliente: z
     .string()
@@ -13,7 +8,6 @@ const idClienteParamSchema = z.object({
     .refine((val) => val > 0, "idCliente debe ser mayor a 0"),
 });
 
-// Schema para validar idProducto en params
 const idProductoParamSchema = z.object({
   idProducto: z
     .string()
@@ -22,7 +16,6 @@ const idProductoParamSchema = z.object({
     .refine((val) => val > 0, "idProducto debe ser mayor a 0"),
 });
 
-// Schema para params de eliminar producto (idCliente + idProducto)
 const eliminarProductoParamsSchema = z.object({
   idCliente: z
     .string()
@@ -36,7 +29,6 @@ const eliminarProductoParamsSchema = z.object({
     .refine((val) => val > 0, "idProducto debe ser mayor a 0"),
 });
 
-// Schema para agregar producto al carrito
 const agregarCarritoSchema = z.object({
   idCliente: z
     .number({ required_error: "idCliente es requerido" })
@@ -56,7 +48,6 @@ const agregarCarritoSchema = z.object({
     .optional(),
 });
 
-// Schema para modificar cantidad (incrementar/decrementar)
 const modificarCantidadSchema = z.object({
   idCliente: z
     .number({ required_error: "idCliente es requerido" })

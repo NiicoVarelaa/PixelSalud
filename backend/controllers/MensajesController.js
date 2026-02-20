@@ -1,11 +1,5 @@
 const mensajesService = require("../services/MensajesService");
 
-/**
- * Lista todos los mensajes
- * @param {Object} req - Request
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const listarMensajes = async (req, res, next) => {
   try {
     const mensajes = await mensajesService.obtenerMensajes();
@@ -15,12 +9,6 @@ const listarMensajes = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene un mensaje por ID
- * @param {Object} req - Request con idMensaje en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const obtenerMensaje = async (req, res, next) => {
   try {
     const idMensaje = parseInt(req.params.idMensaje, 10);
@@ -31,12 +19,6 @@ const obtenerMensaje = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene mensajes por estado
- * @param {Object} req - Request con estado en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const listarMensajesPorEstado = async (req, res, next) => {
   try {
     const { estado } = req.params;
@@ -47,12 +29,6 @@ const listarMensajesPorEstado = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene mensajes de un cliente
- * @param {Object} req - Request con idCliente en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const listarMensajesPorCliente = async (req, res, next) => {
   try {
     const idCliente = parseInt(req.params.idCliente, 10);
@@ -63,12 +39,6 @@ const listarMensajesPorCliente = async (req, res, next) => {
   }
 };
 
-/**
- * Crea un nuevo mensaje
- * @param {Object} req - Request con datos del mensaje en body
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const crearMensaje = async (req, res, next) => {
   try {
     const { idCliente, nombre, email, asunto, mensaje, fechaEnvio } = req.body;
@@ -86,12 +56,6 @@ const crearMensaje = async (req, res, next) => {
   }
 };
 
-/**
- * Actualiza el estado de un mensaje
- * @param {Object} req - Request con idMensaje en params y estado en body
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const actualizarEstadoMensaje = async (req, res, next) => {
   try {
     const idMensaje = parseInt(req.params.idMensaje, 10);
@@ -103,12 +67,6 @@ const actualizarEstadoMensaje = async (req, res, next) => {
   }
 };
 
-/**
- * Elimina un mensaje
- * @param {Object} req - Request con idMensaje en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const eliminarMensaje = async (req, res, next) => {
   try {
     const idMensaje = parseInt(req.params.idMensaje, 10);
@@ -119,12 +77,6 @@ const eliminarMensaje = async (req, res, next) => {
   }
 };
 
-/**
- * Marca un mensaje como leído
- * @param {Object} req - Request con idMensaje en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const marcarComoLeido = async (req, res, next) => {
   try {
     const idMensaje = parseInt(req.params.idMensaje, 10);
@@ -135,12 +87,6 @@ const marcarComoLeido = async (req, res, next) => {
   }
 };
 
-/**
- * Responde a un mensaje
- * @param {Object} req - Request con idMensaje en params y respuesta en body
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const responderMensaje = async (req, res, next) => {
   try {
     const idMensaje = parseInt(req.params.idMensaje, 10);

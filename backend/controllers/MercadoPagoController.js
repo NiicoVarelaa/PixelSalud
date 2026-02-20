@@ -1,9 +1,6 @@
 const mercadoPagoService = require("../services/MercadoPagoService");
 const cuponesService = require("../services/CuponesService");
 
-/**
- * Crea una nueva orden de compra en MercadoPago
- */
 const createOrder = async (req, res, next) => {
   try {
     const { products, customer_info, discount, codigoCupon } = req.body;
@@ -48,7 +45,7 @@ const createOrder = async (req, res, next) => {
       customer_info,
       discount: descuentoFinal,
       userId,
-      cuponAplicado, // Pasar info del cupón para guardarlo después
+      cuponAplicado,
     });
 
     console.log("✅ Orden creada exitosamente");
@@ -70,19 +67,8 @@ const createOrder = async (req, res, next) => {
   }
 };
 
-/**
- * Recibe notificaciones de webhook de MercadoPago
- */
 const receiveWebhook = async (req, res, next) => {
   try {
-    console.log("\n==================================================");
-    console.log("🔔 WEBHOOK RECIBIDO:", new Date().toISOString());
-    console.log("==================================================");
-    console.log("Headers:", JSON.stringify(req.headers, null, 2));
-    console.log("Body:", JSON.stringify(req.body, null, 2));
-    console.log("==================================================\n");
-
-    // Verificar firma del webhook
     const signature = req.headers["x-signature"];
     const isValid = mercadoPagoService.verifyWebhookSignature(
       signature,
@@ -94,10 +80,8 @@ const receiveWebhook = async (req, res, next) => {
       return res.status(401).json({ error: "Invalid signature" });
     }
 
-    // Responder inmediatamente a MercadoPago
     res.status(200).send("OK");
 
-    // Procesar webhook de forma asíncrona
     setImmediate(async () => {
       try {
         await mercadoPagoService.processWebhook(req.body);
@@ -107,26 +91,16 @@ const receiveWebhook = async (req, res, next) => {
     });
   } catch (error) {
     console.error("❌ Error en webhook handler:", error.message);
-    // Aún así responder OK para evitar reintentos innecesarios
     if (!res.headersSent) {
       res.status(200).send("OK");
     }
   }
 };
 
-/**
- * Obtiene las órdenes de compra del usuario
- */
 const getUserOrders = async (req, res, next) => {
   try {
     const userId = req.user.id;
-
-    console.log(`📦 Obteniendo órdenes del usuario ${userId}`);
-
     const orders = await mercadoPagoService.getUserOrders(userId);
-
-    console.log(`✅ ${orders.length} órdenes encontradas`);
-
     res.json({ ventas: orders });
   } catch (error) {
     console.error("❌ Error obteniendo órdenes:", error.message);
@@ -134,19 +108,10 @@ const getUserOrders = async (req, res, next) => {
   }
 };
 
-/**
- * Limpia el carrito del usuario
- */
 const clearUserCart = async (req, res, next) => {
   try {
     const userId = req.user.id;
-
-    console.log(`🧹 Limpiando carrito del usuario ${userId}`);
-
     await mercadoPagoService.clearUserCart(userId);
-
-    console.log("✅ Carrito limpiado exitosamente");
-
     res.json({
       success: true,
       message: "Carrito limpiado exitosamente",

@@ -1,10 +1,5 @@
 const permisosService = require("../services/PermisosService");
 
-/**
- * Obtiene todos los permisos
- * @route GET /permisos
- * @access Admin
- */
 const getPermisos = async (req, res, next) => {
   try {
     const result = await permisosService.obtenerPermisos();
@@ -14,11 +9,6 @@ const getPermisos = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene los permisos de un empleado específico
- * @route GET /permisos/:id
- * @access Admin
- */
 const getPermisosByEmpleado = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -31,11 +21,6 @@ const getPermisosByEmpleado = async (req, res, next) => {
   }
 };
 
-/**
- * Crea permisos para un empleado
- * @route POST /permisos/crear/:id
- * @access Admin
- */
 const createPermisos = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -49,11 +34,6 @@ const createPermisos = async (req, res, next) => {
   }
 };
 
-/**
- * Actualiza los permisos de un empleado
- * @route PUT /permisos/update/:id
- * @access Admin
- */
 const updatePermisos = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -67,11 +47,6 @@ const updatePermisos = async (req, res, next) => {
   }
 };
 
-/**
- * Elimina los permisos de un empleado
- * @route DELETE /permisos/:id
- * @access Admin
- */
 const deletePermisos = async (req, res, next) => {
   try {
     const { id } = req.params;

@@ -1,8 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schema para validar el idMensaje como parámetro de ruta
- */
 const idMensajeParamSchema = z.object({
   idMensaje: z.coerce
     .number({
@@ -13,9 +10,6 @@ const idMensajeParamSchema = z.object({
     .positive("El ID del mensaje debe ser un número positivo"),
 });
 
-/**
- * Schema para validar el idCliente como parámetro de ruta
- */
 const idClienteParamSchema = z.object({
   idCliente: z.coerce
     .number({
@@ -26,9 +20,6 @@ const idClienteParamSchema = z.object({
     .positive("El ID del cliente debe ser un número positivo"),
 });
 
-/**
- * Schema para validar el estado como parámetro de ruta
- */
 const estadoParamSchema = z.object({
   estado: z.enum(["nuevo", "leido", "respondido"], {
     required_error: "El estado es requerido",
@@ -36,9 +27,6 @@ const estadoParamSchema = z.object({
   }),
 });
 
-/**
- * Schema para validar la creación de un mensaje
- */
 const createMensajeSchema = z.object({
   body: z.object({
     idCliente: z
@@ -94,9 +82,6 @@ const createMensajeSchema = z.object({
   }),
 });
 
-/**
- * Schema para validar la actualización del estado de un mensaje
- */
 const updateEstadoMensajeSchema = z.object({
   params: idMensajeParamSchema.shape,
   body: z.object({
@@ -108,9 +93,6 @@ const updateEstadoMensajeSchema = z.object({
   }),
 });
 
-/**
- * Schema para validar la respuesta a un mensaje
- */
 const responderMensajeSchema = z.object({
   params: idMensajeParamSchema.shape,
   body: z.object({
