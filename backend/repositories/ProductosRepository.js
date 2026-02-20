@@ -1,13 +1,5 @@
 const { pool } = require("../config/database");
 
-/**
- * Repository para gestionar el acceso a la tabla Productos
- */
-
-/**
- * Obtiene todos los productos activos con información de ofertas
- * @returns {Promise<Array>}
- */
 const findAllWithOfertas = async () => {
   const sql = `
     SELECT 
@@ -44,11 +36,6 @@ const findAllWithOfertas = async () => {
   return rows;
 };
 
-/**
- * Obtiene un producto por ID con información de ofertas
- * @param {number} idProducto - ID del producto
- * @returns {Promise<Object|null>}
- */
 const findByIdWithOfertas = async (idProducto) => {
   const sql = `
     SELECT 
@@ -86,11 +73,6 @@ const findByIdWithOfertas = async (idProducto) => {
   return rows[0] || null;
 };
 
-/**
- * Obtiene un producto por ID
- * @param {number} idProducto - ID del producto
- * @returns {Promise<Object|null>}
- */
 const findById = async (idProducto) => {
   const [rows] = await pool.query(
     "SELECT * FROM Productos WHERE idProducto = ?",
@@ -99,21 +81,12 @@ const findById = async (idProducto) => {
   return rows[0] || null;
 };
 
-/**
- * Obtiene productos inactivos (dados de baja)
- * @returns {Promise<Array>}
- */
 const findInactivos = async () => {
   const sql = "SELECT * FROM Productos WHERE activo = false";
   const [rows] = await pool.query(sql);
   return rows;
 };
 
-/**
- * Obtiene productos por categoría con ofertas
- * @param {string} categoria - Nombre de la categoría
- * @returns {Promise<Array>}
- */
 const findByCategoriaWithOfertas = async (categoria) => {
   const sql = `
     SELECT 
@@ -141,11 +114,6 @@ const findByCategoriaWithOfertas = async (categoria) => {
   return rows;
 };
 
-/**
- * Busca productos por término de búsqueda
- * @param {string} term - Término de búsqueda
- * @returns {Promise<Array>}
- */
 const searchByName = async (term) => {
   const sql = `
     SELECT idProducto, nombreProducto, precio, stock, categoria, requiereReceta 
@@ -159,11 +127,6 @@ const searchByName = async (term) => {
   return rows;
 };
 
-/**
- * Crea un nuevo producto
- * @param {Object} data - Datos del producto
- * @returns {Promise<number>} ID del producto creado
- */
 const create = async (data) => {
   const {
     nombreProducto,
@@ -192,12 +155,6 @@ const create = async (data) => {
   return result.insertId;
 };
 
-/**
- * Actualiza un producto
- * @param {number} idProducto - ID del producto
- * @param {Object} data - Campos a actualizar
- * @returns {Promise<boolean>}
- */
 const update = async (idProducto, data) => {
   const fields = [];
   const values = [];
@@ -219,11 +176,6 @@ const update = async (idProducto, data) => {
   return result.affectedRows > 0;
 };
 
-/**
- * Verifica si existe un producto con los criterios dados
- * @param {Object} criteria - Criterios de búsqueda
- * @returns {Promise<boolean>}
- */
 const exists = async (criteria) => {
   const keys = Object.keys(criteria);
   if (keys.length === 0) return false;
@@ -238,40 +190,18 @@ const exists = async (criteria) => {
   return rows[0].count > 0;
 };
 
-/**
- * Actualiza el estado activo de un producto
- * @param {number} idProducto - ID del producto
- * @param {boolean} activo - Nuevo estado
- * @returns {Promise<boolean>}
- */
 const updateActivo = async (idProducto, activo) => {
   return await update(idProducto, { activo });
 };
 
-/**
- * Da de baja un producto (activo = false)
- * @param {number} idProducto - ID del producto
- * @returns {Promise<boolean>}
- */
 const darBaja = async (idProducto) => {
   return await updateActivo(idProducto, false);
 };
 
-/**
- * Activa un producto (activo = true)
- * @param {number} idProducto - ID del producto
- * @returns {Promise<boolean>}
- */
 const activar = async (idProducto) => {
   return await updateActivo(idProducto, true);
 };
 
-/**
- * Decrementa el stock de un producto
- * @param {number} idProducto - ID del producto
- * @param {number} cantidad - Cantidad a decrementar
- * @returns {Promise<boolean>}
- */
 const decrementStock = async (idProducto, cantidad) => {
   const sql = `
     UPDATE Productos 
@@ -282,22 +212,12 @@ const decrementStock = async (idProducto, cantidad) => {
   return result.affectedRows > 0;
 };
 
-/**
- * Verifica si hay stock suficiente
- * @param {number} idProducto - ID del producto
- * @param {number} cantidad - Cantidad requerida
- * @returns {Promise<boolean>}
- */
 const hasStock = async (idProducto, cantidad) => {
   const sql = "SELECT stock FROM Productos WHERE idProducto = ?";
   const [rows] = await pool.query(sql, [idProducto]);
   return rows[0] && rows[0].stock >= cantidad;
 };
 
-/**
- * Obtiene productos con stock bajo (menos de 5 unidades)
- * @returns {Promise<Array>}
- */
 const findWithLowStock = async () => {
   const sql = `
     SELECT idProducto, nombreProducto, stock, categoria 

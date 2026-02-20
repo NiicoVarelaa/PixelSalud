@@ -1,7 +1,5 @@
 const campanasService = require("../services/CampanasService");
 
-// ==================== CAMPAÑAS ====================
-
 const getCampanas = async (req, res, next) => {
   try {
     const campanas = await campanasService.obtenerCampanas();
@@ -71,8 +69,6 @@ const deleteCampana = async (req, res, next) => {
     next(error);
   }
 };
-
-// ==================== PRODUCTOS EN CAMPAÑAS ====================
 
 const getProductosCampana = async (req, res, next) => {
   try {
@@ -151,8 +147,6 @@ const updateOverride = async (req, res, next) => {
     next(error);
   }
 };
-
-// ==================== CONSULTAS ====================
 
 const getCampanasDeProducto = async (req, res, next) => {
   try {

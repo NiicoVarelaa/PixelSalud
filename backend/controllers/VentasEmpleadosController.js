@@ -1,11 +1,5 @@
 const ventasEmpleadosService = require("../services/VentasEmpleadosService");
 
-/**
- * Obtiene todas las ventas de empleados
- * @param {Object} req - Request
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const obtenerVentasEmpleado = async (req, res, next) => {
   try {
     const ventas = await ventasEmpleadosService.obtenerTodasLasVentas();
@@ -15,12 +9,6 @@ const obtenerVentasEmpleado = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene las ventas de un empleado específico
- * @param {Object} req - Request con idEmpleado en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const obtenerLaVentaDeUnEmpleado = async (req, res, next) => {
   try {
     const idEmpleado = parseInt(req.params.idEmpleado, 10);
@@ -32,12 +20,6 @@ const obtenerLaVentaDeUnEmpleado = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene los detalles de una venta específica
- * @param {Object} req - Request con idVentaE en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const obtenerDetalleVentaEmpleado = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);
@@ -48,12 +30,6 @@ const obtenerDetalleVentaEmpleado = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene las ventas anuladas
- * @param {Object} req - Request
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const obtenerVentasAnuladas = async (req, res, next) => {
   try {
     const ventas = await ventasEmpleadosService.obtenerVentasAnuladas();
@@ -63,12 +39,6 @@ const obtenerVentasAnuladas = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene las ventas completadas
- * @param {Object} req - Request
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const obtenerVentasCompletadas = async (req, res, next) => {
   try {
     const ventas = await ventasEmpleadosService.obtenerVentasCompletadas();
@@ -78,12 +48,6 @@ const obtenerVentasCompletadas = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene una venta específica por ID (simple)
- * @param {Object} req - Request con idVentaE en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const obtenerVentaPorId = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);
@@ -94,12 +58,6 @@ const obtenerVentaPorId = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene una venta para editar (simple)
- * @param {Object} req - Request con idVentaE en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const obtenerVentaParaEditar = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);
@@ -110,12 +68,6 @@ const obtenerVentaParaEditar = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene todas las ventas (para admin con detalles)
- * @param {Object} req - Request
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const obtenerVentasParaAdmin = async (req, res, next) => {
   try {
     const ventas = await ventasEmpleadosService.obtenerTodasLasVentas();
@@ -125,12 +77,6 @@ const obtenerVentasParaAdmin = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene una venta con detalles completos (para admin)
- * @param {Object} req - Request con idVentaE en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const obtenerVentaCompletaAdmin = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);
@@ -141,12 +87,6 @@ const obtenerVentaCompletaAdmin = async (req, res, next) => {
   }
 };
 
-/**
- * Registra una nueva venta de empleado
- * @param {Object} req - Request con datos de venta en body
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const registrarVentaEmpleado = async (req, res, next) => {
   try {
     const { idEmpleado, totalPago, metodoPago, productos } = req.body;
@@ -162,12 +102,6 @@ const registrarVentaEmpleado = async (req, res, next) => {
   }
 };
 
-/**
- * Actualiza una venta de empleado
- * @param {Object} req - Request con idVentaE en params y datos en body
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const updateVenta = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);
@@ -184,12 +118,6 @@ const updateVenta = async (req, res, next) => {
   }
 };
 
-/**
- * Anula una venta de empleado
- * @param {Object} req - Request con idVentaE en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const anularVenta = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);
@@ -200,12 +128,6 @@ const anularVenta = async (req, res, next) => {
   }
 };
 
-/**
- * Reactiva una venta anulada
- * @param {Object} req - Request con idVentaE en params
- * @param {Object} res - Response
- * @param {Function} next - Next middleware
- */
 const reactivarVenta = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);

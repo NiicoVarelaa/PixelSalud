@@ -1,4 +1,9 @@
 require("dotenv").config();
+
+const { validateEnv, printEnvInfo } = require("./config/validateEnv");
+validateEnv(); 
+printEnvInfo(); 
+
 const express = require("express");
 
 const { conection } = require("./config/database");
@@ -22,11 +27,40 @@ const routesMensajes = require("./routes/MensajesRoutes");
 const routesRecetas = require("./routes/RecetasRoutes");
 const routesReportes = require("./routes/ReportesRoutes");
 const routesCupones = require("./routes/CuponesRoutes");
-const { errorHandler, notFoundHandler } = require("./middlewares/ErrorHandler");
+const { errorHandler, notFoundHandler } = require("./middlewares/errorHandler");
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      process.env.FRONTEND_URL?.replace(/\/$/, ""),
+      "https://pixel-salud.vercel.app",
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "http://127.0.0.1:5173",
+      process.env.BACKEND_URL?.replace(/\/$/, ""),
+    ].filter(Boolean);
+
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️ CORS bloqueado para origen: ${origin}`);
+      callback(new Error(`Origen ${origin} no permitido por CORS`));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "auth", "Authorization"],
+  exposedHeaders: ["RateLimit-Limit", "RateLimit-Remaining", "RateLimit-Reset"],
+  maxAge: 86400,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -53,9 +87,8 @@ app.use("/", routesRecetas);
 app.use("/", routesReportes);
 app.use("/", routesCupones);
 
-// Middleware de manejo de errores (DEBE IR AL FINAL, después de todas las rutas)
-app.use(notFoundHandler); // Maneja rutas no encontradas (404)
-app.use(errorHandler); // Maneja todos los errores de forma centralizada
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 conection.connect((err) => {
   if (err) {

@@ -1,10 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schemas de validación Zod para el módulo de Clientes
- */
-
-// Schema para validar idCliente en params
 const idClienteParamSchema = z.object({
   idCliente: z
     .string()
@@ -13,7 +8,6 @@ const idClienteParamSchema = z.object({
     .refine((val) => val > 0, "idCliente debe ser mayor a 0"),
 });
 
-// Schema genérico para ID en params
 const idParamSchema = z.object({
   id: z
     .string()
@@ -22,12 +16,10 @@ const idParamSchema = z.object({
     .refine((val) => val > 0, "id debe ser mayor a 0"),
 });
 
-// Schema para DNI en params
 const dniParamSchema = z.object({
   dni: z.string().regex(/^\d{7,8}$/, "DNI debe tener 7 u 8 dígitos"),
 });
 
-// Schema para crear cliente
 const createClienteSchema = z.object({
   nombreCliente: z
     .string({ required_error: "nombreCliente es requerido" })
@@ -74,7 +66,6 @@ const createClienteSchema = z.object({
     .optional(),
 });
 
-// Schema para actualizar cliente (todos los campos opcionales)
 const updateClienteSchema = z.object({
   nombreCliente: z
     .string()
@@ -131,7 +122,6 @@ const updateClienteSchema = z.object({
     .optional(),
 });
 
-// Schema para registro express (médicos registran pacientes)
 const registroExpressSchema = z.object({
   nombre: z
     .string({ required_error: "nombre es requerido" })
@@ -162,7 +152,6 @@ const registroExpressSchema = z.object({
     .trim(),
 });
 
-// Schema para solicitar recuperación de contraseña
 const olvidePasswordSchema = z.object({
   email: z
     .string({ required_error: "email es requerido" })
@@ -171,7 +160,6 @@ const olvidePasswordSchema = z.object({
     .trim(),
 });
 
-// Schema para restablecer contraseña
 const restablecerPasswordSchema = z.object({
   nuevaPassword: z
     .string({ required_error: "nuevaPassword es requerido" })
@@ -179,7 +167,6 @@ const restablecerPasswordSchema = z.object({
     .max(100, "La contraseña no puede exceder 100 caracteres"),
 });
 
-// Schema para token en params
 const tokenParamSchema = z.object({
   token: z.string().min(32, "Token inválido").max(128, "Token inválido"),
 });

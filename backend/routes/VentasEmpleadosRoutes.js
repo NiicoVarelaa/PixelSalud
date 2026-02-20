@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-// Controllers
 const {
   registrarVentaEmpleado,
   obtenerVentasEmpleado,
@@ -15,18 +14,16 @@ const {
   obtenerVentaPorId,
   obtenerVentaParaEditar,
   obtenerVentasParaAdmin,
-  obtenerVentaCompletaAdmin,
 } = require("../controllers/VentasEmpleadosController");
 
-// Middlewares
 const auth = require("../middlewares/Auth");
 const {
   verificarRol,
   verificarPermisos,
 } = require("../middlewares/VerificarPermisos");
 const { validate } = require("../middlewares/validate");
+const { mutationLimiter } = require("../config/rateLimiters");
 
-// Schemas
 const {
   idVentaEParamSchema,
   idEmpleadoParamSchema,
@@ -34,15 +31,6 @@ const {
   updateVentaEmpleadoSchema,
 } = require("../schemas/VentaEmpleadoSchemas");
 
-// ====================================
-// RUTAS PARA CONSULTAS
-// ====================================
-
-/**
- * GET /ventasEmpleados
- * Obtiene todas las ventas de empleados
- * Requiere: auth + (admin o empleado) + permiso ver_ventasTotalesE
- */
 router.get(
   "/ventasEmpleados",
   auth,
@@ -51,11 +39,6 @@ router.get(
   obtenerVentasEmpleado,
 );
 
-/**
- * GET /ventasEmpleados/completas
- * Obtiene las ventas completadas
- * Requiere: auth + (admin o empleado) + permiso ver_ventasTotalesE
- */
 router.get(
   "/ventasEmpleados/completas",
   auth,
@@ -64,11 +47,6 @@ router.get(
   obtenerVentasCompletadas,
 );
 
-/**
- * GET /ventasEmpleados/anuladas
- * Obtiene las ventas anuladas
- * Requiere: auth + (admin o empleado) + permiso ver_ventasTotalesE
- */
 router.get(
   "/ventasEmpleados/anuladas",
   auth,
@@ -77,11 +55,6 @@ router.get(
   obtenerVentasAnuladas,
 );
 
-/**
- * GET /ventasEmpleados/detalle/:idVentaE
- * Obtiene los detalles de una venta específica
- * Requiere: auth + (admin o empleado)
- */
 router.get(
   "/ventasEmpleados/detalle/:idVentaE",
   auth,
@@ -90,11 +63,6 @@ router.get(
   obtenerDetalleVentaEmpleado,
 );
 
-/**
- * GET /ventasEmpleados/venta/:idVentaE
- * Obtiene una venta específica por ID
- * Requiere: auth + (admin o empleado)
- */
 router.get(
   "/ventasEmpleados/venta/:idVentaE",
   auth,
@@ -103,11 +71,6 @@ router.get(
   obtenerVentaPorId,
 );
 
-/**
- * GET /ventasEmpleados/:idEmpleado
- * Obtiene las ventas de un empleado específico
- * Requiere: auth + (admin o empleado)
- */
 router.get(
   "/ventasEmpleados/:idEmpleado",
   auth,
@@ -116,11 +79,6 @@ router.get(
   obtenerLaVentaDeUnEmpleado,
 );
 
-/**
- * GET /ventasEmpleados/admin/listado
- * Obtiene todas las ventas para administrador
- * Requiere: auth + admin
- */
 router.get(
   "/ventasEmpleados/admin/listado",
   auth,
@@ -128,11 +86,6 @@ router.get(
   obtenerVentasParaAdmin,
 );
 
-/**
- * GET /ventasEmpleados/admin/detalle/:idVentaE
- * Obtiene una venta específica para editar (admin)
- * Requiere: auth + admin
- */
 router.get(
   "/ventasEmpleados/admin/detalle/:idVentaE",
   auth,
@@ -141,30 +94,18 @@ router.get(
   obtenerVentaParaEditar,
 );
 
-// ====================================
-// RUTAS PARA CREACIÓN Y MODIFICACIÓN
-// ====================================
-
-/**
- * POST /ventasEmpleados/crear
- * Crea una nueva venta de empleado
- * Requiere: auth + (admin o empleado)
- */
 router.post(
   "/ventasEmpleados/crear",
+  mutationLimiter,
   auth,
   verificarRol(["admin", "empleado"]),
   validate(createVentaEmpleadoSchema),
   registrarVentaEmpleado,
 );
 
-/**
- * PUT /ventasEmpleados/actualizar/:idVentaE
- * Actualiza una venta de empleado
- * Requiere: auth + (admin o empleado) + permiso modificar_ventasE
- */
 router.put(
   "/ventasEmpleados/actualizar/:idVentaE",
+  mutationLimiter,
   auth,
   verificarRol(["admin", "empleado"]),
   verificarPermisos("modificar_ventasE"),
@@ -172,13 +113,9 @@ router.put(
   updateVenta,
 );
 
-/**
- * PUT /ventasEmpleados/anular/:idVentaE
- * Anula una venta de empleado
- * Requiere: auth + (admin o empleado) + permiso modificar_ventasE
- */
 router.put(
   "/ventasEmpleados/anular/:idVentaE",
+  mutationLimiter,
   auth,
   verificarRol(["admin", "empleado"]),
   verificarPermisos("modificar_ventasE"),
@@ -186,13 +123,9 @@ router.put(
   anularVenta,
 );
 
-/**
- * PUT /ventasEmpleados/reactivar/:idVentaE
- * Reactiva una venta anulada
- * Requiere: auth + (admin o empleado) + permiso modificar_ventasE
- */
 router.put(
   "/ventasEmpleados/reactivar/:idVentaE",
+  mutationLimiter,
   auth,
   verificarRol(["admin", "empleado"]),
   verificarPermisos("modificar_ventasE"),
@@ -201,4 +134,3 @@ router.put(
 );
 
 module.exports = router;
-

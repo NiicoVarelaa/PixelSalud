@@ -1,14 +1,5 @@
 const empleadosService = require("../services/EmpleadosService");
 
-/**
- * Controladores para el módulo de Empleados
- * Maneja las peticiones HTTP y delega la lógica al servicio
- */
-
-/**
- * Obtiene todos los empleados activos con permisos
- * GET /Empleados
- */
 const getEmpleados = async (req, res, next) => {
   try {
     const empleados = await empleadosService.obtenerEmpleados();
@@ -18,10 +9,6 @@ const getEmpleados = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene empleados inactivos
- * GET /Empleados/Bajados
- */
 const getEmpleadosBajados = async (req, res, next) => {
   try {
     const empleados = await empleadosService.obtenerEmpleadosInactivos();
@@ -31,10 +18,6 @@ const getEmpleadosBajados = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene un empleado por ID con sus permisos
- * GET /Empleados/:id
- */
 const getEmpleado = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -45,10 +28,6 @@ const getEmpleado = async (req, res, next) => {
   }
 };
 
-/**
- * Crea un nuevo empleado con permisos
- * POST /Empleados/crear
- */
 const createEmpleado = async (req, res, next) => {
   try {
     const { permisos, ...empleadoData } = req.body;
@@ -67,10 +46,6 @@ const createEmpleado = async (req, res, next) => {
   }
 };
 
-/**
- * Actualiza un empleado y sus permisos
- * PUT /empleados/actualizar/:id
- */
 const updateEmpleado = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -82,10 +57,6 @@ const updateEmpleado = async (req, res, next) => {
   }
 };
 
-/**
- * Da de baja un empleado (soft delete)
- * PUT /empleados/baja/:id
- */
 const darBajaEmpleado = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -96,10 +67,6 @@ const darBajaEmpleado = async (req, res, next) => {
   }
 };
 
-/**
- * Reactiva un empleado dado de baja
- * PUT /empleados/reactivar/:id
- */
 const reactivarEmpleado = async (req, res, next) => {
   try {
     const { id } = req.params;

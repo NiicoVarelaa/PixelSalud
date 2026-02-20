@@ -5,24 +5,10 @@ const {
   createConflictError,
 } = require("../errors");
 
-/**
- * Service para la lógica de negocio de Productos
- */
-
-/**
- * Obtiene todos los productos con información de ofertas
- * @returns {Promise<Array>}
- */
 const obtenerProductos = async () => {
   return await productosRepository.findAllWithOfertas();
 };
 
-/**
- * Obtiene un producto por ID con información de ofertas
- * @param {number} idProducto - ID del producto
- * @returns {Promise<Object>}
- * @throws {NotFoundError} Si el producto no existe
- */
 const obtenerProductoPorId = async (idProducto) => {
   const producto = await productosRepository.findByIdWithOfertas(idProducto);
 
@@ -33,11 +19,6 @@ const obtenerProductoPorId = async (idProducto) => {
   return producto;
 };
 
-/**
- * Obtiene productos inactivos (dados de baja)
- * @returns {Promise<Array>}
- * @throws {NotFoundError} Si no hay productos inactivos
- */
 const obtenerProductosInactivos = async () => {
   const productos = await productosRepository.findInactivos();
 
@@ -48,12 +29,6 @@ const obtenerProductosInactivos = async () => {
   return productos;
 };
 
-/**
- * Busca productos por término
- * @param {string} term - Término de búsqueda
- * @returns {Promise<Array>}
- * @throws {ValidationError} Si el término es muy corto
- */
 const buscarProductos = async (term) => {
   if (!term || term.length < 3) {
     throw createValidationError(
@@ -64,15 +39,7 @@ const buscarProductos = async (term) => {
   return await productosRepository.searchByName(term);
 };
 
-/**
- * Crea un nuevo producto
- * @param {Object} data - Datos del producto
- * @returns {Promise<Object>} Producto creado
- * @throws {ValidationError} Si faltan datos o son inválidos
- * @throws {ConflictError} Si el producto ya existe
- */
 const crearProducto = async (data) => {
-  // Validaciones de negocio
   if (data.precio < 0) {
     throw createValidationError("El precio no puede ser negativo");
   }
@@ -81,7 +48,6 @@ const crearProducto = async (data) => {
     throw createValidationError("El stock no puede ser negativo");
   }
 
-  // Verificar si ya existe un producto con el mismo nombre
   const existe = await productosRepository.exists({
     nombreProducto: data.nombreProducto,
   });
@@ -90,7 +56,6 @@ const crearProducto = async (data) => {
     throw createConflictError("Ya existe un producto con ese nombre");
   }
 
-  // Agregar activo = true por defecto
   const productoData = {
     ...data,
     activo: true,
@@ -100,22 +65,12 @@ const crearProducto = async (data) => {
   return await productosRepository.findByIdWithOfertas(idProducto);
 };
 
-/**
- * Actualiza un producto existente
- * @param {number} idProducto - ID del producto
- * @param {Object} data - Datos a actualizar
- * @returns {Promise<Object>} Producto actualizado
- * @throws {NotFoundError} Si el producto no existe
- * @throws {ValidationError} Si los datos son inválidos
- */
 const actualizarProducto = async (idProducto, data) => {
-  // Verificar que el producto existe
   const existe = await productosRepository.findById(idProducto);
   if (!existe) {
     throw createNotFoundError("Producto no encontrado");
   }
 
-  // Validaciones de negocio
   if (data.precio !== undefined && data.precio < 0) {
     throw createValidationError("El precio no puede ser negativo");
   }
@@ -133,13 +88,6 @@ const actualizarProducto = async (idProducto, data) => {
   return await productosRepository.findByIdWithOfertas(idProducto);
 };
 
-/**
- * Actualiza solo el estado activo de un producto
- * @param {number} idProducto - ID del producto
- * @param {boolean} activo - Nuevo estado
- * @returns {Promise<boolean>}
- * @throws {NotFoundError} Si el producto no existe
- */
 const actualizarEstadoActivo = async (idProducto, activo) => {
   const existe = await productosRepository.findById(idProducto);
   if (!existe) {
@@ -149,12 +97,6 @@ const actualizarEstadoActivo = async (idProducto, activo) => {
   return await productosRepository.updateActivo(idProducto, activo);
 };
 
-/**
- * Da de baja un producto (activo = false)
- * @param {number} idProducto - ID del producto
- * @returns {Promise<boolean>}
- * @throws {NotFoundError} Si el producto no existe
- */
 const darBajaProducto = async (idProducto) => {
   const existe = await productosRepository.findById(idProducto);
   if (!existe) {
@@ -164,12 +106,6 @@ const darBajaProducto = async (idProducto) => {
   return await productosRepository.darBaja(idProducto);
 };
 
-/**
- * Activa un producto (activo = true)
- * @param {number} idProducto - ID del producto
- * @returns {Promise<boolean>}
- * @throws {NotFoundError} Si el producto no existe
- */
 const activarProducto = async (idProducto) => {
   const existe = await productosRepository.findById(idProducto);
   if (!existe) {

@@ -1,7 +1,3 @@
-/**
- * Exportación centralizada de todos los esquemas de validación
- * A medida que agregues nuevos schemas, impórtalos aquí
- */
 module.exports = {
   AuthSchemas: require("./AuthSchemas"),
   CampanasSchemas: require("./CampanasSchemas"),

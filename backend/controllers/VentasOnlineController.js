@@ -1,10 +1,5 @@
 const ventasOnlineService = require("../services/VentasOnlineService");
 
-/**
- * Obtiene las compras/ventas online de un cliente específico
- * @route GET /mis-compras
- * @access Cliente
- */
 const getUserOrders = async (req, res, next) => {
   try {
     const idCliente = req.user.id;
@@ -15,11 +10,6 @@ const getUserOrders = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene todas las ventas online del sistema
- * @route GET /ventasOnline/todas
- * @access Admin, Empleado
- */
 const mostrarTodasLasVentas = async (req, res, next) => {
   try {
     const result = await ventasOnlineService.obtenerTodasLasVentas();
@@ -29,11 +19,6 @@ const mostrarTodasLasVentas = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene los detalles de una venta online específica
- * @route GET /ventasOnline/detalle/:idVentaO
- * @access Admin, Empleado
- */
 const obtenerDetalleVentaOnline = async (req, res, next) => {
   try {
     const { idVentaO } = req.params;
@@ -46,11 +31,6 @@ const obtenerDetalleVentaOnline = async (req, res, next) => {
   }
 };
 
-/**
- * Registra una nueva venta online
- * @route POST /ventaOnline/crear
- * @access Admin, Empleado, Cliente
- */
 const registrarVentaOnline = async (req, res, next) => {
   try {
     const result = await ventasOnlineService.registrarVentaOnline(req.body);
@@ -60,11 +40,6 @@ const registrarVentaOnline = async (req, res, next) => {
   }
 };
 
-/**
- * Actualiza el estado de una venta online
- * @route PUT /ventaOnline/estado
- * @access Admin, Empleado
- */
 const actualizarEstadoVenta = async (req, res, next) => {
   try {
     const { idVentaO, nuevoEstado } = req.body;
@@ -78,11 +53,6 @@ const actualizarEstadoVenta = async (req, res, next) => {
   }
 };
 
-/**
- * Actualiza una venta online completa (productos y método de pago)
- * @route PUT /ventaOnline/actualizar/:idVentaO
- * @access Admin, Empleado
- */
 const actualizarVentaOnline = async (req, res, next) => {
   try {
     const { idVentaO } = req.params;

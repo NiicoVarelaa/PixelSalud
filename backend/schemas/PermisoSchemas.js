@@ -1,8 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schema para validar el ID del empleado en los parámetros de ruta
- */
 const idEmpleadoParamSchema = z.object({
   id: z.coerce
     .number({
@@ -13,9 +10,6 @@ const idEmpleadoParamSchema = z.object({
     .positive("El ID del empleado debe ser mayor a 0"),
 });
 
-/**
- * Schema para validar los datos de permisos al crear o actualizar
- */
 const permisoSchema = z.object({
   crear_productos: z
     .boolean({
@@ -60,9 +54,6 @@ const permisoSchema = z.object({
     .default(false),
 });
 
-/**
- * Schema para actualizar permisos (todos los campos opcionales)
- */
 const updatePermisoSchema = z.object({
   crear_productos: z
     .boolean({

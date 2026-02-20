@@ -1,7 +1,3 @@
-/**
- * Exportación centralizada de todos los services
- * A medida que agregues nuevos services, impórtalos aquí
- */
 module.exports = {
   AuthService: require("./AuthService"),
   CampanasService: require("./CampanasService"),

@@ -1,10 +1,5 @@
 const { pool } = require("../config/database");
 
-/**
- * Obtiene productos con precios y descuentos de campañas activas
- * @param {Array<number>} productIds - Array de IDs de productos
- * @returns {Promise<Array>}
- */
 const getProductsByIds = async (productIds) => {
   if (!productIds || productIds.length === 0) {
     return [];
@@ -40,11 +35,6 @@ const getProductsByIds = async (productIds) => {
   return rows;
 };
 
-/**
- * Crea una venta online en estado pendiente
- * @param {Object} ventaData - Datos de la venta
- * @returns {Promise<number>} - ID de la venta creada
- */
 const createVentaOnline = async ({
   idCliente,
   totalPago,
@@ -67,18 +57,11 @@ const createVentaOnline = async ({
   return result.insertId;
 };
 
-/**
- * Crea los detalles de una venta online
- * @param {number} idVentaO - ID de la venta
- * @param {Array} items - Items del carrito
- * @returns {Promise<void>}
- */
 const createDetalleVentaOnline = async (idVentaO, items) => {
   if (!items || items.length === 0) {
     return;
   }
 
-  // Normaliza los campos por si vienen con id o idProducto
   const values = items.map((item) => [
     idVentaO,
     item.idProducto ?? item.id,
@@ -94,11 +77,6 @@ const createDetalleVentaOnline = async (idVentaO, items) => {
   await pool.query(sql, [values]);
 };
 
-/**
- * Actualiza el stock de productos (decrementa)
- * @param {Array} items - Items con idProducto y quantity
- * @returns {Promise<void>}
- */
 const updateProductStock = async (items) => {
   const promises = items.map((item) => {
     const sql = `
@@ -113,11 +91,6 @@ const updateProductStock = async (items) => {
   await Promise.all(promises);
 };
 
-/**
- * Busca una venta por external reference
- * @param {string} externalReference - External reference
- * @returns {Promise<Object|null>}
- */
 const findVentaByExternalReference = async (externalReference) => {
   const sql = `
     SELECT idVentaO, idCliente, estado, totalPago, fechaPago, horaPago
@@ -129,12 +102,6 @@ const findVentaByExternalReference = async (externalReference) => {
   return rows[0] || null;
 };
 
-/**
- * Actualiza el estado de una venta
- * @param {number} idVentaO - ID de la venta
- * @param {string} estado - Nuevo estado
- * @returns {Promise<boolean>}
- */
 const updateVentaEstado = async (idVentaO, estado) => {
   const sql = `
     UPDATE VentasOnlines 
@@ -148,11 +115,6 @@ const updateVentaEstado = async (idVentaO, estado) => {
   return result.affectedRows > 0;
 };
 
-/**
- * Actualiza el estado de una venta a cancelado por external reference
- * @param {string} externalReference - External reference
- * @returns {Promise<boolean>}
- */
 const updateVentaEstadoCancelado = async (externalReference) => {
   const sql = `
     UPDATE VentasOnlines 
@@ -164,12 +126,6 @@ const updateVentaEstadoCancelado = async (externalReference) => {
   return result.affectedRows > 0;
 };
 
-/**
- * Actualiza el estado de una venta a pendiente por external reference
- * @param {string} externalReference - External reference
- * @param {string} status - Estado del pago
- * @returns {Promise<boolean>}
- */
 const updateVentaEstadoPendiente = async (externalReference, status) => {
   const sql = `
     UPDATE VentasOnlines 
@@ -181,11 +137,6 @@ const updateVentaEstadoPendiente = async (externalReference, status) => {
   return result.affectedRows > 0;
 };
 
-/**
- * Obtiene los detalles de una venta
- * @param {number} idVentaO - ID de la venta
- * @returns {Promise<Array>}
- */
 const getDetallesVenta = async (idVentaO) => {
   const sql = `
     SELECT 
@@ -202,11 +153,6 @@ const getDetallesVenta = async (idVentaO) => {
   return rows;
 };
 
-/**
- * Obtiene el historial de ventas de un cliente con productos
- * @param {number} idCliente - ID del cliente
- * @returns {Promise<Array>}
- */
 const getUserOrders = async (idCliente) => {
   const sql = `
     SELECT 
@@ -232,11 +178,6 @@ const getUserOrders = async (idCliente) => {
   return rows;
 };
 
-/**
- * Limpia el carrito de un cliente
- * @param {number} idCliente - ID del cliente
- * @returns {Promise<boolean>}
- */
 const clearUserCart = async (idCliente) => {
   const sql = `DELETE FROM Carrito WHERE idCliente = ?`;
 
@@ -244,18 +185,6 @@ const clearUserCart = async (idCliente) => {
   return result.affectedRows > 0;
 };
 
-// ========================================
-// MÉTODOS TRANSACCIONALES
-// ========================================
-// Estos métodos aceptan una conexión como parámetro para ser usados dentro de transacciones
-
-/**
- * Actualiza el estado de una venta (versión transaccional)
- * @param {Object} connection - Conexión de la transacción
- * @param {number} idVentaO - ID de la venta
- * @param {string} estado - Nuevo estado
- * @returns {Promise<boolean>}
- */
 const updateVentaEstadoTx = async (connection, idVentaO, estado) => {
   const sql = `
     UPDATE VentasOnlines 
@@ -269,16 +198,8 @@ const updateVentaEstadoTx = async (connection, idVentaO, estado) => {
   return result.affectedRows > 0;
 };
 
-/**
- * Actualiza el stock de productos (versión transaccional con validación)
- * @param {Object} connection - Conexión de la transacción
- * @param {Array} items - Items con idProducto y quantity
- * @returns {Promise<void>}
- * @throws {Error} Si no hay stock suficiente
- */
 const updateProductStockTx = async (connection, items) => {
   for (const item of items) {
-    // Primero verificar stock disponible con bloqueo (SELECT FOR UPDATE)
     const [products] = await connection.query(
       `SELECT stock FROM Productos WHERE idProducto = ? FOR UPDATE`,
       [item.idProducto],
@@ -297,7 +218,6 @@ const updateProductStockTx = async (connection, items) => {
       );
     }
 
-    // Actualizar stock
     const [result] = await connection.query(
       `UPDATE Productos SET stock = stock - ? WHERE idProducto = ?`,
       [item.quantity, item.idProducto],
@@ -311,12 +231,6 @@ const updateProductStockTx = async (connection, items) => {
   }
 };
 
-/**
- * Obtiene los detalles de una venta (versión transaccional)
- * @param {Object} connection - Conexión de la transacción
- * @param {number} idVentaO - ID de la venta
- * @returns {Promise<Array>}
- */
 const getDetallesVentaTx = async (connection, idVentaO) => {
   const sql = `
     SELECT 
@@ -333,12 +247,6 @@ const getDetallesVentaTx = async (connection, idVentaO) => {
   return rows;
 };
 
-/**
- * Limpia el carrito de un cliente (versión transaccional)
- * @param {Object} connection - Conexión de la transacción
- * @param {number} idCliente - ID del cliente
- * @returns {Promise<boolean>}
- */
 const clearUserCartTx = async (connection, idCliente) => {
   const sql = `DELETE FROM Carrito WHERE idCliente = ?`;
   const [result] = await connection.query(sql, [idCliente]);
@@ -357,7 +265,6 @@ module.exports = {
   getDetallesVenta,
   getUserOrders,
   clearUserCart,
-  // Métodos transaccionales
   updateVentaEstadoTx,
   updateProductStockTx,
   getDetallesVentaTx,

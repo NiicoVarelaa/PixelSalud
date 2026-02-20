@@ -1,10 +1,5 @@
 const cuponesService = require("../services/CuponesService");
 
-/**
- * Validar cupón y calcular descuento
- * POST /cupones/validar
- * Body: { codigo, montoCompra }
- */
 const validarCupon = async (req, res, next) => {
   try {
     const { codigo, montoCompra } = req.body;
@@ -44,11 +39,6 @@ const validarCupon = async (req, res, next) => {
   }
 };
 
-/**
- * Crear cupón personalizado (admin)
- * POST /cupones
- * Body: { codigo, tipoCupon, valorDescuento, descripcion, fechaInicio, fechaVencimiento, ... }
- */
 const crearCupon = async (req, res, next) => {
   try {
     const adminId = req.userId;
@@ -66,10 +56,6 @@ const crearCupon = async (req, res, next) => {
   }
 };
 
-/**
- * Obtener todos los cupones (admin)
- * GET /cupones
- */
 const obtenerTodosCupones = async (req, res, next) => {
   try {
     const cupones = await cuponesService.obtenerTodosCupones();
@@ -83,10 +69,6 @@ const obtenerTodosCupones = async (req, res, next) => {
   }
 };
 
-/**
- * Obtener cupones activos
- * GET /cupones/activos
- */
 const obtenerCuponesActivos = async (req, res, next) => {
   try {
     const cupones = await cuponesService.obtenerCuponesActivos();
@@ -100,10 +82,6 @@ const obtenerCuponesActivos = async (req, res, next) => {
   }
 };
 
-/**
- * Obtener cupón por código
- * GET /cupones/:codigo
- */
 const obtenerCuponPorCodigo = async (req, res, next) => {
   try {
     const { codigo } = req.params;
@@ -120,10 +98,6 @@ const obtenerCuponPorCodigo = async (req, res, next) => {
   }
 };
 
-/**
- * Obtener historial de cupones usados por el cliente actual
- * GET /cupones/mis-cupones
- */
 const obtenerMisCupones = async (req, res, next) => {
   try {
     const idCliente = req.userId;
@@ -138,11 +112,6 @@ const obtenerMisCupones = async (req, res, next) => {
   }
 };
 
-/**
- * Actualizar estado de cupón (admin)
- * PATCH /cupones/:id/estado
- * Body: { estado: 'activo' | 'inactivo' }
- */
 const actualizarEstado = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -159,10 +128,6 @@ const actualizarEstado = async (req, res, next) => {
   }
 };
 
-/**
- * Eliminar cupón (admin)
- * DELETE /cupones/:id
- */
 const eliminarCupon = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -178,10 +143,6 @@ const eliminarCupon = async (req, res, next) => {
   }
 };
 
-/**
- * Obtener historial completo de uso de cupones (admin)
- * GET /cupones/historial
- */
 const obtenerHistorial = async (req, res, next) => {
   try {
     const historial = await cuponesService.obtenerTodoHistorial();

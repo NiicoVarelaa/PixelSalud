@@ -10,24 +10,15 @@ const {
 const auth = require("../middlewares/Auth");
 const { verificarRol } = require("../middlewares/VerificarPermisos");
 const { validate } = require("../middlewares/validate");
+const { mutationLimiter } = require("../config/rateLimiters");
 const {
   idEmpleadoParamSchema,
   permisoSchema,
   updatePermisoSchema,
 } = require("../schemas/PermisoSchemas");
 
-/**
- * @route GET /permisos
- * @desc Obtiene todos los permisos
- * @access Admin
- */
 router.get("/permisos", auth, verificarRol(["admin"]), getPermisos);
 
-/**
- * @route GET /permisos/:id
- * @desc Obtiene los permisos de un empleado específico
- * @access Admin
- */
 router.get(
   "/permisos/:id",
   auth,
@@ -36,13 +27,9 @@ router.get(
   getPermisosByEmpleado,
 );
 
-/**
- * @route POST /permisos/crear/:id
- * @desc Crea permisos para un empleado
- * @access Admin
- */
 router.post(
   "/permisos/crear/:id",
+  mutationLimiter,
   auth,
   verificarRol(["admin"]),
   validate(idEmpleadoParamSchema, "params"),
@@ -50,13 +37,9 @@ router.post(
   createPermisos,
 );
 
-/**
- * @route PUT /permisos/update/:id
- * @desc Actualiza los permisos de un empleado
- * @access Admin
- */
 router.put(
   "/permisos/update/:id",
+  mutationLimiter,
   auth,
   verificarRol(["admin"]),
   validate(idEmpleadoParamSchema, "params"),
@@ -64,13 +47,9 @@ router.put(
   updatePermisos,
 );
 
-/**
- * @route DELETE /permisos/:id
- * @desc Elimina los permisos de un empleado
- * @access Admin
- */
 router.delete(
   "/permisos/:id",
+  mutationLimiter,
   auth,
   verificarRol(["admin"]),
   validate(idEmpleadoParamSchema, "params"),

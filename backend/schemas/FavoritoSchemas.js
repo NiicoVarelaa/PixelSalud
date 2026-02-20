@@ -1,10 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schemas de validación Zod para el módulo de Favoritos
- */
-
-// Schema para toggle favorito (body)
 const toggleFavoritoSchema = z.object({
   idProducto: z
     .number({
@@ -15,7 +10,6 @@ const toggleFavoritoSchema = z.object({
     .positive("idProducto debe ser mayor a 0"),
 });
 
-// Schema para verificar si es favorito (params)
 const idProductoParamSchema = z.object({
   idProducto: z
     .string()

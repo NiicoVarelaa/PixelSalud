@@ -1,17 +1,3 @@
-/**
- * Exportación centralizada de todas las rutas
- *
- * Esto permite hacer:
- *   const { ProductosRoutes, ClientesRoutes } = require('../routes');
- *
- * En lugar de:
- *   const ProductosRoutes = require('../routes/ProductosRoutes');
- *   const ClientesRoutes = require('../routes/ClientesRoutes');
- *
- * NOTA: En index.js del servidor, las rutas se llaman con require() directo,
- * pero este archivo es útil si necesitas importar múltiples rutas en otro lugar.
- */
-
 module.exports = {
   AuthRoutes: require("./AuthRoutes"),
   CampanasRoutes: require("./CampanasRoutes"),

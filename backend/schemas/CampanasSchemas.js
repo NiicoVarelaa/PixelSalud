@@ -1,7 +1,5 @@
 const { z } = require("zod");
 
-// ==================== VALIDACIONES COMUNES ====================
-
 const idCampanaParam = z.object({
   idCampana: z
     .string()
@@ -22,8 +20,6 @@ const idRelacionParam = z.object({
     .regex(/^\d+$/, "El ID debe ser un número")
     .transform((val) => parseInt(val, 10)),
 });
-
-// ==================== SCHEMAS PARA CAMPAÑAS ====================
 
 const createCampanaSchema = z
   .object({
@@ -172,8 +168,6 @@ const updateCampanaSchema = z
     },
   );
 
-// ==================== SCHEMAS PARA PRODUCTOS EN CAMPAÑAS ====================
-
 const addProductosSchema = z
   .object({
     productosIds: z
@@ -224,8 +218,6 @@ const updateOverrideSchema = z.object({
     .max(100, "El descuento no puede ser mayor a 100")
     .nullable(),
 });
-
-// ==================== EXPORTAR ====================
 
 module.exports = {
   idCampanaParam,

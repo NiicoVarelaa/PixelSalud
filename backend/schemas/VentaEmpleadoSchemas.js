@@ -1,8 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schema para validar el idVentaE como parámetro de ruta
- */
 const idVentaEParamSchema = z.object({
   idVentaE: z.coerce
     .number({
@@ -13,9 +10,6 @@ const idVentaEParamSchema = z.object({
     .positive("El ID de la venta debe ser un número positivo"),
 });
 
-/**
- * Schema para validar el idEmpleado como parámetro de ruta
- */
 const idEmpleadoParamSchema = z.object({
   idEmpleado: z.coerce
     .number({
@@ -26,9 +20,6 @@ const idEmpleadoParamSchema = z.object({
     .positive("El ID del empleado debe ser un número positivo"),
 });
 
-/**
- * Schema para validar un producto dentro de una venta de empleado
- */
 const productoVentaEmpleadoSchema = z.object({
   idProducto: z
     .number({
@@ -64,9 +55,6 @@ const productoVentaEmpleadoSchema = z.object({
     .nullable(),
 });
 
-/**
- * Schema para validar la creación de una venta de empleado
- */
 const createVentaEmpleadoSchema = z.object({
   body: z.object({
     idEmpleado: z
@@ -105,9 +93,6 @@ const createVentaEmpleadoSchema = z.object({
   }),
 });
 
-/**
- * Schema para validar la actualización de una venta de empleado
- */
 const updateVentaEmpleadoSchema = z.object({
   params: idVentaEParamSchema.shape,
   body: z.object({

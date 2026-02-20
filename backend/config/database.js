@@ -20,7 +20,6 @@ const pool = mysql2Promise.createPool({
   keepAliveInitialDelay: 0,
 });
 
-// Test de conexión
 pool
   .getConnection()
   .then((connection) => {

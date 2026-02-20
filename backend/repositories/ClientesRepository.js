@@ -1,14 +1,5 @@
 const { pool } = require("../config/database");
 
-/**
- * Repositorio para la tabla Clientes
- * Maneja todas las operaciones de acceso a datos de clientes
- */
-
-/**
- * Obtiene todos los clientes (sin contraseña)
- * @returns {Promise<Array>}
- */
 const findAll = async () => {
   const query = `
     SELECT 
@@ -28,10 +19,6 @@ const findAll = async () => {
   return rows;
 };
 
-/**
- * Obtiene clientes inactivos
- * @returns {Promise<Array>}
- */
 const findInactivos = async () => {
   const query = `
     SELECT 
@@ -52,11 +39,6 @@ const findInactivos = async () => {
   return rows;
 };
 
-/**
- * Obtiene un cliente por ID (sin contraseña)
- * @param {number} idCliente
- * @returns {Promise<Object|null>}
- */
 const findById = async (idCliente) => {
   const query = `
     SELECT 
@@ -78,22 +60,12 @@ const findById = async (idCliente) => {
   return results[0] || null;
 };
 
-/**
- * Obtiene un cliente por email (con contraseña para auth)
- * @param {string} email
- * @returns {Promise<Object|null>}
- */
 const findByEmail = async (email) => {
   const query = "SELECT * FROM Clientes WHERE emailCliente = ?";
   const [results] = await pool.query(query, [email]);
   return results[0] || null;
 };
 
-/**
- * Obtiene un cliente por DNI
- * @param {string} dni
- * @returns {Promise<Object|null>}
- */
 const findByDNI = async (dni) => {
   const query = `
     SELECT 
@@ -112,12 +84,6 @@ const findByDNI = async (dni) => {
   return results[0] || null;
 };
 
-/**
- * Verifica si existe un cliente con el email dado (excepto el ID especificado)
- * @param {string} email
- * @param {number} excludeId - ID a excluir de la búsqueda
- * @returns {Promise<boolean>}
- */
 const existsEmailExcept = async (email, excludeId) => {
   const query =
     "SELECT COUNT(*) as count FROM Clientes WHERE emailCliente = ? AND idCliente != ?";
@@ -125,33 +91,18 @@ const existsEmailExcept = async (email, excludeId) => {
   return results[0].count > 0;
 };
 
-/**
- * Verifica si existe un cliente con el email dado
- * @param {string} email
- * @returns {Promise<boolean>}
- */
 const existsByEmail = async (email) => {
   const query = "SELECT COUNT(*) as count FROM Clientes WHERE emailCliente = ?";
   const [results] = await pool.query(query, [email]);
   return results[0].count > 0;
 };
 
-/**
- * Verifica si existe un cliente con el DNI dado
- * @param {string} dni
- * @returns {Promise<boolean>}
- */
 const existsByDNI = async (dni) => {
   const query = "SELECT COUNT(*) as count FROM Clientes WHERE dni = ?";
   const [results] = await pool.query(query, [dni]);
   return results[0].count > 0;
 };
 
-/**
- * Crea un nuevo cliente
- * @param {Object} clienteData
- * @returns {Promise<Object>}
- */
 const create = async (clienteData) => {
   const query = `
     INSERT INTO Clientes 
@@ -174,12 +125,6 @@ const create = async (clienteData) => {
   return result;
 };
 
-/**
- * Actualiza un cliente (campos dinámicos)
- * @param {number} idCliente
- * @param {Object} updates - Objeto con campos a actualizar
- * @returns {Promise<Object>}
- */
 const update = async (idCliente, updates) => {
   const campos = [];
   const valores = [];
@@ -224,25 +169,12 @@ const update = async (idCliente, updates) => {
   return result;
 };
 
-/**
- * Actualiza el estado activo de un cliente
- * @param {number} idCliente
- * @param {boolean} activo
- * @returns {Promise<Object>}
- */
 const updateEstado = async (idCliente, activo) => {
   const query = "UPDATE Clientes SET activo = ? WHERE idCliente = ?";
   const [result] = await pool.query(query, [activo, idCliente]);
   return result;
 };
 
-/**
- * Guarda el token de recuperación de contraseña
- * @param {number} idCliente
- * @param {string} token
- * @param {Date} expiracion
- * @returns {Promise<Object>}
- */
 const saveRecoveryToken = async (idCliente, token, expiracion) => {
   const query = `
     UPDATE Clientes 
@@ -253,11 +185,6 @@ const saveRecoveryToken = async (idCliente, token, expiracion) => {
   return result;
 };
 
-/**
- * Busca cliente por token de recuperación válido
- * @param {string} token
- * @returns {Promise<Object|null>}
- */
 const findByValidToken = async (token) => {
   const query = `
     SELECT * FROM Clientes 
@@ -268,12 +195,6 @@ const findByValidToken = async (token) => {
   return results[0] || null;
 };
 
-/**
- * Actualiza contraseña y limpia tokens de recuperación
- * @param {number} idCliente
- * @param {string} nuevaContra - Contraseña ya hasheada
- * @returns {Promise<Object>}
- */
 const updatePassword = async (idCliente, nuevaContra) => {
   const query = `
     UPDATE Clientes 

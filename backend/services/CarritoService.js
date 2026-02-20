@@ -6,36 +6,17 @@ const {
   createConflictError,
 } = require("../errors");
 
-/**
- * Servicio para la lógica de negocio del carrito de compras
- * Maneja validaciones y operaciones complejas del carrito
- */
-
-/**
- * Obtiene el carrito de un cliente con productos y ofertas
- * @param {number} idCliente - ID del cliente
- * @returns {Promise<Array>} Items del carrito
- */
 const obtenerCarrito = async (idCliente) => {
   const items = await carritoRepository.findByClienteWithProducts(idCliente);
   return items;
 };
 
-/**
- * Agrega un producto al carrito o incrementa su cantidad si ya existe
- * @param {number} idCliente - ID del cliente
- * @param {number} idProducto - ID del producto
- * @param {number} cantidad - Cantidad a agregar
- * @returns {Promise<Object>} Resultado de la operación
- */
 const agregarProducto = async (idCliente, idProducto, cantidad = 1) => {
-  // Validar cantidad
   const cantidadInt = parseInt(cantidad);
   if (isNaN(cantidadInt) || cantidadInt < 1) {
     throw createValidationError("La cantidad debe ser un número mayor a 0");
   }
 
-  // Verificar que el producto existe y está activo
   const producto = await productosRepository.findByIdWithOfertas(idProducto);
   if (!producto) {
     throw createNotFoundError("Producto no encontrado");
@@ -45,7 +26,6 @@ const agregarProducto = async (idCliente, idProducto, cantidad = 1) => {
     throw createConflictError("El producto no está disponible");
   }
 
-  // Verificar stock disponible
   const cantidadActualEnCarrito = await carritoRepository.getItemQuantity(
     idCliente,
     idProducto,
@@ -58,7 +38,6 @@ const agregarProducto = async (idCliente, idProducto, cantidad = 1) => {
     );
   }
 
-  // Si el producto ya está en el carrito, incrementar cantidad
   if (cantidadActualEnCarrito > 0) {
     await carritoRepository.incrementQuantity(
       idCliente,
@@ -72,7 +51,6 @@ const agregarProducto = async (idCliente, idProducto, cantidad = 1) => {
     };
   }
 
-  // Si no existe, crear nuevo item
   const nuevoItem = await carritoRepository.create({
     idCliente,
     idProducto,
@@ -87,20 +65,12 @@ const agregarProducto = async (idCliente, idProducto, cantidad = 1) => {
   };
 };
 
-/**
- * Incrementa en 1 la cantidad de un producto en el carrito
- * @param {number} idCliente - ID del cliente
- * @param {number} idProducto - ID del producto
- * @returns {Promise<Object>} Resultado de la operación
- */
 const incrementarCantidad = async (idCliente, idProducto) => {
-  // Verificar que el item existe en el carrito
   const itemExiste = await carritoRepository.existsItem(idCliente, idProducto);
   if (!itemExiste) {
     throw createNotFoundError("Producto no encontrado en el carrito");
   }
 
-  // Verificar stock disponible
   const producto = await productosRepository.findByIdWithOfertas(idProducto);
   if (!producto) {
     throw createNotFoundError("Producto no encontrado");
@@ -126,14 +96,7 @@ const incrementarCantidad = async (idCliente, idProducto) => {
   };
 };
 
-/**
- * Decrementa en 1 la cantidad de un producto en el carrito (mínimo 1)
- * @param {number} idCliente - ID del cliente
- * @param {number} idProducto - ID del producto
- * @returns {Promise<Object>} Resultado de la operación
- */
 const decrementarCantidad = async (idCliente, idProducto) => {
-  // Verificar que el item existe en el carrito
   const itemExiste = await carritoRepository.existsItem(idCliente, idProducto);
   if (!itemExiste) {
     throw createNotFoundError("Producto no encontrado en el carrito");
@@ -152,14 +115,7 @@ const decrementarCantidad = async (idCliente, idProducto) => {
   };
 };
 
-/**
- * Elimina un producto específico del carrito
- * @param {number} idCliente - ID del cliente
- * @param {number} idProducto - ID del producto
- * @returns {Promise<Object>} Resultado de la operación
- */
 const eliminarProducto = async (idCliente, idProducto) => {
-  // Verificar que el item existe
   const itemExiste = await carritoRepository.existsItem(idCliente, idProducto);
   if (!itemExiste) {
     throw createNotFoundError("Producto no encontrado en el carrito");
@@ -176,11 +132,6 @@ const eliminarProducto = async (idCliente, idProducto) => {
   };
 };
 
-/**
- * Vacía completamente el carrito de un cliente
- * @param {number} idCliente - ID del cliente
- * @returns {Promise<Object>} Resultado de la operación
- */
 const vaciarCarrito = async (idCliente) => {
   const cantidadItems = await carritoRepository.countByCliente(idCliente);
 
@@ -199,11 +150,6 @@ const vaciarCarrito = async (idCliente) => {
   };
 };
 
-/**
- * Obtiene estadísticas del carrito de un cliente
- * @param {number} idCliente - ID del cliente
- * @returns {Promise<Object>} Estadísticas del carrito
- */
 const obtenerEstadisticas = async (idCliente) => {
   const items = await carritoRepository.findByClienteWithProducts(idCliente);
   const totalItems = await carritoRepository.getTotalItems(idCliente);

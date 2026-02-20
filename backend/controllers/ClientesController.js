@@ -1,14 +1,5 @@
 const clientesService = require("../services/ClientesService");
 
-/**
- * Controladores para el módulo de Clientes
- * Maneja las peticiones HTTP y delega la lógica al servicio
- */
-
-/**
- * Obtiene todos los clientes
- * GET /clientes
- */
 const getClientes = async (req, res, next) => {
   try {
     const clientes = await clientesService.obtenerClientes();
@@ -18,10 +9,6 @@ const getClientes = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene clientes inactivos
- * GET /clientes/bajados
- */
 const getClienteBajados = async (req, res, next) => {
   try {
     const clientes = await clientesService.obtenerClientesInactivos();
@@ -31,10 +18,6 @@ const getClienteBajados = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene un cliente por ID
- * GET /clientes/:id
- */
 const getCliente = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -45,10 +28,6 @@ const getCliente = async (req, res, next) => {
   }
 };
 
-/**
- * Busca un cliente por DNI
- * GET /clientes/buscar/:dni
- */
 const buscarClientePorDNI = async (req, res, next) => {
   try {
     const { dni } = req.params;
@@ -59,13 +38,8 @@ const buscarClientePorDNI = async (req, res, next) => {
   }
 };
 
-/**
- * Crea un nuevo cliente
- * POST /clientes/crear
- */
 const crearCliente = async (req, res, next) => {
   try {
-    // Normalizar dniCliente a dni si viene del schema
     const clienteData = {
       ...req.body,
       dni: req.body.dniCliente || req.body.dni,
@@ -79,15 +53,10 @@ const crearCliente = async (req, res, next) => {
   }
 };
 
-/**
- * Actualiza un cliente existente
- * PUT /clientes/actualizar/:idCliente
- */
 const updateCliente = async (req, res, next) => {
   try {
     const { idCliente } = req.params;
 
-    // Normalizar dniCliente a dni si viene del schema
     const updateData = {
       ...req.body,
       dni: req.body.dniCliente || req.body.dni,
@@ -104,10 +73,6 @@ const updateCliente = async (req, res, next) => {
   }
 };
 
-/**
- * Da de baja un cliente
- * PUT /clientes/darBaja/:id
- */
 const darBajaCliente = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -118,10 +83,6 @@ const darBajaCliente = async (req, res, next) => {
   }
 };
 
-/**
- * Activa un cliente
- * PUT /clientes/activar/:id
- */
 const activarCliente = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -132,10 +93,6 @@ const activarCliente = async (req, res, next) => {
   }
 };
 
-/**
- * Registra un paciente de forma express (para médicos)
- * POST /clientes/express
- */
 const registrarPacienteExpress = async (req, res, next) => {
   try {
     const resultado = await clientesService.registrarPacienteExpress(req.body);
@@ -145,10 +102,6 @@ const registrarPacienteExpress = async (req, res, next) => {
   }
 };
 
-/**
- * Solicita recuperación de contraseña
- * POST /clientes/olvide-password
- */
 const olvideContrasena = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -159,10 +112,6 @@ const olvideContrasena = async (req, res, next) => {
   }
 };
 
-/**
- * Restablece la contraseña con token
- * POST /clientes/restablecer-password/:token
- */
 const nuevoPassword = async (req, res, next) => {
   try {
     const { token } = req.params;

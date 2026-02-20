@@ -1,12 +1,5 @@
 const ofertasService = require("../services/OfertasService");
 
-// ==========================================
-// CONTROLADORES DE OFERTAS
-// ==========================================
-
-/**
- * Obtiene todas las ofertas con información de productos
- */
 const getOfertas = async (req, res, next) => {
   try {
     const ofertas = await ofertasService.obtenerOfertas();
@@ -16,9 +9,6 @@ const getOfertas = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene una oferta por ID
- */
 const getOferta = async (req, res, next) => {
   try {
     const { idOferta } = req.params;
@@ -29,9 +19,6 @@ const getOferta = async (req, res, next) => {
   }
 };
 
-/**
- * Crea una nueva oferta
- */
 const createOferta = async (req, res, next) => {
   try {
     const oferta = await ofertasService.crearOferta(req.body);
@@ -44,9 +31,6 @@ const createOferta = async (req, res, next) => {
   }
 };
 
-/**
- * Actualiza una oferta existente
- */
 const updateOferta = async (req, res, next) => {
   try {
     const { idOferta } = req.params;
@@ -60,9 +44,6 @@ const updateOferta = async (req, res, next) => {
   }
 };
 
-/**
- * Actualiza solo el estado activo de una oferta
- */
 const updateOfertaEsActiva = async (req, res, next) => {
   try {
     const { idOferta } = req.params;
@@ -74,9 +55,6 @@ const updateOfertaEsActiva = async (req, res, next) => {
   }
 };
 
-/**
- * Elimina una oferta
- */
 const deleteOferta = async (req, res, next) => {
   try {
     const { idOferta } = req.params;
@@ -87,12 +65,8 @@ const deleteOferta = async (req, res, next) => {
   }
 };
 
-/**
- * Crea ofertas masivas (Cyber Monday)
- */
 const createOfertasMasivas = async (req, res, next) => {
   try {
-    // IDs por defecto para Cyber Monday
     const CYBER_MONDAY_IDS = [
       1, 2, 3, 4, 12, 14, 15, 22, 25, 26, 28, 34, 42, 43, 44, 45, 46, 47, 48,
       49, 50, 51, 52,
@@ -112,9 +86,6 @@ const createOfertasMasivas = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene ofertas de Cyber Monday
- */
 const getCyberMondayOffers = async (req, res, next) => {
   try {
     const ofertas = await ofertasService.obtenerOfertasCyberMonday();
@@ -124,9 +95,6 @@ const getCyberMondayOffers = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene ofertas destacadas de una categoría
- */
 const getOfertasDestacadas = async (req, res, next) => {
   try {
     const ofertas = await ofertasService.obtenerOfertasDestacadas();
@@ -136,7 +104,6 @@ const getOfertasDestacadas = async (req, res, next) => {
   }
 };
 
-// Exporta los controladores
 module.exports = {
   getOfertas,
   getOferta,

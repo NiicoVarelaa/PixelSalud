@@ -6,24 +6,10 @@ const {
   createConflictError,
 } = require("../errors");
 
-/**
- * Service para la lógica de negocio de Ofertas
- */
-
-/**
- * Obtiene todas las ofertas con información de productos
- * @returns {Promise<Array>}
- */
 const obtenerOfertas = async () => {
   return await ofertasRepository.findAllWithProductos();
 };
 
-/**
- * Obtiene una oferta por ID
- * @param {number} idOferta - ID de la oferta
- * @returns {Promise<Object>}
- * @throws {NotFoundError} Si la oferta no existe
- */
 const obtenerOfertaPorId = async (idOferta) => {
   const oferta = await ofertasRepository.findByIdWithProducto(idOferta);
 
@@ -34,17 +20,9 @@ const obtenerOfertaPorId = async (idOferta) => {
   return oferta;
 };
 
-/**
- * Crea una nueva oferta
- * @param {Object} data - Datos de la oferta
- * @returns {Promise<Object>} Oferta creada
- * @throws {ValidationError} Si los datos son inválidos
- * @throws {ConflictError} Si el producto ya tiene una oferta activa
- */
 const crearOferta = async (data) => {
   const { idProducto, porcentajeDescuento, fechaInicio, fechaFin } = data;
 
-  // Validaciones de negocio
   if (porcentajeDescuento < 0 || porcentajeDescuento > 100) {
     throw createValidationError(
       "El porcentaje de descuento debe estar entre 0 y 100",
@@ -60,13 +38,11 @@ const crearOferta = async (data) => {
     );
   }
 
-  // Verificar que el producto existe
   const producto = await productosRepository.findById(idProducto, "idProducto");
   if (!producto) {
     throw createNotFoundError("Producto no encontrado");
   }
 
-  // Verificar si ya tiene una oferta activa
   const tieneOferta = await ofertasRepository.hasActiveOferta(idProducto);
   if (tieneOferta) {
     throw createConflictError("El producto ya tiene una oferta activa");
@@ -84,21 +60,12 @@ const crearOferta = async (data) => {
   return await ofertasRepository.findByIdWithProducto(idOferta);
 };
 
-/**
- * Actualiza una oferta existente
- * @param {number} idOferta - ID de la oferta
- * @param {Object} data - Datos a actualizar
- * @returns {Promise<Object>} Oferta actualizada
- * @throws {NotFoundError} Si la oferta no existe
- * @throws {ValidationError} Si los datos son inválidos
- */
 const actualizarOferta = async (idOferta, data) => {
   const existe = await ofertasRepository.findById(idOferta);
   if (!existe) {
     throw createNotFoundError("Oferta no encontrada");
   }
 
-  // Validaciones
   if (
     data.porcentajeDescuento !== undefined &&
     (data.porcentajeDescuento < 0 || data.porcentajeDescuento > 100)
@@ -128,13 +95,6 @@ const actualizarOferta = async (idOferta, data) => {
   return await ofertasRepository.findByIdWithProducto(idOferta);
 };
 
-/**
- * Actualiza solo el estado activo de una oferta
- * @param {number} idOferta - ID de la oferta
- * @param {boolean} esActiva - Nuevo estado
- * @returns {Promise<boolean>}
- * @throws {NotFoundError} Si la oferta no existe
- */
 const actualizarEstadoOferta = async (idOferta, esActiva) => {
   const existe = await ofertasRepository.findById(idOferta);
   if (!existe) {
@@ -144,12 +104,6 @@ const actualizarEstadoOferta = async (idOferta, esActiva) => {
   return await ofertasRepository.updateEsActiva(idOferta, esActiva);
 };
 
-/**
- * Elimina una oferta
- * @param {number} idOferta - ID de la oferta
- * @returns {Promise<boolean>}
- * @throws {NotFoundError} Si la oferta no existe
- */
 const eliminarOferta = async (idOferta) => {
   const existe = await ofertasRepository.findById(idOferta);
   if (!existe) {
@@ -159,14 +113,6 @@ const eliminarOferta = async (idOferta) => {
   return await ofertasRepository.delete(idOferta);
 };
 
-/**
- * Crea ofertas masivas (Cyber Monday u otros eventos)
- * @param {Array<number>} productIds - IDs de productos
- * @param {number} porcentajeDescuento - Porcentaje de descuento
- * @param {string} fechaFin - Fecha de finalización
- * @returns {Promise<Object>} Resultado de la operación
- * @throws {ValidationError} Si los datos son inválidos
- */
 const crearOfertasMasivas = async (
   productIds,
   porcentajeDescuento = 25.0,
@@ -199,46 +145,22 @@ const crearOfertasMasivas = async (
   };
 };
 
-/**
- * Obtiene ofertas de Cyber Monday
- * @returns {Promise<Array>}
- */
 const obtenerOfertasCyberMonday = async () => {
   return await ofertasRepository.findCyberMondayWithProductos();
 };
 
-/**
- * Obtiene ofertas destacadas de una categoría específica
- * @param {string} categoria - Nombre de la categoría (default: "Dermocosmética")
- * @returns {Promise<Array>}
- */
 const obtenerOfertasDestacadas = async (categoria = "Dermocosmética") => {
   return await productosRepository.findByCategoriaWithOfertas(categoria);
 };
 
-/**
- * Obtiene ofertas que expiran pronto
- * @param {number} dias - Número de días (default: 7)
- * @returns {Promise<Array>}
- */
 const obtenerOfertasPorVencer = async (dias = 7) => {
   return await ofertasRepository.findExpiringIn(dias);
 };
 
-/**
- * Verifica si un producto tiene oferta activa
- * @param {number} idProducto - ID del producto
- * @returns {Promise<boolean>}
- */
 const productoTieneOfertaActiva = async (idProducto) => {
   return await ofertasRepository.hasActiveOferta(idProducto);
 };
 
-/**
- * Desactiva todas las ofertas de un producto
- * @param {number} idProducto - ID del producto
- * @returns {Promise<boolean>}
- */
 const desactivarOfertasDeProducto = async (idProducto) => {
   return await ofertasRepository.desactivarByProducto(idProducto);
 };

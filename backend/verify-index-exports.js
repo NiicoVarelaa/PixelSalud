@@ -1,17 +1,6 @@
-/**
- * Script para verificar que todos los index.js estén completos y actualizados
- *
- * Verifica que:
- * 1. Todos los archivos .js de una carpeta estén en su index.js
- * 2. No haya archivos obsoletos en el index.js
- *
- * Uso: node verify-index-exports.js
- */
-
 const fs = require("fs");
 const path = require("path");
 
-// Carpetas con index.js a verificar
 const foldersToCheck = [
   "errors",
   "repositories",
@@ -26,9 +15,6 @@ const foldersToCheck = [
 
 let hasErrors = false;
 
-/**
- * Obtiene todos los archivos .js de una carpeta (excepto index.js)
- */
 function getJsFiles(dirPath) {
   if (!fs.existsSync(dirPath)) {
     return [];
@@ -40,9 +26,6 @@ function getJsFiles(dirPath) {
     .map((file) => file.replace(".js", ""));
 }
 
-/**
- * Extrae los nombres exportados del index.js
- */
 function getExportsFromIndex(indexPath) {
   if (!fs.existsSync(indexPath)) {
     return [];
@@ -51,7 +34,6 @@ function getExportsFromIndex(indexPath) {
   const content = fs.readFileSync(indexPath, "utf8");
   const exportNames = [];
 
-  // Buscar patrones como: NombreExport: require('./Archivo')
   const regex = /(\w+):\s*require\(['"]\.\/([\w-]+)['"]\)/g;
   let match;
 
@@ -62,9 +44,6 @@ function getExportsFromIndex(indexPath) {
   return exportNames;
 }
 
-/**
- * Verifica una carpeta
- */
 function verifyFolder(folderName) {
   const folderPath = path.join(__dirname, folderName);
   const indexPath = path.join(folderPath, "index.js");
@@ -79,10 +58,8 @@ function verifyFolder(folderName) {
   const actualFiles = getJsFiles(folderPath);
   const exportedFiles = getExportsFromIndex(indexPath);
 
-  // Archivos que faltan en index.js
   const missing = actualFiles.filter((file) => !exportedFiles.includes(file));
 
-  // Archivos en index.js que no existen
   const obsolete = exportedFiles.filter((file) => !actualFiles.includes(file));
 
   if (missing.length === 0 && obsolete.length === 0) {
@@ -105,7 +82,6 @@ function verifyFolder(folderName) {
   }
 }
 
-// Ejecutar verificación
 console.log("🔍 Verificando archivos index.js...\n");
 console.log("=".repeat(60));
 

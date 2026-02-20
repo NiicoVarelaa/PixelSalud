@@ -1,61 +1,27 @@
 const { pool } = require("../config/database");
 
-/**
- * Repository para la tabla Favoritos
- * Maneja la relación entre Clientes y Productos favoritos
- */
-
-/**
- * Busca un favorito específico por cliente y producto
- * @param {number} idCliente
- * @param {number} idProducto
- * @returns {Promise<Object|null>}
- */
 const findByClienteAndProducto = async (idCliente, idProducto) => {
   const sql = `SELECT * FROM Favoritos WHERE idCliente = ? AND idProducto = ?`;
   const [results] = await pool.query(sql, [idCliente, idProducto]);
   return results[0] || null;
 };
 
-/**
- * Verifica si un producto está en favoritos de un cliente
- * @param {number} idCliente
- * @param {number} idProducto
- * @returns {Promise<boolean>}
- */
 const exists = async (idCliente, idProducto) => {
   const favorito = await findByClienteAndProducto(idCliente, idProducto);
   return favorito !== null;
 };
 
-/**
- * Agrega un producto a favoritos
- * @param {number} idCliente
- * @param {number} idProducto
- * @returns {Promise<number>} ID del favorito creado
- */
 const create = async (idCliente, idProducto) => {
   const sql = `INSERT INTO Favoritos (idCliente, idProducto) VALUES (?, ?)`;
   const [result] = await pool.query(sql, [idCliente, idProducto]);
   return result.insertId;
 };
 
-/**
- * Elimina un producto de favoritos
- * @param {number} idCliente
- * @param {number} idProducto
- * @returns {Promise<void>}
- */
 const deleteByClienteAndProducto = async (idCliente, idProducto) => {
   const sql = `DELETE FROM Favoritos WHERE idCliente = ? AND idProducto = ?`;
   await pool.query(sql, [idCliente, idProducto]);
 };
 
-/**
- * Obtiene todos los favoritos de un cliente con información del producto y ofertas
- * @param {number} idCliente
- * @returns {Promise<Array>}
- */
 const findAllByClienteWithProductos = async (idCliente) => {
   const sql = `
     SELECT 
@@ -96,11 +62,6 @@ const findAllByClienteWithProductos = async (idCliente) => {
   return rows;
 };
 
-/**
- * Cuenta cuántos favoritos tiene un cliente
- * @param {number} idCliente
- * @returns {Promise<number>}
- */
 const countByCliente = async (idCliente) => {
   const sql = `SELECT COUNT(*) as count FROM Favoritos WHERE idCliente = ?`;
   const [results] = await pool.query(sql, [idCliente]);

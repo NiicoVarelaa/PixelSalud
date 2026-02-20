@@ -1,11 +1,3 @@
-/**
- * Crea un error de autenticación (401)
- * Se usa cuando el usuario no está autenticado o el token no es válido
- * Ejemplo: token expirado, token inválido, sin token
- *
- * @param {string} message - Mensaje del error
- * @returns {Error} Error con statusCode 401
- */
 function createUnauthorizedError(
   message = "No autenticado. Token requerido o inválido",
 ) {

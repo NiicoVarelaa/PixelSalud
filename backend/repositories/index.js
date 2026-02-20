@@ -1,7 +1,3 @@
-/**
- * Exportación centralizada de todos los repositories
- * Todos los repositories ahora usan programación funcional
- */
 module.exports = {
   ProductosRepository: require("./ProductosRepository"),
   OfertasRepository: require("./OfertasRepository"),

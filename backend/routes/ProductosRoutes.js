@@ -5,8 +5,8 @@ const {
   verificarPermisos,
   verificarRol,
 } = require("../middlewares/VerificarPermisos");
+const { mutationLimiter } = require("../config/rateLimiters");
 
-// Importar schemas de validación
 const {
   idProductoParamSchema,
   idParamSchema,
@@ -16,7 +16,6 @@ const {
   updateActivoSchema,
 } = require("../schemas/ProductoSchemas");
 
-// Importar controladores
 const {
   getProductos,
   getProducto,
@@ -31,20 +30,8 @@ const {
 
 const router = express.Router();
 
-// ==========================================
-// RUTAS DE PRODUCTOS
-// ==========================================
-
-/**
- * GET /productos - Obtiene todos los productos con ofertas
- * Acceso: Público
- */
 router.get("/productos", getProductos);
 
-/**
- * GET /productos/bajados - Obtiene productos inactivos
- * Acceso: Admin, Empleado
- */
 router.get(
   "/productos/bajados",
   auth,
@@ -52,22 +39,15 @@ router.get(
   getProductoBajado,
 );
 
-/**
- * GET /productos/buscar - Busca productos por término
- * Acceso: Público
- */
 router.get(
   "/productos/buscar",
   validate({ query: buscarProductosQuerySchema }),
   buscarProductos,
 );
 
-/**
- * POST /productos/crear - Crea un nuevo producto
- * Acceso: Admin, Empleado con permiso
- */
 router.post(
   "/productos/crear",
+  mutationLimiter,
   auth,
   verificarRol(["admin", "empleado"]),
   verificarPermisos("crear_productos"),
@@ -75,22 +55,15 @@ router.post(
   createProducto,
 );
 
-/**
- * GET /productos/:idProducto - Obtiene un producto por ID
- * Acceso: Público
- */
 router.get(
   "/productos/:idProducto",
   validate({ params: idProductoParamSchema }),
   getProducto,
 );
 
-/**
- * PUT /productos/actualizar/:idProducto - Actualiza un producto
- * Acceso: Admin, Empleado con permiso
- */
 router.put(
   "/productos/actualizar/:idProducto",
+  mutationLimiter,
   auth,
   verificarRol(["admin", "empleado"]),
   verificarPermisos("modificar_productos"),
@@ -101,12 +74,9 @@ router.put(
   updateProducto,
 );
 
-/**
- * PUT /productos/actualizar/activo/:idProducto - Actualiza solo estado activo
- * Acceso: Admin, Empleado
- */
 router.put(
   "/productos/actualizar/activo/:idProducto",
+  mutationLimiter,
   validate({
     params: idProductoParamSchema,
     body: updateActivoSchema,
@@ -114,12 +84,9 @@ router.put(
   updateProductoActivo,
 );
 
-/**
- * PUT /productos/darBaja/:id - Da de baja un producto
- * Acceso: Admin, Empleado con permiso
- */
 router.put(
   "/productos/darBaja/:id",
+  mutationLimiter,
   auth,
   verificarRol(["admin", "empleado"]),
   verificarPermisos("modificar_productos"),
@@ -127,12 +94,9 @@ router.put(
   deleteProducto,
 );
 
-/**
- * PUT /productos/activar/:id - Activa un producto
- * Acceso: Admin, Empleado con permiso
- */
 router.put(
   "/productos/activar/:id",
+  mutationLimiter,
   auth,
   verificarRol(["admin", "empleado"]),
   verificarPermisos("modificar_productos"),

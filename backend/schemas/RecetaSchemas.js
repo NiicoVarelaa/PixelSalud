@@ -1,8 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schema para validar el ID de receta en los parámetros de ruta
- */
 const idRecetaParamSchema = z.object({
   id: z.coerce
     .number({
@@ -13,9 +10,6 @@ const idRecetaParamSchema = z.object({
     .positive("El ID de la receta debe ser mayor a 0"),
 });
 
-/**
- * Schema para validar el ID de receta en parámetro idReceta
- */
 const idRecetaUsadaParamSchema = z.object({
   idReceta: z.coerce
     .number({
@@ -26,9 +20,6 @@ const idRecetaUsadaParamSchema = z.object({
     .positive("El ID de la receta debe ser mayor a 0"),
 });
 
-/**
- * Schema para validar el ID de médico en los parámetros de ruta
- */
 const idMedicoParamSchema = z.object({
   idMedico: z.coerce
     .number({
@@ -39,9 +30,6 @@ const idMedicoParamSchema = z.object({
     .positive("El ID del médico debe ser mayor a 0"),
 });
 
-/**
- * Schema para validar el DNI del cliente en los parámetros de ruta
- */
 const dniClienteParamSchema = z.object({
   dniCliente: z.union([
     z.string().regex(/^\d{7,8}$/, "El DNI debe tener 7 u 8 dígitos"),
@@ -54,9 +42,6 @@ const dniClienteParamSchema = z.object({
   ]),
 });
 
-/**
- * Schema para validar un producto en la receta
- */
 const productoRecetaSchema = z.object({
   idProducto: z
     .number({
@@ -75,9 +60,6 @@ const productoRecetaSchema = z.object({
     .positive("La cantidad debe ser mayor a 0"),
 });
 
-/**
- * Schema para crear recetas
- */
 const createRecetaSchema = z.object({
   dniCliente: z.union([
     z

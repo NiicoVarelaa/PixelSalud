@@ -1,8 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schema para crear una orden de compra
- */
 const createOrderSchema = z.object({
   products: z
     .array(
@@ -61,9 +58,6 @@ const createOrderSchema = z.object({
     .optional(),
 });
 
-/**
- * Schema para validar webhook de MercadoPago (opcional - para documentación)
- */
 const webhookSchema = z.object({
   id: z.union([z.number(), z.string()]).optional(),
 

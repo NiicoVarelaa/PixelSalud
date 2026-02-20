@@ -1,10 +1,5 @@
 const { pool } = require("../config/database");
 
-/**
- * Obtiene ventas online con filtros
- * @param {Object} filters - Filtros de búsqueda
- * @returns {Promise<Array>}
- */
 const getVentasOnline = async ({
   fechaDesde,
   fechaHasta,
@@ -59,11 +54,6 @@ const getVentasOnline = async ({
   return rows;
 };
 
-/**
- * Obtiene ventas de empleados con filtros
- * @param {Object} filters - Filtros de búsqueda
- * @returns {Promise<Array>}
- */
 const getVentasEmpleados = async ({
   fechaDesde,
   fechaHasta,
@@ -121,11 +111,6 @@ const getVentasEmpleados = async ({
   return rows;
 };
 
-/**
- * Obtiene ranking de empleados por ventas
- * @param {Object} filters - Filtros de fecha
- * @returns {Promise<Array>}
- */
 const getRankingEmpleados = async ({ fechaDesde, fechaHasta }) => {
   let sql = `
     SELECT 
@@ -154,11 +139,6 @@ const getRankingEmpleados = async ({ fechaDesde, fechaHasta }) => {
   return rows;
 };
 
-/**
- * Obtiene productos más vendidos
- * @param {Object} filters - Filtros de fecha
- * @returns {Promise<Array>}
- */
 const getProductosTop = async ({ fechaDesde, fechaHasta }) => {
   let sql = `
     SELECT 
@@ -211,11 +191,6 @@ const getProductosTop = async ({ fechaDesde, fechaHasta }) => {
   return rows;
 };
 
-/**
- * Obtiene comparativa por canal de ventas
- * @param {Object} filters - Filtros de fecha
- * @returns {Promise<Object>}
- */
 const getComparativaCanales = async ({ fechaDesde, fechaHasta }) => {
   let sqlOnline = `
     SELECT 
@@ -276,11 +251,6 @@ const getComparativaCanales = async ({ fechaDesde, fechaHasta }) => {
   };
 };
 
-/**
- * Obtiene ventas con detalles de productos para reporte detallado
- * @param {Object} filters - Filtros de fecha
- * @returns {Promise<Array>}
- */
 const getVentasConDetalles = async ({ fechaDesde, fechaHasta }) => {
   let sql = `
     SELECT 

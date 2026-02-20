@@ -1,17 +1,11 @@
 const { createAppError } = require("../errors");
 const { z } = require("zod");
 
-/**
- * Middleware de manejo centralizado de errores
- * Debe ser el último middleware de la aplicación
- */
 const errorHandler = (err, req, res, next) => {
-  // Copiar el error para no mutar el original
   let error = { ...err };
   error.message = err.message;
   error.stack = err.stack;
 
-  // Log del error en desarrollo
   if (process.env.NODE_ENV !== "production") {
     console.error("❌ Error capturado:", {
       name: err.name,
@@ -21,7 +15,6 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Manejo de errores de Zod (validación)
   if (err instanceof z.ZodError) {
     const message = "Error de validación";
     const errors =
@@ -39,7 +32,6 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Manejo de errores de MySQL
   if (err.code) {
     switch (err.code) {
       case "ER_DUP_ENTRY":
@@ -63,7 +55,6 @@ const errorHandler = (err, req, res, next) => {
     }
   }
 
-  // Manejo de errores JWT
   if (err.name === "JsonWebTokenError") {
     error.statusCode = 401;
     error.message = "Token inválido";
@@ -73,31 +64,24 @@ const errorHandler = (err, req, res, next) => {
     error.message = "Token expirado";
   }
 
-  // Si es un error operacional conocido (tiene statusCode)
   if (err.statusCode && err.isOperational) {
     return res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
-      ...(err.errors && { errors: err.errors }), // Para ValidationError con detalles
+      ...(err.errors && { errors: err.errors }), 
     });
   }
 
-  // Error genérico (500)
   const statusCode = error.statusCode || 500;
   const message = error.message || "Error interno del servidor";
 
   res.status(statusCode).json({
     status: statusCode >= 500 ? "error" : "fail",
     message,
-    // Solo mostrar stack en desarrollo
     ...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
   });
 };
 
-/**
- * Middleware para rutas no encontradas (404)
- * Debe ir antes del errorHandler
- */
 const notFoundHandler = (req, res, next) => {
   const error = createAppError(
     `Ruta no encontrada: ${req.method} ${req.originalUrl}`,

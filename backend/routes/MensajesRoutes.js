@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-// Controllers
 const {
   listarMensajes,
   obtenerMensaje,
@@ -14,12 +13,10 @@ const {
   responderMensaje,
 } = require("../controllers/MensajesController");
 
-// Middlewares
 const auth = require("../middlewares/Auth");
 const { verificarRol } = require("../middlewares/VerificarPermisos");
 const { validate } = require("../middlewares/validate");
 
-// Schemas
 const {
   idMensajeParamSchema,
   idClienteParamSchema,
@@ -29,33 +26,10 @@ const {
   responderMensajeSchema,
 } = require("../schemas/MensajeSchemas");
 
-// ====================================
-// RUTAS PÚBLICAS (sin autenticación)
-// ====================================
-
-/**
- * POST /mensajes/crear
- * Crea un nuevo mensaje desde el formulario de contacto
- * Acceso público
- */
 router.post("/crear", validate(createMensajeSchema), crearMensaje);
 
-// ====================================
-// RUTAS PARA ADMINISTRACIÓN
-// ====================================
-
-/**
- * GET /mensajes
- * Lista todos los mensajes
- * Requiere: auth + admin
- */
 router.get("/", auth, verificarRol(["admin"]), listarMensajes);
 
-/**
- * GET /mensajes/:idMensaje
- * Obtiene un mensaje específico
- * Requiere: auth + admin
- */
 router.get(
   "/:idMensaje",
   auth,
@@ -64,11 +38,6 @@ router.get(
   obtenerMensaje,
 );
 
-/**
- * GET /mensajes/estado/:estado
- * Lista mensajes por estado (nuevo, leido, respondido)
- * Requiere: auth + admin
- */
 router.get(
   "/estado/:estado",
   auth,
@@ -77,11 +46,6 @@ router.get(
   listarMensajesPorEstado,
 );
 
-/**
- * GET /mensajes/cliente/:idCliente
- * Lista mensajes de un cliente específico
- * Requiere: auth + admin
- */
 router.get(
   "/cliente/:idCliente",
   auth,
@@ -90,11 +54,6 @@ router.get(
   listarMensajesPorCliente,
 );
 
-/**
- * PUT /mensajes/:idMensaje/estado
- * Actualiza el estado de un mensaje
- * Requiere: auth + admin
- */
 router.put(
   "/:idMensaje/estado",
   auth,
@@ -103,11 +62,6 @@ router.put(
   actualizarEstadoMensaje,
 );
 
-/**
- * PATCH /mensajes/:idMensaje/leido
- * Marca un mensaje como leído
- * Requiere: auth + admin
- */
 router.patch(
   "/:idMensaje/leido",
   auth,
@@ -116,11 +70,6 @@ router.patch(
   marcarComoLeido,
 );
 
-/**
- * POST /mensajes/:idMensaje/responder
- * Responde a un mensaje
- * Requiere: auth + admin
- */
 router.post(
   "/:idMensaje/responder",
   auth,
@@ -129,11 +78,6 @@ router.post(
   responderMensaje,
 );
 
-/**
- * DELETE /mensajes/:idMensaje
- * Elimina un mensaje
- * Requiere: auth + admin
- */
 router.delete(
   "/:idMensaje",
   auth,

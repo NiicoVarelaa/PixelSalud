@@ -1,16 +1,8 @@
 const authService = require("../services/AuthService");
 const clientesService = require("../services/ClientesService");
 const cuponesService = require("../services/CuponesService");
-const { enviarCuponBienvenida } = require("../helps/envioMail");
+const { enviarCuponBienvenida } = require("../helps/EnvioMail");
 
-/**
- * Controlador de autenticación
- */
-
-/**
- * Login de usuario
- * POST /login
- */
 const login = async (req, res, next) => {
   try {
     const { email, contrasenia } = req.body;
@@ -21,10 +13,6 @@ const login = async (req, res, next) => {
   }
 };
 
-/**
- * Registra un nuevo cliente
- * POST /registroCliente
- */
 const registrarCliente = async (req, res, next) => {
   try {
     const {
@@ -45,11 +33,9 @@ const registrarCliente = async (req, res, next) => {
 
     const idCliente = resultado.insertId;
 
-    // Crear cupón de bienvenida para el nuevo usuario
     try {
       const cupon = await cuponesService.crearCuponBienvenida(idCliente);
 
-      // Enviar email con el cupón
       await enviarCuponBienvenida(
         emailCliente,
         nombreCliente,
@@ -59,7 +45,6 @@ const registrarCliente = async (req, res, next) => {
       );
     } catch (cuponError) {
       console.error("Error creando cupón de bienvenida:", cuponError.message);
-      // No fallar el registro si el cupón no se puede crear
     }
 
     res.status(201).json({

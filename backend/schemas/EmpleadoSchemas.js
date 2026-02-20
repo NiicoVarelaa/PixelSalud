@@ -1,10 +1,5 @@
 const { z } = require("zod");
 
-/**
- * Schemas de validación Zod para el módulo de Empleados
- */
-
-// Schema para validar idEmpleado en params
 const idEmpleadoParamSchema = z.object({
   id: z
     .string()
@@ -13,7 +8,6 @@ const idEmpleadoParamSchema = z.object({
     .refine((val) => val > 0, "id debe ser mayor a 0"),
 });
 
-// Schema para permisos
 const permisosSchema = z
   .object({
     crear_productos: z.boolean().optional().default(false),
@@ -23,7 +17,6 @@ const permisosSchema = z
   })
   .optional();
 
-// Schema para crear empleado
 const createEmpleadoSchema = z.object({
   nombreEmpleado: z
     .string({ required_error: "nombreEmpleado es requerido" })
@@ -59,7 +52,6 @@ const createEmpleadoSchema = z.object({
   permisos: permisosSchema,
 });
 
-// Schema para actualizar empleado (todos los campos opcionales excepto permisos)
 const updateEmpleadoSchema = z.object({
   nombreEmpleado: z
     .string()
