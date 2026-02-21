@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import { Navbar, Footer } from "@components/organisms";
 import { ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
 
 const faqs = [
@@ -50,9 +49,15 @@ const PreguntasFrecuentes = () => {
         <section className="layout py-8 sm:py-12">
           <header className="mb-10 flex flex-col items-center text-center">
             <div className="mb-3 flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900 shadow-lg">
-              <HelpCircle className="w-7 h-7 text-primary-600 dark:text-primary-400" aria-hidden="true" />
+              <HelpCircle
+                className="w-7 h-7 text-primary-600 dark:text-primary-400"
+                aria-hidden="true"
+              />
             </div>
-            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight" tabIndex={0}>
+            <h1
+              className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight"
+              tabIndex={0}
+            >
               Preguntas Frecuentes
             </h1>
             <p className="text-base text-gray-600 dark:text-gray-300 max-w-xs">
@@ -68,7 +73,7 @@ const PreguntasFrecuentes = () => {
                 /* AGREGADO: break-inside-avoid evita que la tarjeta se parta entre columnas */
                 className="break-inside-avoid mb-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md transition-all duration-300 hover:cursor-pointer"
                 tabIndex={0}
-                style={{ outline: 'none' }}
+                style={{ outline: "none" }}
               >
                 <div
                   className="w-full flex items-center justify-between px-5 py-4 text-left rounded-2xl group cursor-pointer select-none"
@@ -78,18 +83,24 @@ const PreguntasFrecuentes = () => {
                   aria-expanded={openIndex === idx}
                   aria-controls={`faq-panel-${idx}`}
                   id={`faq-header-${idx}`}
-                  onKeyPress={e => { if (e.key === 'Enter' || e.key === ' ') handleToggle(idx); }}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter" || e.key === " ") handleToggle(idx);
+                  }}
                 >
-                  <span
-                    className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors duration-200 cursor-pointer"
-                  >
+                  <span className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors duration-200 cursor-pointer">
                     {faq.question}
                   </span>
                   <span className="cursor-pointer flex items-center">
                     {openIndex === idx ? (
-                      <ChevronUp className="w-5 h-5 text-primary-600 dark:text-primary-400" aria-hidden="true" />
+                      <ChevronUp
+                        className="w-5 h-5 text-primary-600 dark:text-primary-400"
+                        aria-hidden="true"
+                      />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+                      <ChevronDown
+                        className="w-5 h-5 text-gray-400 dark:text-gray-500"
+                        aria-hidden="true"
+                      />
                     )}
                   </span>
                 </div>
@@ -113,4 +124,4 @@ const PreguntasFrecuentes = () => {
   );
 };
 
-export default PreguntasFrecuentes; 
+export default PreguntasFrecuentes;

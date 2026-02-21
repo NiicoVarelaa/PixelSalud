@@ -13,13 +13,14 @@ import {
 import { useProductStore } from "../store/useProductStore";
 import { useFiltroStore } from "../store/useFiltroStore";
 
-import Header from "../components/Header";
-import Breadcrumbs from "../components/Breadcrumbs";
-import CardSkeleton from "../components/CardSkeleton";
-import CardProductos from "../components/CardProductos";
-import ModalRecetas from "../components/ModalRecetas";
-import Footer from "../components/Footer";
-import BuscarRecetaButton from "../components/BuscarRecetaButton";
+import { Header, Footer } from "@components/organisms";
+import { Breadcrumbs } from "@components/molecules/navigation";
+import { CardSkeleton } from "@components/molecules/cards";
+import { CardProductos } from "@features/customer/components/products";
+import {
+  ModalRecetas,
+  BuscarRecetaButton,
+} from "@features/customer/components/prescription";
 
 import { useAuthStore } from "../store/useAuthStore";
 import { useCarritoStore } from "../store/useCarritoStore";

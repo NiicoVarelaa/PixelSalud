@@ -1,6 +1,5 @@
 import React from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import { Navbar, Footer } from "@components/organisms";
 import { BadgePercent } from "lucide-react";
 
 const legales = [
@@ -43,26 +42,34 @@ const LegalesPromocion = () => (
       <section className="layout py-8 sm:py-12">
         <header className="mb-10 flex flex-col items-center text-center">
           <div className="mb-3 flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900 shadow-lg">
-            <BadgePercent className="w-7 h-7 text-primary-600 dark:text-primary-400" aria-hidden="true" />
+            <BadgePercent
+              className="w-7 h-7 text-primary-600 dark:text-primary-400"
+              aria-hidden="true"
+            />
           </div>
-          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight" tabIndex={0}>
+          <h1
+            className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight"
+            tabIndex={0}
+          >
             Legales de Promoción
           </h1>
           <p className="text-base text-gray-600 dark:text-gray-300">
-            Consulta aquí la información legal relacionada con nuestras promociones.
+            Consulta aquí la información legal relacionada con nuestras
+            promociones.
           </p>
         </header>
-        <ul
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          role="list"
-        >
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-6" role="list">
           {legales.map((item) => (
             <li
               key={item.title}
               className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md p-6"
             >
-              <h2 className="text-lg font-bold text-primary-700 dark:text-primary-400 mb-2">{item.title}</h2>
-              <p className="text-gray-700 dark:text-gray-300 text-sm">{item.content}</p>
+              <h2 className="text-lg font-bold text-primary-700 dark:text-primary-400 mb-2">
+                {item.title}
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">
+                {item.content}
+              </p>
             </li>
           ))}
         </ul>

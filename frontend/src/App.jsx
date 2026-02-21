@@ -1,9 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 
 // --- COMPONENTES GLOBALES ---
-import Layout from "./components/Layout";
-import ScrollToTop from "./components/ScrollToTop";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { Layout, ScrollToTop, ProtectedRoute } from "@components/templates";
 import Error404 from "./pages/Error404";
 
 // --- VISTAS PÚBLICAS / CLIENTE ---
@@ -12,7 +10,7 @@ import Productos from "./pages/Productos";
 import Producto from "./pages/Producto";
 import Carrito from "./pages/Carrito";
 import Checkout from "./pages/Checkout";
-import CheckoutSuccess from "./components/CheckoutSuccess";
+import { CheckoutSuccess } from "@features/customer/components/checkout";
 import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import RecuperarContrasena from "./pages/RecuperarContraseña";
@@ -21,7 +19,10 @@ import SobreNosotros from "./pages/SobreNosotros";
 import Contacto from "./pages/Contacto";
 
 // --- PERFIL CLIENTE ---
-import DashboardCliente from "../src/components/DashboardCliente";
+import {
+  DashboardCliente,
+  MenuClientes,
+} from "@features/customer/components/profile";
 import Perfil from "./pages/Perfil";
 import PerfilFavoritos from "./pages/PerfilFavoritos";
 import MisCompras from "./pages/MisCompras";
@@ -29,45 +30,48 @@ import PerfilDirecciones from "./pages/PerfilDirecciones";
 
 // --- ADMINISTRADOR ---
 import Administrador from "./pages/Administrador";
-import AdminMenu from "./components/AdminMenu";
-import MenuProductos from "./components/MenuProductos";
-import OpcionesProductos from "./components/OpcionesProductos";
-import AdminProductos from "./components/AdminProductos";
-import AdminOfertas from "./components/AdminOfertas";
-import AdminProductosActivos from "./components/AdminProductosActivos";
-import AdminProductosBaja from "./components/AdminProductosBaja";
-import MenuClientes from "./components/MenuClientes";
-import AdminClientes from "./components/AdminClientes";
-import MenuEmpleados from "./components/MenuEmpleados";
+import { AdminMenu } from "@features/admin/components/dashboard";
+import {
+  MenuProductos,
+  OpcionesProductos,
+  AdminProductos,
+  AdminProductosActivos,
+  AdminProductosBaja,
+} from "@features/admin/components/products";
+import { AdminOfertas } from "@features/admin/components/offers";
+import { AdminClientes } from "@features/admin/components/customers";
+import { MenuEmpleados } from "@features/employee/components";
 import AdminMensajes from "./pages/AdminMensajes";
-import AdminEmpleados from "./components/AdminEmpleados";
-import MenuVentas from "./components/MenuVentas";
-import AdminVentasE from "./components/AdminVentasE";
-import AdminReportes from "./components/AdminReportes";
-import AdminCupones from "./components/AdminCupones";
+import { AdminEmpleados } from "@features/admin/components/employees";
+import { MenuVentas, AdminVentasE } from "@features/admin/components/sales";
+import { AdminReportes } from "@features/admin/components/reports";
+import { AdminCupones } from "@features/admin/components/coupons";
 
 // (Nota: AdminVentasO lo tenías importado pero no usado en rutas, lo omití para limpiar)
 
 // --- PANEL EMPLEADO ---
 import PanelEmpleados from "./pages/PanelEmpleados";
-import VistaInicialCards from "./components/VistiaInicialCardsEmpleado";
-import EmpleadoRealizarVenta from "./components/EmpleadoRealizarVenta";
-import EmpleadoListaVentas from "./components/EmpleadoListaVentas";
-import EmpleadoEditarVenta from "./components/EmpleadoEditarVenta";
-import EmpleadoProductos from "./components/EmpleadosProductos";
+import {
+  VistiaInicialCardsEmpleado,
+  EmpleadoRealizarVenta,
+  EmpleadoListaVentas,
+  EmpleadoEditarVenta,
+} from "@features/employee/components/sales";
+import { EmpleadosProductos } from "@features/employee/components/products";
 
 // --- PANEL MÉDICO ---
 import PanelMedicos from "./pages/PanelMedico";
-import VistaMenuMedico from "./components/VistaMenuMedico";
-import MedicoNuevaReceta from "./components/MedicoNuevaReceta";
-import MedicoMisRecetas from "./components/MedicoMisRecetas";
+import {
+  VistaMenuMedico,
+  MedicoNuevaReceta,
+  MedicoMisRecetas,
+} from "@features/medical/components";
 
 import Sucursales from "./pages/Sucursales";
 import PreguntasFrecuentes from "./pages/PreguntasFrecuentes";
 import TerminosCondiciones from "./pages/TerminosCondiciones";
 import LegalesPromocion from "./pages/LegalesPromocion";
-import AdminVentasO from "./components/AdminVentasO";
-import OpcionesVentas from "./components/OpcionesVentas";
+import { AdminVentasO, OpcionesVentas } from "@features/admin/components/sales";
 
 const App = () => {
   return (
@@ -155,9 +159,9 @@ const App = () => {
            ========================================= */}
         <Route element={<ProtectedRoute allowedRoles={["empleado"]} />}>
           <Route path="/panelempleados" element={<PanelEmpleados />}>
-            <Route index element={<VistaInicialCards />} />
+            <Route index element={<VistiaInicialCardsEmpleado />} />
             <Route path="venta" element={<EmpleadoRealizarVenta />} />
-            <Route path="productos" element={<EmpleadoProductos />} />
+            <Route path="productos" element={<EmpleadosProductos />} />
             <Route
               path="misventas"
               element={
