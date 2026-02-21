@@ -1,11 +1,9 @@
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
-import NavbarAdmin from "../components/NavbarAdmin";
+import { NavbarAdmin, SiderbarAdmin } from "@features/admin/layout";
 import { useEffect } from "react";
 import { useProductStore } from "../store/useProductStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { toast } from "react-toastify";
-import SiderbarAdmin from "../components/SiderbarAdmin";
-
 
 const Administrador = () => {
   const fetchProducts = useProductStore((state) => state.fetchProducts);
@@ -19,29 +17,29 @@ const Administrador = () => {
   }, [fetchProducts]);
 
   useEffect(() => {
-    if (!user || user.rol !== 'admin') {
+    if (!user || user.rol !== "admin") {
       toast.error("Acceso no autorizado");
-      navigate('/login');
+      navigate("/login");
     }
   }, [user, navigate]);
 
   if (!user) return <p>Cargando...</p>;
 
-  const esDashboardInicial = location.pathname === '/admin';
+  const esDashboardInicial = location.pathname === "/admin";
 
   return (
     <>
       <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
-      <NavbarAdmin />
+        <NavbarAdmin />
 
-      <div className="flex flex-1 overflow-hidden">
-        {!esDashboardInicial && <SiderbarAdmin user={user} />}
+        <div className="flex flex-1 overflow-hidden">
+          {!esDashboardInicial && <SiderbarAdmin user={user} />}
 
-        <main className="flex-1 overflow-y-auto bg-gray-100 p-6">
-          <Outlet />
-        </main>
+          <main className="flex-1 overflow-y-auto bg-gray-100 p-6">
+            <Outlet />
+          </main>
+        </div>
       </div>
-    </div>
     </>
   );
 };

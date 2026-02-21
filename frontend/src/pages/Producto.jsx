@@ -5,19 +5,19 @@ import { useProductDetailStore } from "../store/useProductDetailStore";
 
 import { Frown, ArrowLeft } from "lucide-react";
 
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import Breadcrumbs from "../components/Breadcrumbs";
-import SkeletonDetailProduct from "../components/SkeletonDetailProduct";
-import ProductImageGallery from "../components/ProductImageGallery";
-import ProductInfo from "../components/ProductInfo";
-import ProductsRelated from "../components/ProductsRelated";
+import { Header, Footer } from "@components/organisms";
+import { Breadcrumbs } from "@components/molecules/navigation";
+import {
+  SkeletonDetailProduct,
+  ProductImageGallery,
+  ProductInfo,
+  ProductsRelated,
+} from "@features/customer/components/products";
 
 const Producto = () => {
-  
   const { idProducto } = useParams();
   const navigate = useNavigate();
-  
+
   const {
     producto,
     relatedProducts,
@@ -84,7 +84,10 @@ const Producto = () => {
               <ProductInfo product={producto} precioOriginal={precioOriginal} />
             </div>
           </div>
-          <ProductsRelated relatedProducts={relatedProducts} category={producto?.categoria} />
+          <ProductsRelated
+            relatedProducts={relatedProducts}
+            category={producto?.categoria}
+          />
         </div>
       </main>
       <Footer />

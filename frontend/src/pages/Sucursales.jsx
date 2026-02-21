@@ -1,5 +1,4 @@
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import { Navbar, Footer } from "@components/organisms";
 import { MapPin, Phone, CalendarDays } from "lucide-react";
 
 const branches = [
@@ -20,14 +19,14 @@ const branches = [
 const Sucursales = () => (
   <>
     <Navbar />
-    <main
-      className="min-h-screen pt-8"
-      aria-label="Sucursales de Pixel Salud"
-    >
+    <main className="min-h-screen pt-8" aria-label="Sucursales de Pixel Salud">
       <section className="py-8 sm:py-12">
         <header className="mb-10 flex flex-col items-center text-center">
           <div className="mb-3 flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900 shadow-lg">
-            <MapPin className="w-7 h-7 text-primary-600 dark:text-primary-400" aria-hidden="true" />
+            <MapPin
+              className="w-7 h-7 text-primary-600 dark:text-primary-400"
+              aria-hidden="true"
+            />
           </div>
           <h1
             className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight"
@@ -36,7 +35,8 @@ const Sucursales = () => (
             Sucursales
           </h1>
           <p className="text-base text-gray-600 dark:text-gray-300 max-w-xs">
-            Encuentra aquí la información de nuestras sucursales y horarios de atención.
+            Encuentra aquí la información de nuestras sucursales y horarios de
+            atención.
           </p>
         </header>
 
@@ -50,22 +50,31 @@ const Sucursales = () => (
             >
               <div className="flex-1 p-6 flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-3">
-                  <MapPin className="w-6 h-6 text-primary-600 dark:text-primary-400 shrink-0" aria-hidden="true" />
+                  <MapPin
+                    className="w-6 h-6 text-primary-600 dark:text-primary-400 shrink-0"
+                    aria-hidden="true"
+                  />
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors duration-200">
                     {branch.name}
                   </h2>
                 </div>
-                
+
                 <address className="not-italic text-gray-700 dark:text-gray-300 text-base mb-4 flex items-start gap-3">
                   <span className="sr-only">Dirección:</span>
-                  <MapPin className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" aria-hidden="true" />
+                  <MapPin
+                    className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5 shrink-0"
+                    aria-hidden="true"
+                  />
                   <span>{branch.address}</span>
                 </address>
 
                 <div className="text-gray-600 dark:text-gray-400 text-sm mb-6 flex items-center gap-3">
-                  <CalendarDays className="w-5 h-5 text-primary-500 dark:text-primary-300 shrink-0" aria-hidden="true" />
+                  <CalendarDays
+                    className="w-5 h-5 text-primary-500 dark:text-primary-300 shrink-0"
+                    aria-hidden="true"
+                  />
                   <div>
-                    <span className="font-medium block">Horario:</span> 
+                    <span className="font-medium block">Horario:</span>
                     {branch.hours}
                   </div>
                 </div>

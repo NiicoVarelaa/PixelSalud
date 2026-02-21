@@ -12,16 +12,20 @@ import {
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import Header from "../components/Header";
-import MiniBanner from "../components/MiniBanner";
-import Footer from "../components/Footer";
+import { Header, Footer } from "@components/organisms";
+import { MiniBanner } from "@components/organisms/banners";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 
 const Contacto = () => {
   const { user } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({ nombre: "", email: "", asunto: "", mensaje: "" });
+  const [formData, setFormData] = useState({
+    nombre: "",
+    email: "",
+    asunto: "",
+    mensaje: "",
+  });
   const [errors, setErrors] = useState({});
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
@@ -80,7 +84,12 @@ const Contacto = () => {
         asunto: formData.asunto || `Consulta de ${user.nombre}`,
         mensaje: formData.mensaje,
       });
-      setFormData({ nombre: user.nombre || "", email: user.email || "", asunto: "", mensaje: "" });
+      setFormData({
+        nombre: user.nombre || "",
+        email: user.email || "",
+        asunto: "",
+        mensaje: "",
+      });
       setErrors({});
       toast.success("¡Mensaje enviado correctamente!");
     } catch (error) {
@@ -90,9 +99,10 @@ const Contacto = () => {
       setIsSubmitting(false);
     }
   };
-  
-  const mapUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3560.751939871542!2d-65.20793688495086!3d-26.81603598316744!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94225d3ad7f30f61%3A0x880ef21f4358844!2sPlaza%20Independencia!5e0!3m2!1ses-419!2sar!4v1615832094258!5m2!1ses-419!2sar";
-  
+
+  const mapUrl =
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3560.751939871542!2d-65.20793688495086!3d-26.81603598316744!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94225d3ad7f30f61%3A0x880ef21f4358844!2sPlaza%20Independencia!5e0!3m2!1ses-419!2sar!4v1615832094258!5m2!1ses-419!2sar";
+
   const handleOutsideClick = (e) => {
     if (e.target.id === "modal-backdrop") {
       setShowModal(false);
@@ -143,7 +153,7 @@ const Contacto = () => {
                           errors.nombre
                             ? "border-red-500 focus:ring-red-500"
                             : "border-gray-300 focus:ring-primary-600"
-                        } ${!user ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                        } ${!user ? "bg-gray-100 cursor-not-allowed" : ""}`}
                         placeholder="Inicia sesión para autocompletar"
                       />
                     </div>
@@ -171,7 +181,7 @@ const Contacto = () => {
                           errors.email
                             ? "border-red-500 focus:ring-red-500"
                             : "border-gray-300 focus:ring-primary-600"
-                        } ${!user ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                        } ${!user ? "bg-gray-100 cursor-not-allowed" : ""}`}
                         placeholder="Inicia sesión para autocompletar"
                       />
                     </div>
@@ -193,7 +203,7 @@ const Contacto = () => {
                         type="text"
                         id="asunto"
                         name="asunto"
-                        value={formData.asunto || ''}
+                        value={formData.asunto || ""}
                         onChange={handleChange}
                         className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
                           errors.asunto

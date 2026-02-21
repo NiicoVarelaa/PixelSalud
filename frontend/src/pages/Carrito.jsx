@@ -1,15 +1,14 @@
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import MainCarrito from '../components/MainCarrito'
+import { Header, Footer } from "@components/organisms";
+import { MainCarrito } from "@features/customer/components/cart";
 
 const Carrito = () => {
   return (
     <div>
       <Header />
-      <MainCarrito breadcrumbsCategoria="carrito"/>
-      <Footer/>
+      <MainCarrito breadcrumbsCategoria="carrito" />
+      <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default Carrito
+export default Carrito;

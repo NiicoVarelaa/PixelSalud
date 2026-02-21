@@ -1,16 +1,19 @@
 import { useEffect } from "react";
 import { useProductStore } from "../store/useProductStore";
 
-import Header from "../components/Header";
-import BannerCarrusel from "../components/BannerCarrusel";
-import Categorias from "../components/Categorias";
-import ProductSection from "../components/ProductSection.jsx";
-import BannerPromo from "../components/BannerPromo";
-import ProductCarousel from "../components/ProductCarousel.jsx";
-import BannerGrid from "../components/BannerGrid";
-import Footer from "../components/Footer";
-import TrustedBrand from "../components/TrustedBrand.jsx";
-import WhatsAppButton from "../components/WhatsAppButton.jsx";
+import { Header, Footer } from "@components/organisms";
+import {
+  BannerCarrusel,
+  BannerGrid,
+  BannerPromo,
+} from "@components/organisms/banners";
+import { Categorias } from "@features/customer/components/categories";
+import {
+  ProductSection,
+  ProductCarousel,
+} from "@features/customer/components/products";
+import { TrustedBrand } from "@components/molecules/cards";
+import { WhatsAppButton } from "@components/molecules/navigation";
 
 const Inicio = () => {
   const { productosArriba, productosAbajo, error, fetchProducts } =

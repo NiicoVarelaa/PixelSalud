@@ -4,9 +4,9 @@ import { useCarritoStore } from "../store/useCarritoStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { toast } from "react-toastify";
 import { FiShoppingBag, FiArrowLeft, FiTag, FiShield } from "react-icons/fi";
-import Header from "../components/Header";
+import { Header } from "@components/organisms";
 import { ChevronRight, Home } from "lucide-react";
-import CheckoutForm from "../components/CheckoutForm";
+import { CheckoutForm } from "@features/customer/components/checkout";
 
 // Función de utilidad para formatear precio a ARS (moneda con símbolo)
 const formatPrice = (value) => {
