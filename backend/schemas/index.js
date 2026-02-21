@@ -3,6 +3,7 @@ module.exports = {
   CampanasSchemas: require("./CampanasSchemas"),
   CarritoSchemas: require("./CarritoSchemas"),
   ClienteSchemas: require("./ClienteSchemas"),
+  DashboardSchemas: require("./DashboardSchemas"),
   EmpleadoSchemas: require("./EmpleadoSchemas"),
   FavoritoSchemas: require("./FavoritoSchemas"),
   MedicoSchemas: require("./MedicoSchemas"),

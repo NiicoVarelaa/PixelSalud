@@ -25,15 +25,13 @@ const Administrador = () => {
 
   if (!user) return <p>Cargando...</p>;
 
-  const esDashboardInicial = location.pathname === "/admin";
-
   return (
     <>
       <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
         <NavbarAdmin />
 
         <div className="flex flex-1 overflow-hidden">
-          {!esDashboardInicial && <SiderbarAdmin user={user} />}
+          <SiderbarAdmin user={user} />
 
           <main className="flex-1 overflow-y-auto bg-gray-100 p-6">
             <Outlet />

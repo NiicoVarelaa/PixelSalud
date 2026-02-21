@@ -4,6 +4,7 @@ module.exports = {
   CarritoController: require("./CarritoController"),
   ClientesController: require("./ClientesController"),
   CuponesController: require("./CuponesController"),
+  DashboardController: require("./DashboardController"),
   EmpleadosController: require("./EmpleadosController"),
   FavoritosController: require("./FavoritosController"),
   MedicosController: require("./MedicosController"),

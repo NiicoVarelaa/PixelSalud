@@ -4,6 +4,7 @@ module.exports = {
   CarritoRoutes: require("./CarritoRoutes"),
   ClientesRoutes: require("./ClientesRoutes"),
   CuponesRoutes: require("./CuponesRoutes"),
+  DashboardRoutes: require("./DashboardRoutes"),
   EmpleadosRoutes: require("./EmpleadosRoutes"),
   FavoritosRoutes: require("./FavoritosRoutes"),
   MedicosRoutes: require("./MedicosRoutes"),
