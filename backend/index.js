@@ -1,8 +1,8 @@
 require("dotenv").config();
 
 const { validateEnv, printEnvInfo } = require("./config/validateEnv");
-validateEnv(); 
-printEnvInfo(); 
+validateEnv();
+printEnvInfo();
 
 const express = require("express");
 
@@ -27,6 +27,7 @@ const routesMensajes = require("./routes/MensajesRoutes");
 const routesRecetas = require("./routes/RecetasRoutes");
 const routesReportes = require("./routes/ReportesRoutes");
 const routesCupones = require("./routes/CuponesRoutes");
+const routesDashboard = require("./routes/DashboardRoutes");
 const { errorHandler, notFoundHandler } = require("./middlewares/errorHandler");
 
 const app = express();
@@ -86,6 +87,7 @@ app.use("/mensajes", routesMensajes);
 app.use("/", routesRecetas);
 app.use("/", routesReportes);
 app.use("/", routesCupones);
+app.use("/admin", routesDashboard);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
