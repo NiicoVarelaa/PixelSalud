@@ -1,4 +1,5 @@
 const ventasEmpleadosService = require("../services/VentasEmpleadosService");
+const { Auditoria } = require("../helps");
 
 const obtenerVentasEmpleado = async (req, res, next) => {
   try {
@@ -96,6 +97,20 @@ const registrarVentaEmpleado = async (req, res, next) => {
       metodoPago,
       productos,
     });
+
+    // Registrar auditoría de creación de venta empleado
+    await Auditoria.registrarVentaCreada(
+      {
+        id: resultado.idVentaE,
+        tipo: "empleado",
+        total: totalPago,
+        idEmpleado: idEmpleado,
+        metodoPago: metodoPago,
+      },
+      req.user || { id: idEmpleado, role: "empleado" },
+      req,
+    );
+
     res.status(201).json(resultado);
   } catch (error) {
     next(error);
@@ -106,12 +121,35 @@ const updateVenta = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);
     const { totalPago, metodoPago, productos, idEmpleado } = req.body;
+
+    // Obtener venta antes de actualizar para auditoría
+    const ventaAnterior =
+      await ventasEmpleadosService.obtenerVentaPorId(idVentaE);
+
     const resultado = await ventasEmpleadosService.actualizarVenta(idVentaE, {
       totalPago,
       metodoPago,
       productos,
       idEmpleado,
     });
+
+    // Registrar auditoría de actualización de venta
+    await Auditoria.registrarAuditoria(
+      {
+        evento: Auditoria.EVENTOS_AUDITORIA.VENTA_MODIFICADA,
+        modulo: Auditoria.MODULOS.VENTAS,
+        accion: Auditoria.ACCIONES.UPDATE,
+        descripcion: `Venta empleado #${idVentaE} actualizada`,
+        tipoUsuario: req.user?.role || "empleado",
+        idUsuario: req.user?.id,
+        entidadAfectada: "VentasEmpleados",
+        idEntidad: idVentaE,
+        datosAnteriores: ventaAnterior,
+        datosNuevos: { totalPago, metodoPago, productos, idEmpleado },
+      },
+      req,
+    );
+
     res.status(200).json(resultado);
   } catch (error) {
     next(error);
@@ -121,7 +159,30 @@ const updateVenta = async (req, res, next) => {
 const anularVenta = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);
+
+    // Obtener venta antes de anular para auditoría
+    const ventaAnterior =
+      await ventasEmpleadosService.obtenerVentaPorId(idVentaE);
+
     const resultado = await ventasEmpleadosService.anularVenta(idVentaE);
+
+    // Registrar auditoría de anulación de venta
+    await Auditoria.registrarAuditoria(
+      {
+        evento: Auditoria.EVENTOS_AUDITORIA.VENTA_ANULADA,
+        modulo: Auditoria.MODULOS.VENTAS,
+        accion: Auditoria.ACCIONES.DELETE,
+        descripcion: `Venta empleado #${idVentaE} anulada`,
+        tipoUsuario: req.user?.role || "empleado",
+        idUsuario: req.user?.id,
+        entidadAfectada: "VentasEmpleados",
+        idEntidad: idVentaE,
+        datosAnteriores: ventaAnterior,
+        datosNuevos: { estado: "anulada" },
+      },
+      req,
+    );
+
     res.status(200).json(resultado);
   } catch (error) {
     next(error);
@@ -131,7 +192,30 @@ const anularVenta = async (req, res, next) => {
 const reactivarVenta = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);
+
+    // Obtener venta antes de reactivar para auditoría
+    const ventaAnterior =
+      await ventasEmpleadosService.obtenerVentaPorId(idVentaE);
+
     const resultado = await ventasEmpleadosService.reactivarVenta(idVentaE);
+
+    // Registrar auditoría de reactivación de venta
+    await Auditoria.registrarAuditoria(
+      {
+        evento: "VENTA_REACTIVADA",
+        modulo: Auditoria.MODULOS.VENTAS,
+        accion: Auditoria.ACCIONES.AUTORIZAR,
+        descripcion: `Venta empleado #${idVentaE} reactivada`,
+        tipoUsuario: req.user?.role || "empleado",
+        idUsuario: req.user?.id,
+        entidadAfectada: "VentasEmpleados",
+        idEntidad: idVentaE,
+        datosAnteriores: ventaAnterior,
+        datosNuevos: { estado: "completada" },
+      },
+      req,
+    );
+
     res.status(200).json(resultado);
   } catch (error) {
     next(error);

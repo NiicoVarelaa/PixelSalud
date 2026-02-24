@@ -15,12 +15,12 @@ import {
 import { Header, Footer } from "@components/organisms";
 import { MiniBanner } from "@components/organisms/banners";
 
-import ampollas from "../assets/ampollas.webp";
-import botes from "../assets/botes.webp";
-import deposito from "../assets/deposito.webp";
-import higienePersonal from "../assets/higienePersonal.webp";
-import tienda from "../assets/tienda.webp";
-import mostrador from "../assets/mostrador.webp";
+import ampollas from "@assets/ampollas.webp";
+import botes from "@assets/botes.webp";
+import deposito from "@assets/deposito.webp";
+import higienePersonal from "@assets/higienePersonal.webp";
+import tienda from "@assets/tienda.webp";
+import mostrador from "@assets/mostrador.webp";
 
 const GALLERY_ITEMS = [
   {

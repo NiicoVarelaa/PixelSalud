@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { Link, useNavigate, NavLink } from "react-router-dom";
-import { useCarritoStore } from "../store/useCarritoStore";
-import { useAuthStore } from "../store/useAuthStore";
+import { useCarritoStore } from "@store/useCarritoStore";
+import { useAuthStore } from "@store/useAuthStore";
 import { toast } from "react-toastify";
 import { FiShoppingBag, FiArrowLeft, FiTag, FiShield } from "react-icons/fi";
 import { Header } from "@components/organisms";

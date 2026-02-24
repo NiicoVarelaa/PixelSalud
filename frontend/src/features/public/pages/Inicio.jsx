@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useProductStore } from "../store/useProductStore";
+import { useProductStore } from "@store/useProductStore";
 
 import { Header, Footer } from "@components/organisms";
 import {

@@ -10,8 +10,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-import { useProductStore } from "../store/useProductStore";
-import { useFiltroStore } from "../store/useFiltroStore";
+import { useProductStore } from "@store/useProductStore";
+import { useFiltroStore } from "@store/useFiltroStore";
 
 import { Header, Footer } from "@components/organisms";
 import { Breadcrumbs } from "@components/molecules/navigation";
@@ -22,8 +22,8 @@ import {
   BuscarRecetaButton,
 } from "@features/customer/components/prescription";
 
-import { useAuthStore } from "../store/useAuthStore";
-import { useCarritoStore } from "../store/useCarritoStore";
+import { useAuthStore } from "@store/useAuthStore";
+import { useCarritoStore } from "@store/useCarritoStore";
 
 const Productos = () => {
   const { categorias, isLoading, fetchProducts, productos } = useProductStore();

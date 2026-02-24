@@ -1,19 +1,18 @@
 import { useState } from "react";
-import apiClient from "../utils/apiClient";
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  LogIn, 
+import apiClient from "@utils/apiClient";
+import {
+  User,
+  Mail,
+  Lock,
+  LogIn,
   ArrowLeft,
   ScanText,
-  Eye,       
-  EyeOff,    
-  Loader2    
-} 
-from "lucide-react";
+  Eye,
+  EyeOff,
+  Loader2,
+} from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
-import { toast } from "react-toastify"; 
+import { toast } from "react-toastify";
 
 const Registro = () => {
   const [form, setForm] = useState({
@@ -30,61 +29,66 @@ const Registro = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newValue = value;
-    
+
     // Solo números para el DNI
-    if (name === 'dni') {
-        newValue = value.replace(/\D/g, '');
+    if (name === "dni") {
+      newValue = value.replace(/\D/g, "");
     }
 
-    setForm(prevForm => ({ ...prevForm, [name]: newValue }));
+    setForm((prevForm) => ({ ...prevForm, [name]: newValue }));
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validaciones básicas antes de enviar
-    if (!form.nombreCliente || !form.apellidoCliente || !form.email || !form.contraCliente || !form.dni) {
-        toast.warning("Por favor completa todos los campos.");
-        return;
+    if (
+      !form.nombreCliente ||
+      !form.apellidoCliente ||
+      !form.email ||
+      !form.contraCliente ||
+      !form.dni
+    ) {
+      toast.warning("Por favor completa todos los campos.");
+      return;
     }
 
     setIsSubmitting(true);
-    
+
     // Preparamos el objeto EXACTO que espera el backend
     const dataToSend = {
-        nombreCliente: form.nombreCliente.trim(),
-        apellidoCliente: form.apellidoCliente.trim(),
-        emailCliente: form.email.toLowerCase().trim(), // Mapeo clave: email -> emailCliente
-        contraCliente: form.contraCliente,
-        dni: form.dni
+      nombreCliente: form.nombreCliente.trim(),
+      apellidoCliente: form.apellidoCliente.trim(),
+      emailCliente: form.email.toLowerCase().trim(), // Mapeo clave: email -> emailCliente
+      contraCliente: form.contraCliente,
+      dni: form.dni,
     };
 
     try {
       const res = await apiClient.post("/registroCliente", dataToSend);
-      
+
       toast.success(res.data.mensaje || "¡Registro exitoso! Inicia sesión.");
-      
+
       // Limpiamos el formulario
       setForm({
         nombreCliente: "",
         apellidoCliente: "",
         email: "",
         contraCliente: "",
-        dni: "", 
+        dni: "",
       });
-      
+
       // Redirigimos al login después de un breve delay para que el usuario lea el toast
       setTimeout(() => {
-          navigate("/login");
+        navigate("/login");
       }, 1500);
-
     } catch (error) {
       console.error("Error de registro:", error);
-      const errorMessage = error.response?.data?.mensaje || 
-                           error.response?.data?.error || 
-                           "Error al registrar el cliente. Intenta nuevamente.";
-      toast.error(errorMessage); 
+      const errorMessage =
+        error.response?.data?.mensaje ||
+        error.response?.data?.error ||
+        "Error al registrar el cliente. Intenta nuevamente.";
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -93,7 +97,6 @@ const Registro = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 transform transition-all duration-300 hover:shadow-2xl">
-        
         {/* Header */}
         <div className="flex items-center mb-6">
           <button
@@ -108,13 +111,12 @@ const Registro = () => {
             Crear Cuenta
           </h1>
         </div>
-        
+
         <p className="text-gray-600 text-center mb-8 text-md leading-relaxed">
           Únete a nuestra farmacia y comienza tu experiencia
         </p>
-        
+
         <form onSubmit={handleSubmit} className="space-y-5">
-          
           {/* Nombre y Apellido (Grid) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="relative">
@@ -145,7 +147,7 @@ const Registro = () => {
               />
             </div>
           </div>
-          
+
           {/* DNI */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
@@ -153,7 +155,7 @@ const Registro = () => {
             </div>
             <input
               type="text"
-              name="dni" 
+              name="dni"
               placeholder="DNI / Cédula"
               value={form.dni}
               onChange={handleChange}
@@ -180,7 +182,7 @@ const Registro = () => {
               required
             />
           </div>
-          
+
           {/* Contraseña */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
@@ -201,10 +203,14 @@ const Registro = () => {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-primary-700 transition cursor-pointer"
             >
-              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
             </button>
           </div>
-          
+
           {/* Submit Button */}
           <button
             type="submit"
@@ -225,9 +231,8 @@ const Registro = () => {
               </>
             )}
           </button>
-
         </form>
-        
+
         {/* Links Footer */}
         <div className="mt-6 text-center text-sm text-gray-600">
           ¿Ya tienes una cuenta?{" "}
@@ -238,7 +243,7 @@ const Registro = () => {
             Inicia sesión
           </Link>
         </div>
-        
+
         <p className="mt-4 text-xs text-gray-500 text-center leading-relaxed">
           Al registrarte, aceptas nuestros{" "}
           <Link to="/terminos" className="text-primary-800 hover:underline">
@@ -249,7 +254,6 @@ const Registro = () => {
             Política de privacidad.
           </Link>
         </p>
-
       </div>
     </div>
   );

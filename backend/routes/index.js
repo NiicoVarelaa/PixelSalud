@@ -1,5 +1,6 @@
 module.exports = {
   AuthRoutes: require("./AuthRoutes"),
+  AuditoriaRoutes: require("./AuditoriaRoutes"),
   CampanasRoutes: require("./CampanasRoutes"),
   CarritoRoutes: require("./CarritoRoutes"),
   ClientesRoutes: require("./ClientesRoutes"),

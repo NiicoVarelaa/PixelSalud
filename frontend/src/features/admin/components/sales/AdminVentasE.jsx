@@ -14,8 +14,10 @@ import {
   Trash2,
   RotateCcw,
   UserCircle,
+  Printer,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { TicketVenta } from "@components/shared";
 
 // --- REDUCER ---
 const ventaReducer = (state, action) => {
@@ -57,6 +59,10 @@ const AdminVentasE = () => {
 
   const [paginaActual, setPaginaActual] = useState(1);
   const itemsPorPagina = 8;
+  const [ticketModal, setTicketModal] = useState({
+    show: false,
+    idVenta: null,
+  });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ventaForm, dispatch] = useReducer(ventaReducer, initialState);
@@ -773,13 +779,27 @@ const AdminVentasE = () => {
                           {venta.dniEmpleado || "-"}
                         </td>
                         <td className="px-2 py-3 text-center">
-                          <button
-                            onClick={() => handleVerDetalle(venta.idVentaE)}
-                            className="p-1.5 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition"
-                            title="Ver Ticket"
-                          >
-                            <Eye size={16} />
-                          </button>
+                          <div className="flex justify-center gap-2">
+                            <button
+                              onClick={() => handleVerDetalle(venta.idVentaE)}
+                              className="p-1.5 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition"
+                              title="Ver detalle"
+                            >
+                              <Eye size={16} />
+                            </button>
+                            <button
+                              onClick={() =>
+                                setTicketModal({
+                                  show: true,
+                                  idVenta: venta.idVentaE,
+                                })
+                              }
+                              className="p-1.5 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition"
+                              title="Imprimir Ticket"
+                            >
+                              <Printer size={16} />
+                            </button>
+                          </div>
                         </td>
                         <td className="px-2 py-3 text-sm text-gray-600">
                           {formatearFecha(venta.fechaPago)}
@@ -892,6 +912,14 @@ const AdminVentasE = () => {
           )}
         </div>
       </div>
+
+      {/* Modal de Ticket */}
+      <TicketVenta
+        idVenta={ticketModal.idVenta}
+        tipo="empleado"
+        show={ticketModal.show}
+        onClose={() => setTicketModal({ show: false, idVenta: null })}
+      />
     </div>
   );
 };

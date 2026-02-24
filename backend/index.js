@@ -28,6 +28,8 @@ const routesRecetas = require("./routes/RecetasRoutes");
 const routesReportes = require("./routes/ReportesRoutes");
 const routesCupones = require("./routes/CuponesRoutes");
 const routesDashboard = require("./routes/DashboardRoutes");
+const routesAuditoria = require("./routes/AuditoriaRoutes");
+const routesTicket = require("./routes/TicketRoutes");
 const { errorHandler, notFoundHandler } = require("./middlewares/errorHandler");
 
 const app = express();
@@ -88,6 +90,8 @@ app.use("/", routesRecetas);
 app.use("/", routesReportes);
 app.use("/", routesCupones);
 app.use("/admin", routesDashboard);
+app.use("/admin/auditoria", routesAuditoria);
+app.use("/ticket", routesTicket);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

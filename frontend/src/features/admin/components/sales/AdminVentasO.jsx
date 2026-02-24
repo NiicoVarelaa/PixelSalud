@@ -12,8 +12,10 @@ import {
   XCircle,
   Trash2,
   UserCircle,
+  Printer,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { TicketVenta } from "@components/shared";
 
 // --- REDUCER (Igual que en Ventas Empleados) ---
 const ventaReducer = (state, action) => {
@@ -72,6 +74,10 @@ const AdminVentasO = () => {
   // Paginación
   const [paginaActual, setPaginaActual] = useState(1);
   const itemsPorPagina = 6;
+  const [ticketModal, setTicketModal] = useState({
+    show: false,
+    idVenta: null,
+  });
 
   // Estados posibles
   const estadosPosibles = ["Pendiente", "Retirado", "Cancelado"];
@@ -705,12 +711,27 @@ const AdminVentasO = () => {
 
                           {/* OJITO SOLO */}
                           <td className="px-2 py-3 text-center">
-                            <button
-                              onClick={() => handleVerDetalle(venta)}
-                              className="p-1.5 bg-indigo-100 text-indigo-600 rounded-full hover:bg-indigo-200 transition"
-                            >
-                              <Eye size={16} />
-                            </button>
+                            <div className="flex justify-center gap-2">
+                              <button
+                                onClick={() => handleVerDetalle(venta)}
+                                className="p-1.5 bg-indigo-100 text-indigo-600 rounded-full hover:bg-indigo-200 transition"
+                                title="Ver detalle"
+                              >
+                                <Eye size={16} />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setTicketModal({
+                                    show: true,
+                                    idVenta: venta.idVentaO,
+                                  })
+                                }
+                                className="p-1.5 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition"
+                                title="Imprimir Ticket"
+                              >
+                                <Printer size={16} />
+                              </button>
+                            </div>
                           </td>
 
                           <td className="px-2 py-3 text-sm text-gray-600">
@@ -816,6 +837,14 @@ const AdminVentasO = () => {
           )}
         </div>
       </div>
+
+      {/* Modal de Ticket */}
+      <TicketVenta
+        idVenta={ticketModal.idVenta}
+        tipo="online"
+        show={ticketModal.show}
+        onClose={() => setTicketModal({ show: false, idVenta: null })}
+      />
     </div>
   );
 };

@@ -104,6 +104,25 @@ const responderMensaje = async (req, res, next) => {
   }
 };
 
+const contarNoLeidos = async (req, res, next) => {
+  try {
+    const count = await mensajesService.contarNoLeidos();
+    res.status(200).json({ success: true, count });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const obtenerRecientesNoLeidos = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 5;
+    const mensajes = await mensajesService.obtenerRecientesNoLeidos(limit);
+    res.status(200).json({ success: true, mensajes });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   listarMensajes,
   obtenerMensaje,
@@ -114,4 +133,6 @@ module.exports = {
   eliminarMensaje,
   marcarComoLeido,
   responderMensaje,
+  contarNoLeidos,
+  obtenerRecientesNoLeidos,
 };

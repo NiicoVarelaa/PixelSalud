@@ -1,4 +1,4 @@
-const { favoritosService } = require("../services");
+const favoritosService = require("../services/FavoritosService");
 
 const toggleFavorito = async (req, res, next) => {
   try {

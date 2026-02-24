@@ -24,7 +24,7 @@ const crearCuponBienvenida = async (idCliente) => {
     usoMaximo: 1,
     tipoUsuario: "nuevo",
     montoMinimo: 0,
-    creadoPor: null, 
+    creadoPor: null,
   };
 
   const idCupon = await cuponesRepository.create(cuponData);
@@ -140,6 +140,16 @@ const obtenerCuponPorCodigo = async (codigo) => {
   return cupon;
 };
 
+const obtenerCuponPorId = async (idCupon) => {
+  const cupon = await cuponesRepository.findById(idCupon);
+
+  if (!cupon) {
+    throw createNotFoundError("Cupón no encontrado");
+  }
+
+  return cupon;
+};
+
 const obtenerHistorialCliente = async (idCliente) => {
   return await cuponesRepository.obtenerHistorialCliente(idCliente);
 };
@@ -186,6 +196,7 @@ module.exports = {
   obtenerTodosCupones,
   obtenerCuponesActivos,
   obtenerCuponPorCodigo,
+  obtenerCuponPorId,
   obtenerHistorialCliente,
   obtenerTodoHistorial,
   actualizarEstado,

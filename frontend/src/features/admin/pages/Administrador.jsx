@@ -1,8 +1,8 @@
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { NavbarAdmin, SiderbarAdmin } from "@features/admin/layout";
 import { useEffect } from "react";
-import { useProductStore } from "../store/useProductStore";
-import { useAuthStore } from "../store/useAuthStore";
+import { useProductStore } from "@store/useProductStore";
+import { useAuthStore } from "@store/useAuthStore";
 import { toast } from "react-toastify";
 
 const Administrador = () => {
