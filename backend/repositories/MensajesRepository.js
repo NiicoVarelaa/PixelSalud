@@ -110,6 +110,25 @@ const existsCliente = async (idCliente) => {
   return rows[0].count > 0;
 };
 
+const countUnread = async () => {
+  const [rows] = await pool.query(
+    `SELECT COUNT(*) as count FROM MensajesClientes WHERE leido = 0`,
+  );
+  return rows[0].count;
+};
+
+const findRecentUnread = async (limit = 5) => {
+  const [rows] = await pool.query(
+    `SELECT idMensaje, nombre, email, asunto, mensaje, fechaEnvio, estado 
+     FROM MensajesClientes 
+     WHERE leido = 0 
+     ORDER BY fechaEnvio DESC 
+     LIMIT ?`,
+    [limit],
+  );
+  return rows;
+};
+
 module.exports = {
   findAll,
   findById,
@@ -121,4 +140,6 @@ module.exports = {
   markAsRead,
   responder,
   existsCliente,
+  countUnread,
+  findRecentUnread,
 };

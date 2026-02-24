@@ -10,8 +10,10 @@ import {
   Edit,
   Trash2,
   RotateCcw,
+  Printer,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { TicketVenta } from "@components/shared";
 
 const EmpleadoListaVentas = ({ endpoint, title }) => {
   const navigate = useNavigate();
@@ -27,6 +29,12 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
   const [busqueda, setBusqueda] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
   const itemsPorPagina = 10;
+
+  // --- Estado para modal de ticket ---
+  const [ticketModal, setTicketModal] = useState({
+    show: false,
+    idVenta: null,
+  });
 
   // --- Lógica de Carga ---
   const cargarVentas = async () => {
@@ -342,13 +350,27 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
                       </td>
 
                       <td className="px-4 py-3 text-center">
-                        <button
-                          onClick={() => handleVerDetalle(venta.idVentaE)}
-                          className="p-1.5 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition"
-                          title="Ver detalle"
-                        >
-                          <Eye size={16} />
-                        </button>
+                        <div className="flex justify-center gap-2">
+                          <button
+                            onClick={() => handleVerDetalle(venta.idVentaE)}
+                            className="p-1.5 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition"
+                            title="Ver detalle"
+                          >
+                            <Eye size={16} />
+                          </button>
+                          <button
+                            onClick={() =>
+                              setTicketModal({
+                                show: true,
+                                idVenta: venta.idVentaE,
+                              })
+                            }
+                            className="p-1.5 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition"
+                            title="Imprimir Ticket"
+                          >
+                            <Printer size={16} />
+                          </button>
+                        </div>
                       </td>
 
                       <td className="px-4 py-3 text-sm text-gray-700">
@@ -455,6 +477,14 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
           )}
         </>
       )}
+
+      {/* Modal de Ticket */}
+      <TicketVenta
+        idVenta={ticketModal.idVenta}
+        tipo="empleado"
+        show={ticketModal.show}
+        onClose={() => setTicketModal({ show: false, idVenta: null })}
+      />
     </div>
   );
 };

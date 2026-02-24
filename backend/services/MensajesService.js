@@ -149,6 +149,16 @@ const responderMensaje = async (idMensaje, respuesta, respondidoPor) => {
   };
 };
 
+const contarNoLeidos = async () => {
+  const count = await mensajesRepository.countUnread();
+  return count;
+};
+
+const obtenerRecientesNoLeidos = async (limit = 5) => {
+  const mensajes = await mensajesRepository.findRecentUnread(limit);
+  return mensajes || [];
+};
+
 module.exports = {
   obtenerMensajes,
   obtenerMensajePorId,
@@ -159,4 +169,6 @@ module.exports = {
   eliminarMensaje,
   marcarComoLeido,
   responderMensaje,
+  contarNoLeidos,
+  obtenerRecientesNoLeidos,
 };

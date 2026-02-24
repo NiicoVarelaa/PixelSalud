@@ -54,13 +54,9 @@ const findById = async (idVentaO) => {
       v.*,
       c.nombreCliente,
       c.apellidoCliente,
-      c.dni as dniCliente,
-      de.direccion,
-      de.ciudad,
-      de.provincia
+      c.dni as dniCliente
     FROM VentasOnlines v
     JOIN Clientes c ON v.idCliente = c.idCliente
-    LEFT JOIN DireccionesEnvio de ON v.idDireccion = de.idDireccion
     WHERE v.idVentaO = ?
   `;
   const [rows] = await pool.query(sql, [idVentaO]);

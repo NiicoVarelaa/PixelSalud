@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useAuthStore } from "../store/useAuthStore";
-import { useFavoritosStore } from "../store/useFavoritoStore";
+import { useAuthStore } from "@store/useAuthStore";
+import { useFavoritosStore } from "@store/useFavoritoStore";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, ArrowRight, Sparkles } from "lucide-react";
 import { CardProductos } from "@features/customer/components/products";

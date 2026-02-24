@@ -14,7 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { Header, Footer } from "@components/organisms";
 import { MiniBanner } from "@components/organisms/banners";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "@store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 
 const Contacto = () => {

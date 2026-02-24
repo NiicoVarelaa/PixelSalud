@@ -1,4 +1,5 @@
 const cuponesService = require("../services/CuponesService");
+const { Auditoria } = require("../helps");
 
 const validarCupon = async (req, res, next) => {
   try {
@@ -45,6 +46,23 @@ const crearCupon = async (req, res, next) => {
     const cuponData = req.body;
 
     const cupon = await cuponesService.crearCupon(cuponData, adminId);
+
+    // Registrar auditoría de creación de cupón
+    await Auditoria.registrarAuditoria(
+      {
+        evento: "CUPON_CREADO",
+        modulo: Auditoria.MODULOS.OFERTAS,
+        accion: Auditoria.ACCIONES.CREATE,
+        descripcion: `Cupón "${cuponData.codigo}" creado - Descuento: ${cuponData.descuento}${cuponData.tipoCupon === "porcentaje" ? "%" : "$"}`,
+        tipoUsuario: req.user?.role || "admin",
+        idUsuario: req.user?.id || adminId,
+        entidadAfectada: "Cupones",
+        idEntidad: cupon.id,
+        datosAnteriores: null,
+        datosNuevos: cuponData,
+      },
+      req,
+    );
 
     res.status(201).json({
       success: true,
@@ -117,7 +135,27 @@ const actualizarEstado = async (req, res, next) => {
     const { id } = req.params;
     const { estado } = req.body;
 
+    // Obtener cupón antes de actualizar para auditoría
+    const cuponAnterior = await cuponesService.obtenerCuponPorId(parseInt(id));
+
     await cuponesService.actualizarEstado(parseInt(id), estado);
+
+    // Registrar auditoría de cambio de estado de cupón
+    await Auditoria.registrarAuditoria(
+      {
+        evento: estado ? "CUPON_ACTIVADO" : "CUPON_DESACTIVADO",
+        modulo: Auditoria.MODULOS.OFERTAS,
+        accion: Auditoria.ACCIONES.UPDATE,
+        descripcion: `Cupón "${cuponAnterior?.codigo}" ${estado ? "activado" : "desactivado"}`,
+        tipoUsuario: req.user?.role || "admin",
+        idUsuario: req.user?.id,
+        entidadAfectada: "Cupones",
+        idEntidad: id,
+        datosAnteriores: { estado: cuponAnterior?.estado },
+        datosNuevos: { estado },
+      },
+      req,
+    );
 
     res.status(200).json({
       success: true,
@@ -132,7 +170,27 @@ const eliminarCupon = async (req, res, next) => {
   try {
     const { id } = req.params;
 
+    // Obtener cupón antes de eliminar para auditoría
+    const cuponAnterior = await cuponesService.obtenerCuponPorId(parseInt(id));
+
     await cuponesService.eliminarCupon(parseInt(id));
+
+    // Registrar auditoría de eliminación de cupón
+    await Auditoria.registrarAuditoria(
+      {
+        evento: "CUPON_ELIMINADO",
+        modulo: Auditoria.MODULOS.OFERTAS,
+        accion: Auditoria.ACCIONES.DELETE,
+        descripcion: `Cupón "${cuponAnterior?.codigo}" eliminado`,
+        tipoUsuario: req.user?.role || "admin",
+        idUsuario: req.user?.id,
+        entidadAfectada: "Cupones",
+        idEntidad: id,
+        datosAnteriores: cuponAnterior,
+        datosNuevos: null,
+      },
+      req,
+    );
 
     res.status(200).json({
       success: true,

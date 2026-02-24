@@ -5,73 +5,79 @@ import { Layout, ScrollToTop, ProtectedRoute } from "@components/templates";
 import Error404 from "./pages/Error404";
 
 // --- VISTAS PÚBLICAS / CLIENTE ---
-import Inicio from "./pages/Inicio";
-import Productos from "./pages/Productos";
-import Producto from "./pages/Producto";
-import Carrito from "./pages/Carrito";
-import Checkout from "./pages/Checkout";
-import { CheckoutSuccess } from "@features/customer/components/checkout";
-import Login from "./pages/Login";
-import Registro from "./pages/Registro";
-import RecuperarContrasena from "./pages/RecuperarContraseña";
-import RestablecerContrasena from "./pages/RestablecerContrasena"; // <--- 1. NUEVA IMPORTACIÓN AQUÍ
-import SobreNosotros from "./pages/SobreNosotros";
-import Contacto from "./pages/Contacto";
+import {
+  InicioPage as Inicio,
+  ProductosPage as Productos,
+  ProductoPage as Producto,
+  SobreNosotrosPage as SobreNosotros,
+  ContactoPage as Contacto,
+  SucursalesPage as Sucursales,
+  PreguntasFrecuentesPage as PreguntasFrecuentes,
+  TerminosCondicionesPage as TerminosCondiciones,
+  LegalesPromocionPage as LegalesPromocion,
+} from "@features/public/pages";
+import {
+  CarritoPage as Carrito,
+  CheckoutPage as Checkout,
+  CheckoutSuccess,
+} from "@features/customer";
+import {
+  LoginPage as Login,
+  RegistroPage as Registro,
+  RecuperarContrasenaPage as RecuperarContrasena,
+  RestablecerContrasenaPage as RestablecerContrasena,
+} from "@features/auth/pages";
 
 // --- PERFIL CLIENTE ---
 import {
   DashboardCliente,
   MenuClientes,
-} from "@features/customer/components/profile";
-import Perfil from "./pages/Perfil";
-import PerfilFavoritos from "./pages/PerfilFavoritos";
-import MisCompras from "./pages/MisCompras";
-import PerfilDirecciones from "./pages/PerfilDirecciones";
+  PerfilPage as Perfil,
+  PerfilFavoritosPage as PerfilFavoritos,
+  MisComprasPage as MisCompras,
+  PerfilDireccionesPage as PerfilDirecciones,
+} from "@features/customer";
 
 // --- ADMINISTRADOR ---
-import Administrador from "./pages/Administrador";
-import { AdminMenu } from "@features/admin/components/dashboard";
 import {
+  AdministradorPage as Administrador,
+  AdminMensajesPage as AdminMensajes,
+  AdminMenu,
   MenuProductos,
   OpcionesProductos,
   AdminProductos,
   AdminProductosActivos,
   AdminProductosBaja,
-} from "@features/admin/components/products";
-import { AdminOfertas } from "@features/admin/components/offers";
-import { AdminClientes } from "@features/admin/components/customers";
-import { MenuEmpleados } from "@features/employee/components";
-import AdminMensajes from "./pages/AdminMensajes";
-import { AdminEmpleados } from "@features/admin/components/employees";
-import { MenuVentas, AdminVentasE } from "@features/admin/components/sales";
-import { AdminReportes } from "@features/admin/components/reports";
-import { AdminCupones } from "@features/admin/components/coupons";
-
-// (Nota: AdminVentasO lo tenías importado pero no usado en rutas, lo omití para limpiar)
+  AdminOfertas,
+  AdminClientes,
+  AdminEmpleados,
+  MenuVentas,
+  AdminVentasE,
+  AdminVentasO,
+  OpcionesVentas,
+  AdminReportes,
+  AdminCupones,
+  AdminAuditoria,
+} from "@features/admin";
 
 // --- PANEL EMPLEADO ---
-import PanelEmpleados from "./pages/PanelEmpleados";
 import {
+  PanelEmpleadosPage as PanelEmpleados,
+  MenuEmpleados,
   VistiaInicialCardsEmpleado,
   EmpleadoRealizarVenta,
   EmpleadoListaVentas,
   EmpleadoEditarVenta,
-} from "@features/employee/components/sales";
-import { EmpleadosProductos } from "@features/employee/components/products";
+  EmpleadosProductos,
+} from "@features/employee";
 
 // --- PANEL MÉDICO ---
-import PanelMedicos from "./pages/PanelMedico";
 import {
+  PanelMedicoPage as PanelMedicos,
   VistaMenuMedico,
   MedicoNuevaReceta,
   MedicoMisRecetas,
-} from "@features/medical/components";
-
-import Sucursales from "./pages/Sucursales";
-import PreguntasFrecuentes from "./pages/PreguntasFrecuentes";
-import TerminosCondiciones from "./pages/TerminosCondiciones";
-import LegalesPromocion from "./pages/LegalesPromocion";
-import { AdminVentasO, OpcionesVentas } from "@features/admin/components/sales";
+} from "@features/medical";
 
 const App = () => {
   return (
@@ -151,6 +157,7 @@ const App = () => {
             <Route path="reportes" element={<AdminReportes />} />
             <Route path="cupones" element={<AdminCupones />} />
             <Route path="mensajes" element={<AdminMensajes />} />
+            <Route path="auditoria" element={<AdminAuditoria />} />
           </Route>
         </Route>
 

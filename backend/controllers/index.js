@@ -1,5 +1,6 @@
 module.exports = {
   AuthController: require("./AuthController"),
+  AuditoriaController: require("./AuditoriaController"),
   CampanasController: require("./CampanasController"),
   CarritoController: require("./CarritoController"),
   ClientesController: require("./ClientesController"),

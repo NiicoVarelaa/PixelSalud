@@ -1,16 +1,5 @@
 const DashboardService = require("../services/DashboardService");
 
-/**
- * Controlador para el Dashboard de Analytics
- * Maneja las peticiones HTTP relacionadas con métricas y estadísticas
- * @module DashboardController
- */
-
-/**
- * Obtiene todas las métricas del dashboard
- * @route GET /api/admin/dashboard/metricas
- * @access Private (Admin)
- */
 const obtenerMetricas = async (req, res, next) => {
   try {
     const metricas = await DashboardService.obtenerMetricas();

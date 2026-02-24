@@ -1,5 +1,5 @@
 import { useState } from "react";
-import apiClient from "../utils/apiClient";
+import apiClient from "@utils/apiClient";
 
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -12,7 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "@store/useAuthStore";
 
 const Login = () => {
   const [user, setUser] = useState({

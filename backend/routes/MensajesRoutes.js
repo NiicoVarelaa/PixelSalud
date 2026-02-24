@@ -11,6 +11,8 @@ const {
   eliminarMensaje,
   marcarComoLeido,
   responderMensaje,
+  contarNoLeidos,
+  obtenerRecientesNoLeidos,
 } = require("../controllers/MensajesController");
 
 const auth = require("../middlewares/Auth");
@@ -29,6 +31,15 @@ const {
 router.post("/crear", validate(createMensajeSchema), crearMensaje);
 
 router.get("/", auth, verificarRol(["admin"]), listarMensajes);
+
+router.get("/no-leidos", auth, verificarRol(["admin"]), contarNoLeidos);
+
+router.get(
+  "/recientes-no-leidos",
+  auth,
+  verificarRol(["admin"]),
+  obtenerRecientesNoLeidos,
+);
 
 router.get(
   "/:idMensaje",

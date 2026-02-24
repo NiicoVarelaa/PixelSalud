@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import { useProductDetailStore } from "../store/useProductDetailStore";
+import { useProductDetailStore } from "@store/useProductDetailStore";
 
 import { Frown, ArrowLeft } from "lucide-react";
 

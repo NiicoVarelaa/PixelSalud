@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "@store/useAuthStore";
 import { toast } from "react-toastify";
 import { NavbarEmpleado } from "@features/employee/layout";
 import { SidebarMedico } from "@features/medical/layout";

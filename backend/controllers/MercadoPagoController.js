@@ -1,5 +1,6 @@
 const mercadoPagoService = require("../services/MercadoPagoService");
 const cuponesService = require("../services/CuponesService");
+const { Auditoria } = require("../helps");
 
 const createOrder = async (req, res, next) => {
   try {
@@ -48,6 +49,30 @@ const createOrder = async (req, res, next) => {
       cuponAplicado,
     });
 
+    // Registrar auditoría de creación de orden MercadoPago
+    await Auditoria.registrarAuditoria(
+      {
+        evento: "ORDEN_MERCADOPAGO_CREADA",
+        modulo: Auditoria.MODULOS.MERCADOPAGO,
+        accion: Auditoria.ACCIONES.CREATE,
+        descripcion: `Orden de MercadoPago creada - Preference ID: ${result.id}`,
+        tipoUsuario: "cliente",
+        idUsuario: userId,
+        entidadAfectada: "VentasOnlines",
+        idEntidad: result.idVentaO,
+        datosAnteriores: null,
+        datosNuevos: {
+          preferenceId: result.id,
+          total:
+            products.reduce((sum, p) => sum + p.unit_price * p.quantity, 0) -
+            descuentoFinal,
+          productos: products.length,
+          cupon: codigoCupon || null,
+        },
+      },
+      req,
+    );
+
     console.log("✅ Orden creada exitosamente");
     console.log("Preference ID:", result.id);
     console.log("Venta ID:", result.idVentaO);
@@ -84,7 +109,12 @@ const receiveWebhook = async (req, res, next) => {
 
     setImmediate(async () => {
       try {
-        await mercadoPagoService.processWebhook(req.body);
+        const webhookResult = await mercadoPagoService.processWebhook(req.body);
+
+        // Registrar auditoría de pago recibido si fue exitoso
+        if (webhookResult && webhookResult.success && webhookResult.payment) {
+          await Auditoria.registrarPagoRecibido(webhookResult.payment, req);
+        }
       } catch (webhookError) {
         console.error("❌ Error procesando webhook:", webhookError.message);
       }
