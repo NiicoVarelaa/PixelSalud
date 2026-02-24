@@ -3,72 +3,72 @@
 
 
 @font-face {
-    font-family: 'Outfit';
-    src: url('./assets/fonts/Outfit-VariableFont_wght.woff2') format('woff2');
-    font-style: normal;
-    font-weight: 100 700;
-    font-display: swap;
+  font-family: 'Outfit';
+  src: url('./assets/fonts/Outfit-VariableFont_wght.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
 }
 
 @theme {
 
-    /* Colores */
+  /* Colores */
 
-    --color-primary-100: #d6ffe4;
-    --color-primary-200: #afffca;
-    --color-primary-300: #71ffa3;
-    --color-primary-400: #2dfb73;
-    --color-primary-500: #02e551;
-    --color-primary-600: #00bf3e;
-    --color-primary-700: #00a339;
-    --color-primary-800: #06752d;
-    --color-primary-900: #085f28;
-    --color-primary-950: #003614;
+  --color-primary-100: #d6ffe4;
+  --color-primary-200: #afffca;
+  --color-primary-300: #71ffa3;
+  --color-primary-400: #2dfb73;
+  --color-primary-500: #02e551;
+  --color-primary-600: #00bf3e;
+  --color-primary-700: #00a339;
+  --color-primary-800: #06752d;
+  --color-primary-900: #085f28;
+  --color-primary-950: #003614;
 
-    --color-secondary-100: #d4f5f9;
-    --color-secondary-200: #adeaf4;
-    --color-secondary-300: #75d9eb;
-    --color-secondary-400: #00BCD3;
-    --color-secondary-500: #1aa3c0;
-    --color-secondary-600: #1882a2;
-    --color-secondary-700: #1b6a83;
-    --color-secondary-800: #1e566c;
-    --color-secondary-900: #1d495c;
-    --color-secondary-950: #0e2e3e;
+  --color-secondary-100: #d4f5f9;
+  --color-secondary-200: #adeaf4;
+  --color-secondary-300: #75d9eb;
+  --color-secondary-400: #00BCD3;
+  --color-secondary-500: #1aa3c0;
+  --color-secondary-600: #1882a2;
+  --color-secondary-700: #1b6a83;
+  --color-secondary-800: #1e566c;
+  --color-secondary-900: #1d495c;
+  --color-secondary-950: #0e2e3e;
 
-    --color-info-50: #f4f8ff;
-    --color-info-75: #c9dafe;
-    --color-info-100: #366de8;
+  --color-info-50: #f4f8ff;
+  --color-info-75: #c9dafe;
+  --color-info-100: #366de8;
 
-    --color-success-50: #e9f6f0;
-    --color-success-75: #def1e9;
-    --color-success-100: #0d7d4e;
+  --color-success-50: #e9f6f0;
+  --color-success-75: #def1e9;
+  --color-success-100: #0d7d4e;
 
-    --color-warning-50: #fffbee;
-    --color-warning-75: #ffe5bf;
-    --color-warning-100: #fada00;
+  --color-warning-50: #fffbee;
+  --color-warning-75: #ffe5bf;
+  --color-warning-100: #fada00;
 
-    --color-danger-50: #fbe1e0;
-    --color-danger-75: #ffaaa8;
-    --color-danger-100: #de201c;  
+  --color-danger-50: #fbe1e0;
+  --color-danger-75: #ffaaa8;
+  --color-danger-100: #de201c;
 
-    --color-gray-100: #ebebeb;
-    --color-gray-200: #e0e0e0;
-    --color-gray-300: #ababab;
-    --color-gray-400: #999;
-    --color-gray-500: #666;
-    --color-gray-600: #565656;
-    --color-gray-700: #333;
-    --color-gray-800: #242424;
-    --color-gray-900: #1f1f1f;
+  --color-gray-100: #ebebeb;
+  --color-gray-200: #e0e0e0;
+  --color-gray-300: #ababab;
+  --color-gray-400: #999;
+  --color-gray-500: #666;
+  --color-gray-600: #565656;
+  --color-gray-700: #333;
+  --color-gray-800: #242424;
+  --color-gray-900: #1f1f1f;
 
-    /* Fuentes */
-    --font-sans: 'Outfit', system-ui, sans-serif;
+  /* Fuentes */
+  --font-sans: 'Outfit', system-ui, sans-serif;
 
 }
 
 a.active hr {
-    display: block;
+  display: block;
 }
 
 
@@ -115,15 +115,24 @@ a.active hr {
   outline-offset: 2px;
 }
 
-button, a, .icon-card {
+button,
+a,
+.icon-card {
   transition: all 0.3s ease;
 }
 
 
 /* === Animaciones personalizadas para CardCategorias === */
 @keyframes subtle-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
 }
 
 .animate-ping {
@@ -131,7 +140,9 @@ button, a, .icon-card {
 }
 
 @keyframes ping {
-  75%, 100% {
+
+  75%,
+  100% {
     transform: scale(2);
     opacity: 0;
   }
@@ -143,6 +154,7 @@ button, a, .icon-card {
 
 /* Mejoras de accesibilidad */
 @media (prefers-reduced-motion: reduce) {
+
   .CardCategorias,
   .animate-ping {
     animation: none;
@@ -162,7 +174,7 @@ button, a, .icon-card {
     background: var(--color-gray-800);
     border-color: var(--color-gray-700);
   }
-  
+
   .CardCategorias-dark:hover {
     border-color: var(--color-primary-400);
   }
@@ -174,7 +186,7 @@ button, a, .icon-card {
     border-width: 1px;
     padding: 1rem;
   }
-  
+
   .CardCategorias:active {
     transform: scale(0.98);
     background-color: var(--color-primary-50);
@@ -184,8 +196,15 @@ button, a, .icon-card {
 
 /* === Animaciones personalizadas para BannerInfo === */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 .float-animation {
@@ -208,12 +227,21 @@ button, a, .icon-card {
 }
 
 @keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .feature-card,
   .float-animation,
   .gradient-border {
@@ -249,18 +277,22 @@ button, a, .icon-card {
 
 .flash-offers-controls .swiper-pagination-bullet {
   /* Heredamos el estilo del otro carrusel para consistencia */
-  background: #cbd5e1; /* gray-300 */
+  background: #cbd5e1;
+  /* gray-300 */
   opacity: 0.7;
   width: 8px;
   height: 8px;
-  margin: 0 4px !important; /* Ajuste para espaciado correcto */
+  margin: 0 4px !important;
+  /* Ajuste para espaciado correcto */
   transition: all 0.3s ease;
-  border-radius: 9999px; /* Aseguramos que sea redondo si el otro CSS lo cambia */
+  border-radius: 9999px;
+  /* Aseguramos que sea redondo si el otro CSS lo cambia */
 }
 
 .flash-offers-controls .swiper-pagination-bullet-active {
   /* Heredamos el estilo del otro carrusel para consistencia */
-  background: #00a339; /* color-primary-700 */
+  background: #00a339;
+  /* color-primary-700 */
   opacity: 1;
   width: 24px;
   border-radius: 4px;
@@ -271,3 +303,41 @@ button, a, .icon-card {
 /* === Estilos para === */
 /* ========================================================= */
 
+
+/* ========================================================= */
+/* === Estilos para Scrollbar Personalizado (Dropdown Categorías) === */
+/* ========================================================= */
+
+/* Scrollbar para navegadores WebKit (Chrome, Safari, Edge) */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  /* gray-100 */
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  /* gray-300 */
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+  /* gray-400 */
+}
+
+/* Scrollbar para Firefox */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+}
+
+
+/* ========================================================= */
+/* === Fin de estilos === */
+/* ========================================================= */

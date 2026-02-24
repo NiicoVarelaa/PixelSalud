@@ -116,7 +116,7 @@ const findByCategoriaWithOfertas = async (categoria) => {
 
 const searchByName = async (term) => {
   const sql = `
-    SELECT idProducto, nombreProducto, precio, stock, categoria, requiereReceta 
+    SELECT idProducto, nombreProducto, precio, img, stock, categoria, requiereReceta 
     FROM Productos 
     WHERE LOWER(nombreProducto) LIKE LOWER(?) 
       AND activo = 1 

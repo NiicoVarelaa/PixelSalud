@@ -31,24 +31,27 @@ const MiniBanner = () => {
   }, []);
 
   return (
-    <div className="bg-primary-700 px-8 sm:px-12 overflow-hidden h-10 flex items-center">      
-      <div className="w-full text-center text-white text-sm sm:text-base font-medium relative h-full">
-        {messages.map((msg, index) => (
-          <Link
-            to="/tienda"
-            key={index}
-            className={`absolute left-0 w-full transition-opacity duration-500 ease-in-out ${
-              index === activeIndex ? "opacity-100" : "opacity-0"
-            } flex justify-center items-center h-full`}
-          >
-            <span className="flex items-center gap-2 px-1 sm:px-2 leading-none">
-              {msg.icon}
-              <span className="hidden sm:inline">{msg.text}</span>
-              <span className="sm:hidden">{msg.shortText}</span>
-            </span>
-          </Link>
-        ))}
-      </div>    
+    <div className="bg-primary-700 overflow-hidden h-10 flex items-center">
+      <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+        <div className="w-full text-center text-white text-sm sm:text-base font-medium relative h-10">
+          {messages.map((msg, index) => (
+            <Link
+              to="/productos"
+              key={index}
+              className={`absolute left-0 w-full transition-opacity duration-500 ease-in-out ${
+                index === activeIndex ? "opacity-100" : "opacity-0"
+              } flex justify-center items-center h-10 hover:underline focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-700 rounded-sm`}
+              aria-label={msg.text}
+            >
+              <span className="flex items-center gap-2 px-1 sm:px-2 leading-none">
+                {msg.icon}
+                <span className="hidden sm:inline">{msg.text}</span>
+                <span className="sm:hidden">{msg.shortText}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
