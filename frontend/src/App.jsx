@@ -93,8 +93,6 @@ const App = () => {
           <Route path="login" element={<Login />} />
           <Route path="recuperarContraseña" element={<RecuperarContrasena />} />
 
-          {/* 2. NUEVA RUTA AQUÍ */}
-          {/* Esta ruta recibe el token por URL (?token=...) y muestra el form para cambiar la clave */}
           <Route path="reset-password" element={<RestablecerContrasena />} />
 
           <Route path="productos" element={<Productos />} />

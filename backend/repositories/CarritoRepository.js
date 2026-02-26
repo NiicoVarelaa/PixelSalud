@@ -33,7 +33,7 @@ const findByClienteWithProducts = async (idCliente) => {
       END AS enOferta
     FROM Carrito c
     JOIN Productos p ON c.idProducto = p.idProducto
-    LEFT JOIN ofertas_old_backup o ON p.idProducto = o.idProducto
+    LEFT JOIN Ofertas o ON p.idProducto = o.idProducto
       AND o.esActiva = 1 
       AND NOW() BETWEEN o.fechaInicio AND o.fechaFin 
     WHERE c.idCliente = ?
@@ -140,3 +140,4 @@ module.exports = {
   countByCliente,
   getTotalItems,
 };
+

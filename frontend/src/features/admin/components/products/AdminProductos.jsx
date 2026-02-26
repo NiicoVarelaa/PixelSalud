@@ -6,6 +6,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
 import "react-toastify/dist/ReactToastify.css";
+import UploadImagenes from "@components/molecules/admin/UploadImagenes";
 
 const AdminProductos = () => {
   const productos = useProductStore((state) => state.productos);
@@ -17,6 +18,13 @@ const AdminProductos = () => {
   // Estados para creación (Modal normal)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef();
+
+  // Estados para flujo de 2 pasos (producto + imágenes)
+  const [paso, setPaso] = useState(1); // 1: Datos básicos, 2: Subir imágenes
+  const [idProductoCreado, setIdProductoCreado] = useState(null);
+  const [modalImagenesOpen, setModalImagenesOpen] = useState(false);
+  const [idProductoEditarImagenes, setIdProductoEditarImagenes] =
+    useState(null);
 
   // Estados de filtro
   const [busqueda, setBusqueda] = useState("");
@@ -202,34 +210,64 @@ const AdminProductos = () => {
     }
   };
 
-  // --- 2. FUNCIÓN CREAR PRODUCTO ---
+  // --- 2. FUNCIÓN CREAR PRODUCTO (PASO 1) ---
   const agregarProducto = async () => {
     try {
       const productoAEnviar = {
         ...nuevoProducto,
         precio: Number(nuevoProducto.precio) || 0,
+        img: "https://via.placeholder.com/400", // Imagen temporal
       };
 
-      await axios.post(
+      const response = await axios.post(
         "http://localhost:5000/productos/crear",
         productoAEnviar,
         getConfig(),
       );
-      toast.success("Producto agregado correctamente");
-      setIsModalOpen(false);
-      setNuevoProducto({
-        nombreProducto: "",
-        descripcion: "",
-        precio: "",
-        categoria: "",
-        img: "",
-        stock: "",
-      });
-      fetchProducts();
+
+      const idNuevoProducto = response.data.idProducto;
+      setIdProductoCreado(idNuevoProducto);
+      setPaso(2); // Pasar al paso de subir imágenes
+      toast.success("Producto creado! Ahora sube las imágenes");
     } catch (error) {
       console.error("Error al agregar producto:", error);
       toast.error("Error al agregar el producto");
     }
+  };
+
+  // --- FUNCIÓN PARA MANEJAR ÉXITO AL SUBIR IMÁGENES ---
+  const handleImagenesSubidas = () => {
+    toast.success("¡Imágenes subidas exitosamente!");
+    cerrarModalCreacion();
+    fetchProducts();
+  };
+
+  // --- FUNCIÓN PARA CERRAR MODAL Y RESETEAR ESTADOS ---
+  const cerrarModalCreacion = () => {
+    setIsModalOpen(false);
+    setPaso(1);
+    setIdProductoCreado(null);
+    setNuevoProducto({
+      nombreProducto: "",
+      descripcion: "",
+      precio: "",
+      categoria: "",
+      img: "",
+      stock: "",
+    });
+  };
+
+  // --- FUNCIÓN PARA ABRIR MODAL DE EDITAR IMÁGENES ---
+  const abrirModalImagenes = (idProducto) => {
+    setIdProductoEditarImagenes(idProducto);
+    setModalImagenesOpen(true);
+  };
+
+  // --- FUNCIÓN PARA CERRAR MODAL DE EDITAR IMÁGENES ---
+  const cerrarModalImagenes = () => {
+    setModalImagenesOpen(false);
+    setIdProductoEditarImagenes(null);
+    fetchProducts();
   };
 
   // --- 3. FUNCIÓN TOGGLE ACTIVO ---
@@ -406,8 +444,8 @@ const AdminProductos = () => {
           </select>
         </div>
 
-        {/* Modal de CREACIÓN */}
-        {isModalOpen && (
+        {/* Modal de CREACIÓN - PASO 1: DATOS BÁSICOS */}
+        {isModalOpen && paso === 1 && (
           <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center p-4 z-50">
             <div
               ref={modalRef}
@@ -415,11 +453,16 @@ const AdminProductos = () => {
             >
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    Agregar Nuevo Producto
-                  </h2>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      Agregar Nuevo Producto
+                    </h2>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Paso 1 de 2: Datos básicos del producto
+                    </p>
+                  </div>
                   <button
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={cerrarModalCreacion}
                     className="text-gray-500 hover:text-gray-700 cursor-pointer"
                   >
                     <svg
@@ -442,40 +485,7 @@ const AdminProductos = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      URL Imagen
-                    </label>
-                    <input
-                      type="text"
-                      name="img"
-                      value={nuevoProducto.img}
-                      onChange={(e) =>
-                        setNuevoProducto({
-                          ...nuevoProducto,
-                          img: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border rounded-md"
-                      placeholder="https://..."
-                    />
-                    {nuevoProducto.img && (
-                      <div className="mt-2">
-                        <p className="text-xs text-gray-500 mb-1">
-                          Vista previa:
-                        </p>
-                        <img
-                          src={nuevoProducto.img}
-                          alt="Preview"
-                          className="h-20 w-20 object-cover rounded border"
-                          onError={(e) =>
-                            (e.target.src = "https://via.placeholder.com/100")
-                          }
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Nombre
+                      Nombre del Producto *
                     </label>
                     <input
                       type="text"
@@ -487,79 +497,14 @@ const AdminProductos = () => {
                           nombreProducto: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 border rounded-md"
-                      placeholder="Nombre"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Descripción
-                    </label>
-                    <textarea
-                      name="descripcion"
-                      value={nuevoProducto.descripcion}
-                      onChange={(e) =>
-                        setNuevoProducto({
-                          ...nuevoProducto,
-                          descripcion: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border rounded-md"
-                      rows="2"
-                      placeholder="Detalles..."
+                      className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-500"
+                      placeholder="Ej: Perfume Carolina Herrera"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Precio
-                    </label>
-                    <input
-                      type="text"
-                      name="precio"
-                      value={nuevoProducto.precio}
-                      onChange={(e) => {
-                        const valorLimpio = limpiarPrecio(e.target.value);
-                        setNuevoProducto({
-                          ...nuevoProducto,
-                          precio: valorLimpio,
-                        });
-                      }}
-                      onBlur={(e) => {
-                        // Formatear al salir del campo para verificar
-                        const num = parseFloat(e.target.value);
-                        if (!isNaN(num)) {
-                          setNuevoProducto({
-                            ...nuevoProducto,
-                            precio: num.toFixed(2),
-                          });
-                        }
-                      }}
-                      className="w-full px-3 py-2 border rounded-md"
-                      placeholder="0.00 o 16.246,00"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Stock
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      name="stock"
-                      value={nuevoProducto.stock}
-                      onChange={(e) =>
-                        setNuevoProducto({
-                          ...nuevoProducto,
-                          stock: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border rounded-md"
-                      placeholder="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Categoría
+                      Categoría *
                     </label>
                     <select
                       name="categoria"
@@ -570,7 +515,8 @@ const AdminProductos = () => {
                           categoria: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 border rounded-md"
+                      className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-500"
+                      required
                     >
                       <option value="">Seleccione...</option>
                       {categorias
@@ -591,20 +537,213 @@ const AdminProductos = () => {
                         ))}
                     </select>
                   </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Descripción
+                    </label>
+                    <textarea
+                      name="descripcion"
+                      value={nuevoProducto.descripcion}
+                      onChange={(e) =>
+                        setNuevoProducto({
+                          ...nuevoProducto,
+                          descripcion: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-500"
+                      rows="3"
+                      placeholder="Descripción detallada del producto..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Precio *
+                    </label>
+                    <input
+                      type="text"
+                      name="precio"
+                      value={nuevoProducto.precio}
+                      onChange={(e) => {
+                        const valorLimpio = limpiarPrecio(e.target.value);
+                        setNuevoProducto({
+                          ...nuevoProducto,
+                          precio: valorLimpio,
+                        });
+                      }}
+                      onBlur={(e) => {
+                        const num = parseFloat(e.target.value);
+                        if (!isNaN(num)) {
+                          setNuevoProducto({
+                            ...nuevoProducto,
+                            precio: num.toFixed(2),
+                          });
+                        }
+                      }}
+                      className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-500"
+                      placeholder="0.00 o 16.246,00"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Stock Inicial *
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      name="stock"
+                      value={nuevoProducto.stock}
+                      onChange={(e) =>
+                        setNuevoProducto({
+                          ...nuevoProducto,
+                          stock: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-primary-500"
+                      placeholder="0"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-blue-600 mt-0.5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-blue-900">
+                        Siguiente paso: Imágenes del producto
+                      </p>
+                      <p className="text-xs text-blue-700 mt-1">
+                        En el siguiente paso podrás subir hasta 5 imágenes del
+                        producto de forma automática a Cloudinary.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4">
                   <button
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={cerrarModalCreacion}
                     className="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={agregarProducto}
-                    className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 flex items-center gap-2"
+                    disabled={
+                      !nuevoProducto.nombreProducto ||
+                      !nuevoProducto.categoria ||
+                      !nuevoProducto.precio
+                    }
+                    className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Guardar Producto
+                    Continuar con Imágenes
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de CREACIÓN - PASO 2: SUBIR IMÁGENES */}
+        {isModalOpen && paso === 2 && idProductoCreado && (
+          <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      Subir Imágenes del Producto
+                    </h2>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Paso 2 de 2: Sube hasta 5 imágenes de tu producto
+                    </p>
+                  </div>
+                  <button
+                    onClick={cerrarModalCreacion}
+                    className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="mb-6">
+                  <UploadImagenes
+                    idProducto={idProductoCreado}
+                    onUploadSuccess={handleImagenesSubidas}
+                    maxFiles={5}
+                  />
+                </div>
+
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-yellow-600 mt-0.5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-yellow-900">
+                        Importante
+                      </p>
+                      <p className="text-xs text-yellow-700 mt-1">
+                        Si cierras este modal sin subir imágenes, el producto se
+                        creará con una imagen placeholder. Podrás agregar
+                        imágenes después usando el botón "Imágenes" en la tabla.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <button
+                    onClick={cerrarModalCreacion}
+                    className="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50"
+                  >
+                    Omitir y Finalizar
                   </button>
                 </div>
               </div>
@@ -694,7 +833,7 @@ const AdminProductos = () => {
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap text-right align-middle">
                         <div className="flex gap-1 justify-end">
-                          {/* BOTÓN EDITAR (Icono solo) */}
+                          {/* BOTÓN EDITAR */}
                           <button
                             onClick={() => handleEditarProducto(prod)}
                             className="px-2 py-1 text-sm font-medium bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer"
@@ -703,7 +842,28 @@ const AdminProductos = () => {
                             Editar
                           </button>
 
-                          {/* BOTÓN TOGGLE (Icono solo) */}
+                          {/* BOTÓN IMÁGENES */}
+                          <button
+                            onClick={() => abrirModalImagenes(prod.idProducto)}
+                            className="px-2 py-1 text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors cursor-pointer flex items-center gap-1"
+                            title="Gestionar Imágenes"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            Imágenes
+                          </button>
+
+                          {/* BOTÓN TOGGLE */}
                           <button
                             onClick={() => handleToggleActiva(prod)}
                             className={`px-2 text-white rounded-md transition-colors cursor-pointer ${
@@ -773,6 +933,92 @@ const AdminProductos = () => {
             </div>
           )}
         </div>
+
+        {/* Modal para GESTIONAR IMÁGENES de productos existentes */}
+        {modalImagenesOpen && idProductoEditarImagenes && (
+          <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      Gestionar Imágenes del Producto
+                    </h2>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Agrega, elimina o reordena las imágenes del producto
+                    </p>
+                  </div>
+                  <button
+                    onClick={cerrarModalImagenes}
+                    className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="mb-6">
+                  <UploadImagenes
+                    idProducto={idProductoEditarImagenes}
+                    onUploadSuccess={() => {
+                      toast.success("¡Imágenes actualizadas!");
+                      fetchProducts();
+                    }}
+                    maxFiles={5}
+                  />
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-blue-600 mt-0.5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-blue-900">
+                        Sistema de Múltiples Imágenes
+                      </p>
+                      <p className="text-xs text-blue-700 mt-1">
+                        Puedes subir hasta 5 imágenes por producto. Las imágenes
+                        se optimizan automáticamente y se almacenan en
+                        Cloudinary.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <button
+                    onClick={cerrarModalImagenes}
+                    className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                  >
+                    Finalizar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

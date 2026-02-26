@@ -4,6 +4,9 @@ const { validateEnv, printEnvInfo } = require("./config/validateEnv");
 validateEnv();
 printEnvInfo();
 
+const { validateConfig } = require("./config/cloudinary");
+validateConfig();
+
 const express = require("express");
 
 const { conection } = require("./config/database");
@@ -11,6 +14,7 @@ const { conection } = require("./config/database");
 const cors = require("cors");
 
 const routesProductos = require("./routes/ProductosRoutes");
+const routesImagenesProductos = require("./routes/ImagenesProductosRoutes");
 const routesOfertas = require("./routes/OfertasRoutes");
 const routesCampanas = require("./routes/CampanasRoutes");
 const routesCarrito = require("./routes/CarritoRoutes");
@@ -30,6 +34,7 @@ const routesCupones = require("./routes/CuponesRoutes");
 const routesDashboard = require("./routes/DashboardRoutes");
 const routesAuditoria = require("./routes/AuditoriaRoutes");
 const routesTicket = require("./routes/TicketRoutes");
+const routesCloudinary = require("./routes/CloudinaryRoutes");
 const { errorHandler, notFoundHandler } = require("./middlewares/errorHandler");
 
 const app = express();
@@ -73,6 +78,7 @@ app.get("/", (req, res) => {
 // Rutas sin prefijo /api (compatibilidad con frontend actual)
 // TODO: Cuando refactoricemos el frontend, agregar prefijo /api
 app.use("/", routesProductos);
+app.use("/", routesImagenesProductos);
 app.use("/ofertas", routesOfertas);
 app.use("/campanas", routesCampanas);
 app.use("/", routesCarrito);
@@ -92,6 +98,7 @@ app.use("/", routesCupones);
 app.use("/admin", routesDashboard);
 app.use("/admin/auditoria", routesAuditoria);
 app.use("/ticket", routesTicket);
+app.use("/cloudinary", routesCloudinary);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

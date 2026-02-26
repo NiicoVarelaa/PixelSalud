@@ -1,4 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+const Default = require("@assets/default.webp");
+import apiClient from "@utils/apiClient";
 import { FiShoppingBag, FiChevronUp, FiChevronDown } from "react-icons/fi";
 import { FaCreditCard, FaMoneyBillWave, FaUniversity } from "react-icons/fa";
 import Swal from "sweetalert2";
@@ -43,7 +45,25 @@ const CardCompra = ({ onPurchaseCompleted }) => {
   const [showFormularioEnvio, setShowFormularioEnvio] = useState(false);
   const [tempMetodoPago, setTempMetodoPago] = useState(null);
 
-  const subtotal = useMemo(
+  const [imagenesPrincipales, setImagenesPrincipales] = useState({});
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      const newImages = {};
+      await Promise.all(
+        carrito.map(async (prod) => {
+          try {
+            const res = await apiClient.get(`/productos/${prod.idProducto}/imagenes/principal`);
+            newImages[prod.idProducto] = res.data?.urlImagen || prod.img || Default;
+          } catch {
+            newImages[prod.idProducto] = prod.img || Default;
+          }
+        })
+      );
+      setImagenesPrincipales(newImages);
+    };
+    if (carrito.length > 0) fetchImages();
+  }, [carrito]);
     () =>
       carrito.reduce(
         (acc, prod) => acc + parseFloat(prod.precio) * prod.cantidad,
@@ -168,6 +188,19 @@ const CardCompra = ({ onPurchaseCompleted }) => {
   return (
     <>
       <div className="bg-white rounded-xl shadow-sm overflow-hidden p-4">
+        {/* Show product images in cart */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {carrito.map((prod) => (
+            <img
+              key={prod.idProducto}
+              src={imagenesPrincipales[prod.idProducto] || Default}
+              alt={prod.nombreProducto}
+              className="w-12 h-12 object-cover rounded"
+              loading="lazy"
+              onError={(e) => { e.target.src = Default; }}
+            />
+          ))}
+        </div>
         {/* Header */}
         <div className="flex items-center space-x-3">
           <div className="p-2 rounded-lg bg-primary-100 text-primary-700">

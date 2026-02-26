@@ -8,7 +8,7 @@ const findAllWithProductos = async () => {
         p.categoria,
         p.img
     FROM 
-        ofertas_old_backup o
+        Ofertas o
     JOIN 
         Productos p ON o.idProducto = p.idProducto
     ORDER BY o.fechaFin DESC
@@ -25,7 +25,7 @@ const findByIdWithProducto = async (idOferta) => {
         p.categoria,
         p.img
     FROM 
-        ofertas_old_backup o
+        Ofertas o
     JOIN 
         Productos p ON o.idProducto = p.idProducto
     WHERE 
@@ -37,7 +37,7 @@ const findByIdWithProducto = async (idOferta) => {
 
 const findById = async (idOferta) => {
   const [rows] = await pool.query(
-    "SELECT * FROM ofertas_old_backup WHERE idOferta = ?",
+    "SELECT * FROM Ofertas WHERE idOferta = ?",
     [idOferta],
   );
   return rows[0] || null;
@@ -45,7 +45,7 @@ const findById = async (idOferta) => {
 
 const findActiveByProducto = async (idProducto) => {
   const sql = `
-    SELECT * FROM ofertas_old_backup 
+    SELECT * FROM Ofertas 
     WHERE idProducto = ? 
       AND esActiva = 1 
       AND NOW() BETWEEN fechaInicio AND fechaFin
@@ -72,7 +72,7 @@ const findCyberMondayWithProductos = async (
     FROM 
         Productos p
     INNER JOIN 
-        ofertas_old_backup o ON p.idProducto = o.idProducto
+        Ofertas o ON p.idProducto = o.idProducto
     WHERE 
         p.activo = 1 
         AND o.esActiva = 1 
@@ -90,7 +90,7 @@ const create = async (data) => {
   const { idProducto, porcentajeDescuento, fechaInicio, fechaFin, esActiva } =
     data;
   const [result] = await pool.query(
-    `INSERT INTO ofertas_old_backup 
+    `INSERT INTO Ofertas 
       (idProducto, porcentajeDescuento, fechaInicio, fechaFin, esActiva) 
     VALUES (?, ?, ?, ?, ?)`,
     [idProducto, porcentajeDescuento, fechaInicio, fechaFin, esActiva],
@@ -117,7 +117,7 @@ const createMasive = async (
   ]);
 
   const sql = `
-    INSERT INTO ofertas_old_backup (idProducto, porcentajeDescuento, fechaInicio, fechaFin, esActiva) 
+    INSERT INTO Ofertas (idProducto, porcentajeDescuento, fechaInicio, fechaFin, esActiva) 
     VALUES ?
   `;
 
@@ -156,7 +156,7 @@ const update = async (idOferta, data) => {
   values.push(idOferta);
 
   const [result] = await pool.query(
-    `UPDATE ofertas_old_backup SET ${fields.join(", ")} WHERE idOferta = ?`,
+    `UPDATE Ofertas SET ${fields.join(", ")} WHERE idOferta = ?`,
     values,
   );
 
@@ -169,14 +169,14 @@ const updateEsActiva = async (idOferta, esActiva) => {
 
 const deleteOferta = async (idOferta) => {
   const [result] = await pool.query(
-    "DELETE FROM ofertas_old_backup WHERE idOferta = ?",
+    "DELETE FROM Ofertas WHERE idOferta = ?",
     [idOferta],
   );
   return result.affectedRows > 0;
 };
 
 const desactivarByProducto = async (idProducto) => {
-  const sql = "UPDATE ofertas_old_backup SET esActiva = 0 WHERE idProducto = ?";
+  const sql = "UPDATE Ofertas SET esActiva = 0 WHERE idProducto = ?";
   const [result] = await pool.query(sql, [idProducto]);
   return result.affectedRows > 0;
 };
@@ -190,7 +190,7 @@ const findExpiringIn = async (dias = 7) => {
         p.img,
         DATEDIFF(o.fechaFin, NOW()) as diasRestantes
     FROM 
-        ofertas_old_backup o
+        Ofertas o
     JOIN 
         Productos p ON o.idProducto = p.idProducto
     WHERE 
@@ -223,3 +223,4 @@ module.exports = {
   findExpiringIn,
   hasActiveOferta,
 };
+

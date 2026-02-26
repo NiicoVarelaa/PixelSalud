@@ -1,4 +1,5 @@
 const { pool } = require("../config/database");
+const imagenesRepository = require("./ImagenesProductosRepository");
 
 const findAllWithOfertas = async () => {
   const sql = `
@@ -26,7 +27,7 @@ const findAllWithOfertas = async () => {
     FROM 
         Productos p
     LEFT JOIN 
-        ofertas_old_backup o ON p.idProducto = o.idProducto
+        Ofertas o ON p.idProducto = o.idProducto
         AND o.esActiva = 1 
         AND NOW() BETWEEN o.fechaInicio AND o.fechaFin 
     ORDER BY 
@@ -62,7 +63,7 @@ const findByIdWithOfertas = async (idProducto) => {
     FROM 
         Productos p
     LEFT JOIN 
-        ofertas_old_backup o ON p.idProducto = o.idProducto
+        Ofertas o ON p.idProducto = o.idProducto
         AND o.esActiva = 1 
         AND NOW() BETWEEN o.fechaInicio AND o.fechaFin 
     WHERE 
@@ -102,7 +103,7 @@ const findByCategoriaWithOfertas = async (categoria) => {
     FROM 
         Productos p
     INNER JOIN 
-        ofertas_old_backup o ON p.idProducto = o.idProducto
+        Ofertas o ON p.idProducto = o.idProducto
     WHERE 
         p.activo = 1 
         AND p.categoria = ?
@@ -229,6 +230,105 @@ const findWithLowStock = async () => {
   return rows;
 };
 
+// ===============================================
+// FUNCIONES HELPERS PARA IMÁGENES
+// ===============================================
+
+/**
+ * Enriquece un producto con sus imágenes desde la tabla ImagenesProductos
+ * Mantiene compatibilidad con el campo 'img' legacy
+ */
+const enrichProductWithImages = async (producto) => {
+  if (!producto) return null;
+
+  try {
+    const imagenes = await imagenesRepository.findByProductoId(
+      producto.idProducto,
+    );
+
+    return {
+      ...producto,
+      imagenes:
+        imagenes.length > 0
+          ? imagenes
+          : [
+              // Si no hay imágenes en la nueva tabla pero existe img legacy, usarla
+              ...(producto.img
+                ? [
+                    {
+                      idImagen: null,
+                      urlImagen: producto.img,
+                      orden: 1,
+                      esPrincipal: true,
+                      altText: producto.nombreProducto,
+                    },
+                  ]
+                : []),
+            ],
+    };
+  } catch (error) {
+    console.error("Error al enriquecer producto con imágenes:", error);
+    // En caso de error, devolver el producto con img legacy
+    return {
+      ...producto,
+      imagenes: producto.img
+        ? [
+            {
+              idImagen: null,
+              urlImagen: producto.img,
+              orden: 1,
+              esPrincipal: true,
+              altText: producto.nombreProducto,
+            },
+          ]
+        : [],
+    };
+  }
+};
+
+/**
+ * Enriquece un array de productos con sus imágenes
+ */
+const enrichProductsWithImages = async (productos) => {
+  if (!productos || productos.length === 0) return [];
+
+  return Promise.all(
+    productos.map((producto) => enrichProductWithImages(producto)),
+  );
+};
+
+/**
+ * Obtiene todos los productos con ofertas e imágenes
+ */
+const findAllWithOfertasAndImages = async () => {
+  const productos = await findAllWithOfertas();
+  return enrichProductsWithImages(productos);
+};
+
+/**
+ * Obtiene un producto por ID con ofertas e imágenes
+ */
+const findByIdWithOfertasAndImages = async (idProducto) => {
+  const producto = await findByIdWithOfertas(idProducto);
+  return enrichProductWithImages(producto);
+};
+
+/**
+ * Busca productos por nombre con imágenes
+ */
+const searchByNameWithImages = async (term) => {
+  const productos = await searchByName(term);
+  return enrichProductsWithImages(productos);
+};
+
+/**
+ * Obtiene productos por categoría con ofertas e imágenes
+ */
+const findByCategoriaWithOfertasAndImages = async (categoria) => {
+  const productos = await findByCategoriaWithOfertas(categoria);
+  return enrichProductsWithImages(productos);
+};
+
 module.exports = {
   findAllWithOfertas,
   findByIdWithOfertas,
@@ -245,4 +345,12 @@ module.exports = {
   decrementStock,
   hasStock,
   findWithLowStock,
+  // Nuevas funciones con imágenes
+  enrichProductWithImages,
+  enrichProductsWithImages,
+  findAllWithOfertasAndImages,
+  findByIdWithOfertasAndImages,
+  searchByNameWithImages,
+  findByCategoriaWithOfertasAndImages,
 };
+
