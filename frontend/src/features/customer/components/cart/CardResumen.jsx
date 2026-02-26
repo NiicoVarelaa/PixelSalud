@@ -22,8 +22,34 @@ const formatPrice = (value) => {
   }).format(numericValue);
 };
 
+import { useEffect, useState } from "react";
+import Default from "@assets/default.webp";
+import apiClient from "@utils/apiClient";
+
 const CardResumen = () => {
   const { carrito } = useCarritoStore();
+  const [imagenesPrincipales, setImagenesPrincipales] = useState({});
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      const newImages = {};
+      await Promise.all(
+        carrito.map(async (prod) => {
+          try {
+            const res = await apiClient.get(
+              `/productos/${prod.idProducto}/imagenes/principal`,
+            );
+            newImages[prod.idProducto] =
+              res.data?.urlImagen || prod.img || Default;
+          } catch {
+            newImages[prod.idProducto] = prod.img || Default;
+          }
+        }),
+      );
+      setImagenesPrincipales(newImages);
+    };
+    if (carrito.length > 0) fetchImages();
+  }, [carrito]);
 
   const { totalArticulos, subtotal, total, hasDiscounts } = useMemo(() => {
     const articulos = carrito.reduce((acc, prod) => acc + prod.cantidad, 0);
@@ -54,8 +80,23 @@ const CardResumen = () => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300">
+      {/* Example: show product images in cart summary */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {carrito.map((prod) => (
+          <img
+            key={prod.idProducto}
+            src={imagenesPrincipales[prod.idProducto] || Default}
+            alt={prod.nombreProducto}
+            className="w-12 h-12 object-cover rounded"
+            loading="lazy"
+            onError={(e) => {
+              e.target.src = Default;
+            }}
+          />
+        ))}
+      </div>
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-700 p-6 text-white">
+      <div className="bg-linear-to-r from-primary-600 to-primary-700 p-6 text-white">
         <div className="flex items-center space-x-3">
           <div className="p-2 rounded-lg bg-white/20 backdrop-blur-sm">
             <FiClipboard className="w-6 h-6" />
@@ -124,7 +165,7 @@ const CardResumen = () => {
           className={`w-full py-4 px-6 rounded-xl font-bold text-white transition-all duration-300 flex items-center justify-center group ${
             isCartEmpty
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              : "bg-linear-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           }`}
           onClick={(e) => isCartEmpty && e.preventDefault()}
         >
@@ -142,7 +183,7 @@ const CardResumen = () => {
         {/* Beneficios */}
         <div className="mt-6 space-y-3">
           <div className="flex items-center space-x-3 text-sm text-gray-600">
-            <FiShield className="w-4 h-4 text-green-500 flex-shrink-0" />
+            <FiShield className="w-4 h-4 text-green-500 shrink-0" />
             <span>Compra 100% segura</span>
           </div>
         </div>

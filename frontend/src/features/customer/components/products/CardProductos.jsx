@@ -3,8 +3,10 @@ import { useCarritoStore } from "@store/useCarritoStore";
 import { useAuthStore } from "@store/useAuthStore";
 import { BotonFavorito } from "@components/atoms";
 import { Minus, Plus, Trash2, Loader2, Tag, ShoppingCart } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import cyberMonday from "@assets/Logo-cyber-monday.png";
+import Default from "@assets/default.webp";
+import apiClient from "@utils/apiClient";
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center">
@@ -26,6 +28,28 @@ const CardProductos = ({ product }) => {
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [principalImage, setPrincipalImage] = useState(product.img);
+
+  useEffect(() => {
+    const fetchPrincipalImage = async () => {
+      if (!product?.idProducto) return;
+      try {
+        const res = await apiClient.get(
+          `/productos/${product.idProducto}/imagenes/principal`,
+        );
+        if (res.data && res.data.urlImagen) {
+          setPrincipalImage(res.data.urlImagen);
+        } else if (product.img) {
+          setPrincipalImage(product.img);
+        } else {
+          setPrincipalImage(Default);
+        }
+      } catch (err) {
+        setPrincipalImage(product.img || Default);
+      }
+    };
+    fetchPrincipalImage();
+  }, [product]);
   // Eliminado: const [isAdded, setIsAdded] = useState(false);
 
   const itemEnCarrito = carrito.find(
@@ -102,7 +126,7 @@ const CardProductos = ({ product }) => {
   return (
     <div className="relative bg-white rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 w-full h-full flex flex-col group overflow-hidden">
       {isOffert && (
-        <div className="absolute top-3 left-3 z-20 px-2.5 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-lg text-xs shadow-lg flex items-center gap-1">
+        <div className="absolute top-3 left-3 z-20 px-2.5 py-1 bg-linear-to-r from-red-500 to-red-600 text-white font-bold rounded-lg text-xs shadow-lg flex items-center gap-1">
           <Tag className="w-3 h-3" />
           {discountPercentage
             ? `${Math.round(discountPercentage)}% OFF`
@@ -128,15 +152,18 @@ const CardProductos = ({ product }) => {
       >
         <div className="w-full h-48 flex items-center justify-center p-4 relative overflow-hidden">
           {!imageLoaded && (
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse rounded-t-2xl flex items-center justify-center">
+            <div className="absolute inset-0 bg-linear-to-br from-gray-100 to-gray-200 animate-pulse rounded-t-2xl flex items-center justify-center">
               <ShoppingCart className="w-10 h-10 text-gray-300" />
             </div>
           )}
           <img
-            src={product.img}
+            src={principalImage}
             alt={product.nombreProducto}
             className={`max-h-full object-contain transition-all duration-500 group-hover:scale-105 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
             onLoad={() => setImageLoaded(true)}
+            onError={(e) => {
+              e.target.src = Default;
+            }}
             loading="lazy"
           />
 
@@ -159,7 +186,7 @@ const CardProductos = ({ product }) => {
                 {product.categoria}
               </p>
             </div>
-            <div className="min-h-[3rem] flex items-center">
+            <div className="min-h-12 flex items-center">
               <h3
                 className="text-gray-900 font-bold text-base leading-tight line-clamp-2 group-hover:text-primary-700 transition-colors duration-300"
                 title={product.nombreProducto}
@@ -218,7 +245,7 @@ const CardProductos = ({ product }) => {
               ${
                 isLoading
                   ? "bg-primary-700 cursor-not-allowed text-white"
-                  : "hover:shadow-md text-white bg-gradient-to-b from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 cursor-pointer"
+                  : "hover:shadow-md text-white bg-linear-to-b from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 cursor-pointer"
               } 
             `}
           >
@@ -264,7 +291,7 @@ const CardProductos = ({ product }) => {
           </div>
         )}
       </div>
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/0 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none"></div>
+      <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-transparent via-white/0 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none"></div>
     </div>
   );
 };

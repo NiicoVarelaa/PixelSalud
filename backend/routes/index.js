@@ -8,6 +8,7 @@ module.exports = {
   DashboardRoutes: require("./DashboardRoutes"),
   EmpleadosRoutes: require("./EmpleadosRoutes"),
   FavoritosRoutes: require("./FavoritosRoutes"),
+  ImagenesProductosRoutes: require("./ImagenesProductosRoutes"),
   MedicosRoutes: require("./MedicosRoutes"),
   MensajesRoutes: require("./MensajesRoutes"),
   MercadoPagoRoutes: require("./MercadoPagoRoutes"),

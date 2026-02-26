@@ -341,3 +341,37 @@ a,
 /* ========================================================= */
 /* === Fin de estilos === */
 /* ========================================================= */
+
+@keyframes shimmer {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmerMove {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@layer utilities {
+  .animate-shimmer {
+    animation: shimmer 1.5s infinite linear;
+  }
+
+  .animate-shimmerMove {
+    animation: shimmerMove 1.5s infinite linear;
+  }
+}
