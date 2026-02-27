@@ -93,17 +93,21 @@ const ProductImageGallery = ({ product }) => {
             );
           })}
         </div>
-        <div className="relative flex-1 flex items-center justify-center rounded-xl overflow-hidden border border-gray-100">
-          <BotonFavorito product={product} />
+        <div className="relative flex-1 flex items-center justify-center rounded-xl overflow-hidden">
           {selectedImage && (
-            <img
-              src={selectedImage}
-              alt={product.nombreProducto}
-              className="max-h-full max-w-full object-contain"
-              onError={(e) => {
-                e.target.src = Default;
-              }}
-            />
+            <>
+              <img
+                src={selectedImage}
+                alt={product.nombreProducto}
+                className="max-h-full max-w-full object-contain"
+                onError={(e) => {
+                  e.target.src = Default;
+                }}
+              />
+              <div className="absolute top-3 right-3 z-20">
+                <BotonFavorito product={product} />
+              </div>
+            </>
           )}
         </div>
       </div>

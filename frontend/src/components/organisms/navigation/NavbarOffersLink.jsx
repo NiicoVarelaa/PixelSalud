@@ -7,9 +7,7 @@ export function NavbarOffersLink() {
     <li>
       <NavLink
         to="/ofertas"
-        className={({ isActive }) =>
-          `cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium align-middle transition-all duration-200 group ${isActive ? "text-primary-700" : "text-gray-700"} hover:text-primary-700`
-        }
+        className={`cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium align-middle transition-all duration-200 group text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400`}
         aria-label="Ofertas"
         tabIndex={0}
       >
@@ -21,12 +19,12 @@ export function NavbarOffersLink() {
               className="flex items-center"
             >
               <Tag
-                className={`w-5 h-5 transition-colors duration-200 ${isActive ? "text-primary-700" : "text-gray-500"} group-hover:text-primary-700`}
+                className={`w-5 h-5 transition-colors duration-200 text-primary-700 group-hover:text-primary-800`}
               />
             </motion.span>
             <span
               className={
-                isActive ? "text-primary-700" : "group-hover:text-primary-700"
+                isActive ? "text-primary-700" : "group-hover:text-primary-800"
               }
             >
               OFERTAS

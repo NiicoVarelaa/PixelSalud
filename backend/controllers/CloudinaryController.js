@@ -22,12 +22,25 @@ class CloudinaryController {
         return res.status(400).json({ error: "No se recibió ningún archivo" });
       }
 
+      // Obtener nombre del producto
+      const ProductosRepository = require("../repositories/ProductosRepository");
+      const producto = await ProductosRepository.findById(idProducto);
+      if (!producto) {
+        return res.status(404).json({ error: "Producto no encontrado" });
+      }
+      // Limpiar nombre y categoría para usar como public_id y carpeta
+      const nombreProducto = producto.nombreProducto
+        .replace(/\s+/g, "_")
+        .replace(/[^a-zA-Z0-9_]/g, "");
+      const categoria = producto.categoria
+        ? producto.categoria.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "")
+        : "otros";
       // Subir a Cloudinary
       const cloudinaryResult = await CloudinaryService.uploadImage(
         req.file.buffer,
         {
-          folder: `pixel-salud/productos/${idProducto}`,
-          public_id: `producto_${idProducto}_${Date.now()}`,
+          folder: `pixel-salud/productos/${categoria}`,
+          public_id: `${nombreProducto}`,
         },
       );
 
