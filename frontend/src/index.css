@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-
-
 @font-face {
   font-family: 'Outfit';
   src: url('./assets/fonts/Outfit-VariableFont_wght.woff2') format('woff2');
