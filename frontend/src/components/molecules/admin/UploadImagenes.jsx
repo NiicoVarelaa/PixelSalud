@@ -1,9 +1,3 @@
-/**
- * COMPONENTE: UploadImagenes
- * ===========================
- * Componente para subir imágenes de productos a Cloudinary
- */
-
 import { useState } from "react";
 import {
   Upload,
@@ -188,14 +182,14 @@ export default function UploadImagenes({
       {/* Mensajes */}
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
       {success && (
         <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start gap-2">
-          <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+          <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
           <p className="text-sm text-green-700">
             {files.length === 1 ? "Imagen subida" : "Imágenes subidas"}{" "}
             exitosamente
