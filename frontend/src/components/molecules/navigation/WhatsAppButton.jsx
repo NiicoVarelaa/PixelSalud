@@ -17,31 +17,35 @@ const WhatsAppButton = () => {
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <div className="relative">
-        <span
-          className="absolute inline-flex h-full w-full rounded-full 
-                               bg-green-400 opacity-25 animate-ping"
-          style={{ animationDuration: "2s" }}
-          aria-hidden="true"
-        ></span>
-        <a
-          href={whatsappLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="relative inline-flex p-3 rounded-full 
-                               bg-white shadow-xl transition-all duration-300 
-                               transform hover:scale-110 focus:outline-none 
-                               focus:ring-4 focus:ring-green-400 border-2 border-green-500"
-          aria-label="Chatear con Farmacia por WhatsApp"
-        >
-          <img
-            src={wp}
-            alt="WhatsApp Chat"
-            className="w-9 h-9 md:w-11 md:h-11 object-contain"
-          />
-        </a>
-      </div>
+    <div
+      className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6"
+      role="region"
+      aria-label="Botón de WhatsApp para atención"
+    >
+      <a
+        href={whatsappLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chatear con Farmacia por WhatsApp"
+        tabIndex={0}
+        className={`
+          group relative flex items-center justify-center
+          rounded-full bg-white shadow-lg border-2 border-green-500
+          focus:outline-none focus-visible:ring-4 focus-visible:ring-green-400
+          transition-all duration-200
+          w-14 h-14 sm:w-16 sm:h-16
+          hover:scale-105 active:scale-95
+        `}
+      >
+        <img
+          src={wp}
+          alt=""
+          role="presentation"
+          className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
+          draggable={false}
+        />
+        <span className="sr-only">Chatear con Farmacia por WhatsApp</span>
+      </a>
     </div>
   );
 };

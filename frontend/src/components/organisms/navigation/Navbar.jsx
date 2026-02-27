@@ -8,9 +8,7 @@ import { useNavbarGlobalEvents } from "@hooks/useNavbarGlobalEvents";
 import { useCarritoStore } from "@store/useCarritoStore";
 import { useAuthStore } from "@store/useAuthStore";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  NavbarMenuCelular,
-} from "@components/molecules/navigation";
+import { NavbarMenuCelular } from "@components/molecules/navigation";
 import { MiniBanner } from "@components/organisms/banners";
 import apiClient from "@utils/apiClient";
 import LogoPixelSalud from "@assets/LogoPixelSalud.webp";
@@ -148,7 +146,7 @@ const Navbar = () => {
       >
         <MiniBanner />
         <div className="bg-white">
-          <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
             {/* Primera fila: Logo + Buscador + Íconos */}
             <div className="flex items-center justify-between gap-4 py-4 font-medium relative">
               {/* Logo */}
@@ -234,19 +232,15 @@ const Navbar = () => {
         className="h-[98px] md:h-[98px] lg:h-[130px]"
         aria-hidden="true"
       ></div>
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
-          <NavbarMenuCelular
-            isMenuOpen={isMenuOpen}
-            setIsMenuOpen={setIsMenuOpen}
-            menuRef={menuRef}
-            user={user}
-            handleLogout={handleLogout}
-            navLinks={navLinks}
-            totalItems={totalItems}
-          />
-        </div>
-      )}
+      <NavbarMenuCelular
+        isMenuOpen={isMenuOpen}
+        setIsMenuOpen={setIsMenuOpen}
+        menuRef={menuRef}
+        user={user}
+        handleLogout={handleLogout}
+        navLinks={navLinks}
+        totalItems={totalItems}
+      />
     </>
   );
 };
