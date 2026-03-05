@@ -6,7 +6,7 @@ export function NavbarOffersLink() {
   return (
     <li>
       <NavLink
-        to="/ofertas"
+        to="/productos?categoria=Ofertas"
         className={`cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium align-middle transition-all duration-200 group text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400`}
         aria-label="Ofertas"
         tabIndex={0}

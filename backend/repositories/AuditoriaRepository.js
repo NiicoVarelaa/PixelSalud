@@ -1,6 +1,21 @@
 const { pool } = require("../config/database");
 
 /**
+ * Helper para parsear JSON de forma segura
+ * MySQL puede devolver campos JSON como objetos o strings dependiendo de la configuración
+ */
+const parseJsonSafe = (value) => {
+  if (!value) return null;
+  if (typeof value === "object") return value;
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    console.error("Error parsing JSON:", e);
+    return null;
+  }
+};
+
+/**
  * Registra una acción en el log de auditoría
  * @param {Object} datos - Datos de la auditoría
  * @returns {Promise<number>} ID del registro de auditoría creado
@@ -115,10 +130,8 @@ const obtenerAuditorias = async (filtros = {}) => {
   // Parsear JSON en los campos que lo requieran
   return registros.map((registro) => ({
     ...registro,
-    datosAnteriores: registro.datosAnteriores
-      ? JSON.parse(registro.datosAnteriores)
-      : null,
-    datosNuevos: registro.datosNuevos ? JSON.parse(registro.datosNuevos) : null,
+    datosAnteriores: parseJsonSafe(registro.datosAnteriores),
+    datosNuevos: parseJsonSafe(registro.datosNuevos),
   }));
 };
 
@@ -144,10 +157,8 @@ const obtenerAuditoriasPorUsuario = async (
 
   return registros.map((registro) => ({
     ...registro,
-    datosAnteriores: registro.datosAnteriores
-      ? JSON.parse(registro.datosAnteriores)
-      : null,
-    datosNuevos: registro.datosNuevos ? JSON.parse(registro.datosNuevos) : null,
+    datosAnteriores: parseJsonSafe(registro.datosAnteriores),
+    datosNuevos: parseJsonSafe(registro.datosNuevos),
   }));
 };
 
@@ -167,10 +178,8 @@ const obtenerHistorialEntidad = async (entidadAfectada, idEntidad) => {
 
   return registros.map((registro) => ({
     ...registro,
-    datosAnteriores: registro.datosAnteriores
-      ? JSON.parse(registro.datosAnteriores)
-      : null,
-    datosNuevos: registro.datosNuevos ? JSON.parse(registro.datosNuevos) : null,
+    datosAnteriores: parseJsonSafe(registro.datosAnteriores),
+    datosNuevos: parseJsonSafe(registro.datosNuevos),
   }));
 };
 

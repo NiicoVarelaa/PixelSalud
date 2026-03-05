@@ -19,10 +19,10 @@ class CloudinaryService {
       const uploadOptions = {
         folder: options.folder || "pixel-salud/productos",
         resource_type: "image",
+        format: "webp", // Fuerza el formato webp en Cloudinary
         transformation: [
           { width: 1200, height: 1200, crop: "limit" }, // Max 1200x1200
           { quality: "auto:good" }, // Optimización automática
-          { fetch_format: "auto" }, // Formato automático (WebP si el navegador lo soporta)
         ],
         ...options,
       };

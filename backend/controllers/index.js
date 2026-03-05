@@ -11,7 +11,6 @@ module.exports = {
   MedicosController: require("./MedicosController"),
   MensajesController: require("./MensajesController"),
   MercadoPagoController: require("./MercadoPagoController"),
-  OfertasController: require("./OfertasController"),
   PermisosController: require("./PermisosController"),
   ProductosController: require("./ProductosController"),
   RecetasController: require("./RecetasController"),

@@ -10,6 +10,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import NavbarAvatar from "@components/molecules/navigation/NavbarAvatar";
+import { useCarritoStore } from "@store/useCarritoStore";
 
 export function ActionIcons({
   user,
@@ -22,6 +23,8 @@ export function ActionIcons({
   menuRef,
   totalItems,
 }) {
+  const { setIsCartModalOpen } = useCarritoStore();
+
   return (
     <div className="flex items-center gap-2 sm:gap-4">
       {/* Ícono de búsqueda - Solo Mobile */}
@@ -55,9 +58,9 @@ export function ActionIcons({
       )}
 
       {user && (
-        <Link
-          to="/carrito"
-          className="relative p-2 flex items-center justify-center"
+        <motion.button
+          onClick={() => setIsCartModalOpen(true)}
+          className="relative p-2 flex items-center justify-center cursor-pointer"
           aria-label="Ver carrito"
           tabIndex={0}
         >
@@ -67,13 +70,13 @@ export function ActionIcons({
           />
           {totalItems > 0 && (
             <span
-              className="absolute -top-1 -right-1 bg-gradient-to-br from-green-400 via-green-500 to-emerald-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-white shadow-lg drop-shadow-md ring-2 ring-emerald-300 animate-pulse"
+              className="absolute -top-0.5 -right-0.5 bg-primary-600 text-white text-xs font-semibold rounded-full min-w-5 h-5 px-1.5 flex items-center justify-center border shadow-md"
               style={{ zIndex: 1 }}
             >
               {totalItems}
             </span>
           )}
-        </Link>
+        </motion.button>
       )}
 
       <div className="group relative" ref={profileRef}>

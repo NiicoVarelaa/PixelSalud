@@ -115,7 +115,7 @@ const registrarLoginExitoso = async (usuario, req) => {
       modulo: MODULOS.AUTENTICACION,
       accion: ACCIONES.LOGIN,
       descripcion: `Login exitoso de ${usuario.email}`,
-      tipoUsuario: usuario.rol,
+      tipoUsuario: usuario.role || usuario.rol,
       idUsuario: usuario.id,
       nombreUsuario: `${usuario.nombre} ${usuario.apellido || ""}`.trim(),
       emailUsuario: usuario.email,
@@ -158,7 +158,7 @@ const registrarVentaCreada = async (venta, usuario, req) => {
       modulo: MODULOS.VENTAS,
       accion: ACCIONES.CREATE,
       descripcion: `Venta #${venta.id} creada por ${venta.totalPago} ARS`,
-      tipoUsuario: usuario.rol,
+      tipoUsuario: usuario.role || usuario.rol,
       idUsuario: usuario.id,
       nombreUsuario: usuario.nombre,
       emailUsuario: usuario.email,
@@ -190,7 +190,7 @@ const registrarCambioPermiso = async (
       modulo: MODULOS.PERMISOS,
       accion: ACCIONES.UPDATE,
       descripcion: `Permisos modificados para empleado #${permiso.idEmpleado}`,
-      tipoUsuario: usuario.rol,
+      tipoUsuario: usuario.role || usuario.rol,
       idUsuario: usuario.id,
       nombreUsuario: usuario.nombre,
       emailUsuario: usuario.email,
@@ -216,16 +216,22 @@ const registrarModificacionProducto = async (
   datosAnteriores,
   req,
 ) => {
+  // Manejo seguro de usuario - puede venir de JWT o ser undefined
+  const tipoUsuario = usuario?.role || usuario?.rol || "admin";
+  const idUsuario = usuario?.id || null;
+  const nombreUsuario = usuario?.nombre || null;
+  const emailUsuario = usuario?.email || null;
+
   return registrarAuditoria(
     {
       evento: EVENTOS_AUDITORIA.PRODUCTO_MODIFICADO,
       modulo: MODULOS.PRODUCTOS,
       accion: ACCIONES.UPDATE,
       descripcion: `Producto "${producto.nombreProducto}" modificado`,
-      tipoUsuario: usuario.rol,
-      idUsuario: usuario.id,
-      nombreUsuario: usuario.nombre,
-      emailUsuario: usuario.email,
+      tipoUsuario,
+      idUsuario,
+      nombreUsuario,
+      emailUsuario,
       entidadAfectada: "Productos",
       idEntidad: producto.idProducto,
       datosAnteriores,

@@ -24,7 +24,8 @@ const EmpleadoProductos = () => {
 
   const [subVista, setSubVista] = useState("menu");
   const [productos, setProductos] = useState([]);
-  const [ofertas, setOfertas] = useState([]);
+  // DEPRECATED: Sistema de ofertas individuales eliminado - usar Campañas desde admin
+  // const [ofertas, setOfertas] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // --- LÓGICA DE CARGA DE DATOS ---
@@ -41,18 +42,19 @@ const EmpleadoProductos = () => {
     }
   };
 
-  const cargarOfertas = async () => {
-    setLoading(true);
-    try {
-      const response = await apiClient.get("/ofertas");
-      setOfertas(response.data);
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "No se pudieron cargar las ofertas.", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // DEPRECATED: Función deshabilitada - usar sistema de Campañas
+  // const cargarOfertas = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await apiClient.get("/ofertas");
+  //     setOfertas(response.data);
+  //   } catch (error) {
+  //     console.error(error);
+  //     Swal.fire("Error", "No se pudieron cargar las ofertas.", "error");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // --- ACCIONES (Mantengo tus funciones originales, resumidas para no repetir lógica innecesaria) ---
   const handleCrearProducto = async () => {
@@ -232,107 +234,109 @@ const EmpleadoProductos = () => {
     }
   };
 
-  const handleCrearOferta = async () => {
-    const { value: formValues } = await Swal.fire({
-      title:
-        '<h2 class="text-2xl font-bold text-purple-700">🏷️ Nueva Oferta</h2>',
-      html: `
-        <div class="flex flex-col gap-4 text-left mt-4">
-            <div class="p-4 bg-purple-50 border border-purple-100 rounded-lg">
-                <label class="block text-sm font-bold text-purple-800 mb-1">Producto ID</label>
-                <input id="swal-id" type="number" class="w-full p-2 border border-purple-200 rounded focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Mirar ID en inventario">
-                <p class="text-xs text-gray-500 mt-1">Ingresa el ID del producto a promocionar.</p>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Porcentaje de Descuento (%)</label>
-                <input id="swal-desc" type="number" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none font-bold text-lg" placeholder="Ej: 25">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio</label>
-                    <input id="swal-ini" type="datetime-local" class="w-full p-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Fin</label>
-                    <input id="swal-fin" type="datetime-local" class="w-full p-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-            </div>
-        </div>
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonColor: "#9333EA",
-      confirmButtonText: "Crear Oferta",
-      preConfirm: () => {
-        const id = document.getElementById("swal-id").value;
-        const desc = document.getElementById("swal-desc").value;
-        const ini = document.getElementById("swal-ini").value;
-        const fin = document.getElementById("swal-fin").value;
+  // DEPRECATED: Sistema de ofertas individuales eliminado - usar Campañas
+  // const handleCrearOferta = async () => {
+  //   const { value: formValues } = await Swal.fire({
+  //     title:
+  //       '<h2 class="text-2xl font-bold text-purple-700">🏷️ Nueva Oferta</h2>',
+  //     html: `
+  //       <div class="flex flex-col gap-4 text-left mt-4">
+  //           <div class="p-4 bg-purple-50 border border-purple-100 rounded-lg">
+  //               <label class="block text-sm font-bold text-purple-800 mb-1">Producto ID</label>
+  //               <input id="swal-id" type="number" class="w-full p-2 border border-purple-200 rounded focus:ring-2 focus:ring-purple-500 outline-none" placeholder="Mirar ID en inventario">
+  //               <p class="text-xs text-gray-500 mt-1">Ingresa el ID del producto a promocionar.</p>
+  //           </div>
+  //           <div>
+  //               <label class="block text-sm font-medium text-gray-700 mb-1">Porcentaje de Descuento (%)</label>
+  //               <input id="swal-desc" type="number" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none font-bold text-lg" placeholder="Ej: 25">
+  //           </div>
+  //           <div class="grid grid-cols-2 gap-4">
+  //               <div>
+  //                   <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio</label>
+  //                   <input id="swal-ini" type="datetime-local" class="w-full p-2 border border-gray-300 rounded-lg text-sm">
+  //               </div>
+  //               <div>
+  //                   <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Fin</label>
+  //                   <input id="swal-fin" type="datetime-local" class="w-full p-2 border border-gray-300 rounded-lg text-sm">
+  //               </div>
+  //           </div>
+  //       </div>
+  //     `,
+  //     focusConfirm: false,
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#9333EA",
+  //     confirmButtonText: "Crear Oferta",
+  //     preConfirm: () => {
+  //       const id = document.getElementById("swal-id").value;
+  //       const desc = document.getElementById("swal-desc").value;
+  //       const ini = document.getElementById("swal-ini").value;
+  //       const fin = document.getElementById("swal-fin").value;
+  //
+  //       if (!id || !desc || !ini || !fin) {
+  //         Swal.showValidationMessage("Todos los campos son obligatorios");
+  //         return false;
+  //       }
+  //       return {
+  //         idProducto: id,
+  //         porcentajeDescuento: desc,
+  //         fechaInicio: ini,
+  //         fechaFin: fin,
+  //       };
+  //     },
+  //   });
+  //
+  //   if (formValues) {
+  //     try {
+  //       await apiClient.post("/ofertas/crear", formValues);
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Oferta Activa",
+  //         text: "El descuento se aplicará automáticamente.",
+  //         confirmButtonColor: "#9333EA",
+  //       });
+  //       cargarOfertas();
+  //     } catch (error) {
+  //       Swal.fire(
+  //         "Error",
+  //         error.response?.data?.error || "Error al crear oferta.",
+  //         "error",
+  //       );
+  //     }
+  //   }
+  // };
 
-        if (!id || !desc || !ini || !fin) {
-          Swal.showValidationMessage("Todos los campos son obligatorios");
-          return false;
-        }
-        return {
-          idProducto: id,
-          porcentajeDescuento: desc,
-          fechaInicio: ini,
-          fechaFin: fin,
-        };
-      },
-    });
-
-    if (formValues) {
-      try {
-        await apiClient.post("/ofertas/crear", formValues);
-        Swal.fire({
-          icon: "success",
-          title: "Oferta Activa",
-          text: "El descuento se aplicará automáticamente.",
-          confirmButtonColor: "#9333EA",
-        });
-        cargarOfertas();
-      } catch (error) {
-        Swal.fire(
-          "Error",
-          error.response?.data?.error || "Error al crear oferta.",
-          "error",
-        );
-      }
-    }
-  };
-
-  const handleEliminarOferta = (idOferta) => {
-    Swal.fire({
-      title: "¿Eliminar oferta?",
-      text: "Esta acción quitará el descuento del producto. No se puede deshacer.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await apiClient.delete(`/ofertas/eliminar/${idOferta}`);
-          Swal.fire(
-            "¡Eliminada!",
-            "La oferta ha sido borrada correctamente.",
-            "success",
-          );
-          cargarOfertas();
-        } catch (error) {
-          console.error(error);
-          Swal.fire(
-            "Error",
-            error.response?.data?.error || "No se pudo eliminar la oferta.",
-            "error",
-          );
-        }
-      }
-    });
-  };
+  // DEPRECATED: Sistema de ofertas individuales eliminado - usar Campañas
+  // const handleEliminarOferta = (idOferta) => {
+  //   Swal.fire({
+  //     title: "¿Eliminar oferta?",
+  //     text: "Esta acción quitará el descuento del producto. No se puede deshacer.",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#d33",
+  //     cancelButtonColor: "#3085d6",
+  //     confirmButtonText: "Sí, eliminar",
+  //     cancelButtonText: "Cancelar",
+  //   }).then(async (result) => {
+  //     if (result.isConfirmed) {
+  //       try {
+  //         await apiClient.delete(`/ofertas/eliminar/${idOferta}`);
+  //         Swal.fire(
+  //           "¡Eliminada!",
+  //           "La oferta ha sido borrada correctamente.",
+  //           "success",
+  //         );
+  //         cargarOfertas();
+  //       } catch (error) {
+  //         console.error(error);
+  //         Swal.fire(
+  //           "Error",
+  //           error.response?.data?.error || "No se pudo eliminar la oferta.",
+  //           "error",
+  //         );
+  //       }
+  //     }
+  //   });
+  // };
 
   const handleCambiarEstado = (prod) => {
     const esActivo = prod.activo === 1 || prod.activo === true;
@@ -634,36 +638,37 @@ const EmpleadoProductos = () => {
     </div>
   );
 
-  const VistaOfertas = () => (
-    <div className="w-full animate-fadeIn">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h2 className="text-2xl font-bold text-gray-800">
-          🏷️ Gestión de Ofertas
-        </h2>
-        <div className="flex gap-2">
-          {permisos.crear_productos && (
-            <button
-              onClick={handleCrearOferta}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition shadow"
-            >
-              <Plus size={18} /> Nueva Oferta
-            </button>
-          )}
-          <button
-            onClick={() => setSubVista("menu")}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
-          >
-            <ArrowLeft size={18} /> Volver
-          </button>
-        </div>
-      </div>
-      {loading ? (
-        <div className="text-center p-10">Cargando ofertas...</div>
-      ) : (
-        <TablaPaginada datos={ofertas} tipo="oferta" />
-      )}
-    </div>
-  );
+  // DEPRECATED: Sistema de ofertas individuales eliminado - usar Campañas desde admin
+  // const VistaOfertas = () => (
+  //   <div className="w-full animate-fadeIn">
+  //     <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+  //       <h2 className="text-2xl font-bold text-gray-800">
+  //         🏷️ Gestión de Ofertas
+  //       </h2>
+  //       <div className="flex gap-2">
+  //         {permisos.crear_productos && (
+  //           <button
+  //             onClick={handleCrearOferta}
+  //             className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition shadow"
+  //           >
+  //             <Plus size={18} /> Nueva Oferta
+  //           </button>
+  //         )}
+  //         <button
+  //           onClick={() => setSubVista("menu")}
+  //           className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+  //         >
+  //           <ArrowLeft size={18} /> Volver
+  //         </button>
+  //       </div>
+  //     </div>
+  //     {loading ? (
+  //       <div className="text-center p-10">Cargando ofertas...</div>
+  //     ) : (
+  //       <TablaPaginada datos={ofertas} tipo="oferta" />
+  //     )}
+  //   </div>
+  // );
 
   // --- MENÚ PRINCIPAL ---
   if (subVista === "menu") {
@@ -696,7 +701,8 @@ const EmpleadoProductos = () => {
             </p>
           </div>
 
-          <div
+          {/* DEPRECATED: Ofertas ahora se gestionan con Campañas desde el admin */}
+          {/* <div
             onClick={() => {
               setSubVista("ofertas");
               cargarOfertas();
@@ -715,7 +721,7 @@ const EmpleadoProductos = () => {
             <p className="text-center text-gray-500 mt-2">
               Buscar y gestionar promociones activas.
             </p>
-          </div>
+          </div> */}
         </div>
 
         {/* BOTÓN VOLVER MODIFICADO PARA USAR NAVIGATE */}
@@ -732,7 +738,8 @@ const EmpleadoProductos = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto w-full min-h-screen">
       {subVista === "inventario" && <VistaInventario />}
-      {subVista === "ofertas" && <VistaOfertas />}
+      {/* DEPRECATED: Sistema de ofertas individuales eliminado - usar Campañas desde admin */}
+      {/* {subVista === "ofertas" && <VistaOfertas />} */}
     </div>
   );
 };

@@ -13,6 +13,7 @@ import { NavbarCategoriesDropdown } from "@components/organisms/navigation/Navba
 import LogoPixelSalud from "@assets/LogoPixelSalud.webp";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import { useCarritoStore } from "@store/useCarritoStore";
 
 const capitalizeName = (name) =>
   name
@@ -34,6 +35,7 @@ const NavbarMenuCelular = ({
   const categoriasRef = useRef(null);
   const firstFocusableRef = useRef(null);
   const lastFocusableRef = useRef(null);
+  const { setIsCartModalOpen } = useCarritoStore();
 
   const handleCategoriaClick = (categoria) => {
     window.location.href = `/productos?categoria=${encodeURIComponent(categoria)}`;
@@ -239,10 +241,12 @@ const NavbarMenuCelular = ({
 
                   <hr className="my-4 border-t border-gray-200" />
 
-                  <Link
-                    to="/carrito"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center justify-between py-3 px-1 rounded-md text-base font-semibold bg-primary-50 text-primary-700 hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 mb-2"
+                  <button
+                    onClick={() => {
+                      setIsCartModalOpen(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center justify-between py-3 px-1 rounded-md text-base font-semibold bg-primary-50 text-primary-700 hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 mb-2 w-full"
                   >
                     <span className="flex items-center gap-3">
                       <ShoppingCart className="w-5 h-5" aria-hidden="true" />
@@ -251,7 +255,7 @@ const NavbarMenuCelular = ({
                     <span className="bg-primary-700 text-white px-2 py-1 rounded-full text-xs font-medium">
                       {totalItems} {totalItems === 1 ? "ítem" : "ítems"}
                     </span>
-                  </Link>
+                  </button>
 
                   <hr className="my-4 border-t border-gray-200" />
 

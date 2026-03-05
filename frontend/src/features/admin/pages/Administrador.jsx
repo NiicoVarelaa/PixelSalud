@@ -1,5 +1,5 @@
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
-import { NavbarAdmin, SiderbarAdmin } from "@features/admin/layout";
+import { SiderbarAdmin } from "@features/admin/layout";
 import { useEffect } from "react";
 import { useProductStore } from "@store/useProductStore";
 import { useAuthStore } from "@store/useAuthStore";
@@ -27,16 +27,14 @@ const Administrador = () => {
 
   return (
     <>
-      <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
-        <NavbarAdmin />
+      <div className="flex flex-col lg:flex-row h-screen bg-gray-50 overflow-hidden">
+        <SiderbarAdmin user={user} />
 
-        <div className="flex flex-1 overflow-hidden">
-          <SiderbarAdmin user={user} />
-
-          <main className="flex-1 overflow-y-auto bg-gray-100 p-6">
+        <main className="flex-1 overflow-y-auto bg-gray-100 lg:p-6">
+          <div className="p-4 lg:p-0">
             <Outlet />
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
     </>
   );
