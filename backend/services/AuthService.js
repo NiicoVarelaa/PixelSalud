@@ -51,6 +51,8 @@ const login = async (email, contrasenia) => {
   const payload = {
     id: user.id,
     role: role,
+    nombre: user.nombre,
+    email: user.email,
     permisos: permisos,
   };
 
@@ -67,7 +69,7 @@ const login = async (email, contrasenia) => {
     permisos: permisos,
     rol: role,
   };
-  
+
   if (tipo === "cliente" && user.dni) {
     response.dni = user.dni;
   }

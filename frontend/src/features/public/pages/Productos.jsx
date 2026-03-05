@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Search,
   X,
@@ -12,6 +13,7 @@ import {
 
 import { useProductStore } from "@store/useProductStore";
 import { useFiltroStore } from "@store/useFiltroStore";
+import { useAuthStore } from "@store/useAuthStore";
 
 import { Header, Footer } from "@components/organisms";
 import { Breadcrumbs } from "@components/molecules/navigation";
@@ -22,7 +24,6 @@ import {
   BuscarRecetaButton,
 } from "@features/customer/components/prescription";
 
-import { useAuthStore } from "@store/useAuthStore";
 import { useCarritoStore } from "@store/useCarritoStore";
 
 const Productos = () => {
@@ -38,11 +39,15 @@ const Productos = () => {
   } = useFiltroStore();
 
   const productosFiltrados = getProductosFiltrados();
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
   const [recetasActivas, setRecetasActivas] = useState([]);
   const [recetaBuscada, setRecetaBuscada] = useState(false);
   const [showModalRecetas, setShowModalRecetas] = useState(false);
   const { agregarCarrito } = useCarritoStore();
+
+  // Estado para campaña activa
+  const [campanaActiva, setCampanaActiva] = useState(null);
+  const [productosCampana, setProductosCampana] = useState([]);
 
   // Estados para paginación
   const [paginaActual, setPaginaActual] = useState(1);
@@ -66,11 +71,51 @@ const Productos = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
 
+  // Función para obtener la campaña activa
+  const fetchCampanaActiva = useCallback(async () => {
+    try {
+      const backendUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const response = await axios.get(`${backendUrl}/campanas/activas`);
+
+      console.log("📊 [Productos.jsx] Campañas activas:", response.data);
+
+      // Tomar la primera campaña activa
+      const activa = response.data[0];
+
+      console.log("✅ [Productos.jsx] Campaña activa encontrada:", activa);
+
+      if (activa) {
+        setCampanaActiva(activa);
+        // Obtener productos de la campaña (este endpoint también es público)
+        const prodResponse = await axios.get(
+          `${backendUrl}/campanas/${activa.idCampana}/productos`,
+        );
+        console.log(
+          "🛍️ [Productos.jsx] Productos de la campaña:",
+          prodResponse.data,
+        );
+        setProductosCampana(prodResponse.data.productos || []);
+      } else {
+        console.warn(
+          "⚠️ [Productos.jsx] No se encontró ninguna campaña activa",
+        );
+      }
+    } catch (error) {
+      console.error(
+        "❌ [Productos.jsx] Error al cargar campaña activa:",
+        error,
+      );
+    }
+  }, []);
+
   useEffect(() => {
     if (productos.length === 0) {
       fetchProducts();
     }
-  }, [productos.length, fetchProducts]);
+    // Cargar campaña activa
+    fetchCampanaActiva();
+  }, [productos.length, fetchProducts, fetchCampanaActiva]);
 
   // --- Sincronización de filtros con la query string ---
   useEffect(() => {
@@ -124,11 +169,37 @@ const Productos = () => {
     updateQueryParam("orden", value);
   };
 
-  // Filtrado especial para medicamentos con receta
+  // Filtrado especial para medicamentos con receta y campañas
   let productosParaMostrar = productosFiltrados;
-  // Log para debug: mostrar productos ordenados cada vez que cambia el filtro de ordenPrecio
 
   const esCategoriaReceta = filtroCategoria === "Medicamentos con Receta";
+  const esCampana =
+    campanaActiva &&
+    filtroCategoria.toLowerCase().trim() ===
+      campanaActiva.nombreCampana.toLowerCase().trim();
+
+  console.log("🔍 [Productos.jsx] Filtro actual:", filtroCategoria);
+  console.log("🎯 [Productos.jsx] ¿Es campaña?", esCampana);
+  console.log(
+    "📋 [Productos.jsx] Nombre campaña:",
+    campanaActiva?.nombreCampana,
+  );
+
+  // Si se selecciona la campaña, mostrar solo productos de la campaña
+  if (esCampana && productosCampana.length > 0) {
+    const idsProductosCampana = productosCampana.map((p) => p.idProducto);
+    console.log(
+      "🔍 [Productos.jsx] IDs de productos de campaña:",
+      idsProductosCampana,
+    );
+    productosParaMostrar = productos.filter((p) =>
+      idsProductosCampana.includes(p.idProducto),
+    );
+    console.log(
+      "✅ [Productos.jsx] Productos filtrados:",
+      productosParaMostrar.length,
+    );
+  }
 
   if (esCategoriaReceta) {
     if (!user) {
@@ -340,11 +411,23 @@ const Productos = () => {
                       : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
-                  <span className="mr-2">Todos</span>
-                  <span className="ml-auto bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded">
-                    {productos.length}
-                  </span>
+                  Todos
                 </button>
+
+                {campanaActiva && (
+                  <button
+                    onClick={() =>
+                      setCategoriaYSync(campanaActiva.nombreCampana)
+                    }
+                    className={`w-full text-left px-3 py-2 rounded text-sm flex items-center transition-colors cursor-pointer ${
+                      filtroCategoria === campanaActiva.nombreCampana
+                        ? "bg-primary-50 text-primary-700 font-medium"
+                        : "text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {campanaActiva.nombreCampana}
+                  </button>
+                )}
 
                 {categorias.map((cat) => (
                   <button
@@ -427,7 +510,7 @@ const Productos = () => {
                                 <button
                                   key={numero}
                                   onClick={() => irAPagina(numero)}
-                                  className={`min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                                  className={`min-w-10 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                                     paginaActual === numero
                                       ? "bg-primary-600 text-white"
                                       : "text-gray-700 hover:bg-gray-100"

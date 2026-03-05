@@ -1,6 +1,6 @@
 module.exports = {
   ProductosRepository: require("./ProductosRepository"),
-  OfertasRepository: require("./OfertasRepository"),
+  // REMOVED: OfertasRepository: require("./OfertasRepository"), // DEPRECATED - usar CampanasRepository
   CarritoRepository: require("./CarritoRepository"),
   ClientesRepository: require("./ClientesRepository"),
   CuponesRepository: require("./CuponesRepository"),

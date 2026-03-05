@@ -17,7 +17,7 @@ import {
   LegalesPromocionPage as LegalesPromocion,
 } from "@features/public/pages";
 import {
-  CarritoPage as Carrito,
+  // CarritoPage as Carrito, // Ya no se usa, ahora es un modal
   CheckoutPage as Checkout,
   CheckoutSuccess,
 } from "@features/customer";
@@ -49,6 +49,7 @@ import {
   AdminProductosActivos,
   AdminProductosBaja,
   AdminOfertas,
+  AdminCampanas,
   AdminClientes,
   AdminEmpleados,
   MenuVentas,
@@ -99,7 +100,8 @@ const App = () => {
           <Route path="productos/:idProducto" element={<Producto />} />
           <Route path="productos/:categoria?" element={<Productos />} />
 
-          <Route path="carrito" element={<Carrito />} />
+          {/* Ruta de carrito eliminada - ahora es un modal */}
+          {/* <Route path="carrito" element={<Carrito />} /> */}
           <Route path="checkout" element={<Checkout />} />
           <Route path="checkout/success" element={<CheckoutSuccess />} />
 
@@ -126,13 +128,19 @@ const App = () => {
             <Route path="MenuProductos/*" element={<MenuProductos />}>
               <Route index element={<OpcionesProductos />} />
               <Route path="productos" element={<AdminProductos />} />
-              <Route path="ofertas" element={<AdminOfertas />} />
+              {/* DEPRECATED: Usar campanas en su lugar */}
+              {/* <Route path="ofertas" element={<AdminOfertas />} /> */}
+              <Route path="campanas" element={<AdminCampanas />} />
               <Route
                 path="productosActivos"
                 element={<AdminProductosActivos />}
               />
               <Route path="productosBaja" element={<AdminProductosBaja />} />
             </Route>
+
+            <Route path="productos" element={<AdminProductos />} />
+            <Route path="ofertas" element={<AdminOfertas />} />
+            <Route path="campanas" element={<AdminCampanas />} />
 
             <Route path="MenuClientes/*" element={<MenuClientes />}>
               <Route index element={<AdminClientes />} />

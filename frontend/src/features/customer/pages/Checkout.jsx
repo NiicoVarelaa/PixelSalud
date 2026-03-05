@@ -21,7 +21,7 @@ const formatPrice = (value) => {
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { carrito } = useCarritoStore();
+  const { carrito, setIsCartModalOpen } = useCarritoStore();
   const { token } = useAuthStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
@@ -288,12 +288,12 @@ const Checkout = () => {
               <ChevronRight size={16} className="text-gray-400" />
             </li>
             <li className="flex items-center">
-              <NavLink
-                to="/carrito"
+              <button
+                onClick={() => setIsCartModalOpen(true)}
                 className="hover:text-primary-700 transition-colors"
               >
                 Carrito
-              </NavLink>
+              </button>
             </li>
             <li className="flex items-center">
               <ChevronRight size={16} className="text-gray-400" />

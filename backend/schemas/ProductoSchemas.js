@@ -137,6 +137,30 @@ const updateProductoSchema = z
         return false;
       })
       .optional(),
+
+    enOferta: z
+      .union([z.boolean(), z.number(), z.string()])
+      .transform((val) => {
+        if (typeof val === "boolean") return val;
+        if (typeof val === "number") return val === 1;
+        if (typeof val === "string")
+          return val === "1" || val.toLowerCase() === "true";
+        return false;
+      })
+      .optional(),
+
+    porcentajeDescuento: z
+      .union([z.number(), z.string()])
+      .transform((val) => (typeof val === "string" ? parseInt(val, 10) : val))
+      .refine(
+        (val) => !isNaN(val) && Number.isInteger(val),
+        "El porcentaje debe ser un número entero",
+      )
+      .refine(
+        (val) => val >= 0 && val <= 100,
+        "El porcentaje debe estar entre 0 y 100",
+      )
+      .optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "Debe proporcionar al menos un campo para actualizar",

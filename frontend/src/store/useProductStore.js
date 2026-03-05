@@ -2,7 +2,8 @@ import { create } from "zustand";
 import axios from "axios";
 
 const API_URL_ALL = "http://localhost:5000/productos";
-const API_URL_CYBER_MONDAY = "http://localhost:5000/ofertas/cyber-monday";
+// UPDATED: Usar sistema de campañas en lugar de ofertas individuales
+const API_URL_CAMPANAS_ACTIVAS = "http://localhost:5000/campanas/activas";
 
 const PRODUCTS_PER_SECTION = 6;
 
@@ -18,13 +19,14 @@ export const useProductStore = create((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const [resAll, resCyber] = await Promise.all([
+      const [resAll, resCampanas] = await Promise.all([
         axios.get(API_URL_ALL),
-        axios.get(API_URL_CYBER_MONDAY),
+        axios.get(API_URL_CAMPANAS_ACTIVAS).catch(() => ({ data: [] })), // Campañas opcionales
       ]);
 
       const todos = resAll.data;
-      const cyberOffers = resCyber.data;
+      const campanasActivas = resCampanas.data || [];
+
       const productosDisponiblesArriba = todos.filter(
         (p) => p.categoria !== "Medicamentos con Receta",
       );
@@ -33,15 +35,19 @@ export const useProductStore = create((set) => ({
         () => Math.random() - 0.5,
       );
       const arriba = shuffledArriba.slice(0, PRODUCTS_PER_SECTION);
-      const abajo = cyberOffers;
+
+      // Productos en ofertas (de campañas activas)
+      // Nota: Las campañas ahora retornan productos con descuentos aplicados
+      const productosEnOferta = todos.filter(
+        (producto) => producto.ofertas && producto.ofertas.length > 0,
+      );
+      const abajo = productosEnOferta.slice(0, PRODUCTS_PER_SECTION);
+
       let categoriasUnicas = [...new Set(todos.map((p) => p.categoria))];
-      // Agregar Cyber Monday como categoría especial si hay productos en la oferta
-      if (
-        cyberOffers &&
-        cyberOffers.length > 0 &&
-        !categoriasUnicas.includes("Cyber Monday")
-      ) {
-        categoriasUnicas = ["Cyber Monday", ...categoriasUnicas];
+
+      // Agregar "Ofertas" como categoría especial si hay campañas activas
+      if (campanasActivas.length > 0 && !categoriasUnicas.includes("Ofertas")) {
+        categoriasUnicas = ["Ofertas", ...categoriasUnicas];
       }
 
       set({

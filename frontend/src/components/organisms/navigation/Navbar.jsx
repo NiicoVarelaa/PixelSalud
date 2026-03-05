@@ -10,6 +10,7 @@ import { useAuthStore } from "@store/useAuthStore";
 import { Link, useNavigate } from "react-router-dom";
 import { NavbarMenuCelular } from "@components/molecules/navigation";
 import { MiniBanner } from "@components/organisms/banners";
+import { CartModal } from "@features/customer/components/cart";
 import apiClient from "@utils/apiClient";
 import LogoPixelSalud from "@assets/LogoPixelSalud.webp";
 import { ActionIcons } from "./ActionIcons";
@@ -241,6 +242,7 @@ const Navbar = () => {
         navLinks={navLinks}
         totalItems={totalItems}
       />
+      <CartModal />
     </>
   );
 };

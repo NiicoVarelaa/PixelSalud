@@ -1,611 +1,489 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useProductStore } from "@store/useProductStore";
+import { useAuthStore } from "@store/useAuthStore";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
-import { useAuthStore } from "@store/useAuthStore";
-import { useProductStore } from "@store/useProductStore";
-import { Link } from "react-router-dom";
+import {
+  Search,
+  Filter,
+  Percent,
+  Tag,
+  CheckCircle,
+  XCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import Default from "@assets/default.webp";
 
 const AdminOfertas = () => {
-  const [ofertas, setOfertas] = useState([]);
-
-  const { productos, fetchProducts, categorias } = useProductStore();
+  const { productos, fetchProducts } = useProductStore();
   const token = useAuthStore((state) => state.token);
 
-  const [cargando, setCargando] = useState(true);
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const modalRef = useRef();
-
+  // Estados de filtro
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("todas");
-  const [filtroEstado, setFiltroEstado] = useState("todos");
+  const [filtroDescuento, setFiltroDescuento] = useState("todos"); // todos, 10, 15, 20, sin-oferta
 
+  // Estado para productos en campañas (para evitar conflictos)
+  const [idsProductosEnCampanas, setIdsProductosEnCampanas] = useState([]);
+
+  // Paginación
   const [paginaActual, setPaginaActual] = useState(1);
-  const itemsPorPagina = 4;
+  const itemsPorPagina = 10;
 
-  const [nuevaOferta, setNuevaOferta] = useState({
-    idProducto: "",
-    porcentajeDescuento: "",
-    fechaInicio: "",
-    fechaFin: "",
-  });
+  // Fetch de productos en campañas activas
+  useEffect(() => {
+    const fetchProductosEnCampanas = async () => {
+      try {
+        const backendUrl =
+          import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const response = await axios.get(`${backendUrl}/campanas/activas`);
+
+        // Extraer todos los IDs de productos de todas las campañas activas
+        const ids = new Set();
+        for (const campana of response.data) {
+          const prodResponse = await axios.get(
+            `${backendUrl}/campanas/${campana.idCampana}/productos`,
+          );
+          prodResponse.data.productos?.forEach((p) => ids.add(p.idProducto));
+        }
+        setIdsProductosEnCampanas(Array.from(ids));
+      } catch (error) {
+        console.error("Error al obtener productos en campañas:", error);
+      }
+    };
+
+    fetchProductosEnCampanas();
+  }, []);
+
+  useEffect(() => {
+    if (productos.length === 0) {
+      fetchProducts();
+    }
+  }, [productos.length, fetchProducts]);
+
+  // Resetear paginación al filtrar
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [busqueda, filtroCategoria, filtroDescuento]);
 
   const getConfig = () => ({
     headers: { Auth: `Bearer ${token}` },
   });
 
-  const fetchOfertas = async () => {
-    setCargando(true);
-    try {
-      await fetchProducts();
-      const response = await axios.get("http://localhost:5000/ofertas");
-      setOfertas(response.data);
-    } catch (error) {
-      console.error("Error al cargar ofertas:", error);
-      toast.error("Error al cargar las ofertas.");
-    } finally {
-      setCargando(false);
+  const getProductoImageUrl = (producto) => {
+    if (!producto) return Default;
+    if (producto.imagenes && producto.imagenes.length > 0) {
+      const imagenPrincipal =
+        producto.imagenes.find((img) => img.esPrincipal) ||
+        producto.imagenes[0];
+      return imagenPrincipal.urlImagen;
     }
+    return producto.img || Default;
   };
 
-  useEffect(() => {
-    fetchOfertas();
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        setModalAbierto(false);
-      }
-    };
-    if (modalAbierto)
-      document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [modalAbierto]);
-
-  useEffect(() => {
-    setPaginaActual(1);
-  }, [busqueda, filtroEstado, filtroCategoria]);
-
-  const formatearFechaInput = (fechaISO) => {
-    if (!fechaISO) return "";
-    return new Date(fechaISO).toISOString().split("T")[0];
+  const formatearPrecio = (precio) => {
+    return new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      minimumFractionDigits: 2,
+    }).format(precio);
   };
 
-  const formatearFechaTabla = (fecha) => {
-    if (!fecha) return "N/A";
-    const fechaObj = new Date(fecha);
-    const fechaCorregida = new Date(
-      fechaObj.getTime() + fechaObj.getTimezoneOffset() * 60000,
-    );
-    return fechaCorregida.toLocaleDateString("es-AR");
+  // Filtrado de productos
+  const productosFiltrados = productos.filter((p) => {
+    const cumpleBusqueda =
+      !busqueda ||
+      p.nombreProducto.toLowerCase().includes(busqueda.toLowerCase());
+
+    const cumpleCategoria =
+      filtroCategoria === "todas" || p.categoria === filtroCategoria;
+
+    let cumpleDescuento = true;
+    if (filtroDescuento === "sin-oferta") {
+      cumpleDescuento = !p.enOferta || p.porcentajeDescuento === 0;
+    } else if (filtroDescuento !== "todos") {
+      cumpleDescuento =
+        p.enOferta && p.porcentajeDescuento === parseInt(filtroDescuento);
+    }
+
+    return cumpleBusqueda && cumpleCategoria && cumpleDescuento;
+  });
+
+  // Paginación
+  const totalProductos = productosFiltrados.length;
+  const totalPaginas = Math.ceil(totalProductos / itemsPorPagina);
+  const indiceInicio = (paginaActual - 1) * itemsPorPagina;
+  const indiceFin = indiceInicio + itemsPorPagina;
+  const productosPaginados = productosFiltrados.slice(indiceInicio, indiceFin);
+
+  // Obtener categorías únicas
+  const categorias = [...new Set(productos.map((p) => p.categoria))].sort();
+
+  // Verificar si producto está en campaña
+  const estaEnCampana = (idProducto) => {
+    return idsProductosEnCampanas.includes(idProducto);
   };
 
-  const getOfertaEnriquecida = (oferta) => {
-    const prod = productos.find((p) => p.idProducto === oferta.idProducto);
-    return {
-      ...oferta,
-      img: prod?.img || "https://via.placeholder.com/50",
-      categoria: prod?.categoria || "Sin Categoría",
-      nombreProducto: prod?.nombreProducto || oferta.nombreProducto,
-    };
-  };
+  // Manejar cambio de oferta
+  const handleCambiarOferta = async (producto, activar, porcentaje = null) => {
+    // Verificar que no esté en campaña
+    if (estaEnCampana(producto.idProducto)) {
+      toast.error(
+        "Este producto está en una campaña activa. No se pueden aplicar ofertas individuales.",
+      );
+      return;
+    }
 
-  const crearOferta = async () => {
     try {
-      if (!nuevaOferta.idProducto || !nuevaOferta.porcentajeDescuento) {
-        toast.error("Complete los datos obligatorios");
-        return;
-      }
-      await axios.post(
-        "http://localhost:5000/ofertas/crear",
-        nuevaOferta,
+      const backendUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+      const datosActualizacion = {
+        enOferta: activar,
+        porcentajeDescuento: activar ? porcentaje : 0,
+      };
+
+      await axios.put(
+        `${backendUrl}/productos/actualizar/${producto.idProducto}`,
+        datosActualizacion,
         getConfig(),
       );
-      setModalAbierto(false);
-      setNuevaOferta({
-        idProducto: "",
-        porcentajeDescuento: "",
-        fechaInicio: "",
-        fechaFin: "",
-      });
-      fetchOfertas();
-      toast.success("Oferta creada correctamente.");
+
+      toast.success(
+        activar
+          ? `¡Oferta ${porcentaje}% aplicada a ${producto.nombreProducto}!`
+          : `Oferta removida de ${producto.nombreProducto}`,
+      );
+
+      fetchProducts();
     } catch (error) {
-      console.error(error);
-      toast.error("Error al crear oferta.");
+      console.error("Error al actualizar oferta:", error);
+      toast.error(
+        error.response?.data?.message || "Error al actualizar la oferta",
+      );
     }
   };
 
-  const handleChange = (e) => {
-    setNuevaOferta({ ...nuevaOferta, [e.target.name]: e.target.value });
-  };
-
-  const handleEditarOferta = async (ofertaRaw) => {
-    const oferta = getOfertaEnriquecida(ofertaRaw);
-
-    const { value: formValues } = await Swal.fire({
-      title: `<h2 class="text-xl font-bold text-gray-700">✏️ Editar Oferta</h2>`,
+  // Modal para establecer descuento
+  const handleEstablecerDescuento = async (producto) => {
+    const { value: porcentaje } = await Swal.fire({
+      title: `Descuento para ${producto.nombreProducto}`,
       html: `
-        <div class="flex flex-col gap-4 text-left">
-            <div class="bg-gray-50 p-3 rounded border">
-                <p class="text-sm font-bold text-gray-700">${oferta.nombreProducto}</p>
-                <p class="text-xs text-gray-500">${oferta.categoria}</p>
-            </div>
-
-            <div>
-                <label class="text-xs font-bold text-gray-500 uppercase">Descuento (%)</label>
-                <input id="swal-descuento" type="number" class="w-full p-2.5 border rounded" value="${oferta.porcentajeDescuento}">
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase">Inicio</label>
-                    <input id="swal-inicio" type="date" class="w-full p-2.5 border rounded" value="${formatearFechaInput(oferta.fechaInicio)}">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase">Fin</label>
-                    <input id="swal-fin" type="date" class="w-full p-2.5 border rounded" value="${formatearFechaInput(oferta.fechaFin)}">
-                </div>
-            </div>
+        <div class="flex flex-col gap-4">
+          <p class="text-gray-600">Selecciona el porcentaje de descuento:</p>
+          <div class="flex justify-center gap-3">
+            <button id="btn-10" class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-lg transition-all">
+              10% OFF
+            </button>
+            <button id="btn-15" class="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold text-lg transition-all">
+              15% OFF
+            </button>
+            <button id="btn-20" class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-bold text-lg transition-all">
+              20% OFF
+            </button>
+          </div>
         </div>
       `,
       showCancelButton: true,
-      confirmButtonText: "Guardar Cambios",
-      confirmButtonColor: "#EAB308",
+      showConfirmButton: false,
+      cancelButtonText: "Cancelar",
+      didOpen: () => {
+        document.getElementById("btn-10").addEventListener("click", () => {
+          Swal.clickConfirm();
+          Swal.close();
+          Swal.getConfirmButton().value = 10;
+        });
+        document.getElementById("btn-15").addEventListener("click", () => {
+          Swal.clickConfirm();
+          Swal.close();
+          Swal.getConfirmButton().value = 15;
+        });
+        document.getElementById("btn-20").addEventListener("click", () => {
+          Swal.clickConfirm();
+          Swal.close();
+          Swal.getConfirmButton().value = 20;
+        });
+      },
       preConfirm: () => {
-        return {
-          porcentajeDescuento: document.getElementById("swal-descuento").value,
-          fechaInicio: document.getElementById("swal-inicio").value,
-          fechaFin: document.getElementById("swal-fin").value,
-          idProducto: oferta.idProducto,
-          esActiva: oferta.esActiva,
-        };
+        return Swal.getConfirmButton().value;
       },
     });
 
-    if (formValues) {
-      try {
-        await axios.put(
-          `http://localhost:5000/ofertas/actualizar/${oferta.idOferta}`,
-          formValues,
-          getConfig(),
-        );
-        Swal.fire("Actualizado", "Oferta modificada correctamente", "success");
-        fetchOfertas();
-      } catch (error) {
-        Swal.fire("Error", "No se pudo actualizar la oferta", "error");
-      }
+    if (porcentaje) {
+      await handleCambiarOferta(producto, true, parseInt(porcentaje));
     }
-  };
-
-  const toggleActiva = (idOferta, esActiva) => {
-    const accion = esActiva ? "Desactivar" : "Activar";
-    const participio = esActiva ? "Desactivada" : "Activada";
-    const colorBtn = esActiva ? "#d33" : "#059669";
-
-    Swal.fire({
-      title: `¿${accion} oferta?`,
-      text: `La oferta ${esActiva ? "dejará de aplicarse" : "se aplicará"} a los productos.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: colorBtn,
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: `Sí, ${accion.toLowerCase()}`,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.put(
-            `http://localhost:5000/ofertas/esActiva/${idOferta}`,
-            {
-              esActiva: !esActiva,
-            },
-            getConfig(),
-          );
-
-          Swal.fire(
-            `${participio}!`,
-            `La oferta ha sido ${participio.toLowerCase()} correctamente.`,
-            "success",
-          );
-          fetchOfertas();
-        } catch (error) {
-          Swal.fire("Error", "No se pudo cambiar el estado", "error");
-        }
-      }
-    });
-  };
-
-  const ofertasEnriquecidas = ofertas.map(getOfertaEnriquecida);
-
-  const ofertasFiltradas = ofertasEnriquecidas.filter((oferta) => {
-    const coincideBusqueda = oferta.nombreProducto
-      .toLowerCase()
-      .includes(busqueda.toLowerCase());
-    const coincideCategoria =
-      filtroCategoria === "todas" || oferta.categoria === filtroCategoria;
-    const coincideEstado =
-      filtroEstado === "todos" ||
-      (filtroEstado === "activas" && oferta.esActiva) ||
-      (filtroEstado === "inactivas" && !oferta.esActiva);
-
-    return coincideBusqueda && coincideCategoria && coincideEstado;
-  });
-
-  const indiceUltimoItem = paginaActual * itemsPorPagina;
-  const indicePrimerItem = indiceUltimoItem - itemsPorPagina;
-  const itemsActuales = ofertasFiltradas.slice(
-    indicePrimerItem,
-    indiceUltimoItem,
-  );
-  const totalPaginas = Math.ceil(ofertasFiltradas.length / itemsPorPagina);
-
-  const cambiarPagina = (numeroPagina) => setPaginaActual(numeroPagina);
-
-  const getPaginationNumbers = () => {
-    const delta = 1;
-    const range = [];
-    const rangeWithDots = [];
-    for (let i = 1; i <= totalPaginas; i++) {
-      if (
-        i === 1 ||
-        i === totalPaginas ||
-        (i >= paginaActual - delta && i <= paginaActual + delta)
-      ) {
-        range.push(i);
-      }
-    }
-    let l;
-    for (let i of range) {
-      if (l) {
-        if (i - l === 2) rangeWithDots.push(l + 1);
-        else if (i - l !== 1) rangeWithDots.push("...");
-      }
-      rangeWithDots.push(i);
-      l = i;
-    }
-    return rangeWithDots;
   };
 
   return (
-    <div className="min-h-screen bg-white p-6 w-full">
-      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+    <div className="min-h-screen bg-gray-50 p-6">
+      <ToastContainer />
 
-      {/* Modal Crear */}
-      {modalAbierto && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center p-4 z-50">
-          <div
-            ref={modalRef}
-            className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-fadeIn"
-          >
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">
-                  Crear Nueva Oferta
-                </h2>
-                <button
-                  onClick={() => setModalAbierto(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+          <Tag className="text-green-600" size={32} />
+          Gestión de Ofertas Individuales
+        </h1>
+        <p className="text-gray-600 mt-2">
+          Activa o desactiva ofertas en productos individuales (10%, 15%, 20%)
+        </p>
+        <p className="text-sm text-purple-600 mt-1 font-medium">
+          ⚠️ No se pueden aplicar ofertas individuales a productos que están en
+          campañas activas
+        </p>
+      </div>
 
-              <div className="flex flex-col gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Producto
-                  </label>
-                  <select
-                    name="idProducto"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500"
-                    value={nuevaOferta.idProducto}
-                    onChange={handleChange}
-                  >
-                    <option value="">Seleccione un producto...</option>
-                    {productos
-                      .filter((p) => p.activo)
-                      .map((p) => (
-                        <option key={p.idProducto} value={p.idProducto}>
-                          {p.nombreProducto} (${p.precio})
-                        </option>
-                      ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Descuento (%)
-                  </label>
-                  <input
-                    type="number"
-                    name="porcentajeDescuento"
-                    placeholder="Ej: 15"
-                    className="w-full px-3 py-2 border rounded-md"
-                    value={nuevaOferta.porcentajeDescuento}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Inicio
-                    </label>
-                    <input
-                      type="date"
-                      name="fechaInicio"
-                      className="w-full px-3 py-2 border rounded-md"
-                      value={nuevaOferta.fechaInicio}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Fin
-                    </label>
-                    <input
-                      type="date"
-                      name="fechaFin"
-                      className="w-full px-3 py-2 border rounded-md"
-                      value={nuevaOferta.fechaFin}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button
-                  onClick={() => setModalAbierto(false)}
-                  className="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={crearOferta}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 flex items-center gap-2"
-                >
-                  Guardar Oferta
-                </button>
-              </div>
-            </div>
+      {/* Filtros */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Búsqueda */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Search className="inline mr-2" size={16} />
+              Buscar producto
+            </label>
+            <input
+              type="text"
+              placeholder="Nombre del producto..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
           </div>
-        </div>
-      )}
 
-      <div className="w-full mx-auto">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            Administración de Ofertas
-          </h1>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setModalAbierto(true)}
-              className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"
+          {/* Filtro por categoría */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Filter className="inline mr-2" size={16} />
+              Categoría
+            </label>
+            <select
+              value={filtroCategoria}
+              onChange={(e) => setFiltroCategoria(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Agregar Oferta
-            </button>
-            <Link
-              to="/admin/MenuProductos"
-              className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium"
+              <option value="todas">Todas las categorías</option>
+              {categorias.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filtro por descuento */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Percent className="inline mr-2" size={16} />
+              Descuento
+            </label>
+            <select
+              value={filtroDescuento}
+              onChange={(e) => setFiltroDescuento(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
-              ← Volver
-            </Link>
+              <option value="todos">Todos</option>
+              <option value="sin-oferta">Sin oferta</option>
+              <option value="10">10% OFF</option>
+              <option value="15">15% OFF</option>
+              <option value="20">20% OFF</option>
+            </select>
           </div>
         </div>
 
-        {/* Filtros */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <input
-            type="text"
-            placeholder="Buscar por producto..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            className="border p-2 rounded w-full md:w-1/3"
-          />
-          <select
-            value={filtroCategoria}
-            onChange={(e) => setFiltroCategoria(e.target.value)}
-            className="border p-2 rounded w-full md:w-1/4"
-          >
-            <option value="todas">Todas las categorías</option>
-            {categorias.map((cat, i) => (
-              <option key={i} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
-            className="border p-2 rounded w-full md:w-1/4"
-          >
-            <option value="todos">Todos</option>
-            <option value="activas">Activas</option>
-            <option value="inactivas">Inactivas</option>
-          </select>
-        </div>
-
-        {/* Tabla */}
-        <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
-          <div className="w-full">
-            <table className="w-full divide-y divide-gray-200 table-fixed">
-              <thead className="bg-primary-100">
-                <tr>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-580 uppercase tracking-wider w-16">
-                    Img
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-1/3">
-                    Producto
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-24">
-                    Descuento
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-24">
-                    Categoría
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider w-24">
-                    Vence
-                  </th>
-                  <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-20">
-                    Estado
-                  </th>
-                  <th className="px-3 py-3 text-center text-xs font-medium text-gray-800 uppercase tracking-wider w-40">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {itemsActuales.length > 0 ? (
-                  itemsActuales.map((oferta) => (
-                    <tr
-                      key={oferta.idOferta}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-3 py-3 whitespace-nowrap">
-                        <img
-                          className="h-10 w-10 rounded-md object-cover border"
-                          src={oferta.img}
-                          alt="Prod"
-                          onError={(e) =>
-                            (e.target.src = "https://via.placeholder.com/40")
-                          }
-                        />
-                      </td>
-                      <td className="px-3 py-3 align-middle">
-                        <div className="text-sm font-medium text-gray-900 whitespace-normal break-words">
-                          {oferta.nombreProducto}
-                        </div>
-                      </td>
-                      <td className="px-3 py-3 whitespace-nowrap align-middle">
-                        <span className="text-sm font-bold text-green-600">
-                          -{oferta.porcentajeDescuento}%
-                        </span>
-                      </td>
-                      <td className="px-3 py-3 whitespace-nowrap align-middle text-sm text-gray-600">
-                        {oferta.categoria}
-                      </td>
-                      <td className="px-3 py-3 whitespace-nowrap align-middle text-sm text-gray-700">
-                        {formatearFechaTabla(oferta.fechaFin)}
-                      </td>
-                      <td className="px-3 py-3 whitespace-nowrap text-center align-middle">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${oferta.esActiva ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
-                        >
-                          {oferta.esActiva ? "Activa" : "Inactiva"}
-                        </span>
-                      </td>
-                      <td className="px-3 py-3 whitespace-nowrap text-right align-middle">
-                        <div className="flex gap-1 justify-end">
-                          {/* BOTÓN EDITAR (Icono solo) */}
-                          {/* BOTÓN EDITAR (Texto) */}
-                          <button
-                            onClick={() => handleEditarOferta(oferta)}
-                            className="px-2 py-1 text-sm font-medium bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors cursor-pointer"
-                            title="Editar Oferta"
-                          >
-                            Editar
-                          </button>
-
-                          {/* BOTÓN TOGGLE (Texto) */}
-                          <button
-                            onClick={() =>
-                              toggleActiva(oferta.idOferta, oferta.esActiva)
-                            }
-                            className={`px-2 py-1 text-sm font-medium text-white rounded-md transition-colors cursor-pointer ${
-                              oferta.esActiva
-                                ? "bg-red-500 hover:bg-red-600"
-                                : "bg-green-500 hover:bg-green-600"
-                            }`}
-                            title={
-                              oferta.esActiva
-                                ? "Desactivar Oferta"
-                                : "Activar Oferta"
-                            }
-                          >
-                            {oferta.esActiva ? "Desactivar" : "Activar"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="7"
-                      className="px-6 py-4 text-center text-gray-500"
-                    >
-                      No se encontraron ofertas.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Paginación */}
-          {ofertasFiltradas.length > 0 && (
-            <div className="flex justify-center py-6 bg-white border-t border-gray-200">
-              <nav className="flex items-center gap-1">
-                <button
-                  onClick={() => cambiarPagina(Math.max(1, paginaActual - 1))}
-                  disabled={paginaActual === 1}
-                  className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                >
-                  &lt;
-                </button>
-                {getPaginationNumbers().map((number, index) => (
-                  <button
-                    key={index}
-                    onClick={() =>
-                      typeof number === "number" ? cambiarPagina(number) : null
-                    }
-                    disabled={typeof number !== "number"}
-                    className={`w-9 h-9 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${number === paginaActual ? "bg-blue-500 text-white" : typeof number === "number" ? "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50" : "bg-white text-gray-400 cursor-default"}`}
-                  >
-                    {number}
-                  </button>
-                ))}
-                <button
-                  onClick={() =>
-                    cambiarPagina(Math.min(totalPaginas, paginaActual + 1))
-                  }
-                  disabled={paginaActual === totalPaginas}
-                  className={`w-9 h-9 flex items-center justify-center rounded-md text-blue-500 hover:bg-blue-50 transition-colors ${paginaActual === totalPaginas ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                >
-                  &gt;
-                </button>
-              </nav>
-            </div>
-          )}
+        <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
+          <span>
+            Mostrando {productosPaginados.length} de {totalProductos} productos
+          </span>
+          <span>
+            {
+              productosFiltrados.filter(
+                (p) => p.enOferta && p.porcentajeDescuento > 0,
+              ).length
+            }{" "}
+            productos con oferta activa
+          </span>
         </div>
       </div>
+
+      {/* Tabla de productos */}
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Producto
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Categoría
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Precio Regular
+              </th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Oferta
+              </th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {productosPaginados.map((producto) => {
+              const tieneOferta =
+                producto.enOferta && producto.porcentajeDescuento > 0;
+              const precioConDescuento = tieneOferta
+                ? producto.precioRegular *
+                  (1 - producto.porcentajeDescuento / 100)
+                : producto.precioRegular;
+              const enCampana = estaEnCampana(producto.idProducto);
+
+              return (
+                <tr key={producto.idProducto} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={getProductoImageUrl(producto)}
+                        alt={producto.nombreProducto}
+                        className="w-12 h-12 rounded-lg object-cover"
+                      />
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {producto.nombreProducto}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Stock: {producto.stock}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700">
+                    {producto.categoria}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col">
+                      {tieneOferta && (
+                        <span className="text-sm text-gray-400 line-through">
+                          {formatearPrecio(producto.precioRegular)}
+                        </span>
+                      )}
+                      <span
+                        className={`font-bold ${tieneOferta ? "text-red-600" : "text-gray-900"}`}
+                      >
+                        {formatearPrecio(precioConDescuento)}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <div className="flex flex-col items-center gap-1">
+                      {enCampana && (
+                        <span className="inline-flex items-center px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs font-semibold">
+                          En Campaña
+                        </span>
+                      )}
+                      {tieneOferta ? (
+                        <span className="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-bold">
+                          <Percent size={14} className="mr-1" />
+                          {producto.porcentajeDescuento}% OFF
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm">
+                          Sin oferta
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center gap-2">
+                      {enCampana ? (
+                        <span className="text-xs text-purple-600 font-medium">
+                          Producto en campaña
+                        </span>
+                      ) : tieneOferta ? (
+                        <>
+                          <button
+                            onClick={() => handleEstablecerDescuento(producto)}
+                            className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors"
+                          >
+                            Cambiar %
+                          </button>
+                          <button
+                            onClick={() => handleCambiarOferta(producto, false)}
+                            className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+                          >
+                            <XCircle size={16} />
+                            Quitar
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => handleEstablecerDescuento(producto)}
+                          className="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+                        >
+                          <CheckCircle size={16} />
+                          Activar Oferta
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        {productosPaginados.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            <Tag size={48} className="mx-auto mb-3 opacity-50" />
+            <p className="text-lg font-medium">No se encontraron productos</p>
+            <p className="text-sm">Intenta ajustar los filtros</p>
+          </div>
+        )}
+      </div>
+
+      {/* Paginación */}
+      {totalPaginas > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <button
+            onClick={() => setPaginaActual(paginaActual - 1)}
+            disabled={paginaActual === 1}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft size={20} />
+            Anterior
+          </button>
+
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(
+              (pagina) => (
+                <button
+                  key={pagina}
+                  onClick={() => setPaginaActual(pagina)}
+                  className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+                    pagina === paginaActual
+                      ? "bg-green-600 text-white"
+                      : "bg-white border border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  {pagina}
+                </button>
+              ),
+            )}
+          </div>
+
+          <button
+            onClick={() => setPaginaActual(paginaActual + 1)}
+            disabled={paginaActual === totalPaginas}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Siguiente
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

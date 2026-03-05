@@ -5,6 +5,7 @@ export * from "./pages";
 
 // Components
 export * from "./components/audit";
+export * from "./components/campaigns";
 export * from "./components/coupons";
 export * from "./components/customers";
 export * from "./components/dashboard";

@@ -1,4 +1,4 @@
-import { NavbarAdmin } from "@features/admin/layout";
+
 import { Outlet } from "react-router-dom";
 
 const PanelMedicos = () => {

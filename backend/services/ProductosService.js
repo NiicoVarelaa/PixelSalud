@@ -6,11 +6,12 @@ const {
 } = require("../errors");
 
 const obtenerProductos = async () => {
-  return await productosRepository.findAllWithOfertas();
+  return await productosRepository.findAllWithOfertasAndImages();
 };
 
 const obtenerProductoPorId = async (idProducto) => {
-  const producto = await productosRepository.findByIdWithOfertas(idProducto);
+  const producto =
+    await productosRepository.findByIdWithOfertasAndImages(idProducto);
 
   if (!producto) {
     throw createNotFoundError("Producto no encontrado");

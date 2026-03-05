@@ -15,7 +15,7 @@ const cors = require("cors");
 
 const routesProductos = require("./routes/ProductosRoutes");
 const routesImagenesProductos = require("./routes/ImagenesProductosRoutes");
-const routesOfertas = require("./routes/OfertasRoutes");
+// REMOVED: const routesOfertas = require("./routes/OfertasRoutes"); // DEPRECATED - usar Campañas
 const routesCampanas = require("./routes/CampanasRoutes");
 const routesCarrito = require("./routes/CarritoRoutes");
 const routesClientes = require("./routes/ClientesRoutes");
@@ -79,7 +79,7 @@ app.get("/", (req, res) => {
 // TODO: Cuando refactoricemos el frontend, agregar prefijo /api
 app.use("/", routesProductos);
 app.use("/", routesImagenesProductos);
-app.use("/ofertas", routesOfertas);
+// REMOVED: app.use("/ofertas", routesOfertas); // DEPRECATED - usar Campañas
 app.use("/campanas", routesCampanas);
 app.use("/", routesCarrito);
 app.use("/", routesOnlines);
