@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { TicketVenta } from "@components/shared";
+import Default from "@assets/default.webp";
 
 const MisCompras = () => {
   const { user, token } = useAuthStore();
@@ -277,6 +278,7 @@ const MisCompras = () => {
                                   src={prod.img}
                                   alt=""
                                   className="w-full h-full object-cover"
+                                  onError={(e) => (e.target.src = Default)}
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-slate-300">

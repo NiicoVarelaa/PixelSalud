@@ -17,7 +17,7 @@ const findByClienteWithProducts = async (idCliente) => {
       p.idProducto, 
       p.nombreProducto, 
       p.precio AS precioRegular,
-      p.img,
+      COALESCE(imgPrincipal.urlImagen, p.img) as img,
       p.stock,
       p.activo,
       o.porcentajeDescuento,
@@ -33,6 +33,11 @@ const findByClienteWithProducts = async (idCliente) => {
       END AS enOferta
     FROM Carrito c
     JOIN Productos p ON c.idProducto = p.idProducto
+    LEFT JOIN (
+      SELECT idProducto, urlImagen 
+      FROM ImagenesProductos 
+      WHERE esPrincipal = TRUE
+    ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
     LEFT JOIN Ofertas o ON p.idProducto = o.idProducto
       AND o.esActiva = 1 
       AND NOW() BETWEEN o.fechaInicio AND o.fechaFin 
@@ -140,4 +145,3 @@ module.exports = {
   countByCliente,
   getTotalItems,
 };
-

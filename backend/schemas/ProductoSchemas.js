@@ -43,7 +43,9 @@ const createProductoSchema = z.object({
 
   img: z
     .string()
-    .url("La imagen debe ser una URL válida")
+    .refine((val) => !val || z.string().url().safeParse(val).success, {
+      message: "La imagen debe ser una URL válida",
+    })
     .optional()
     .nullable(),
 
@@ -96,7 +98,9 @@ const updateProductoSchema = z
 
     img: z
       .string()
-      .url("La imagen debe ser una URL válida")
+      .refine((val) => !val || z.string().url().safeParse(val).success, {
+        message: "La imagen debe ser una URL válida",
+      })
       .optional()
       .nullable(),
 

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import apiClient from "@utils/apiClient";
 import { toast } from "react-toastify";
+import { PageHeader } from "@features/admin/components/shared";
 
 const AdminAuditoria = () => {
   // Estado para las auditorías
@@ -132,15 +133,10 @@ const AdminAuditoria = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Shield className="w-8 h-8 text-primary-600" />
-            <h1 className="text-3xl font-bold text-gray-900">
-              Auditoría del Sistema
-            </h1>
-          </div>
-          <p className="text-gray-600">
-            Registro completo de todas las acciones críticas del sistema
-          </p>
+          <PageHeader
+            title="Auditoría del Sistema"
+            description="Registro completo de todas las acciones críticas del sistema"
+          />
         </div>
 
         {/* Filtros */}

@@ -3,6 +3,7 @@ import apiClient from "@utils/apiClient"; // Usamos tu cliente configurado
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuthStore } from "@store/useAuthStore";
+import { PageHeader } from "@features/admin/components/shared";
 
 const AdminMedicos = () => {
   const { token } = useAuthStore();
@@ -318,9 +319,10 @@ const AdminMedicos = () => {
 
       <div className="w-full mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            Administración de Médicos
-          </h1>
+          <PageHeader
+            title="Administración de Médicos"
+            description="Gestiona los médicos autorizados para prescripciones"
+          />
           <button
             onClick={() => {
               setEditandoId(null);
@@ -333,7 +335,7 @@ const AdminMedicos = () => {
               });
               setIsModalOpen(true);
             }}
-            className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"
+            className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer shrink-0"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { TicketVenta } from "@components/shared";
+import { PageHeader } from "@features/admin/components/shared";
 
 // --- REDUCER ---
 const ventaReducer = (state, action) => {
@@ -664,16 +665,11 @@ const AdminVentasE = () => {
       {isModalOpen && renderModalRegistro()}
       <div className="w-full mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <ShoppingBag className="text-primary-600" size={32} /> Ventas
-              Empleados
-            </h1>
-            <p className="text-gray-500 mt-1 text-sm">
-              Gestiona y registra las ventas del local.
-            </p>
-          </div>
-          <div className="flex gap-3">
+          <PageHeader
+            title="Ventas Empleados"
+            description="Gestiona y registra las ventas del local"
+          />
+          <div className="flex gap-3 shrink-0">
             <button
               onClick={abrirModalRegistro}
               className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg transition shadow-md font-medium cursor-pointer"

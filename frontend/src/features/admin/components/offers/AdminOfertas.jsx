@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Default from "@assets/default.webp";
+import { PageHeader } from "@features/admin/components/shared";
 
 const AdminOfertas = () => {
   const { productos, fetchProducts } = useProductStore();
@@ -223,14 +224,11 @@ const AdminOfertas = () => {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-          <Tag className="text-green-600" size={32} />
-          Gestión de Ofertas Individuales
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Activa o desactiva ofertas en productos individuales (10%, 15%, 20%)
-        </p>
-        <p className="text-sm text-purple-600 mt-1 font-medium">
+        <PageHeader
+          title="Gestión de Ofertas Individuales"
+          description="Activa o desactiva ofertas en productos individuales (10%, 15%, 20%)"
+        />
+        <p className="text-sm text-purple-600 mt-2 font-medium">
           ⚠️ No se pueden aplicar ofertas individuales a productos que están en
           campañas activas
         </p>

@@ -22,6 +22,7 @@ import {
   Tag,
   Settings,
 } from "lucide-react";
+import { PageHeader } from "@features/admin/components/shared";
 
 const AdminReportes = () => {
   // Estados para filtros
@@ -282,19 +283,20 @@ const AdminReportes = () => {
       >
         <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl flex-shrink-0">
+            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl shrink-0">
               <FileText
                 className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-lg"
                 aria-hidden="true"
               />
             </div>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight drop-shadow-md">
-                Reportes y Análisis
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight">
+                Reportes y Estadísticas
               </h1>
-              <p className="text-sm sm:text-base text-white/90 mt-1 sm:mt-2 font-medium drop-shadow">
-                Genera informes exportables en Excel con análisis detallados de
-                ventas y productos
+              <p className="text-sm sm:text-base text-green-100 leading-relaxed">
+                Exporta reportes de ventas y productos en formato Excel. Genera
+                informes exportables en Excel con análisis detallados de ventas
+                y productos.
               </p>
             </div>
           </div>
@@ -693,7 +695,7 @@ const AdminReportes = () => {
         >
           <div className="flex items-start gap-3 sm:gap-4">
             <FileText
-              className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 flex-shrink-0 mt-0.5"
+              className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 shrink-0 mt-0.5"
               aria-hidden="true"
             />
             <div className="flex-1 min-w-0">

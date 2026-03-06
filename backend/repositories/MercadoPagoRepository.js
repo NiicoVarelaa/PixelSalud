@@ -166,10 +166,15 @@ const getUserOrders = async (idCliente) => {
       dvo.cantidad,
       dvo.precioUnitario,
       p.nombreProducto,
-      p.img
+      COALESCE(imgPrincipal.urlImagen, p.img) as img
     FROM VentasOnlines vo
     INNER JOIN DetalleVentaOnline dvo ON vo.idVentaO = dvo.idVentaO
     INNER JOIN Productos p ON dvo.idProducto = p.idProducto
+    LEFT JOIN (
+      SELECT idProducto, urlImagen 
+      FROM ImagenesProductos 
+      WHERE esPrincipal = TRUE
+    ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
     WHERE vo.idCliente = ? AND vo.metodoPago = 'Mercado Pago'
     ORDER BY vo.fechaPago DESC, vo.horaPago DESC
   `;
