@@ -29,6 +29,7 @@ import {
   ArrowLeft,
   Users,
 } from "lucide-react";
+import { PageHeader } from "@features/admin/components/shared";
 
 const AdminCampanas = () => {
   // Estados para campañas
@@ -444,13 +445,15 @@ const AdminCampanas = () => {
                   <Tag className="w-8 h-8" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold">Gestión de Campañas</h1>
-                  <p className="text-purple-100 mt-1">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight">
+                    Gestión de Campañas
+                  </h1>
+                  <p className="text-sm sm:text-base text-purple-100 leading-relaxed">
                     Administra campañas de ofertas con múltiples productos
                   </p>
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-3 shrink-0">
                 <button
                   onClick={handleAbrirModal}
                   className="flex items-center gap-2 bg-white text-purple-600 hover:bg-purple-50 px-6 py-3 rounded-xl transition-all shadow-lg font-semibold"

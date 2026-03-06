@@ -109,9 +109,23 @@ const SidebarAdmin = () => {
       ariaLabel: "Ir al panel principal de administración",
     },
     {
+      label: "Ventas",
+      icon: BarChart2,
+      path: "/admin/MenuVentas",
+      badge: null,
+      ariaLabel: "Ver historial de ventas",
+    },
+    {
+      label: "Reportes",
+      icon: FileSpreadsheet,
+      path: "/admin/reportes",
+      badge: null,
+      ariaLabel: "Generar reportes y estadísticas",
+    },
+    {
       label: "Productos",
       icon: Package,
-      path: "/admin/MenuProductos",
+      path: "/admin/productos",
       badge: null,
       ariaLabel: "Gestionar productos del inventario",
     },
@@ -125,7 +139,7 @@ const SidebarAdmin = () => {
     {
       label: "Campañas",
       icon: Megaphone,
-      path: "/admin/MenuProductos/campanas",
+      path: "/admin/campanas",
       badge: null,
       ariaLabel: "Gestionar campañas y promociones",
     },
@@ -144,20 +158,6 @@ const SidebarAdmin = () => {
       ariaLabel: "Gestionar empleados y permisos",
     },
     {
-      label: "Ventas",
-      icon: BarChart2,
-      path: "/admin/MenuVentas",
-      badge: null,
-      ariaLabel: "Ver historial de ventas",
-    },
-    {
-      label: "Reportes",
-      icon: FileSpreadsheet,
-      path: "/admin/reportes",
-      badge: null,
-      ariaLabel: "Generar reportes y estadísticas",
-    },
-    {
       label: "Cupones",
       icon: Ticket,
       path: "/admin/cupones",
@@ -165,18 +165,18 @@ const SidebarAdmin = () => {
       ariaLabel: "Administrar cupones de descuento",
     },
     {
-      label: "Mensajes",
-      icon: MessageSquare,
-      path: "/admin/mensajes",
-      badge: null,
-      ariaLabel: "Ver mensajes",
-    },
-    {
       label: "Auditoría",
       icon: Shield,
       path: "/admin/auditoria",
       badge: null,
       ariaLabel: "Revisar logs de auditoría del sistema",
+    },
+    {
+      label: "Mensajes",
+      icon: MessageSquare,
+      path: "/admin/mensajes",
+      badge: null,
+      ariaLabel: "Ver mensajes",
     },
   ];
 

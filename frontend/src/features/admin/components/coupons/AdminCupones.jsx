@@ -11,6 +11,7 @@ import {
   FiSearch,
   FiFilter,
 } from "react-icons/fi";
+import { PageHeader } from "@features/admin/components/shared";
 
 const AdminCupones = () => {
   const [cupones, setCupones] = useState([]);
@@ -262,18 +263,13 @@ const AdminCupones = () => {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <FiTag className="text-green-600" />
-              Gestión de Cupones
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Administra cupones de descuento y promociones
-            </p>
-          </div>
+          <PageHeader
+            title="Gestión de Cupones"
+            description="Administra cupones de descuento y promociones"
+          />
           <button
             onClick={abrirModal}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer shrink-0"
           >
             <FiPlus />
             Nuevo Cupón

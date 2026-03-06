@@ -8,7 +8,7 @@ const findAllWithOfertas = async () => {
         p.nombreProducto,
         p.descripcion,
         p.precio AS precioRegular,
-        p.img,
+        COALESCE(imgPrincipal.urlImagen, p.img) as img,
         p.categoria,
         p.stock,
         p.activo,
@@ -26,6 +26,11 @@ const findAllWithOfertas = async () => {
         END AS enOferta
     FROM 
         Productos p
+    LEFT JOIN (
+      SELECT idProducto, urlImagen 
+      FROM ImagenesProductos 
+      WHERE esPrincipal = TRUE
+    ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
     LEFT JOIN 
         Ofertas o ON p.idProducto = o.idProducto
         AND o.esActiva = 1 
@@ -44,7 +49,7 @@ const findByIdWithOfertas = async (idProducto) => {
         p.nombreProducto,
         p.descripcion,
         p.precio AS precioRegular,
-        p.img,
+        COALESCE(imgPrincipal.urlImagen, p.img) as img,
         p.categoria,
         p.stock,
         p.activo,
@@ -62,6 +67,11 @@ const findByIdWithOfertas = async (idProducto) => {
         END AS enOferta
     FROM 
         Productos p
+    LEFT JOIN (
+      SELECT idProducto, urlImagen 
+      FROM ImagenesProductos 
+      WHERE esPrincipal = TRUE
+    ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
     LEFT JOIN 
         Ofertas o ON p.idProducto = o.idProducto
         AND o.esActiva = 1 
@@ -95,7 +105,7 @@ const findByCategoriaWithOfertas = async (categoria) => {
         p.nombreProducto,
         p.descripcion,
         p.precio AS precioRegular,
-        p.img,
+        COALESCE(imgPrincipal.urlImagen, p.img) as img,
         p.categoria,
         o.porcentajeDescuento,
         p.precio * (1 - o.porcentajeDescuento / 100) AS precioFinal,
@@ -104,6 +114,11 @@ const findByCategoriaWithOfertas = async (categoria) => {
         Productos p
     INNER JOIN 
         Ofertas o ON p.idProducto = o.idProducto
+    LEFT JOIN (
+      SELECT idProducto, urlImagen 
+      FROM ImagenesProductos 
+      WHERE esPrincipal = TRUE
+    ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
     WHERE 
         p.activo = 1 
         AND p.categoria = ?
@@ -117,11 +132,23 @@ const findByCategoriaWithOfertas = async (categoria) => {
 
 const searchByName = async (term) => {
   const sql = `
-    SELECT idProducto, nombreProducto, precio, img, stock, categoria, requiereReceta 
-    FROM Productos 
-    WHERE LOWER(nombreProducto) LIKE LOWER(?) 
-      AND activo = 1 
-      AND stock > 0
+    SELECT 
+      p.idProducto, 
+      p.nombreProducto, 
+      p.precio, 
+      COALESCE(imgPrincipal.urlImagen, p.img) as img, 
+      p.stock, 
+      p.categoria, 
+      p.requiereReceta 
+    FROM Productos p
+    LEFT JOIN (
+      SELECT idProducto, urlImagen 
+      FROM ImagenesProductos 
+      WHERE esPrincipal = TRUE
+    ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
+    WHERE LOWER(p.nombreProducto) LIKE LOWER(?) 
+      AND p.activo = 1 
+      AND p.stock > 0
     LIMIT 10
   `;
   const [rows] = await pool.query(sql, [`%${term}%`]);
@@ -353,4 +380,3 @@ module.exports = {
   searchByNameWithImages,
   findByCategoriaWithOfertasAndImages,
 };
-

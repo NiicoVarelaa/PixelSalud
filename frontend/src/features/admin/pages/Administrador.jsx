@@ -1,4 +1,4 @@
-import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import { SiderbarAdmin } from "@features/admin/layout";
 import { useEffect } from "react";
 import { useProductStore } from "@store/useProductStore";
@@ -9,7 +9,6 @@ const Administrador = () => {
   const fetchProducts = useProductStore((state) => state.fetchProducts);
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const location = useLocation();
 
   // 3. LLAMAR AL STORE AL MONTAR EL COMPONENTE
   useEffect(() => {
@@ -30,7 +29,7 @@ const Administrador = () => {
       <div className="flex flex-col lg:flex-row h-screen bg-gray-50 overflow-hidden">
         <SiderbarAdmin user={user} />
 
-        <main className="flex-1 overflow-y-auto bg-gray-100 lg:p-6">
+        <main className="flex-1 overflow-y-auto bg-gray-50 lg:p-6">
           <div className="p-4 lg:p-0">
             <Outlet />
           </div>

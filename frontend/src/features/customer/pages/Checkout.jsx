@@ -7,6 +7,7 @@ import { FiShoppingBag, FiArrowLeft, FiTag, FiShield } from "react-icons/fi";
 import { Header } from "@components/organisms";
 import { ChevronRight, Home } from "lucide-react";
 import { CheckoutForm } from "@features/customer/components/checkout";
+import Default from "@assets/default.webp";
 
 // Función de utilidad para formatear precio a ARS (moneda con símbolo)
 const formatPrice = (value) => {
@@ -350,9 +351,10 @@ const Checkout = () => {
                       >
                         <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
                           <img
-                            src={product.img}
+                            src={product.img || Default}
                             alt={product.nombreProducto}
                             className="w-full h-full object-cover"
+                            onError={(e) => (e.target.src = Default)}
                           />
                         </div>
                         <div className="flex-1 min-w-0">

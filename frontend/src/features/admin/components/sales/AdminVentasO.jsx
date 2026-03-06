@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { TicketVenta } from "@components/shared";
+import { PageHeader } from "@features/admin/components/shared";
 
 // --- REDUCER (Igual que en Ventas Empleados) ---
 const ventaReducer = (state, action) => {
@@ -580,17 +581,13 @@ const AdminVentasO = () => {
 
       <div className="w-full mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <Globe className="text-indigo-600" size={32} /> Ventas Online
-            </h1>
-            <p className="text-gray-500 mt-1 text-sm">
-              Gestión de pedidos web y envíos.
-            </p>
-          </div>
+          <PageHeader
+            title="Ventas Online"
+            description="Gestión de pedidos web y envíos"
+          />
           <Link
             to="/admin/MenuVentas"
-            className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium"
+            className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium shrink-0"
           >
             ← Volver
           </Link>

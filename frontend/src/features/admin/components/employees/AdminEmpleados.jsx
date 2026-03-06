@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { useAuthStore } from "@store/useAuthStore";
 import { useNavigate, Link } from "react-router-dom";
 import { Users, UserPlus, Shield, Mail, Search } from "lucide-react";
+import { PageHeader } from "@features/admin/components/shared";
 
 const AdminEmpleados = () => {
   const [empleados, setEmpleados] = useState([]);
@@ -371,16 +372,11 @@ const AdminEmpleados = () => {
 
       <div className="w-full mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <Shield className="text-blue-600" size={32} /> Administración de
-              Empleados
-            </h1>
-            <p className="text-gray-500 mt-1 text-sm">
-              Gestiona el acceso y permisos del personal.
-            </p>
-          </div>
-          <div className="flex gap-3">
+          <PageHeader
+            title="Administración de Empleados"
+            description="Gestiona el acceso y permisos del personal"
+          />
+          <div className="flex gap-3 shrink-0">
             <button
               onClick={handleCrearEmpleado}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"

@@ -43,11 +43,7 @@ import {
   AdministradorPage as Administrador,
   AdminMensajesPage as AdminMensajes,
   AdminMenu,
-  MenuProductos,
-  OpcionesProductos,
   AdminProductos,
-  AdminProductosActivos,
-  AdminProductosBaja,
   AdminOfertas,
   AdminCampanas,
   AdminClientes,
@@ -93,18 +89,13 @@ const App = () => {
           <Route path="registro" element={<Registro />} />
           <Route path="login" element={<Login />} />
           <Route path="recuperarContraseña" element={<RecuperarContrasena />} />
-
           <Route path="reset-password" element={<RestablecerContrasena />} />
 
           <Route path="productos" element={<Productos />} />
           <Route path="productos/:idProducto" element={<Producto />} />
           <Route path="productos/:categoria?" element={<Productos />} />
-
-          {/* Ruta de carrito eliminada - ahora es un modal */}
-          {/* <Route path="carrito" element={<Carrito />} /> */}
           <Route path="checkout" element={<Checkout />} />
           <Route path="checkout/success" element={<CheckoutSuccess />} />
-
           <Route path="sobreNosotros" element={<SobreNosotros />} />
           <Route path="contacto" element={<Contacto />} />
 
@@ -116,27 +107,12 @@ const App = () => {
           </Route>
         </Route>
 
-        {/* ... (RUTAS ADMIN, EMPLEADO Y MÉDICO QUEDAN IGUAL) ... */}
-
         {/* =========================================
             RUTAS ADMINISTRADOR
            ========================================= */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin/*" element={<Administrador />}>
             <Route index element={<AdminMenu />} />
-
-            <Route path="MenuProductos/*" element={<MenuProductos />}>
-              <Route index element={<OpcionesProductos />} />
-              <Route path="productos" element={<AdminProductos />} />
-              {/* DEPRECATED: Usar campanas en su lugar */}
-              {/* <Route path="ofertas" element={<AdminOfertas />} /> */}
-              <Route path="campanas" element={<AdminCampanas />} />
-              <Route
-                path="productosActivos"
-                element={<AdminProductosActivos />}
-              />
-              <Route path="productosBaja" element={<AdminProductosBaja />} />
-            </Route>
 
             <Route path="productos" element={<AdminProductos />} />
             <Route path="ofertas" element={<AdminOfertas />} />
@@ -155,10 +131,6 @@ const App = () => {
               <Route path="VentasE" element={<AdminVentasE />} />
               <Route path="VentasO" element={<AdminVentasO />} />
             </Route>
-
-            {/* <Route path="MenuMedicosAdmin/*" element={<MedicosMenuAdmin />}>
-              <Route index element={<AdminMedicos />} />
-            </Route> */}
 
             <Route path="reportes" element={<AdminReportes />} />
             <Route path="cupones" element={<AdminCupones />} />
@@ -200,9 +172,6 @@ const App = () => {
           </Route>
         </Route>
 
-        {/* =========================================
-            RUTAS MÉDICO
-           ========================================= */}
         <Route element={<ProtectedRoute allowedRoles={["medico"]} />}>
           <Route path="/panelMedico" element={<PanelMedicos />}>
             <Route index element={<VistaMenuMedico />} />

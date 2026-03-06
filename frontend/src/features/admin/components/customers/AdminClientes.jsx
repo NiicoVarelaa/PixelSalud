@@ -12,6 +12,7 @@ import {
   CheckCircle,
   Search,
 } from "lucide-react";
+import { PageHeader } from "@features/admin/components/shared";
 
 const AdminClientes = () => {
   const [clientes, setClientes] = useState([]);
@@ -300,17 +301,12 @@ const AdminClientes = () => {
       <div className="w-full mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <Users className="text-green-600" size={32} /> Administración de
-              Clientes
-            </h1>
-            <p className="text-gray-500 mt-1 text-sm">
-              Gestiona los usuarios registrados en la farmacia.
-            </p>
-          </div>
+          <PageHeader
+            title="Administración de Clientes"
+            description="Gestiona los usuarios registrados en la farmacia"
+          />
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 shrink-0">
             <button
               onClick={handleCrearCliente}
               className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"

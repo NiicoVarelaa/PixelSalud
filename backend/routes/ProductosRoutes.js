@@ -77,6 +77,9 @@ router.put(
 router.put(
   "/productos/actualizar/activo/:idProducto",
   mutationLimiter,
+  auth,
+  verificarRol(["admin", "empleado"]),
+  verificarPermisos("modificar_productos"),
   validate({
     params: idProductoParamSchema,
     body: updateActivoSchema,

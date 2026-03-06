@@ -93,15 +93,21 @@ const getProductosMasVendidos = async (limite = 5) => {
         p.nombreProducto,
         p.img,
         p.precio,
+        COALESCE(imgPrincipal.urlImagen, p.img) as imagenPrincipal,
         COALESCE(SUM(dvo.cantidad), 0) + COALESCE(SUM(dve.cantidad), 0) as totalVendido,
         COALESCE(SUM(dvo.cantidad * dvo.precioUnitario), 0) + COALESCE(SUM(dve.cantidad * dve.precioUnitario), 0) as ingresoTotal
       FROM Productos p
+      LEFT JOIN (
+        SELECT idProducto, urlImagen 
+        FROM ImagenesProductos 
+        WHERE esPrincipal = TRUE
+      ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
       LEFT JOIN DetalleVentaOnline dvo ON p.idProducto = dvo.idProducto
       LEFT JOIN VentasOnlines vo ON dvo.idVentaO = vo.idVentaO AND vo.estado = 'retirado'
       LEFT JOIN DetalleVentaEmpleado dve ON p.idProducto = dve.idProducto
       LEFT JOIN VentasEmpleados ve ON dve.idVentaE = ve.idVentaE AND ve.estado = 'completada'
       WHERE p.activo = TRUE
-      GROUP BY p.idProducto, p.nombreProducto, p.img, p.precio
+      GROUP BY p.idProducto, p.nombreProducto, p.img, p.precio, imgPrincipal.urlImagen
       HAVING totalVendido > 0
       ORDER BY totalVendido DESC
       LIMIT ?`,
@@ -111,7 +117,7 @@ const getProductosMasVendidos = async (limite = 5) => {
   return productos.map((producto) => ({
     idProducto: producto.idProducto,
     nombre: producto.nombreProducto,
-    imagen: producto.img,
+    imagen: producto.imagenPrincipal,
     precio: parseFloat(producto.precio),
     cantidadVendida: parseInt(producto.totalVendido),
     ingresoTotal: parseFloat(producto.ingresoTotal),
