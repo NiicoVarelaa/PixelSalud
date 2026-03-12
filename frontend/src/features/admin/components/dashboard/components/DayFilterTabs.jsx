@@ -25,7 +25,7 @@ const DayFilterTabs = ({ activeTab, onTabChange }) => {
               aria-selected={isActive}
               onClick={() => onTabChange(tab.value)}
               className={`
-                relative flex-1 py-2.5 px-4 rounded-lg text-sm font-bold
+                relative flex-1 py-2 px-4 rounded-lg text-sm font-bold
                 transition-all duration-200 outline-none cursor-pointer
                 focus-visible:ring-2 focus-visible:ring-orange-600
                 ${isActive ? "text-white" : "text-gray-600 hover:bg-orange-100 hover:text-gray-700"}

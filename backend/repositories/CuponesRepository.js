@@ -203,9 +203,24 @@ const registrarUso = async (usoData) => {
 
 const obtenerHistorialCliente = async (idCliente) => {
   const query = `
-    SELECT * FROM CuponesUsadosDetalle
-    WHERE idCliente = ?
-    ORDER BY fechaUso DESC
+    SELECT 
+      cu.idUso,
+      cu.idCupon,
+      cu.idCliente,
+      cu.idVentaO,
+      cu.montoDescuento,
+      cu.montoOriginal,
+      cu.montoFinal,
+      cu.fechaUso,
+      c.codigo,
+      c.descripcion,
+      CONCAT(cl.nombreCliente, ' ', cl.apellidoCliente) AS nombreCliente,
+      cl.emailCliente
+    FROM CuponesUsados cu
+    INNER JOIN Cupones c ON cu.idCupon = c.idCupon
+    INNER JOIN Clientes cl ON cu.idCliente = cl.idCliente
+    WHERE cu.idCliente = ?
+    ORDER BY cu.fechaUso DESC
   `;
 
   const [rows] = await pool.query(query, [idCliente]);
@@ -214,8 +229,23 @@ const obtenerHistorialCliente = async (idCliente) => {
 
 const obtenerTodoHistorial = async () => {
   const query = `
-    SELECT * FROM CuponesUsadosDetalle
-    ORDER BY fechaUso DESC
+    SELECT 
+      cu.idUso,
+      cu.idCupon,
+      cu.idCliente,
+      cu.idVentaO,
+      cu.montoDescuento,
+      cu.montoOriginal,
+      cu.montoFinal,
+      cu.fechaUso,
+      c.codigo,
+      c.descripcion,
+      CONCAT(cl.nombreCliente, ' ', cl.apellidoCliente) AS nombreCliente,
+      cl.emailCliente
+    FROM CuponesUsados cu
+    INNER JOIN Cupones c ON cu.idCupon = c.idCupon
+    INNER JOIN Clientes cl ON cu.idCliente = cl.idCliente
+    ORDER BY cu.fechaUso DESC
   `;
 
   const [rows] = await pool.query(query);

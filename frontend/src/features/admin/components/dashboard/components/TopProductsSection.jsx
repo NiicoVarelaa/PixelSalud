@@ -16,19 +16,19 @@ const containerVariant = {
 
 const TopProductsSection = ({ productos, loading }) => {
   return (
-    <section className="space-y-3" aria-labelledby="top-products-heading">
+    <section className="space-y-2" aria-labelledby="top-products-heading">
       <div className="flex items-center justify-between">
         <h2
           id="top-products-heading"
-          className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight"
+          className="text-lg sm:text-xl font-extrabold text-gray-900 tracking-tight"
         >
           Productos Más Vendidos
         </h2>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3 sm:p-4">
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
             {[...Array(5)].map((_, index) => (
               <div
                 key={index}
@@ -60,7 +60,7 @@ const TopProductsSection = ({ productos, loading }) => {
             variants={containerVariant}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3"
           >
             {productos.map((producto, index) => (
               <ProductCard

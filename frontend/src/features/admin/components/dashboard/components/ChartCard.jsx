@@ -163,7 +163,7 @@ const ChartCard = ({
 
       {loading ? (
         <div
-          className="h-48 sm:h-52 lg:h-56 flex items-center justify-center bg-gray-50 rounded-xl"
+          className="h-32 sm:h-36 lg:h-40 flex items-center justify-center bg-gray-50 rounded-xl"
           aria-live="polite"
         >
           <div className="flex flex-col items-center gap-3">
@@ -177,7 +177,7 @@ const ChartCard = ({
         </div>
       ) : data.length === 0 ? (
         <div
-          className="h-48 sm:h-52 lg:h-56 flex items-center justify-center bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200"
+          className="h-32 sm:h-36 lg:h-40 flex items-center justify-center bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200"
           role="status"
         >
           <div className="flex flex-col items-center gap-3 px-4 text-center">
@@ -193,7 +193,7 @@ const ChartCard = ({
           </div>
         </div>
       ) : (
-        <div className="h-48 sm:h-52 lg:h-56 w-full">{renderChart()}</div>
+        <div className="h-32 sm:h-36 lg:h-40 w-full">{renderChart()}</div>
       )}
     </article>
   );
