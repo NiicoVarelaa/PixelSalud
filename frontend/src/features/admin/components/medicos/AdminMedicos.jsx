@@ -3,7 +3,7 @@ import apiClient from "@utils/apiClient"; // Usamos tu cliente configurado
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuthStore } from "@store/useAuthStore";
-import { PageHeader } from "@features/admin/components/shared";
+import { AdminLayout } from "@features/admin/components/shared";
 
 const AdminMedicos = () => {
   const { token } = useAuthStore();
@@ -312,17 +312,12 @@ const AdminMedicos = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
-      <ToastContainer position="top-right" autoClose={3000} />
-
-      {isModalOpen && renderMedicoModal()}
-
-      <div className="w-full mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <PageHeader
-            title="Administración de Médicos"
-            description="Gestiona los médicos autorizados para prescripciones"
-          />
+    <AdminLayout
+      title="Administración de Médicos"
+      description="Gestiona los médicos autorizados para prescripciones"
+      headerAction={
+        <>
+          <ToastContainer position="top-right" autoClose={3000} />
           <button
             onClick={() => {
               setEditandoId(null);
@@ -351,155 +346,154 @@ const AdminMedicos = () => {
             </svg>
             Registrar Médico
           </button>
-        </div>
+        </>
+      }
+    >
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Buscar por nombre, matrícula o email..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className="border p-2 rounded w-full md:w-1/2"
+        />
 
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <input
-            type="text"
-            placeholder="Buscar por nombre, matrícula o email..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            className="border p-2 rounded w-full md:w-1/2"
-          />
+        <select
+          value={filtroEstado}
+          onChange={(e) => setFiltroEstado(e.target.value)}
+          className="border p-2 rounded w-full md:w-1/4"
+        >
+          <option value="todos">Todos los estados</option>
+          <option value="activos">Activos</option>
+          <option value="inactivos">Inactivos</option>
+        </select>
+      </div>
 
-          <select
-            value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
-            className="border p-2 rounded w-full md:w-1/4"
-          >
-            <option value="todos">Todos los estados</option>
-            <option value="activos">Activos</option>
-            <option value="inactivos">Inactivos</option>
-          </select>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full divide-y divide-gray-200">
-              <thead className="bg-primary-100">
-                <tr>
-                  {[
-                    "Nombre",
-                    "Apellido",
-                    "Matrícula",
-                    "Email",
-                    "Estado",
-                    "Acciones",
-                  ].map((title, i) => (
-                    <th
-                      key={i}
-                      className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${title === "Acciones" ? "text-right" : ""}`}
-                    >
-                      {title}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {medicosFiltrados.length > 0 ? (
-                  medicosFiltrados.map((med) => {
-                    const isActive =
-                      med.activo === 0
-                        ? false
-                        : med.activo === 1
+      <div className="bg-white rounded-xl shadow-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full divide-y divide-gray-200">
+            <thead className="bg-primary-100">
+              <tr>
+                {[
+                  "Nombre",
+                  "Apellido",
+                  "Matrícula",
+                  "Email",
+                  "Estado",
+                  "Acciones",
+                ].map((title, i) => (
+                  <th
+                    key={i}
+                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${title === "Acciones" ? "text-right" : ""}`}
+                  >
+                    {title}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {medicosFiltrados.length > 0 ? (
+                medicosFiltrados.map((med) => {
+                  const isActive =
+                    med.activo === 0
+                      ? false
+                      : med.activo === 1
+                        ? true
+                        : med.activo === undefined
                           ? true
-                          : med.activo === undefined
-                            ? true
-                            : med.activo;
+                          : med.activo;
 
-                    return (
-                      <tr key={med.idMedico} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {med.nombreMedico}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {med.apellidoMedico || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {med.matricula}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {med.emailMedico}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                  return (
+                    <tr key={med.idMedico} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {med.nombreMedico}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {med.apellidoMedico || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {med.matricula}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {med.emailMedico}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                        >
+                          {isActive ? "Activo" : "Inactivo"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            onClick={() => iniciarEdicion(med)}
+                            className="bg-secondary-500 hover:bg-secondary-600 text-white px-3 py-1 rounded-md text-xs transition-colors flex items-center gap-1"
                           >
-                            {isActive ? "Activo" : "Inactivo"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <div className="flex gap-2 justify-end">
-                            <button
-                              onClick={() => iniciarEdicion(med)}
-                              className="bg-secondary-500 hover:bg-secondary-600 text-white px-3 py-1 rounded-md text-xs transition-colors flex items-center gap-1"
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-3 w-3"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
                             >
+                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => toggleActivo(med.idMedico, isActive)}
+                            className={`px-3 py-1 text-white rounded hover:opacity-90 text-xs flex items-center gap-1 ${isActive ? "bg-yellow-500 hover:bg-yellow-600" : "bg-green-500 hover:bg-green-600"}`}
+                          >
+                            {isActive ? (
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="h-3 w-3"
                                 viewBox="0 0 20 20"
                                 fill="currentColor"
                               >
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                  clipRule="evenodd"
+                                />
                               </svg>
-                              Editar
-                            </button>
-                            <button
-                              onClick={() =>
-                                toggleActivo(med.idMedico, isActive)
-                              }
-                              className={`px-3 py-1 text-white rounded hover:opacity-90 text-xs flex items-center gap-1 ${isActive ? "bg-yellow-500 hover:bg-yellow-600" : "bg-green-500 hover:bg-green-600"}`}
-                            >
-                              {isActive ? (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-3 w-3"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              ) : (
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-3 w-3"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              )}
-                              {isActive ? "Desactivar" : "Activar"}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="6"
-                      className="px-6 py-4 text-center text-gray-500"
-                    >
-                      No se encontraron médicos registrados.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                            ) : (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-3 w-3"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            )}
+                            {isActive ? "Desactivar" : "Activar"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="px-6 py-4 text-center text-gray-500"
+                  >
+                    No se encontraron médicos registrados.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
-    </div>
+      {isModalOpen && renderMedicoModal()}
+    </AdminLayout>
   );
 };
 

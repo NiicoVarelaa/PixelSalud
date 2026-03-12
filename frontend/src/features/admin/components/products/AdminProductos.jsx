@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { PageHeader } from "@features/admin/components/shared";
+import { AdminLayout } from "@features/admin/components/shared";
 import ProductFilters from "./components/ProductFilters";
 import Pagination from "./components/Pagination";
 import ProductCard from "./components/ProductCard";
@@ -220,73 +220,64 @@ const AdminProductos = () => {
   // ==================== RENDER CON LAYOUT CORREGIDO ====================
 
   return (
-    // 1. Cambiamos h-screen por flex-1 h-full min-h-0
-    <div className="flex-1 h-full min-h-0 bg-gray-50 p-3 w-full flex flex-col">
+    <AdminLayout
+      title="Gestión de Productos"
+      description={`${productosFiltrados.length} producto${productosFiltrados.length !== 1 ? "s" : ""} encontrado${productosFiltrados.length !== 1 ? "s" : ""}`}
+    >
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
 
-      {/* 2. Añadimos min-h-0 al contenedor principal */}
-      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col min-h-0">
-        {/* HEADER */}
-        <PageHeader
-          title="Gestión de Productos"
-          description={`${productosFiltrados.length} producto${productosFiltrados.length !== 1 ? "s" : ""} encontrado${productosFiltrados.length !== 1 ? "s" : ""}`}
+      {/* FILTROS */}
+      <div className="mb-2 shrink-0">
+        <ProductFilters
+          busqueda={busqueda}
+          onBusquedaChange={handleBusquedaChange}
+          filtroCategoria={filtroCategoria}
+          onCategoriaChange={handleCategoriaChange}
+          filtroEstado={filtroEstado}
+          onEstadoChange={handleEstadoChange}
+          categorias={categoriasPermitidas}
+          onAddProduct={openCreateModal}
         />
+      </div>
 
-        {/* FILTROS */}
-        <div className="mb-2 shrink-0">
-          <ProductFilters
-            busqueda={busqueda}
-            onBusquedaChange={handleBusquedaChange}
-            filtroCategoria={filtroCategoria}
-            onCategoriaChange={handleCategoriaChange}
-            filtroEstado={filtroEstado}
-            onEstadoChange={handleEstadoChange}
-            categorias={categoriasPermitidas}
-            onAddProduct={openCreateModal}
+      {/* TABLA DE PRODUCTOS */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        {!isMobile ? (
+          <ProductTable
+            products={paginatedItems}
+            onEdit={handleEditarProducto}
+            onToggleActive={handleToggleActiva}
+            formatPrice={formatPrice}
           />
-        </div>
-
-        {/* TABLA DE PRODUCTOS */}
-        {/* 3. El min-h-0 aquí es vital para que flex-1 con overflow funcione sin expandir la pantalla */}
-        <div className="flex-1 overflow-y-auto min-h-0">
-          {!isMobile ? (
-            <ProductTable
-              products={paginatedItems}
-              onEdit={handleEditarProducto}
-              onToggleActive={handleToggleActiva}
-              formatPrice={formatPrice}
-            />
-          ) : (
-            <div className="space-y-2.5">
-              {paginatedItems.length > 0 ? (
-                paginatedItems.map((prod) => (
-                  <ProductCard
-                    key={prod.idProducto}
-                    product={prod}
-                    onEdit={handleEditarProducto}
-                    onToggleActive={handleToggleActiva}
-                    formatPrice={formatPrice}
-                  />
-                ))
-              ) : (
-                <EmptyState />
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* PAGINACIÓN */}
-        {/* 4. Al dejarla fuera del contenedor que scrollea, siempre quedará abajo de todo */}
-        {productosFiltrados.length > 0 && (
-          <div className="mt-3 shrink-0">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={goToPage}
-            />
+        ) : (
+          <div className="space-y-2.5">
+            {paginatedItems.length > 0 ? (
+              paginatedItems.map((prod) => (
+                <ProductCard
+                  key={prod.idProducto}
+                  product={prod}
+                  onEdit={handleEditarProducto}
+                  onToggleActive={handleToggleActiva}
+                  formatPrice={formatPrice}
+                />
+              ))
+            ) : (
+              <EmptyState />
+            )}
           </div>
         )}
       </div>
+
+      {/* PAGINACIÓN */}
+      {productosFiltrados.length > 0 && (
+        <div className="mt-3 shrink-0">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+          />
+        </div>
+      )}
 
       {/* Modales */}
       <CreateProductModal
@@ -320,7 +311,7 @@ const AdminProductos = () => {
         product={toggleProduct}
         onConfirm={handleConfirmToggle}
       />
-    </div>
+    </AdminLayout>
   );
 };
 

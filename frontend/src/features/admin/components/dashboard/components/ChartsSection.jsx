@@ -5,15 +5,15 @@ import { tooltipStyle } from "../utils/dashboardUtils";
 const ChartsSection = ({ ventasData, productosData, loading, currentTab }) => {
   return (
     <section aria-labelledby="charts-heading">
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-4 sm:p-5">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-3 sm:p-4">
         <h2
           id="charts-heading"
-          className="text-base sm:text-lg font-bold text-gray-900 mb-3"
+          className="text-base sm:text-lg font-bold text-gray-900 mb-2"
         >
           Análisis de Ventas
         </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           <ChartCard
             title="Ventas Diarias"
             subtitle="Total de ventas por día"

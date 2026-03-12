@@ -46,15 +46,15 @@ const MetricsSection = ({ data, loading }) => {
 
   return (
     <section aria-labelledby="metrics-heading">
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-4 sm:p-5">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-md p-3 sm:p-4">
         <h2
           id="metrics-heading"
-          className="text-base sm:text-lg font-bold text-gray-900 mb-3"
+          className="text-base sm:text-lg font-bold text-gray-900 mb-2"
         >
           Métricas Principales
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           <MetricCard
             title="Ventas Hoy"
             value={formatCurrency(data.ventasHoy.total)}
