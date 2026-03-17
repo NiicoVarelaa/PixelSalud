@@ -1,11 +1,14 @@
 import axios from "axios";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 export async function marcarRecetaUsada(idReceta, token) {
   try {
     await axios.put(
-      `http://localhost:5000/recetas/usada/${idReceta}`,
+      `${API_BASE_URL}/recetas/usada/${idReceta}`,
       {},
-      { headers: { Auth: `Bearer ${token}` } }
+      { headers: { Auth: `Bearer ${token}` } },
     );
     return true;
   } catch (err) {

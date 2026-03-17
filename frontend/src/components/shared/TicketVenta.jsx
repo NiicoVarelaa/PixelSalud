@@ -1,278 +1,139 @@
-import { useState, useEffect, useRef } from "react";
-import { X, Printer, Download } from "lucide-react";
-import apiClient from "@utils/apiClient";
+import { useRef } from "react";
+import { X, Printer, AlertCircle, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import TicketPreview from "./TicketPreview";
+import { useTicket } from "@hooks/useTicket";
+import { useModalLock } from "@hooks/useModalLock";
 
 const TicketVenta = ({ idVenta, tipo, onClose, show }) => {
-  const [ticket, setTicket] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const ticketRef = useRef();
-
-  useEffect(() => {
-    if (show && idVenta) {
-      cargarTicket();
-    }
-  }, [show, idVenta, tipo]);
-
-  const cargarTicket = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const endpoint =
-        tipo === "empleado"
-          ? `/ticket/empleado/${idVenta}`
-          : `/ticket/online/${idVenta}`;
-
-      const response = await apiClient.get(endpoint);
-      setTicket(response.data.data);
-    } catch (err) {
-      setError(err.response?.data?.message || "Error al cargar el ticket");
-      console.error("Error cargando ticket:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { ticket, loading, error } = useTicket(idVenta, tipo, show);
+  useModalLock(show);
 
   const handlePrint = () => {
-    // Crear una ventana de impresión
+    if (!ticketRef.current) return;
     const printWindow = window.open("", "", "width=800,height=600");
     const ticketContent = ticketRef.current.innerHTML;
-
     printWindow.document.write(`
       <!DOCTYPE html>
-      <html>
+      <html lang="es">
         <head>
           <title>Ticket ${ticket?.numero || idVenta}</title>
           <style>
-            @page {
-              size: 80mm auto;
-              margin: 5mm;
-            }
+            @page { size: 80mm auto; margin: 5mm; }
             body {
-              font-family: 'Courier New', monospace;
+              font-family: 'Courier New', Courier, monospace;
               margin: 0;
               padding: 10px;
+              color: #000;
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
-            @media print {
-              body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-              }
-            }
           </style>
         </head>
-        <body>
-          ${ticketContent}
-        </body>
+        <body>${ticketContent}</body>
       </html>
     `);
-
     printWindow.document.close();
     printWindow.focus();
-
     setTimeout(() => {
       printWindow.print();
       printWindow.close();
     }, 250);
   };
 
-  if (!show) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
-        {/* Header del Modal */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <div className="flex items-center gap-2">
-            <Printer className="w-6 h-6 text-white" />
-            <h2 className="text-xl font-bold text-white">
-              Vista Previa del Ticket
-            </h2>
-          </div>
-          <button
+    <AnimatePresence>
+      {show && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm cursor-pointer"
+            aria-hidden="true"
+          />
+
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full max-h-[95dvh] sm:max-h-[90vh] sm:max-w-2xl bg-gray-100 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Contenido */}
-        <div className="p-6">
-          {loading && (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-              <p className="text-gray-400 mt-4">Cargando ticket...</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="bg-red-500 bg-opacity-10 border border-red-500 rounded-lg p-4 text-red-400">
-              {error}
-            </div>
-          )}
-
-          {!loading && !error && ticket && (
-            <>
-              {/* Ticket Preview */}
-              <div className="bg-white rounded-lg shadow-lg mb-6">
-                <div ref={ticketRef} className="p-8 font-mono">
-                  {/* Header */}
-                  <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold tracking-wider mb-2">
-                      PIXEL SALUD
-                    </h1>
-                    <p className="text-sm text-gray-600">
-                      Comprobante de Venta
-                    </p>
-                  </div>
-
-                  <div className="border-t-2 border-b-2 border-dashed border-gray-400 py-4 mb-4">
-                    <div className="grid grid-cols-2 gap-y-2 text-sm">
-                      <div>
-                        <span className="font-semibold">Ticket N°:</span>
-                      </div>
-                      <div className="text-right">
-                        {String(ticket.numero).padStart(6, "0")}
-                      </div>
-
-                      <div>
-                        <span className="font-semibold">Fecha:</span>
-                      </div>
-                      <div className="text-right">{ticket.fecha}</div>
-
-                      <div>
-                        <span className="font-semibold">Hora:</span>
-                      </div>
-                      <div className="text-right">{ticket.hora}</div>
-
-                      <div>
-                        <span className="font-semibold">Vendedor:</span>
-                      </div>
-                      <div className="text-right">{ticket.vendedor}</div>
-
-                      {ticket.cliente && (
-                        <>
-                          <div>
-                            <span className="font-semibold">Cliente:</span>
-                          </div>
-                          <div className="text-right">{ticket.cliente}</div>
-                        </>
-                      )}
-
-                      <div>
-                        <span className="font-semibold">Método de Pago:</span>
-                      </div>
-                      <div className="text-right">{ticket.metodoPago}</div>
-                    </div>
-                  </div>
-
-                  {/* Productos */}
-                  <div className="mb-4">
-                    <div className="grid grid-cols-12 gap-2 text-sm font-semibold border-b-2 border-gray-300 pb-2 mb-2">
-                      <div className="col-span-2">Cant</div>
-                      <div className="col-span-6">Descripción</div>
-                      <div className="col-span-4 text-right">Total</div>
-                    </div>
-
-                    {ticket.productos.map((producto, index) => (
-                      <div key={index} className="mb-3">
-                        <div className="grid grid-cols-12 gap-2 text-sm">
-                          <div className="col-span-2 font-semibold">
-                            {producto.cantidad}
-                          </div>
-                          <div className="col-span-6">
-                            {producto.descripcion}
-                          </div>
-                          <div className="col-span-4 text-right font-semibold">
-                            ${" "}
-                            {producto.subtotal.toLocaleString("es-AR", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </div>
-                        </div>
-                        <div className="text-xs text-gray-500 ml-2">
-                          ${" "}
-                          {producto.precioUnitario.toLocaleString("es-AR", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}{" "}
-                          c/u
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="border-t-2 border-dashed border-gray-400 pt-3">
-                    <div className="flex justify-between text-xl font-bold">
-                      <span>Subtotal:</span>
-                      <span>
-                        ${" "}
-                        {ticket.subtotal.toLocaleString("es-AR", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-
-                    {ticket.descuento > 0 && (
-                      <div className="flex justify-between text-sm text-gray-600 mt-2">
-                        <span>Descuento:</span>
-                        <span>
-                          - ${" "}
-                          {ticket.descuento.toLocaleString("es-AR", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="flex justify-between text-2xl font-bold mt-2">
-                      <span>TOTAL:</span>
-                      <span>
-                        ${" "}
-                        {ticket.total.toLocaleString("es-AR", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="text-center mt-6 text-xs text-gray-500">
-                    <p>¡Gracias por su compra!</p>
-                    <p className="mt-1">www.pixelsalud.com</p>
-                  </div>
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-white z-10">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  <Printer
+                    className="w-5 h-5 text-gray-700"
+                    aria-hidden="true"
+                  />
                 </div>
+                <h2
+                  id="modal-title"
+                  className="text-lg sm:text-xl font-bold text-gray-900"
+                >
+                  Vista Previa del Ticket
+                </h2>
               </div>
+              <button
+                onClick={onClose}
+                aria-label="Cerrar ventana de ticket"
+                autoFocus
+                className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+              >
+                <X className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </div>
 
-              {/* Botones */}
-              <div className="flex gap-3 justify-center">
-                <button
-                  onClick={onClose}
-                  className="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-medium"
-                >
-                  <X className="w-5 h-5" />
-                  Cerrar
-                </button>
-                <button
-                  onClick={handlePrint}
-                  className="flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition font-medium"
-                >
-                  <Printer className="w-5 h-5" />
-                  Imprimir
-                </button>
-              </div>
-            </>
-          )}
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar">
+              {loading && (
+                <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                  <Loader2 className="w-10 h-10 text-gray-400 animate-spin" />
+                  <p className="text-gray-500 font-medium">
+                    Generando comprobante...
+                  </p>
+                </div>
+              )}
+
+              {error && (
+                <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-4 text-red-600">
+                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                  <p className="text-sm leading-relaxed">{error}</p>
+                </div>
+              )}
+
+              {!loading && !error && ticket && (
+                <div className="flex justify-center">
+                  <TicketPreview ticket={ticket} ref={ticketRef} />
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 sm:p-6 border-t border-gray-200 bg-white z-10 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+              <button
+                onClick={onClose}
+                className="w-full sm:w-auto px-6 py-3.5 sm:py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-xl transition-all font-medium flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 active:scale-[0.98]"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handlePrint}
+                disabled={loading || error || !ticket}
+                className="w-full sm:w-auto px-6 py-3.5 sm:py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl transition-all font-medium flex items-center justify-center gap-2 shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 active:scale-[0.98]"
+              >
+                <Printer className="w-5 h-5" />
+                Imprimir Ticket
+              </button>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 };
 

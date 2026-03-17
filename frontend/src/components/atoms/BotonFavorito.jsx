@@ -1,9 +1,7 @@
 import { Heart } from "lucide-react";
-// 1. Se elimina la importación del viejo useClienteStore
 import { useFavoritosStore } from "@store/useFavoritoStore";
 
 const BotonFavorito = ({ product }) => {
-  // 2. Ya no necesitamos obtener el idCliente aquí. El store lo maneja.
   const { isProductFavorite, toggleFavorito } = useFavoritosStore();
 
   const idProducto = product.idProducto;
@@ -13,7 +11,6 @@ const BotonFavorito = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // El objeto con los datos del producto sigue siendo útil para la actualización optimista.
     const productoData = {
       nombreProducto: product.nombreProducto,
       precio: product.precio,
@@ -22,8 +19,6 @@ const BotonFavorito = ({ product }) => {
       stock: product.stock,
     };
 
-    // 3. La llamada a toggleFavorito ahora es mucho más simple.
-    // Ya no se le pasa el idCliente.
     toggleFavorito(idProducto, productoData);
   };
 

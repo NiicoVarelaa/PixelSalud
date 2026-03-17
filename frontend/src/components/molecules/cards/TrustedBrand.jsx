@@ -53,12 +53,12 @@ const TrustedBrand = () => {
                 }
             `}</style>
       <div className="overflow-hidden select-none relative">
-        <div className="absolute left-0 top-0 h-full w-16 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent" />
+        <div className="absolute left-0 top-0 h-full w-16 z-10 pointer-events-none bg-linear-to-r from-white to-transparent" />
         <div className="marquee-inner flex will-change-transform min-w-[200%]">
           {marqueeLogos.map((logo, index) => (
             <div
               key={index}
-              className="flex-shrink-0 mx-8 h-14 md:h-20 flex items-center justify-center transition-transform duration-300 hover:scale-110"
+              className="shrink-0 mx-8 h-14 md:h-20 flex items-center justify-center transition-transform duration-300 hover:scale-110"
               style={{ width: "auto" }}
             >
               <img
@@ -70,7 +70,7 @@ const TrustedBrand = () => {
             </div>
           ))}
         </div>
-        <div className="absolute right-0 top-0 h-full w-16 z-10 pointer-events-none bg-gradient-to-l from-white to-transparent" />
+        <div className="absolute right-0 top-0 h-full w-16 z-10 pointer-events-none bg-linear-to-l from-white to-transparent" />
       </div>
       <div className="flex justify-center items-center gap-6 md:gap-10 mt-8 md:mt-10 pt-6 border-t border-gray-200/60">
         <div className="text-center">

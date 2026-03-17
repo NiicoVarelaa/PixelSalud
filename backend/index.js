@@ -15,7 +15,6 @@ const cors = require("cors");
 
 const routesProductos = require("./routes/ProductosRoutes");
 const routesImagenesProductos = require("./routes/ImagenesProductosRoutes");
-// REMOVED: const routesOfertas = require("./routes/OfertasRoutes"); // DEPRECATED - usar Campañas
 const routesCampanas = require("./routes/CampanasRoutes");
 const routesCarrito = require("./routes/CarritoRoutes");
 const routesClientes = require("./routes/ClientesRoutes");
@@ -38,6 +37,7 @@ const routesCloudinary = require("./routes/CloudinaryRoutes");
 const { errorHandler, notFoundHandler } = require("./middlewares/errorHandler");
 
 const app = express();
+const API_PREFIX = "/api";
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -75,30 +75,27 @@ app.get("/", (req, res) => {
   res.send("Bienvenido a Pixel Salud ❤");
 });
 
-// Rutas sin prefijo /api (compatibilidad con frontend actual)
-// TODO: Cuando refactoricemos el frontend, agregar prefijo /api
-app.use("/", routesProductos);
-app.use("/", routesImagenesProductos);
-// REMOVED: app.use("/ofertas", routesOfertas); // DEPRECATED - usar Campañas
-app.use("/campanas", routesCampanas);
-app.use("/", routesCarrito);
-app.use("/", routesOnlines);
-app.use("/", routesVentasEmpleados);
-app.use("/", routesClientes);
-app.use("/", routesAuth);
-app.use("/", routesEmpleados);
-app.use("/favoritos", favoritosRoutes);
-app.use("/mercadopago", routesMercadoPago);
-app.use("/", routesPermisos);
-app.use("/", routesMedicos);
-app.use("/mensajes", routesMensajes);
-app.use("/", routesRecetas);
-app.use("/", routesReportes);
-app.use("/", routesCupones);
-app.use("/admin", routesDashboard);
-app.use("/admin/auditoria", routesAuditoria);
-app.use("/ticket", routesTicket);
-app.use("/cloudinary", routesCloudinary);
+app.use(`${API_PREFIX}/`, routesProductos);
+app.use(`${API_PREFIX}/`, routesImagenesProductos);
+app.use(`${API_PREFIX}/campanas`, routesCampanas);
+app.use(`${API_PREFIX}/`, routesCarrito);
+app.use(`${API_PREFIX}/`, routesOnlines);
+app.use(`${API_PREFIX}/`, routesVentasEmpleados);
+app.use(`${API_PREFIX}/`, routesClientes);
+app.use(`${API_PREFIX}/`, routesAuth);
+app.use(`${API_PREFIX}/`, routesEmpleados);
+app.use(`${API_PREFIX}/favoritos`, favoritosRoutes);
+app.use(`${API_PREFIX}/mercadopago`, routesMercadoPago);
+app.use(`${API_PREFIX}/`, routesPermisos);
+app.use(`${API_PREFIX}/`, routesMedicos);
+app.use(`${API_PREFIX}/mensajes`, routesMensajes);
+app.use(`${API_PREFIX}/`, routesRecetas);
+app.use(`${API_PREFIX}/`, routesReportes);
+app.use(`${API_PREFIX}/`, routesCupones);
+app.use(`${API_PREFIX}/admin`, routesDashboard);
+app.use(`${API_PREFIX}/admin/auditoria`, routesAuditoria);
+app.use(`${API_PREFIX}/ticket`, routesTicket);
+app.use(`${API_PREFIX}/cloudinary`, routesCloudinary);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

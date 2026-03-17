@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaLock, FaCheckCircle, FaArrowLeft } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -8,9 +8,10 @@ const RestablecerContrasena = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword, ] = useState(false);
+  const [showPassword] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   // Obtener el token de la URL
   const token = new URLSearchParams(location.search).get("token");
@@ -32,18 +33,19 @@ const RestablecerContrasena = () => {
     try {
       // Lógica para restablecer la contraseña en el backend
       // Reemplaza esta URL con la ruta de tu API
-      await axios.post(`http://localhost:5000/clientes/restablecer-password/${token}`, {
-    nuevaPassword: password, // Asegurate que la variable se llame igual que en el controller
-  });
+      await axios.post(`${apiUrl}/clientes/restablecer-password/${token}`, {
+        nuevaPassword: password, // Asegurate que la variable se llame igual que en el controller
+      });
 
       toast.success("¡Contraseña restablecida con éxito!");
       setTimeout(() => {
         navigate("/login");
       }, 3000);
-
     } catch (error) {
       if (error.response) {
-        toast.error(error.response.data.error || "Error al restablecer la contraseña.");
+        toast.error(
+          error.response.data.error || "Error al restablecer la contraseña.",
+        );
       } else {
         toast.error("Error al conectar con el servidor.");
       }

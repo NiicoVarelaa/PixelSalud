@@ -2,7 +2,9 @@ import { create } from "zustand";
 import axios from "axios";
 import { useProductStore } from "./useProductStore";
 
-const API_URL = "http://localhost:5000/productos";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = `${API_BASE_URL}/productos`;
 
 // Función de utilidad para parsear el precio de forma segura
 const cleanAndParsePrice = (price) => {
@@ -33,9 +35,9 @@ export const useProductDetailStore = create((set) => ({
 
     try {
       const res = await axios.get(`${API_URL}/${id}`);
-      const productoData = res.data;      
+      const productoData = res.data;
       const precioActual = cleanAndParsePrice(
-        productoData.precioFinal || productoData.precio
+        productoData.precioFinal || productoData.precio,
       );
       const precioRegular = cleanAndParsePrice(productoData.precioRegular);
 
@@ -51,14 +53,14 @@ export const useProductDetailStore = create((set) => ({
         .filter(
           (p) =>
             p.categoria === productoData.categoria &&
-            p.idProducto !== productoData.idProducto
+            p.idProducto !== productoData.idProducto,
         )
         .sort(() => 0.5 - Math.random())
         .slice(0, 8);
       set({
         producto: {
           ...productoData,
-          precio: precioActual, 
+          precio: precioActual,
         },
         relatedProducts: related,
         precioOriginal: tieneOferta ? precioRegular : null,

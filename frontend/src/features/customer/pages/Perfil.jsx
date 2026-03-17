@@ -46,7 +46,8 @@ const Perfil = () => {
       }
       setLoading(true);
       try {
-        const apiUrl = import.meta.env.VITE_API_URL;
+        const apiUrl =
+          import.meta.env.VITE_API_URL || "http://localhost:5000/api";
         const url = `${apiUrl}/clientes/${user.id}`;
         console.log("Fetcheando:", url);
         const res = await fetch(url, {
@@ -104,7 +105,8 @@ const Perfil = () => {
       });
       // Si la contraseña está vacía, no la mandes
       if (!body.contraCliente) delete body.contraCliente;
-      const apiUrl = import.meta.env.VITE_API_URL;
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
       const res = await fetch(`${apiUrl}/clientes/actualizar/${user.id}`, {
         method: "PUT",
         headers: {

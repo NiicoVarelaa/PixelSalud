@@ -42,7 +42,7 @@ const ChartCard = ({
   color,
   tooltipStyle,
 }) => {
-  const emptyIcon = type === "line" ? TrendingUp : ShoppingBag;
+  const EmptyIcon = type === "line" ? TrendingUp : ShoppingBag;
   const chartColor = color || (type === "line" ? "#16a34a" : "#f97316");
 
   const formatTooltipValue = (value) =>
@@ -65,7 +65,12 @@ const ChartCard = ({
   const renderChart = () => {
     const ChartComponent = type === "line" ? LineChart : BarChart;
     return (
-      <ResponsiveContainer width="99%" height="100%">
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        minWidth={0}
+        minHeight={0}
+      >
         <ChartComponent data={data}>
           <CartesianGrid
             strokeDasharray="3 3"
@@ -148,53 +153,57 @@ const ChartCard = ({
 
   return (
     <article
-      className="bg-white border border-gray-100 rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col"
+      className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm flex flex-col h-full w-full"
       aria-labelledby={`chart-${dataKey}-title`}
     >
-      <div className="mb-3">
+      <div className="mb-2 shrink-0">
         <h3
           id={`chart-${dataKey}-title`}
-          className="text-sm sm:text-base font-bold text-gray-900 mb-1"
+          className="text-sm font-bold text-gray-800"
         >
           {title}
         </h3>
-        <p className="text-xs sm:text-sm text-gray-500">{subtitle}</p>
+        <p className="text-[11px] sm:text-xs text-gray-500">{subtitle}</p>
       </div>
 
-      {loading ? (
-        <div
-          className="h-32 sm:h-36 lg:h-40 flex items-center justify-center bg-gray-50 rounded-xl"
-          aria-live="polite"
-        >
-          <div className="flex flex-col items-center gap-3">
-            <div
-              className={`w-10 h-10 rounded-full animate-spin border-4 border-gray-200 ${type === "line" ? "border-t-green-500" : "border-t-orange-500"}`}
-            />
-            <p className="text-gray-500 font-medium text-sm">
-              Actualizando métricas...
-            </p>
-          </div>
-        </div>
-      ) : data.length === 0 ? (
-        <div
-          className="h-32 sm:h-36 lg:h-40 flex items-center justify-center bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200"
-          role="status"
-        >
-          <div className="flex flex-col items-center gap-3 px-4 text-center">
-            {emptyIcon && (
-              <emptyIcon.type
-                className="w-10 h-10 text-gray-400"
-                aria-hidden="true"
+      <div className="flex-1 relative w-full h-full min-h-40">
+        {loading ? (
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-lg"
+            aria-live="polite"
+          >
+            <div className="flex flex-col items-center gap-3">
+              <div
+                className={`w-10 h-10 rounded-full animate-spin border-4 border-gray-200 ${
+                  type === "line" ? "border-t-green-500" : "border-t-orange-500"
+                }`}
               />
-            )}
-            <p className="text-gray-600 font-semibold">
-              No hay datos para este período
-            </p>
+              <p className="text-gray-500 font-medium text-sm">
+                Actualizando métricas...
+              </p>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="h-32 sm:h-36 lg:h-40 w-full">{renderChart()}</div>
-      )}
+        ) : data.length === 0 ? (
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-gray-50/50 rounded-lg border border-dashed border-gray-200"
+            role="status"
+          >
+            <div className="flex flex-col items-center gap-3 px-4 text-center">
+              {EmptyIcon && (
+                <EmptyIcon
+                  className="w-10 h-10 text-gray-400"
+                  aria-hidden="true"
+                />
+              )}
+              <p className="text-gray-600 font-semibold">
+                No hay datos para este período
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="absolute inset-0">{renderChart()}</div>
+        )}
+      </div>
     </article>
   );
 };

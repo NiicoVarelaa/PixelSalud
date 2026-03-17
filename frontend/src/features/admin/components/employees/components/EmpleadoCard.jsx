@@ -60,11 +60,11 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
-      className="bg-white rounded-xl shadow-lg overflow-hidden mb-4"
+      className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4"
     >
       {/* Header con gradiente y estado */}
       <div
-        className={`bg-gradient-to-r ${esActivo ? "from-blue-500 to-blue-600" : "from-red-500 to-red-600"} p-4`}
+        className={`bg-linear-to-r ${esActivo ? "from-green-600 to-green-700" : "from-gray-600 to-gray-700"} p-4`}
       >
         <div className="flex items-center justify-between">
           <div>
@@ -89,8 +89,8 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
       <div className="p-4 space-y-3">
         {/* Email */}
         <div className="flex items-center gap-3">
-          <div className="bg-blue-50 p-2 rounded-lg">
-            <Mail className="text-blue-600" size={18} />
+          <div className="bg-gray-100 p-2 rounded-lg">
+            <Mail className="text-gray-600" size={18} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-500 uppercase font-semibold">
@@ -107,8 +107,8 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
 
         {/* DNI */}
         <div className="flex items-center gap-3">
-          <div className="bg-purple-50 p-2 rounded-lg">
-            <CreditCard className="text-purple-600" size={18} />
+          <div className="bg-gray-100 p-2 rounded-lg">
+            <CreditCard className="text-gray-600" size={18} />
           </div>
           <div>
             <p className="text-xs text-gray-500 uppercase font-semibold">DNI</p>
@@ -134,7 +134,7 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
               Estado
             </p>
             <p
-              className={`text-sm font-semibold ${esActivo ? "text-green-600" : "text-red-600"}`}
+              className={`text-sm font-semibold ${esActivo ? "text-green-700" : "text-orange-700"}`}
             >
               {esActivo ? "Activo" : "Inactivo"}
             </p>
@@ -144,7 +144,7 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
         {/* Permisos */}
         <div className="pt-3 border-t border-gray-200">
           <div className="flex items-center gap-2 mb-2">
-            <Shield className="text-purple-600" size={16} />
+            <Shield className="text-green-700" size={16} />
             <p className="text-xs text-gray-500 uppercase font-semibold">
               Permisos ({permisosActivos}/4)
             </p>
@@ -176,7 +176,7 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onEditar(empleado)}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors shadow-md"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors shadow-sm"
         >
           <Edit size={18} />
           Editar
@@ -187,7 +187,7 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
           onClick={() => onCambiarEstado(empleado)}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white font-medium rounded-lg transition-colors shadow-md ${
             esActivo
-              ? "bg-red-500 hover:bg-red-600"
+              ? "bg-gray-600 hover:bg-gray-700"
               : "bg-green-500 hover:bg-green-600"
           }`}
         >

@@ -73,7 +73,7 @@ const SidebarAdmin = () => {
     const fetchUnreadMessages = async () => {
       try {
         const backendUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:5000";
+          import.meta.env.VITE_API_URL || "http://localhost:5000/api";
         const token = useAuthStore.getState().token;
         const response = await axios.get(`${backendUrl}/mensajes/no-leidos`, {
           headers: { Auth: `Bearer ${token}` },
