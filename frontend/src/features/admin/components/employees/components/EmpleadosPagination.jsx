@@ -56,7 +56,7 @@ export const EmpleadosPagination = ({
         className={`p-2 rounded-lg transition-colors ${
           paginaActual === 1
             ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : "bg-white text-blue-600 hover:bg-blue-50 shadow-md"
+            : "bg-white text-green-700 hover:bg-green-50 border border-gray-200"
         }`}
       >
         <ChevronLeft size={20} />
@@ -75,9 +75,9 @@ export const EmpleadosPagination = ({
             disabled={typeof number !== "number"}
             className={`w-10 h-10 rounded-lg font-medium transition-all ${
               number === paginaActual
-                ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg"
+                ? "bg-green-600 text-white shadow-sm"
                 : typeof number === "number"
-                  ? "bg-white text-gray-600 hover:bg-gray-50 shadow-md"
+                  ? "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
                   : "bg-transparent text-gray-400 cursor-default"
             }`}
           >
@@ -97,7 +97,7 @@ export const EmpleadosPagination = ({
         className={`p-2 rounded-lg transition-colors ${
           paginaActual === totalPaginas
             ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : "bg-white text-blue-600 hover:bg-blue-50 shadow-md"
+            : "bg-white text-green-700 hover:bg-green-50 border border-gray-200"
         }`}
       >
         <ChevronRight size={20} />

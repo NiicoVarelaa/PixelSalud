@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import axios from "axios";
 
-const API_URL_ALL = "http://localhost:5000/productos";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL_ALL = `${API_BASE_URL}/productos`;
 // UPDATED: Usar sistema de campañas en lugar de ofertas individuales
-const API_URL_CAMPANAS_ACTIVAS = "http://localhost:5000/campanas/activas";
+const API_URL_CAMPANAS_ACTIVAS = `${API_BASE_URL}/campanas/activas`;
 
 const PRODUCTS_PER_SECTION = 6;
 

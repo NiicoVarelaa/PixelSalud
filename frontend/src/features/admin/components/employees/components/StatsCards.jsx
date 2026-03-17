@@ -10,33 +10,33 @@ export const StatsCards = ({ estadisticas }) => {
       titulo: "Total Empleados",
       valor: estadisticas.total,
       icono: Users,
-      color: "from-blue-500 to-blue-600",
-      bgLight: "bg-blue-50",
-      textColor: "text-blue-600",
+      accent: "text-gray-700",
+      iconBg: "bg-gray-100",
+      iconColor: "text-gray-600",
     },
     {
       titulo: "Activos",
       valor: estadisticas.activos,
       icono: UserCheck,
-      color: "from-green-500 to-green-600",
-      bgLight: "bg-green-50",
-      textColor: "text-green-600",
+      accent: "text-green-700",
+      iconBg: "bg-green-100",
+      iconColor: "text-green-700",
     },
     {
       titulo: "Inactivos",
       valor: estadisticas.inactivos,
       icono: UserX,
-      color: "from-red-500 to-red-600",
-      bgLight: "bg-red-50",
-      textColor: "text-red-600",
+      accent: "text-orange-700",
+      iconBg: "bg-orange-100",
+      iconColor: "text-orange-700",
     },
     {
-      titulo: "Con Permisos Crear",
+      titulo: "Permisos de Gestión",
       valor: estadisticas.conPermisoCrear,
       icono: Shield,
-      color: "from-purple-500 to-purple-600",
-      bgLight: "bg-purple-50",
-      textColor: "text-purple-600",
+      accent: "text-green-700",
+      iconBg: "bg-green-100",
+      iconColor: "text-green-700",
     },
   ];
 
@@ -60,7 +60,7 @@ export const StatsCards = ({ estadisticas }) => {
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+      className="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-5"
     >
       {stats.map((stat, index) => {
         const Icon = stat.icono;
@@ -68,22 +68,22 @@ export const StatsCards = ({ estadisticas }) => {
           <motion.div
             key={index}
             variants={itemVariants}
-            whileHover={{ scale: 1.02, y: -4 }}
-            className="bg-white rounded-xl shadow-lg overflow-hidden"
+            whileHover={{ y: -2 }}
+            className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"
           >
-            <div className={`bg-gradient-to-r ${stat.color} p-4`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-white text-sm font-medium opacity-90">
-                    {stat.titulo}
-                  </p>
-                  <p className="text-white text-3xl font-bold mt-1">
-                    {stat.valor}
-                  </p>
-                </div>
-                <div className={`${stat.bgLight} p-3 rounded-lg`}>
-                  <Icon className={stat.textColor} size={28} strokeWidth={2} />
-                </div>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs sm:text-sm font-semibold text-gray-500">
+                  {stat.titulo}
+                </p>
+                <p
+                  className={`text-2xl sm:text-3xl font-bold mt-1 ${stat.accent}`}
+                >
+                  {stat.valor}
+                </p>
+              </div>
+              <div className={`${stat.iconBg} p-2.5 rounded-lg`}>
+                <Icon className={stat.iconColor} size={20} strokeWidth={2.2} />
               </div>
             </div>
           </motion.div>

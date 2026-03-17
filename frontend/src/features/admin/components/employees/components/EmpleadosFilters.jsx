@@ -15,13 +15,13 @@ export const EmpleadosFilters = ({
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-4 rounded-xl shadow-lg mb-6"
+      className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-5"
     >
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-3">
         {/* Input de Búsqueda */}
         <div className="relative flex-1">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="text-gray-400" size={20} />
+            <Search className="text-gray-400" size={18} />
           </div>
           <input
             type="text"
@@ -30,19 +30,19 @@ export const EmpleadosFilters = ({
             placeholder="Buscar por nombre, DNI, email o ID..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
           />
         </div>
 
         {/* Filtro por Estado */}
         <div className="relative w-full md:w-64">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Filter className="text-gray-400" size={20} />
+            <Filter className="text-orange-500" size={18} />
           </div>
           <select
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none bg-white cursor-pointer"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all appearance-none bg-white cursor-pointer"
           >
             <option value="todos">Todos los empleados</option>
             <option value="activos">✓ Activos</option>
@@ -58,7 +58,8 @@ export const EmpleadosFilters = ({
           animate={{ opacity: 1 }}
           className="text-sm text-gray-500 mt-3"
         >
-          Buscando: <span className="font-semibold">{busqueda}</span>
+          Buscando:{" "}
+          <span className="font-semibold text-green-700">{busqueda}</span>
         </motion.p>
       )}
     </motion.div>

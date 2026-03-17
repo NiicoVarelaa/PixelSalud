@@ -10,7 +10,8 @@ export const useCampanasData = () => {
   const { fetchProducts } = useProductStore();
   const token = useAuthStore((state) => state.token);
 
-  const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const backendUrl =
+    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const getConfig = useCallback(
     () => ({

@@ -86,6 +86,16 @@ const getClientesActivos = async () => {
   return parseInt(resultado[0].total);
 };
 
+const getTotalClientes = async () => {
+  const [resultado] = await pool.query(
+    `SELECT COUNT(*) as total
+      FROM Clientes
+      WHERE activo = TRUE`,
+  );
+
+  return parseInt(resultado[0].total);
+};
+
 const getProductosMasVendidos = async (limite = 5) => {
   const [productos] = await pool.query(
     `SELECT 
@@ -161,6 +171,7 @@ const getMetricasCompletas = async () => {
     const ventasSemana = await getVentasSemana();
     const productos = await getEstadisticasProductos();
     const clientesActivos = await getClientesActivos();
+    const totalClientes = await getTotalClientes();
     const productosMasVendidos = await getProductosMasVendidos(5);
     const ventasPorDia = await getVentasPorDia(7);
 
@@ -177,6 +188,9 @@ const getMetricasCompletas = async () => {
         activos: productos.activos,
         stockBajo: productos.stockBajo,
       },
+      clientes: {
+        total: totalClientes,
+      },
       clientesActivos,
       productosMasVendidos,
       ventasPorDia,
@@ -191,6 +205,7 @@ module.exports = {
   getVentasSemana,
   getEstadisticasProductos,
   getClientesActivos,
+  getTotalClientes,
   getProductosMasVendidos,
   getVentasPorDia,
   getMetricasCompletas,

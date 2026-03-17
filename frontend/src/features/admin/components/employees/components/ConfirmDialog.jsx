@@ -19,8 +19,8 @@ export const ConfirmDialog = ({
     warning: {
       icon: AlertTriangle,
       gradient: "from-yellow-500 to-orange-500",
-      bgIcon: "bg-yellow-100",
-      textIcon: "text-yellow-600",
+      bgIcon: "bg-orange-100",
+      textIcon: "text-orange-600",
       buttonBg:
         "from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600",
     },
@@ -33,11 +33,11 @@ export const ConfirmDialog = ({
     },
     info: {
       icon: Info,
-      gradient: "from-blue-500 to-blue-600",
-      bgIcon: "bg-blue-100",
-      textIcon: "text-blue-600",
+      gradient: "from-green-600 to-green-700",
+      bgIcon: "bg-green-100",
+      textIcon: "text-green-700",
       buttonBg:
-        "from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700",
+        "from-green-600 to-green-700 hover:from-green-700 hover:to-green-800",
     },
   };
 
@@ -74,7 +74,7 @@ export const ConfirmDialog = ({
             >
               {/* Header con gradiente */}
               <div
-                className={`bg-gradient-to-r ${config.gradient} px-6 py-4 flex items-center justify-between`}
+                className={`bg-linear-to-r ${config.gradient} px-6 py-4 flex items-center justify-between`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`${config.bgIcon} p-2 rounded-lg`}>
@@ -105,7 +105,7 @@ export const ConfirmDialog = ({
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className={`flex-1 px-4 py-2.5 bg-gradient-to-r ${config.buttonBg} text-white font-medium rounded-lg transition-colors shadow-lg`}
+                  className={`flex-1 px-4 py-2.5 bg-linear-to-r ${config.buttonBg} text-white font-medium rounded-lg transition-colors shadow-lg`}
                 >
                   {confirmText}
                 </button>

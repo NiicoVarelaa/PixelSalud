@@ -30,7 +30,7 @@ const Administrador = () => {
         <SiderbarAdmin user={user} />
 
         <main className="flex-1 overflow-y-auto bg-gray-50 lg:p-6">
-          <div className="p-4 lg:p-0">
+          <div className="p-4 lg:p-0 h-full min-h-0 flex flex-col">
             <Outlet />
           </div>
         </main>

@@ -6,6 +6,7 @@ const BuscarRecetaButton = ({ onRecetaEncontrada }) => {
   const { user, token } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const handleBuscarReceta = async () => {
     setLoading(true);
@@ -21,10 +22,9 @@ const BuscarRecetaButton = ({ onRecetaEncontrada }) => {
     try {
       const dniCliente = user.dni;
       console.log("[FRONTEND] Buscando recetas con dniCliente:", dniCliente);
-      const res = await axios.get(
-        `http://localhost:5000/recetas/cliente/${dniCliente}`,
-        { headers: { Auth: `Bearer ${token}` } },
-      );
+      const res = await axios.get(`${apiUrl}/recetas/cliente/${dniCliente}`, {
+        headers: { Auth: `Bearer ${token}` },
+      });
       if (res.data && res.data.length > 0) {
         onRecetaEncontrada(res.data);
       } else {

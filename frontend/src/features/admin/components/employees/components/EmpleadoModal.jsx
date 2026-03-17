@@ -159,10 +159,10 @@ export const EmpleadoModal = ({
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden"
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden border border-gray-200"
             >
               {/* Header */}
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+              <div className="bg-linear-to-r from-green-600 to-green-700 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
                 <div className="flex items-center gap-3">
                   <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
                     <User className="text-white" size={24} />
@@ -202,7 +202,7 @@ export const EmpleadoModal = ({
                           className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                             errores.nombreEmpleado
                               ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-blue-500"
+                              : "border-gray-300 focus:ring-green-500"
                           }`}
                         />
                       </div>
@@ -232,7 +232,7 @@ export const EmpleadoModal = ({
                           className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                             errores.apellidoEmpleado
                               ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-blue-500"
+                              : "border-gray-300 focus:ring-green-500"
                           }`}
                         />
                       </div>
@@ -265,7 +265,7 @@ export const EmpleadoModal = ({
                           className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                             errores.dniEmpleado
                               ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-blue-500"
+                              : "border-gray-300 focus:ring-green-500"
                           }`}
                         />
                       </div>
@@ -296,7 +296,7 @@ export const EmpleadoModal = ({
                           className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                             errores.emailEmpleado
                               ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-blue-500"
+                              : "border-gray-300 focus:ring-green-500"
                           }`}
                         />
                       </div>
@@ -313,12 +313,12 @@ export const EmpleadoModal = ({
                   <div
                     className={
                       esEdicion
-                        ? "bg-yellow-50 p-4 rounded-lg border border-yellow-200"
+                        ? "bg-orange-50 p-4 rounded-lg border border-orange-200"
                         : ""
                     }
                   >
                     <label
-                      className={`block text-sm font-bold mb-2 uppercase ${esEdicion ? "text-yellow-700" : "text-gray-700"}`}
+                      className={`block text-sm font-bold mb-2 uppercase ${esEdicion ? "text-orange-700" : "text-gray-700"}`}
                     >
                       {esEdicion
                         ? "Nueva Contraseña (Opcional)"
@@ -342,8 +342,8 @@ export const EmpleadoModal = ({
                           errores.contraEmpleado
                             ? "border-red-500 focus:ring-red-500"
                             : esEdicion
-                              ? "border-yellow-300 focus:ring-yellow-500 bg-white"
-                              : "border-gray-300 focus:ring-blue-500"
+                              ? "border-orange-300 focus:ring-orange-500 bg-white"
+                              : "border-gray-300 focus:ring-green-500"
                         }`}
                       />
                     </div>
@@ -375,7 +375,7 @@ export const EmpleadoModal = ({
                   <button
                     type="submit"
                     disabled={enviando}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 shadow-lg"
+                    className="flex-1 px-4 py-3 bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg transition-colors disabled:opacity-50 shadow-sm"
                   >
                     {enviando
                       ? "Guardando..."

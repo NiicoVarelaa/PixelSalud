@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "@store/useAuthStore";
 import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { UserPlus } from "lucide-react";
+import { ArrowLeft, UserPlus } from "lucide-react";
 import { AdminLayout } from "@features/admin/components/shared";
 
 // Custom Hooks
@@ -131,20 +131,21 @@ const AdminEmpleados = () => {
   return (
     <AdminLayout
       title="Administración de Empleados"
-      description="Gestiona el acceso y permisos del personal"
+      description="Gestiona usuarios internos, accesos y permisos de manera centralizada"
+      contentClassName="space-y-4"
       headerAction={
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <button
             onClick={handleCrearEmpleado}
-            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"
+            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition-colors shadow-sm cursor-pointer"
           >
             <UserPlus size={20} /> Agregar Empleado
           </button>
           <Link
             to="/admin"
-            className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium"
+            className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg transition-colors shadow-sm cursor-pointer font-medium"
           >
-            ← Volver
+            <ArrowLeft size={18} /> Volver
           </Link>
         </div>
       }
@@ -163,7 +164,7 @@ const AdminEmpleados = () => {
       />
 
       {/* Contenido Principal */}
-      <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         {cargando ? (
           <LoadingState />
         ) : empleadosActuales.length === 0 ? (

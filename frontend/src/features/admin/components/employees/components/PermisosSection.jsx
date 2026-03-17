@@ -21,27 +21,27 @@ export const PermisosSection = ({ permisos, onChange }) => {
       label: "Modificar/Eliminar Productos",
       descripcion: "Permite editar y eliminar productos existentes",
       icono: Edit2,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      hoverColor: "hover:bg-blue-100",
+      color: "text-gray-700",
+      bgColor: "bg-gray-50",
+      hoverColor: "hover:bg-gray-100",
     },
     {
       key: "modificar_ventasE",
       label: "Editar/Anular Ventas",
       descripcion: "Permite modificar y anular ventas realizadas",
       icono: Edit,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-50",
-      hoverColor: "hover:bg-yellow-100",
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+      hoverColor: "hover:bg-orange-100",
     },
     {
       key: "ver_ventasTotalesE",
       label: "Ver Ventas Totales",
       descripcion: "Permite acceder a estadísticas completas de ventas",
       icono: Eye,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      hoverColor: "hover:bg-purple-100",
+      color: "text-gray-700",
+      bgColor: "bg-gray-50",
+      hoverColor: "hover:bg-gray-100",
     },
   ];
 
@@ -49,15 +49,15 @@ export const PermisosSection = ({ permisos, onChange }) => {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-blue-50 to-purple-50 p-5 rounded-xl border-2 border-blue-100"
+      className="bg-gray-50 p-5 rounded-xl border border-gray-200"
     >
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="bg-blue-500 p-2 rounded-lg">
+        <div className="bg-green-600 p-2 rounded-lg">
           <Shield className="text-white" size={20} />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-blue-800 uppercase">
+          <h3 className="text-sm font-bold text-green-800 uppercase">
             Asignar Permisos
           </h3>
           <p className="text-xs text-gray-600">
@@ -79,7 +79,7 @@ export const PermisosSection = ({ permisos, onChange }) => {
               whileTap={{ scale: 0.98 }}
               className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
                 activo
-                  ? "bg-white border-blue-400 shadow-md"
+                  ? "bg-white border-green-400 shadow-sm"
                   : `${permiso.bgColor} border-transparent ${permiso.hoverColor}`
               }`}
             >
@@ -87,7 +87,7 @@ export const PermisosSection = ({ permisos, onChange }) => {
                 type="checkbox"
                 checked={activo}
                 onChange={(e) => onChange(permiso.key, e.target.checked)}
-                className="mt-1 h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                className="mt-1 h-5 w-5 text-green-600 rounded border-gray-300 focus:ring-2 focus:ring-green-500 cursor-pointer"
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
@@ -109,7 +109,7 @@ export const PermisosSection = ({ permisos, onChange }) => {
       <div className="mt-4 text-center">
         <span className="text-xs text-gray-600">
           Permisos seleccionados:{" "}
-          <span className="font-bold text-blue-600">
+          <span className="font-bold text-green-700">
             {Object.values(permisos).filter(Boolean).length}/4
           </span>
         </span>

@@ -6,12 +6,10 @@ import {
   MetricsSection,
   ChartsSection,
   TopProductsSection,
-  DayFilterTabs,
 } from "./components";
 
 const AdminMenu = () => {
   const [dias, setDias] = useState(7);
-
   const {
     data: metricas,
     loading: metricasLoading,
@@ -23,51 +21,47 @@ const AdminMenu = () => {
     loading: chartLoading,
   } = useChartData(dias);
 
-  const handleTabChange = (newDias) => {
-    setDias(newDias);
-  };
-
   return (
     <AdminLayout
       title="Dashboard"
       description="Panel de control y métricas principales"
-      contentClassName="space-y-2 sm:space-y-3 overflow-y-auto"
+      contentClassName="flex flex-col gap-3 min-h-0 pb-3"
     >
       {error && (
         <div
-          className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-xl shrink-0"
+          className="mb-3 p-3 bg-red-50 border-l-4 border-red-500 rounded-xl shrink-0"
           role="alert"
-          aria-live="assertive"
         >
-          <div className="flex items-start gap-3">
-            <AlertCircle
-              className="w-5 h-5 text-red-600 shrink-0 mt-0.5"
-              aria-hidden="true"
-            />
-            <div className="flex-1 min-w-0">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+            <div>
               <p className="text-red-800 text-sm font-semibold">
                 Error al cargar datos
               </p>
-              <p className="text-red-700 text-sm mt-1">{error}</p>
+              <p className="text-red-700 text-xs mt-0.5">{error}</p>
             </div>
           </div>
         </div>
       )}
 
-      <MetricsSection data={metricas} loading={metricasLoading} />
-
-      <DayFilterTabs activeTab={dias} onTabChange={handleTabChange} />
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 shrink-0">
+        <div className="xl:col-span-5 flex flex-col">
+          <MetricsSection data={metricas} loading={metricasLoading} />
+        </div>
+        <div className="xl:col-span-7 flex flex-col">
+          <TopProductsSection
+            productos={metricas?.productosMasVendidos || []}
+            loading={metricasLoading}
+          />
+        </div>
+      </div>
 
       <ChartsSection
         ventasData={ventasData}
         productosData={productosData}
         loading={chartLoading}
         currentTab={dias}
-      />
-
-      <TopProductsSection
-        productos={metricas.productosMasVendidos}
-        loading={metricasLoading}
+        onTabChange={setDias}
       />
     </AdminLayout>
   );

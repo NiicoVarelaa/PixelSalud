@@ -64,7 +64,7 @@ const Checkout = () => {
 
     try {
       const backendUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:5000";
+        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
       const response = await fetch(`${backendUrl}/cupones/validar`, {
         method: "POST",
         headers: {
@@ -116,7 +116,7 @@ const Checkout = () => {
       setIsProcessing(true);
       try {
         const backendUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:5000";
+          import.meta.env.VITE_API_URL || "http://localhost:5000/api";
         const urlApiCompleta = `${backendUrl}/mercadopago/create-order`;
 
         console.log("📤 Enviando solicitud al backend...");

@@ -6,6 +6,9 @@ import { marcarRecetaUsada } from "../utils/recetaUtils";
 import { useAuthStore } from "./useAuthStore";
 import { useCarritoStore } from "./useCarritoStore";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 export const useCompraStore = create(() => ({
   realizarCompraInd: async (producto, metodoPago) => {
     try {
@@ -34,7 +37,7 @@ export const useCompraStore = create(() => ({
         ],
       };
 
-      await axios.post("http://localhost:5000/ventaOnline/crear", compra);
+      await axios.post(`${API_BASE_URL}/ventaOnline/crear`, compra);
 
       Swal.fire({
         icon: "success",
@@ -51,7 +54,11 @@ export const useCompraStore = create(() => ({
     }
   },
 
-  realizarCompraCarrito: async (metodoPago, tipoEntrega = "Sucursal", direccionEnvio = null) => {
+  realizarCompraCarrito: async (
+    metodoPago,
+    tipoEntrega = "Sucursal",
+    direccionEnvio = null,
+  ) => {
     try {
       const idCliente = await getCliente();
       if (!idCliente) {
@@ -75,7 +82,10 @@ export const useCompraStore = create(() => ({
         return;
       }
 
-      const totalPago = carrito.reduce((acc, prod) => acc + prod.precio * prod.cantidad, 0);
+      const totalPago = carrito.reduce(
+        (acc, prod) => acc + prod.precio * prod.cantidad,
+        0,
+      );
 
       const compra = {
         totalPago,
@@ -88,10 +98,10 @@ export const useCompraStore = create(() => ({
           cantidad: prod.cantidad,
           precioUnitario: prod.precio,
         })),
-        direccionEnvio: tipoEntrega === "Envio" ? direccionEnvio : null
+        direccionEnvio: tipoEntrega === "Envio" ? direccionEnvio : null,
       };
 
-      await axios.post("http://localhost:5000/ventaOnline/crear", compra);
+      await axios.post(`${API_BASE_URL}/ventaOnline/crear`, compra);
 
       // Marcar receta como usada si corresponde
       const { token } = useAuthStore.getState();
@@ -101,7 +111,7 @@ export const useCompraStore = create(() => ({
         }
       }
 
-      await axios.delete(`http://localhost:5000/carrito/vaciar/${idCliente}`);
+      await axios.delete(`${API_BASE_URL}/carrito/vaciar/${idCliente}`);
       useCarritoStore.getState().vaciarCarrito?.();
 
       Swal.fire({
@@ -109,7 +119,6 @@ export const useCompraStore = create(() => ({
         title: "¡Compra realizada!",
         text: `Tu compra se procesó con éxito`,
       });
-
     } catch (error) {
       console.error("Error al realizar la compra desde el carrito", error);
       Swal.fire({
@@ -118,5 +127,5 @@ export const useCompraStore = create(() => ({
         text: "No se pudo procesar la compra desde el carrito.",
       });
     }
-  }
+  },
 }));

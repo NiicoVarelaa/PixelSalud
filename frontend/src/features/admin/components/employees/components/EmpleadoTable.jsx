@@ -24,30 +24,30 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
   };
 
   return (
-    <div className="hidden lg:block bg-white rounded-xl shadow-2xl overflow-hidden">
+    <div className="hidden lg:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-gradient-to-r from-blue-500 to-blue-600">
-              <th className="px-3 py-4 text-left text-xs font-bold text-white uppercase tracking-wider w-16">
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider w-16">
                 ID
               </th>
-              <th className="px-3 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+              <th className="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                 Empleado
               </th>
-              <th className="px-3 py-4 text-left text-xs font-bold text-white uppercase tracking-wider w-32">
+              <th className="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider w-32">
                 DNI
               </th>
-              <th className="px-3 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+              <th className="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                 Email
               </th>
-              <th className="px-3 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+              <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
                 Permisos
               </th>
-              <th className="px-3 py-4 text-center text-xs font-bold text-white uppercase tracking-wider w-28">
+              <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-28">
                 Estado
               </th>
-              <th className="px-3 py-4 text-center text-xs font-bold text-white uppercase tracking-wider w-40">
+              <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-40">
                 Acciones
               </th>
             </tr>
@@ -82,7 +82,7 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className={`hover:bg-blue-50 transition-colors ${!esActivo ? "opacity-60 bg-gray-50" : ""}`}
+                  className={`hover:bg-green-50/50 transition-colors ${!esActivo ? "opacity-70 bg-gray-50" : ""}`}
                 >
                   {/* ID */}
                   <td className="px-3 py-4 whitespace-nowrap">
@@ -118,8 +118,8 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
                   {/* Permisos */}
                   <td className="px-3 py-4 text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <Shield className="text-purple-600" size={16} />
-                      <span className="text-xs font-semibold text-purple-600">
+                      <Shield className="text-green-700" size={16} />
+                      <span className="text-xs font-semibold text-green-700">
                         {totalPermisos}/4
                       </span>
                     </div>
@@ -140,10 +140,10 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
                       className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                         esActivo
                           ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
+                          : "bg-orange-100 text-orange-800"
                       }`}
                     >
-                      {esActivo ? "✓ Activo" : "✗ Inactivo"}
+                      {esActivo ? "Activo" : "Inactivo"}
                     </span>
                   </td>
 
@@ -154,7 +154,7 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => onEditar(empleado)}
-                        className="flex items-center gap-1 px-2.5 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-medium rounded-md transition-colors shadow-md"
+                        className="flex items-center gap-1 px-2.5 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium rounded-md transition-colors shadow-sm"
                         title="Editar Empleado"
                       >
                         <Edit size={14} />
@@ -164,10 +164,10 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => onCambiarEstado(empleado)}
-                        className={`flex items-center gap-1 px-2.5 py-1.5 text-white text-xs font-medium rounded-md transition-colors shadow-md ${
+                        className={`flex items-center gap-1 px-2.5 py-1.5 text-white text-xs font-medium rounded-md transition-colors shadow-sm ${
                           esActivo
-                            ? "bg-red-500 hover:bg-red-600"
-                            : "bg-green-500 hover:bg-green-600"
+                            ? "bg-gray-600 hover:bg-gray-700"
+                            : "bg-green-600 hover:bg-green-700"
                         }`}
                         title={esActivo ? "Desactivar" : "Activar"}
                       >

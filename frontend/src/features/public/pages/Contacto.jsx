@@ -28,6 +28,7 @@ const Contacto = () => {
   });
   const [errors, setErrors] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -77,7 +78,7 @@ const Contacto = () => {
 
     setIsSubmitting(true);
     try {
-      await axios.post("http://localhost:5000/mensajes/crear", {
+      await axios.post(`${apiUrl}/mensajes/crear`, {
         idCliente: user.id,
         nombre: formData.nombre,
         email: formData.email,

@@ -28,7 +28,7 @@ const CheckoutSuccess = () => {
     try {
       // Usar la URL de tu backend (ngrok) para la llamada DELETE
       const backendUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:5000";
+        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
       const urlApiCompleta = `${backendUrl}/mercadopago/clearUserCart`;
 
       const response = await fetch(urlApiCompleta, {

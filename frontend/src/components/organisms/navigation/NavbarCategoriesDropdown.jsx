@@ -12,7 +12,6 @@ export function NavbarCategoriesDropdown({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Versión desktop (sin cambios)
   if (!mobileMode) {
     return (
       <li className="relative" ref={categoriasRef}>
@@ -71,9 +70,6 @@ export function NavbarCategoriesDropdown({
     );
   }
 
-  // Versión mobile con mejoras:
-  // - Texto en mayúsculas
-  // - Línea verde más oscura cuando está expandido
   return (
     <div className="w-full" ref={categoriasRef}>
       <button
@@ -82,7 +78,7 @@ export function NavbarCategoriesDropdown({
         aria-expanded={isExpanded}
         aria-controls="categorias-submenu"
       >
-        <span className="uppercase">Categorías</span> {/* 1. Mayúsculas */}
+        <span className="uppercase">Categorías</span> 
         <motion.span
           animate={{ rotate: isExpanded ? 90 : 0 }}
           transition={{ duration: 0.2 }}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FaEnvelope, FaArrowLeft } from "react-icons/fa";
 import { RiMailSendLine } from "react-icons/ri";
 import { toast } from "react-toastify";
@@ -9,6 +9,7 @@ const RecuperarContrasena = () => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   // Define la paleta de colores para tu proyecto
   // Estos colores se usarán en todo el proyecto para mantener la consistencia
@@ -21,12 +22,11 @@ const RecuperarContrasena = () => {
     try {
       // Lógica para enviar el correo al backend
       // Reemplaza esta URL con la ruta de tu API de backend
-      await axios.post("http://localhost:5000/clientes/olvide-password", { email });
+      await axios.post(`${apiUrl}/clientes/olvide-password`, { email });
       toast.success("¡Correo enviado! Revisa tu bandeja de entrada.");
       setTimeout(() => {
         navigate("/");
       }, 3000);
-      
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.error || "Error al enviar el correo.");
@@ -78,7 +78,7 @@ const RecuperarContrasena = () => {
               required
             />
           </div>
-          
+
           <button
             type="submit"
             disabled={isSubmitting}

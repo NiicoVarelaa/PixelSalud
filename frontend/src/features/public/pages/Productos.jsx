@@ -75,7 +75,7 @@ const Productos = () => {
   const fetchCampanaActiva = useCallback(async () => {
     try {
       const backendUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:5000";
+        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
       const response = await axios.get(`${backendUrl}/campanas/activas`);
 
       console.log("📊 [Productos.jsx] Campañas activas:", response.data);

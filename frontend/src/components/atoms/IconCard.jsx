@@ -24,7 +24,7 @@ const IconCard = ({
         <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight transition-colors duration-300">
           {titulo}
         </h3>
-        <p className={`${textColor} mb-4 flex-grow leading-relaxed`}>{texto}</p>
+        <p className={`${textColor} mb-4 grow leading-relaxed`}>{texto}</p>
         <div className="mt-auto pt-4 border-t border-gray-100">
           <p className="font-bold text-sm uppercase tracking-wide text-gray-700 transition-colors duration-300">
             {destacado}

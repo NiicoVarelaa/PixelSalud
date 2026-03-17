@@ -1,16 +1,5 @@
 import PropTypes from "prop-types";
 
-/**
- * PageHeader - Componente reutilizable para títulos y descripciones de módulos
- * Asegura consistencia visual y tamaño uniforme en diferentes pantallas
- *
- * @component
- * @example
- * <PageHeader
- *   title="Gestión de Productos"
- *   description="166 productos encontrados"
- * />
- */
 const PageHeader = ({ title, description }) => {
   return (
     <header className="mb-4 sm:mb-5 shrink-0">

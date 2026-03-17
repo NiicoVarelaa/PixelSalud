@@ -77,7 +77,7 @@ const MisCompras = () => {
       setCargando(true);
       try {
         const backendUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:5000";
+          import.meta.env.VITE_API_URL || "http://localhost:5000/api";
         const { data } = await axios.get(`${backendUrl}/mis-compras`, {
           headers: { auth: `Bearer ${token}` },
         });

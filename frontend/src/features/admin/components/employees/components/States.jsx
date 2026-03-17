@@ -11,7 +11,7 @@ export const LoadingState = () => {
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
       >
-        <Loader2 className="w-12 h-12 text-blue-600" />
+        <Loader2 className="w-12 h-12 text-green-600" />
       </motion.div>
       <p className="text-gray-500 mt-4 font-medium">Cargando personal...</p>
     </div>
@@ -41,7 +41,7 @@ export const EmptyState = ({ onCrearEmpleado }) => {
       {onCrearEmpleado && (
         <button
           onClick={onCrearEmpleado}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-md"
+          className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
         >
           + Registrar Primer Empleado
         </button>

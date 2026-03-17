@@ -7,6 +7,7 @@ const useDashboardData = () => {
     ventasHoy: { total: 0, transacciones: 0 },
     ventasSemana: { total: 0 },
     productos: { total: 0, activos: 0, stockBajo: 0 },
+    clientes: { total: 0 },
     productosMasVendidos: [],
     ticketPromedio: 0,
   });
@@ -28,6 +29,7 @@ const useDashboardData = () => {
             ventasHoy: response.data.data.ventasHoy,
             ventasSemana: response.data.data.ventasSemana,
             productos: response.data.data.productos,
+            clientes: response.data.data.clientes || { total: 0 },
             productosMasVendidos: response.data.data.productosMasVendidos || [],
             ticketPromedio: response.data.data.ticketPromedio || 0,
           });

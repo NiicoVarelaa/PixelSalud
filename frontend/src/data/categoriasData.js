@@ -1,4 +1,3 @@
-
 import Fragancias from '../assets/Fragancias.webp';
 import Belleza from '../assets/Belleza.webp';
 import Dermocosmetica from '../assets/Dermocosmetica.webp';
@@ -6,7 +5,6 @@ import MedConReceta from '../assets/MedConReceta.webp';
 import MedVentaLibre from '../assets/MedVentaLibre.webp';
 import CuidadoPersonal from '../assets/CuidadoPersonal.webp';
 import Bebes from '../assets/Bebes.webp';
-import CyberMonday from '../assets/CyberMonday.webp';
 
 export const CATEGORIAS_DATA = [
   { 
@@ -48,5 +46,10 @@ export const CATEGORIAS_DATA = [
     text: 'Bebés y Niños', 
     image: Bebes, 
     link: 'Bebes y Niños',
+  },
+  { 
+    text: 'Nutrición y Deportes', 
+    image: Bebes, 
+    link: 'Nutrición y Deportes',
   },
 ];
