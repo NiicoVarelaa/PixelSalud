@@ -12,7 +12,8 @@ export const ProductTableRow = ({
   onEstablecerDescuento,
   onCambiarOferta,
 }) => {
-  const tieneOferta = producto.enOferta && producto.porcentajeDescuento > 0;
+  const tieneOferta =
+    Boolean(producto.enOferta) && Number(producto.porcentajeDescuento) > 0;
   const precioConDescuento = calcularPrecioConDescuento(producto);
   const enCampana = estaEnCampana(producto.idProducto);
 
@@ -23,45 +24,45 @@ export const ProductTableRow = ({
       transition={{ duration: 0.2, delay: index * 0.03 }}
       className="hover:bg-gray-50 transition-colors group"
     >
-      <td className="px-6 py-4">
-        <div className="flex items-center gap-4">
+      <td className="px-4 py-2.5">
+        <div className="flex items-center gap-3">
           <ProductImage
             src={getProductoImageUrl(producto)}
             alt={producto.nombreProducto}
             tieneOferta={tieneOferta}
-            className="w-14 h-14"
+            className="w-10 h-10"
           />
-          <div>
-            <p className="font-semibold text-gray-900 group-hover:text-primary-700 transition-colors">
+          <div className="min-w-0">
+            <p className="font-semibold text-sm text-gray-900 group-hover:text-primary-700 transition-colors truncate max-w-[230px] xl:max-w-[320px]">
               {producto.nombreProducto}
             </p>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <p className="text-xs text-gray-500 mt-0.5">
               Stock: <span className="font-medium">{producto.stock}</span>
             </p>
           </div>
         </div>
       </td>
-      <td className="px-6 py-4">
-        <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">
+      <td className="px-4 py-2.5">
+        <span className="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium whitespace-nowrap">
           {producto.categoria}
         </span>
       </td>
-      <td className="px-6 py-4">
+      <td className="px-4 py-2.5">
         <ProductPrice
           precioRegular={producto.precioRegular}
           precioConDescuento={precioConDescuento}
           tieneOferta={tieneOferta}
         />
       </td>
-      <td className="px-6 py-4 text-center">
+      <td className="px-4 py-2.5 text-center">
         <ProductStatus
           tieneOferta={tieneOferta}
           porcentajeDescuento={producto.porcentajeDescuento}
           enCampana={enCampana}
         />
       </td>
-      <td className="px-6 py-4">
-        <div className="flex items-center justify-center gap-2">
+      <td className="px-4 py-2.5">
+        <div className="flex items-center justify-center gap-1.5">
           <ProductActions
             producto={producto}
             enCampana={enCampana}

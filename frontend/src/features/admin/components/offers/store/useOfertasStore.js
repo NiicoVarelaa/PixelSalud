@@ -9,7 +9,7 @@ export const useOfertasStore = create((set) => ({
   filtroCategoria: "todas",
   filtroDescuento: "todos", // todos, 10, 15, 20, sin-oferta
   paginaActual: 1,
-  itemsPorPagina: 10,
+  itemsPorPagina: 5,
 
   // Acciones
   setProductos: (productos) => set({ productos }),

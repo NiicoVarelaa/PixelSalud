@@ -180,7 +180,6 @@ const SidebarAdmin = () => {
     },
   ];
 
-  // Agregar badge dinámico a Mensajes
   const menuItemsWithBadges = menuItems.map((item) => {
     if (item.path === "/admin/mensajes") {
       return {
@@ -241,14 +240,12 @@ const SidebarAdmin = () => {
 
   return (
     <>
-      {/* Mobile Navbar - Sticky Top */}
       <nav
-        className="lg:hidden sticky top-0 z-50 bg-gradient-to-r from-white via-green-50/30 to-white 
+        className="lg:hidden sticky top-0 z-50 bg-linear-to-r from-white via-green-50/30 to-white 
                    border-b-2 border-gray-200 shadow-md backdrop-blur-sm"
         aria-label="Barra de navegación móvil"
       >
         <div className="flex items-center justify-between px-4 h-16">
-          {/* Hamburger Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(true)}
             className="p-2.5 rounded-xl text-gray-700 hover:bg-green-100 hover:text-green-700
@@ -264,7 +261,7 @@ const SidebarAdmin = () => {
           {/* Brand/Title */}
           <div className="flex-1 flex justify-center items-center gap-2">
             <div
-              className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-600 to-green-700 
+              className="w-8 h-8 rounded-lg bg-linear-to-br from-green-600 to-green-700 
                             flex items-center justify-center shadow-sm"
             >
               <span className="text-white font-bold text-sm">PS</span>

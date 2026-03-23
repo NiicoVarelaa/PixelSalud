@@ -1,5 +1,10 @@
 // Banners
-export { BannerCarrusel, BannerGrid, BannerPromo, MiniBanner } from "./banners";
+export {
+  PromoHeroCarousel,
+  BannerGrid,
+  BannerPromo,
+  MiniBanner,
+} from "./banners";
 
 // Navigation
 export { Header, Navbar } from "./navigation";

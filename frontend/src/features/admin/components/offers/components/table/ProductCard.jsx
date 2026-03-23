@@ -12,7 +12,8 @@ export const ProductCard = ({
   onEstablecerDescuento,
   onCambiarOferta,
 }) => {
-  const tieneOferta = producto.enOferta && producto.porcentajeDescuento > 0;
+  const tieneOferta =
+    Boolean(producto.enOferta) && Number(producto.porcentajeDescuento) > 0;
   const precioConDescuento = calcularPrecioConDescuento(producto);
   const enCampana = estaEnCampana(producto.idProducto);
 
@@ -26,7 +27,7 @@ export const ProductCard = ({
       aria-label={`${producto.nombreProducto} - ${producto.categoria}`}
     >
       {/* Header: Imagen y título */}
-      <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-gray-50 to-white">
+      <div className="flex items-start gap-4 p-4 bg-linear-to-r from-gray-50 to-white">
         <ProductImageMobile
           src={getProductoImageUrl(producto)}
           alt={producto.nombreProducto}

@@ -44,26 +44,32 @@ export const OfertasTable = ({
   }
 
   return (
-    <>
-      {/* VISTA MOBILE: Cards (< lg) */}
+    <section
+      aria-label="Listado de productos para ofertas"
+      className="space-y-2 sm:space-y-3"
+    >
+      <p className="sr-only" role="status" aria-live="polite">
+        Hay {productosPaginados.length} productos visibles en esta pagina.
+      </p>
+
       <div
         className="lg:hidden space-y-3"
         role="list"
         aria-label="Lista de productos en oferta"
       >
         {productosPaginados.map((producto, index) => (
-          <ProductCard
-            key={producto.idProducto}
-            producto={producto}
-            index={index}
-            estaEnCampana={estaEnCampana}
-            onEstablecerDescuento={onEstablecerDescuento}
-            onCambiarOferta={onCambiarOferta}
-          />
+          <div key={producto.idProducto} role="listitem">
+            <ProductCard
+              producto={producto}
+              index={index}
+              estaEnCampana={estaEnCampana}
+              onEstablecerDescuento={onEstablecerDescuento}
+              onCambiarOferta={onCambiarOferta}
+            />
+          </div>
         ))}
       </div>
 
-      {/* VISTA DESKTOP: Tabla (≥ lg) */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -73,36 +79,40 @@ export const OfertasTable = ({
         aria-label="Tabla de productos en oferta"
       >
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full" aria-describedby="tabla-ofertas-ayuda">
+            <caption id="tabla-ofertas-ayuda" className="sr-only">
+              Tabla de productos para activar, cambiar o quitar ofertas
+              individuales.
+            </caption>
             <thead>
-              <tr className="bg-gradient-to-r from-primary-50 to-primary-100/50 border-b-2 border-primary-200">
+              <tr className="bg-linear-to-r from-primary-50 to-primary-100/50 border-b-2 border-primary-200">
                 <th
                   scope="col"
-                  className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                  className="px-4 py-2.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
                 >
                   Producto
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                  className="px-4 py-2.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
                 >
                   Categoría
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                  className="px-4 py-2.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
                 >
                   Precio
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider"
+                  className="px-4 py-2.5 text-center text-[11px] font-bold text-gray-700 uppercase tracking-wider"
                 >
                   Estado
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider"
+                  className="px-4 py-2.5 text-center text-[11px] font-bold text-gray-700 uppercase tracking-wider"
                 >
                   Acciones
                 </th>
@@ -123,6 +133,6 @@ export const OfertasTable = ({
           </table>
         </div>
       </motion.div>
-    </>
+    </section>
   );
 };

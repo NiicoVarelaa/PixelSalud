@@ -8,13 +8,11 @@ const SearchSuggestions = ({ searchTerm, productos, onClose, isLoading }) => {
     return null;
   }
 
-  // Generar sugerencias de categorías basadas en los productos encontrados
   const categorias = [...new Set(productos.map((p) => p.categoria))].slice(
     0,
     4,
   );
 
-  // Términos de búsqueda sugeridos basados en los productos
   const sugerenciasBusqueda = [
     ...new Set([
       searchTerm.toLowerCase(),
@@ -72,7 +70,6 @@ const SearchSuggestions = ({ searchTerm, productos, onClose, isLoading }) => {
           </div>
         ) : (
           <>
-            {/* Sección de Sugerencias */}
             {(sugerenciasBusqueda.length > 0 || categorias.length > 0) && (
               <div className="border-b border-gray-100">
                 <div className="p-3 sm:p-4">
@@ -80,24 +77,22 @@ const SearchSuggestions = ({ searchTerm, productos, onClose, isLoading }) => {
                     Sugerencias
                   </h3>
                   <div className="space-y-1">
-                    {/* Sugerencias de búsqueda */}
                     {sugerenciasBusqueda.map((sugerencia, index) => (
                       <button
                         key={`busqueda-${index}`}
                         onClick={(e) => handleSugerenciaClick(e, sugerencia)}
-                        className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-150 flex items-center justify-between group"
+                        className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-150 flex items-center justify-between group cursor-pointer"
                       >
                         <span className="capitalize">{sugerencia}</span>
                         <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-primary-600 transition-colors" />
                       </button>
                     ))}
 
-                    {/* Categorías relacionadas */}
                     {categorias.map((categoria) => (
                       <button
                         key={`categoria-${categoria}`}
                         onClick={(e) => handleCategoriaClick(e, categoria)}
-                        className="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-700 rounded-lg transition-colors duration-150 flex items-center justify-between group"
+                        className="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-700 rounded-lg transition-colors duration-150 flex items-center justify-between group cursor-pointer"
                       >
                         <span className="capitalize">{categoria}</span>
                         <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-primary-600 transition-colors" />
@@ -108,7 +103,6 @@ const SearchSuggestions = ({ searchTerm, productos, onClose, isLoading }) => {
               </div>
             )}
 
-            {/* Sección de Productos */}
             <div className="p-3 sm:p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -121,7 +115,7 @@ const SearchSuggestions = ({ searchTerm, productos, onClose, isLoading }) => {
                     );
                     onClose();
                   }}
-                  className="text-xs text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                  className="text-xs text-primary-600 hover:text-primary-700 font-medium transition-colors cursor-pointer"
                 >
                   Ver todos
                 </button>
@@ -132,9 +126,8 @@ const SearchSuggestions = ({ searchTerm, productos, onClose, isLoading }) => {
                   <button
                     key={producto.idProducto}
                     onClick={(e) => handleProductoClick(e, producto.idProducto)}
-                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-150 text-left group"
+                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-150 text-left group cursor-pointer"
                   >
-                    {/* Imagen del producto */}
                     <div className="shrink-0 w-20 h-20 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 flex items-center justify-center">
                       {producto.img ? (
                         <img
@@ -168,7 +161,6 @@ const SearchSuggestions = ({ searchTerm, productos, onClose, isLoading }) => {
                       </div>
                     </div>
 
-                    {/* Información del producto */}
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-medium text-gray-900 line-clamp-2 mb-1.5 group-hover:text-primary-700 transition-colors">
                         {producto.nombreProducto}
