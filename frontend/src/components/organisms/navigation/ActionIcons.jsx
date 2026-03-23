@@ -110,15 +110,15 @@ export function ActionIcons({
         ) : (
           <NavLink
             to="/login"
-            className="flex items-center gap-2 p-2"
+            className="group flex items-center gap-2 p-2"
             aria-label="Ingresar"
             tabIndex={0}
           >
             <CircleUserRound
               strokeWidth={1.5}
-              className="w-6 h-6 sm:w-7 sm:h-7 text-gray-700"
+              className="w-6 h-6 sm:w-7 sm:h-7 text-gray-700 transition-colors duration-200 group-hover:text-primary-700"
             />
-            <span className="hidden xl:block text-sm text-gray-700">
+            <span className="hidden xl:block text-sm text-gray-700 transition-colors duration-200 group-hover:text-primary-700">
               Ingresar
             </span>
           </NavLink>

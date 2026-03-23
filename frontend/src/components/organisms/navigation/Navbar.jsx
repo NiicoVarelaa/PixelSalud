@@ -149,7 +149,7 @@ const Navbar = () => {
         <div className="bg-white">
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
             {/* Primera fila: Logo + Buscador + Íconos */}
-            <div className="flex items-center justify-between gap-4 py-4 font-medium relative">
+            <div className="flex items-center justify-between gap-4 py-3 font-medium relative">
               {/* Logo */}
               <Link
                 to="/"
@@ -194,7 +194,7 @@ const Navbar = () => {
 
             {/* Segunda fila: Nav Links (Desktop) */}
             <nav className="hidden lg:block" aria-label="Enlaces principales">
-              <ul className="flex items-center justify-center gap-8 py-3 text-sm text-gray-700">
+              <ul className="flex items-center justify-center gap-8 pb-3 text-sm text-gray-700">
                 {/* Dropdown de Categorías */}
                 <NavbarCategoriesDropdown
                   isCategoriasOpen={isCategoriasOpen}

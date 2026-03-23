@@ -37,7 +37,7 @@ const AdminVentasO = () => {
 
   // Handlers
   const handleEditar = async (venta) => {
-    const success = await loadVentaForEdit(venta.idVentaO, venta);
+    const success = await loadVentaForEdit(venta);
     if (success) {
       setIsModalOpen(true);
     }

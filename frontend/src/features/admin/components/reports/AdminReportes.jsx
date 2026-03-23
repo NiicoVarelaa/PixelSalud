@@ -1,9 +1,15 @@
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@features/admin/components/shared";
-import { ReportCard, ReportFilters, ReportInfo } from "./components";
+import {
+  ReportCard,
+  ReportFilters,
+  ReportInfo,
+  ReportInfoModal,
+  ReportIncludesModal,
+} from "./components";
 import { useReportDownload, useReportFilters } from "./hooks";
 import { REPORTS_CONFIG } from "./constants/reportData";
 import { staggerContainer, fadeInUp } from "./utils/animations";
@@ -17,17 +23,20 @@ import { staggerContainer, fadeInUp } from "./utils/animations";
  * ✅ Hooks personalizados memoizados
  */
 const AdminReportes = () => {
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+
   // Hooks personalizados para gestión de estado y lógica
   const filterHook = useReportFilters();
   const {
     filters,
-    isOpen,
     hasActiveFilters,
     activeFiltersCount,
+    activeDateRange,
     setDateRange,
     updateFilter,
     clearFilters,
-    toggleFilters,
+    clearDateRange,
   } = filterHook;
 
   const { downloading, downloadReport } = useReportDownload(filters);
@@ -46,11 +55,31 @@ const AdminReportes = () => {
     [downloadReport],
   );
 
+  const handleOpenDetails = useCallback(
+    (report) => () => {
+      setSelectedReport(report);
+    },
+    [],
+  );
+
+  const handleCloseDetails = useCallback(() => {
+    setSelectedReport(null);
+  }, []);
+
+  const handleOpenInfoModal = useCallback(() => {
+    setIsInfoModalOpen(true);
+  }, []);
+
+  const handleCloseInfoModal = useCallback(() => {
+    setIsInfoModalOpen(false);
+  }, []);
+
   return (
     <AdminLayout
       title="Reportes y Estadísticas"
       description="Exporta reportes de ventas y productos en formato Excel con análisis detallados"
-      contentClassName="space-y-3 sm:space-y-4"
+      contentClassName="space-y-2.5 sm:space-y-3 pb-2"
+      usePageScroll
     >
       {/* Toast notifications */}
       <ToastContainer
@@ -70,20 +99,24 @@ const AdminReportes = () => {
       <motion.div variants={fadeInUp} initial="initial" animate="animate">
         <ReportFilters
           filters={filters}
-          isOpen={isOpen}
+          isOpen
           hasActiveFilters={hasActiveFilters}
           activeFiltersCount={activeFiltersCount}
-          onToggle={toggleFilters}
+          activeDateRange={activeDateRange}
+          onToggle={() => {}}
           onDateRangeChange={setDateRange}
           onFilterChange={updateFilter}
+          onClearDateRange={clearDateRange}
           onClear={clearFilters}
+          onOpenInfo={handleOpenInfoModal}
+          fixed
         />
       </motion.div>
 
       {/* Grid de Reportes */}
       <motion.section
         aria-labelledby="reportes-heading"
-        className="space-y-3 sm:space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 lg:gap-5"
+        className="space-y-2 sm:space-y-2.5 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 xl:grid-cols-4 xl:gap-3"
         variants={staggerContainer}
         initial="initial"
         animate="animate"
@@ -103,6 +136,7 @@ const AdminReportes = () => {
               <ReportCard
                 report={report}
                 downloading={downloading[report.id]}
+                onViewDetails={handleOpenDetails(report)}
                 onDownload={handleDownloadReport(report.id)}
               />
             </motion.div>
@@ -111,9 +145,25 @@ const AdminReportes = () => {
       </motion.section>
 
       {/* Información adicional */}
-      <motion.div variants={fadeInUp} initial="initial" animate="animate">
+      <motion.div
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
+        className="lg:hidden"
+      >
         <ReportInfo />
       </motion.div>
+
+      <ReportIncludesModal
+        isOpen={Boolean(selectedReport)}
+        report={selectedReport}
+        onClose={handleCloseDetails}
+      />
+
+      <ReportInfoModal
+        isOpen={isInfoModalOpen}
+        onClose={handleCloseInfoModal}
+      />
     </AdminLayout>
   );
 };

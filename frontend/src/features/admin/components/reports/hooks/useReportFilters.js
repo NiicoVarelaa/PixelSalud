@@ -8,6 +8,7 @@ import { INITIAL_FILTERS } from "../constants/reportData";
 export const useReportFilters = () => {
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [isOpen, setIsOpen] = useState(false);
+  const [activeDateRange, setActiveDateRange] = useState(null);
 
   /**
    * Calcula si hay filtros activos
@@ -64,6 +65,8 @@ export const useReportFilters = () => {
       fechaDesde: desde.toISOString().split("T")[0],
       fechaHasta: today.toISOString().split("T")[0],
     }));
+
+    setActiveDateRange(type);
   }, []);
 
   /**
@@ -71,6 +74,22 @@ export const useReportFilters = () => {
    */
   const updateFilter = useCallback((key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
+
+    if (key === "fechaDesde" || key === "fechaHasta") {
+      setActiveDateRange(null);
+    }
+  }, []);
+
+  /**
+   * Limpia sólo el rango de fechas
+   */
+  const clearDateRange = useCallback(() => {
+    setFilters((prev) => ({
+      ...prev,
+      fechaDesde: "",
+      fechaHasta: "",
+    }));
+    setActiveDateRange(null);
   }, []);
 
   /**
@@ -78,6 +97,7 @@ export const useReportFilters = () => {
    */
   const clearFilters = useCallback(() => {
     setFilters(INITIAL_FILTERS);
+    setActiveDateRange(null);
   }, []);
 
   /**
@@ -92,8 +112,10 @@ export const useReportFilters = () => {
     isOpen,
     hasActiveFilters,
     activeFiltersCount,
+    activeDateRange,
     setDateRange,
     updateFilter,
+    clearDateRange,
     clearFilters,
     toggleFilters,
   };

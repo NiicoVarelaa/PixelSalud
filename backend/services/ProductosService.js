@@ -80,10 +80,45 @@ const actualizarProducto = async (idProducto, data) => {
     throw createValidationError("El stock no puede ser negativo");
   }
 
-  const actualizado = await productosRepository.update(idProducto, data);
+  const updateData = { ...data };
+  const enOferta =
+    updateData.enOferta === undefined
+      ? undefined
+      : Boolean(updateData.enOferta);
+  const porcentajeDescuento =
+    updateData.porcentajeDescuento === undefined
+      ? undefined
+      : Number(updateData.porcentajeDescuento);
 
-  if (!actualizado) {
-    throw new Error("Error al actualizar el producto");
+  delete updateData.enOferta;
+  delete updateData.porcentajeDescuento;
+
+  if (enOferta === true) {
+    if (!Number.isFinite(porcentajeDescuento) || porcentajeDescuento <= 0) {
+      throw createValidationError(
+        "Debe enviar un porcentaje de descuento valido para activar oferta",
+      );
+    }
+
+    await productosRepository.upsertOfertaProducto(
+      idProducto,
+      porcentajeDescuento,
+    );
+  }
+
+  if (enOferta === false) {
+    await productosRepository.desactivarOfertaProducto(idProducto);
+  }
+
+  if (Object.keys(updateData).length > 0) {
+    const actualizado = await productosRepository.update(
+      idProducto,
+      updateData,
+    );
+
+    if (!actualizado) {
+      throw new Error("Error al actualizar el producto");
+    }
   }
 
   return await productosRepository.findByIdWithOfertas(idProducto);

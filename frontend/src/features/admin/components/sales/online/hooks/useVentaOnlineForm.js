@@ -107,8 +107,15 @@ export const useVentaOnlineForm = (onSuccess) => {
       toast.error("El carrito está vacío.");
       return false;
     }
+
+    const idVenta = Number(editingId);
+    if (!Number.isInteger(idVenta) || idVenta <= 0) {
+      toast.error("No se pudo identificar la venta a editar.");
+      return false;
+    }
+
     try {
-      await apiClient.put(`/ventaOnline/actualizar/${editingId}`, ventaForm);
+      await apiClient.put(`/ventaOnline/actualizar/${idVenta}`, ventaForm);
       toast.success("Venta Online actualizada.");
       if (onSuccess) onSuccess();
       return true;

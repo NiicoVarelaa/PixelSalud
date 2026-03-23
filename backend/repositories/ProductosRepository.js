@@ -204,6 +204,41 @@ const update = async (idProducto, data) => {
   return result.affectedRows > 0;
 };
 
+const upsertOfertaProducto = async (idProducto, porcentajeDescuento) => {
+  // Cerrar cualquier oferta activa previa para evitar duplicados vigentes.
+  await pool.query(
+    `UPDATE Ofertas
+     SET esActiva = 0,
+         fechaFin = NOW()
+     WHERE idProducto = ?
+       AND esActiva = 1
+       AND NOW() BETWEEN fechaInicio AND fechaFin`,
+    [idProducto],
+  );
+
+  const [result] = await pool.query(
+    `INSERT INTO Ofertas (idProducto, porcentajeDescuento, fechaInicio, fechaFin, esActiva)
+     VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 10 YEAR), 1)`,
+    [idProducto, porcentajeDescuento],
+  );
+
+  return result.affectedRows > 0;
+};
+
+const desactivarOfertaProducto = async (idProducto) => {
+  const [result] = await pool.query(
+    `UPDATE Ofertas
+     SET esActiva = 0,
+         fechaFin = NOW()
+     WHERE idProducto = ?
+       AND esActiva = 1
+       AND NOW() BETWEEN fechaInicio AND fechaFin`,
+    [idProducto],
+  );
+
+  return result.affectedRows > 0;
+};
+
 const exists = async (criteria) => {
   const keys = Object.keys(criteria);
   if (keys.length === 0) return false;
@@ -365,6 +400,8 @@ module.exports = {
   searchByName,
   create,
   update,
+  upsertOfertaProducto,
+  desactivarOfertaProducto,
   exists,
   updateActivo,
   darBaja,

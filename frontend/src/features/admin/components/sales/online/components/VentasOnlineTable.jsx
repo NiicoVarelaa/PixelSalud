@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import {
   Eye,
   Edit,
@@ -10,11 +11,163 @@ import {
   CheckCircle2,
   AlertCircle,
   XCircle,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import { useAuthStore } from "@store/useAuthStore";
 import { useVentasOnlineStore } from "../store/useVentasOnlineStore";
 
 const normalizeEstado = (estado) => String(estado || "").toLowerCase();
+
+const ESTADO_OPTIONS = [
+  { value: "pendiente", label: "Pendiente" },
+  { value: "retirado", label: "Retirado" },
+  { value: "cancelado", label: "Cancelado" },
+];
+
+const EstadoInlineSelect = ({ value, onChange, compact = false }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectRef = useRef(null);
+  const menuRef = useRef(null);
+  const [menuStyle, setMenuStyle] = useState({ top: 0, left: 0, width: 180 });
+
+  const selectedOption = useMemo(() => {
+    return (
+      ESTADO_OPTIONS.find((opt) => opt.value === normalizeEstado(value)) ||
+      ESTADO_OPTIONS[0]
+    );
+  }, [value]);
+
+  const handleSelect = useCallback(
+    (nextValue) => {
+      onChange(nextValue);
+      setIsOpen(false);
+    },
+    [onChange],
+  );
+
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+
+    const updateMenuPosition = () => {
+      if (!selectRef.current) {
+        return;
+      }
+
+      const rect = selectRef.current.getBoundingClientRect();
+      const width = compact ? Math.max(rect.width, 160) : rect.width;
+      const left = compact ? rect.right - width : rect.left;
+
+      setMenuStyle({
+        top: rect.bottom + 8,
+        left,
+        width,
+      });
+    };
+
+    updateMenuPosition();
+
+    const handleClickOutside = (event) => {
+      const clickInsideTrigger =
+        selectRef.current && selectRef.current.contains(event.target);
+      const clickInsideMenu =
+        menuRef.current && menuRef.current.contains(event.target);
+
+      if (!clickInsideTrigger && !clickInsideMenu) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleViewportChange = () => {
+      setIsOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("scroll", handleViewportChange, true);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("scroll", handleViewportChange, true);
+    };
+  }, [isOpen, compact]);
+
+  const triggerClassName = compact
+    ? "h-9 pl-3 pr-8 rounded-full text-xs"
+    : "h-10 px-3 rounded-xl text-sm";
+
+  const menu = (
+    <ul
+      ref={menuRef}
+      role="listbox"
+      className="fixed z-1200 bg-white border border-gray-100 rounded-xl shadow-xl py-1.5"
+      style={{
+        top: `${menuStyle.top}px`,
+        left: `${menuStyle.left}px`,
+        width: `${menuStyle.width}px`,
+      }}
+    >
+      {ESTADO_OPTIONS.map((opt) => {
+        const isSelected = normalizeEstado(value) === opt.value;
+
+        return (
+          <li
+            key={opt.value}
+            role="option"
+            aria-selected={isSelected}
+            onClick={() => handleSelect(opt.value)}
+            className={`
+              flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer transition-colors
+              ${
+                isSelected
+                  ? "bg-green-50 text-green-700 font-bold"
+                  : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-medium"
+              }
+            `}
+          >
+            <span className="truncate">{opt.label}</span>
+            {isSelected && (
+              <Check className="h-4 w-4 text-green-600 shrink-0" />
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+
+  return (
+    <div
+      ref={selectRef}
+      className={compact ? "relative inline-block" : "relative w-full"}
+    >
+      <button
+        type="button"
+        role="combobox"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={`
+          w-full ${triggerClassName}
+          inline-flex items-center justify-between gap-2
+          border border-gray-200 bg-white text-gray-700 font-semibold
+          cursor-pointer transition-all duration-200 ease-in-out outline-none
+          hover:border-gray-300
+          focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500
+        `}
+      >
+        <span className="truncate">{selectedOption.label}</span>
+        <ChevronDown
+          className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180 text-primary-600" : ""}`}
+        />
+      </button>
+
+      {isOpen ? createPortal(menu, document.body) : null}
+    </div>
+  );
+};
 
 const EstadoChip = ({ estado }) => {
   const estadoNormalizado = normalizeEstado(estado);
@@ -73,7 +226,7 @@ export const VentasOnlineTable = ({
     itemsPorPagina,
   } = useVentasOnlineStore();
 
-  const parseHora = (horaRaw) => {
+  const parseHora = useCallback((horaRaw) => {
     if (!horaRaw) {
       return { horas: 0, minutos: 0, segundos: 0 };
     }
@@ -85,54 +238,59 @@ export const VentasOnlineTable = ({
       minutos: Number.parseInt(m, 10) || 0,
       segundos: Number.parseInt(s, 10) || 0,
     };
-  };
+  }, []);
 
-  const parseVentaTimestamp = (venta) => {
-    const fechaRaw = String(venta?.fechaPago || "").trim();
-    const horaRaw = String(venta?.horaPago || "").trim();
-    const { horas, minutos, segundos } = parseHora(horaRaw);
+  const parseVentaTimestamp = useCallback(
+    (venta) => {
+      const fechaRaw = String(
+        venta?.fechaPago || venta?.fecha || venta?.createdAt || "",
+      ).trim();
+      const horaRaw = String(venta?.horaPago || venta?.hora || "").trim();
+      const { horas, minutos, segundos } = parseHora(horaRaw);
 
-    if (!fechaRaw) {
-      return 0;
-    }
+      if (!fechaRaw) {
+        return 0;
+      }
 
-    const matchIsoSimple = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(fechaRaw);
-    if (matchIsoSimple) {
-      const [, y, mo, d] = matchIsoSimple;
-      return new Date(
-        Number(y),
-        Number(mo) - 1,
-        Number(d),
-        horas,
-        minutos,
-        segundos,
-      ).getTime();
-    }
+      const matchIsoSimple = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(fechaRaw);
+      if (matchIsoSimple) {
+        const [, y, mo, d] = matchIsoSimple;
+        return new Date(
+          Number(y),
+          Number(mo) - 1,
+          Number(d),
+          horas,
+          minutos,
+          segundos,
+        ).getTime();
+      }
 
-    const matchLatam = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(fechaRaw);
-    if (matchLatam) {
-      const [, d, mo, y] = matchLatam;
-      return new Date(
-        Number(y),
-        Number(mo) - 1,
-        Number(d),
-        horas,
-        minutos,
-        segundos,
-      ).getTime();
-    }
+      const matchLatam = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(fechaRaw);
+      if (matchLatam) {
+        const [, d, mo, y] = matchLatam;
+        return new Date(
+          Number(y),
+          Number(mo) - 1,
+          Number(d),
+          horas,
+          minutos,
+          segundos,
+        ).getTime();
+      }
 
-    const parsed = new Date(fechaRaw);
-    if (Number.isNaN(parsed.getTime())) {
-      return 0;
-    }
+      const parsed = new Date(fechaRaw);
+      if (Number.isNaN(parsed.getTime())) {
+        return 0;
+      }
 
-    if (horaRaw) {
-      parsed.setHours(horas, minutos, segundos, 0);
-    }
+      if (horaRaw) {
+        parsed.setHours(horas, minutos, segundos, 0);
+      }
 
-    return parsed.getTime();
-  };
+      return parsed.getTime();
+    },
+    [parseHora],
+  );
 
   const itemsActuales = useMemo(() => {
     const ventasFiltradas = ventas.filter((v) => {
@@ -157,21 +315,29 @@ export const VentasOnlineTable = ({
     const ventasOrdenadas = [...ventasFiltradas].sort((a, b) => {
       const fechaA = parseVentaTimestamp(a);
       const fechaB = parseVentaTimestamp(b);
+      const ordenAscendente = filtroOrden === "mas_viejo";
 
-      if (fechaA === fechaB) {
-        return Number(b.idVentaO || 0) - Number(a.idVentaO || 0);
+      if (fechaA !== fechaB) {
+        return ordenAscendente ? fechaA - fechaB : fechaB - fechaA;
       }
 
-      if (filtroOrden === "mas_viejo") {
-        return fechaA - fechaB;
-      }
+      const idA = Number(a.idVentaO || 0);
+      const idB = Number(b.idVentaO || 0);
 
-      return fechaB - fechaA;
+      return ordenAscendente ? idA - idB : idB - idA;
     });
 
     const indiceUltimo = paginaActual * itemsPorPagina;
     return ventasOrdenadas.slice(indiceUltimo - itemsPorPagina, indiceUltimo);
-  }, [ventas, filtro, filtroEstado, filtroOrden, paginaActual, itemsPorPagina]);
+  }, [
+    ventas,
+    filtro,
+    filtroEstado,
+    filtroOrden,
+    paginaActual,
+    itemsPorPagina,
+    parseVentaTimestamp,
+  ]);
 
   const formatearFecha = (fecha) =>
     !fecha ? "-" : new Date(fecha).toLocaleDateString("es-ES");
@@ -307,40 +473,12 @@ export const VentasOnlineTable = ({
 
               <div>
                 <p className="text-xs text-gray-500 mb-1">Estado</p>
-                <div className="relative">
-                  <select
-                    value={normalizeEstado(venta.estado)}
-                    onChange={(e) =>
-                      onEstadoChange(venta.idVentaO, e.target.value)
-                    }
-                    className="
-                      w-full h-10 px-3 pr-9 text-sm font-semibold rounded-xl border border-gray-200
-                      cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500
-                      bg-white text-gray-700 appearance-none
-                    "
-                  >
-                    <option value="pendiente">Pendiente</option>
-                    <option value="retirado">Retirado</option>
-                    <option value="cancelado">Cancelado</option>
-                  </select>
-
-                  <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                    <svg
-                      className="w-4 h-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                </div>
+                <EstadoInlineSelect
+                  value={venta.estado}
+                  onChange={(nextValue) =>
+                    onEstadoChange(venta.idVentaO, nextValue)
+                  }
+                />
               </div>
             </div>
 
@@ -471,40 +609,13 @@ export const VentasOnlineTable = ({
                     {formatearMoneda(venta.totalPago)}
                   </td>
                   <td className="px-4 py-4 text-center">
-                    <div className="relative inline-block">
-                      <select
-                        value={normalizeEstado(venta.estado)}
-                        onChange={(e) =>
-                          onEstadoChange(venta.idVentaO, e.target.value)
-                        }
-                        className="
-                          h-9 pl-3 pr-8 text-xs font-semibold rounded-full border border-gray-200
-                          cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500
-                          bg-white text-gray-700 appearance-none
-                        "
-                      >
-                        <option value="pendiente">Pendiente</option>
-                        <option value="retirado">Retirado</option>
-                        <option value="cancelado">Cancelado</option>
-                      </select>
-
-                      <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-                        <svg
-                          className="w-3.5 h-3.5 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          aria-hidden="true"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
-                      </div>
-                    </div>
+                    <EstadoInlineSelect
+                      value={venta.estado}
+                      compact
+                      onChange={(nextValue) =>
+                        onEstadoChange(venta.idVentaO, nextValue)
+                      }
+                    />
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-center gap-1.5">

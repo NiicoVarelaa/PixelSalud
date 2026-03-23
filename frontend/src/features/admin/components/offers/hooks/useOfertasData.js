@@ -107,7 +107,7 @@ export const useOfertasData = () => {
         toast.success(
           activar
             ? `¡Oferta ${porcentaje}% aplicada a ${producto.nombreProducto}!`
-            : `Oferta removida de ${producto.nombreProducto}`,
+            : `Oferta desactivada de ${producto.nombreProducto}`,
           { icon: activar ? "🎉" : "✅" },
         );
 

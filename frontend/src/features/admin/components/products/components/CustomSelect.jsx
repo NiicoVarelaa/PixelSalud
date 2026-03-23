@@ -26,7 +26,14 @@ import { ChevronDown, Check } from "lucide-react";
  *   options={options}
  * />
  */
-const CustomSelect = ({ id, label, value, onChange, options }) => {
+const CustomSelect = ({
+  id,
+  label,
+  value,
+  onChange,
+  options,
+  hideLabel = false,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef(null);
 
@@ -79,7 +86,7 @@ const CustomSelect = ({ id, label, value, onChange, options }) => {
     <div ref={selectRef} className="relative w-full">
       <label
         id={`${id}-label`}
-        className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 ml-1"
+        className={`${hideLabel ? "sr-only" : "block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 ml-1"}`}
       >
         {label}
       </label>
@@ -112,7 +119,7 @@ const CustomSelect = ({ id, label, value, onChange, options }) => {
           id={`${id}-listbox`}
           role="listbox"
           aria-labelledby={`${id}-label`}
-          className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1.5 focus:outline-none animate-in fade-in slide-in-from-top-2 duration-200"
+          className="absolute z-1200 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1.5 focus:outline-none animate-in fade-in slide-in-from-top-2 duration-200"
         >
           {options.map((opt) => {
             const isSelected = value === opt.value;
@@ -155,6 +162,7 @@ CustomSelect.propTypes = {
       label: PropTypes.string.isRequired,
     }),
   ).isRequired,
+  hideLabel: PropTypes.bool,
 };
 
 export default React.memo(CustomSelect);

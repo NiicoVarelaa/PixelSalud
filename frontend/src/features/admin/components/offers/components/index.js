@@ -1,4 +1,5 @@
-export { OfertasFilters } from "./OfertasFilters";
-export { OfertasTable } from "./OfertasTable";
-export { Pagination } from "./Pagination";
-export { ModalDescuento } from "./ModalDescuento";
+export { OfertasFilters } from "./filters/OfertasFilters";
+export { OfertasTable } from "./table";
+export { Pagination } from "./pagination/pagination";
+export { ModalDescuento } from "./modals/ModalDescuento";
+export { ModalAgregarOferta } from "./modals/ModalAgregarOferta";

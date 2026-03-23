@@ -8,6 +8,7 @@ const AdminLayout = ({
   headerAction,
   contentClassName = "",
   nested = false,
+  usePageScroll = false,
 }) => {
   return (
     <div
@@ -43,7 +44,13 @@ const AdminLayout = ({
           )}
         </div>
 
-        <div className={`flex-1 overflow-y-auto min-h-0 ${contentClassName}`}>
+        <div
+          className={
+            usePageScroll
+              ? `${contentClassName}`
+              : `flex-1 overflow-y-auto min-h-0 ${contentClassName}`
+          }
+        >
           {children}
         </div>
       </div>
@@ -58,6 +65,7 @@ AdminLayout.propTypes = {
   headerAction: PropTypes.node,
   contentClassName: PropTypes.string,
   nested: PropTypes.bool,
+  usePageScroll: PropTypes.bool,
 };
 
 export default AdminLayout;

@@ -3,7 +3,7 @@ import { useProductStore } from "@store/useProductStore";
 
 import { Header, Footer } from "@components/organisms";
 import {
-  BannerCarrusel,
+  PromoHeroCarousel,
   BannerGrid,
   BannerPromo,
 } from "@components/organisms/banners";
@@ -34,7 +34,7 @@ const Inicio = () => {
   return (
     <div>
       <Header />
-      <BannerCarrusel />
+      <PromoHeroCarousel />
       <main>
         <div className="my-16 md:my-20">
           <Categorias />

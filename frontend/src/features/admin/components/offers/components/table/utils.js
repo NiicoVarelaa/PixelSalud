@@ -19,8 +19,10 @@ export const formatearPrecio = (precio) => {
 };
 
 export const calcularPrecioConDescuento = (producto) => {
-  const tieneOferta = producto.enOferta && producto.porcentajeDescuento > 0;
-  return tieneOferta
-    ? producto.precioRegular * (1 - producto.porcentajeDescuento / 100)
-    : producto.precioRegular;
+  const tieneOferta =
+    Boolean(producto.enOferta) && Number(producto.porcentajeDescuento) > 0;
+  const precioBase = Number(producto.precioRegular) || 0;
+  const descuento = Number(producto.porcentajeDescuento) || 0;
+
+  return tieneOferta ? precioBase * (1 - descuento / 100) : precioBase;
 };

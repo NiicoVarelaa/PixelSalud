@@ -1,5 +1,14 @@
 import { useMemo } from "react";
 
+const normalizeDiscount = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.round(parsed) : 0;
+};
+
+const hasActiveOffer = (product) =>
+  Boolean(product.enOferta) &&
+  normalizeDiscount(product.porcentajeDescuento) > 0;
+
 export const useProductFilters = ({
   productos,
   busqueda,
@@ -9,7 +18,9 @@ export const useProductFilters = ({
   itemsPorPagina,
 }) => {
   return useMemo(() => {
-    const filtrados = productos.filter((p) => {
+    const productosConOferta = productos.filter((p) => hasActiveOffer(p));
+
+    const filtrados = productosConOferta.filter((p) => {
       const cumpleBusqueda =
         !busqueda ||
         p.nombreProducto.toLowerCase().includes(busqueda.toLowerCase());
@@ -18,11 +29,9 @@ export const useProductFilters = ({
         filtroCategoria === "todas" || p.categoria === filtroCategoria;
 
       let cumpleDescuento = true;
-      if (filtroDescuento === "sin-oferta") {
-        cumpleDescuento = !p.enOferta || p.porcentajeDescuento === 0;
-      } else if (filtroDescuento !== "todos") {
+      if (filtroDescuento !== "todos") {
         cumpleDescuento =
-          p.enOferta && p.porcentajeDescuento === parseInt(filtroDescuento);
+          normalizeDiscount(p.porcentajeDescuento) === Number(filtroDescuento);
       }
 
       return cumpleBusqueda && cumpleCategoria && cumpleDescuento;

@@ -27,12 +27,12 @@ export const ProductPrice = ({
   return (
     <div className="flex flex-col">
       {tieneOferta && (
-        <span className="text-sm text-gray-400 line-through font-medium">
+        <span className="text-xs text-gray-400 line-through font-medium">
           {formatearPrecio(precioRegular)}
         </span>
       )}
       <span
-        className={`font-bold ${tieneOferta ? "text-red-600 text-lg" : "text-gray-900 text-base"}`}
+        className={`font-bold ${tieneOferta ? "text-red-600 text-base" : "text-gray-900 text-sm"}`}
       >
         {formatearPrecio(precioConDescuento)}
       </span>

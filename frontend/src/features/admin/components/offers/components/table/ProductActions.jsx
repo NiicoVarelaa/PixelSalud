@@ -18,7 +18,7 @@ export const ProductActions = ({
       );
     }
     return (
-      <span className="text-sm text-purple-600 font-semibold">
+      <span className="text-xs text-purple-600 font-semibold whitespace-nowrap">
         Producto en campaña
       </span>
     );
@@ -34,7 +34,7 @@ export const ProductActions = ({
             onClick={() => onEstablecerDescuento(producto)}
             className="
               flex-1 flex items-center justify-center gap-2 h-12
-              bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700
+              bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700
               text-white rounded-xl
               font-semibold text-sm shadow-lg
               transition-all duration-200
@@ -43,23 +43,24 @@ export const ProductActions = ({
             aria-label={`Cambiar descuento de ${producto.nombreProducto}`}
           >
             <Edit size={18} aria-hidden="true" />
-            <span>Cambiar %</span>
+            <span>Editar</span>
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => onCambiarOferta(producto, false)}
             className="
-              flex items-center justify-center w-12 h-12
-              bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700
+              flex items-center justify-center gap-2 h-12 px-4
+              bg-linear-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700
               text-white rounded-xl shadow-lg
               transition-all duration-200
               focus:outline-none focus-visible:ring-4 focus-visible:ring-red-300
             "
-            aria-label={`Quitar oferta de ${producto.nombreProducto}`}
-            title="Quitar oferta"
+            aria-label={`Desactivar oferta de ${producto.nombreProducto}`}
+            title="Desactivar oferta"
           >
-            <XCircle size={22} aria-hidden="true" />
+            <XCircle size={20} aria-hidden="true" />
+            <span className="text-sm font-semibold">Desactivar</span>
           </motion.button>
         </>
       );
@@ -72,30 +73,30 @@ export const ProductActions = ({
           whileTap={{ scale: 0.95 }}
           onClick={() => onEstablecerDescuento(producto)}
           className="
-            px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg
-            text-sm font-semibold shadow-sm
+            px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg
+            text-xs font-semibold shadow-sm whitespace-nowrap
             transition-all duration-200
             focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
           "
-          aria-label={`Cambiar descuento de ${producto.nombreProducto}`}
+          aria-label={`Editar descuento de ${producto.nombreProducto}`}
         >
-          Cambiar %
+          Editar
         </motion.button>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => onCambiarOferta(producto, false)}
           className="
-            inline-flex items-center gap-1.5 px-4 py-2
+            inline-flex items-center gap-1 px-3 py-1.5
             bg-red-500 hover:bg-red-600 text-white rounded-lg
-            text-sm font-semibold shadow-sm
+            text-xs font-semibold shadow-sm whitespace-nowrap
             transition-all duration-200
             focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2
           "
-          aria-label={`Quitar oferta de ${producto.nombreProducto}`}
+          aria-label={`Desactivar oferta de ${producto.nombreProducto}`}
         >
           <XCircle size={16} aria-hidden="true" />
-          Quitar
+          Desactivar
         </motion.button>
       </>
     );
@@ -108,12 +109,12 @@ export const ProductActions = ({
       onClick={() => onEstablecerDescuento(producto)}
       className={`
         inline-flex items-center justify-center gap-2
-        bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800
+        bg-linear-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800
         text-white rounded-xl
-        font-semibold text-sm shadow-lg
+        font-semibold text-xs shadow-lg whitespace-nowrap
         transition-all duration-200
         focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-300
-        ${isMobile ? "flex-1 h-12" : "px-5 py-2"}
+        ${isMobile ? "flex-1 h-12" : "px-3 py-1.5"}
       `}
       aria-label={`Activar oferta en ${producto.nombreProducto}`}
     >
