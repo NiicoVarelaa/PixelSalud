@@ -5,6 +5,8 @@ import apiClient from "@utils/apiClient";
 export const useCuponesData = () => {
   const [cupones, setCupones] = useState([]);
   const [historial, setHistorial] = useState([]);
+  const [clientes, setClientes] = useState([]);
+  const [cargandoClientes, setCargandoClientes] = useState(true);
   const [cargando, setCargando] = useState(true);
 
   const fetchCupones = async () => {
@@ -32,6 +34,20 @@ export const useCuponesData = () => {
     }
   };
 
+  const fetchClientes = async () => {
+    try {
+      setCargandoClientes(true);
+      const response = await apiClient.get("/clientes");
+      setClientes(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      toast.error("Error al cargar clientes para envio de cupones");
+      console.error("Error:", error);
+      setClientes([]);
+    } finally {
+      setCargandoClientes(false);
+    }
+  };
+
   const crearCupon = async (nuevoCupon, onSuccess) => {
     // Validación
     if (
@@ -42,6 +58,16 @@ export const useCuponesData = () => {
       !nuevoCupon.fechaVencimiento
     ) {
       toast.error("Los campos marcados con * son obligatorios");
+      return false;
+    }
+
+    if (
+      nuevoCupon.enviarPorMail &&
+      nuevoCupon.destinatarios !== "todos" &&
+      (!Array.isArray(nuevoCupon.destinatarios) ||
+        nuevoCupon.destinatarios.length === 0)
+    ) {
+      toast.error("Selecciona al menos un cliente para enviar el cupon");
       return false;
     }
 
@@ -123,11 +149,14 @@ export const useCuponesData = () => {
   useEffect(() => {
     fetchCupones();
     fetchHistorial();
+    fetchClientes();
   }, []);
 
   return {
     cupones,
     historial,
+    clientes,
+    cargandoClientes,
     cargando,
     fetchCupones,
     fetchHistorial,

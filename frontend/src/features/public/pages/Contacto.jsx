@@ -1,19 +1,24 @@
 import { useState, useEffect } from "react";
 import {
-  FaPaperPlane,
-  FaUser,
-  FaEnvelope,
-  FaComment,
-  FaAt,
-  FaClock,
-  FaExclamationTriangle,
-  FaTimes,
-} from "react-icons/fa";
+  Send,
+  User,
+  Mail,
+  MessageSquare,
+  AtSign,
+  Clock3,
+  Tags,
+  AlertTriangle,
+  X,
+  LogIn,
+  UserPlus,
+} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import { Header, Footer } from "@components/organisms";
-import { MiniBanner } from "@components/organisms/banners";
+import Header from "@features/public/components/navigation/Header";
+import Footer from "@features/public/components/footer/Footer";
+import MiniBanner from "@features/public/components/banners/MiniBanner";
 import { useAuthStore } from "@store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 
@@ -23,26 +28,79 @@ const Contacto = () => {
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
+    tipoConsulta: "general",
     asunto: "",
     mensaje: "",
   });
   const [errors, setErrors] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [authRequiredReason, setAuthRequiredReason] = useState("");
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
   const navigate = useNavigate();
+  const userId = user?.idCliente || user?.id || null;
+
+  const TIPOS_REQUIEREN_LOGIN = new Set(["pedido", "receta"]);
+
+  const LABELS_TIPO = {
+    general: "Consulta general",
+    pedido: "Pedido",
+    receta: "Receta",
+    facturacion: "Facturacion",
+    otro: "Otro",
+  };
+
+  const cardEnter = {
+    hidden: { opacity: 0, y: 16 },
+    visible: { opacity: 1, y: 0 },
+  };
 
   useEffect(() => {
     if (user) {
       setFormData({
-        nombre: user.nombre || "",
-        email: user.email || "",
+        nombre: user?.nombre || "",
+        email: user?.email || "",
+        tipoConsulta: "general",
         asunto: "",
         mensaje: "",
       });
     } else {
-      setFormData({ nombre: "", email: "", asunto: "", mensaje: "" });
+      setFormData({
+        nombre: "",
+        email: "",
+        tipoConsulta: "general",
+        asunto: "",
+        mensaje: "",
+      });
     }
   }, [user]);
+
+  const validarNombre = (nombre) => {
+    const trimmedNombre = nombre.trim();
+    if (!trimmedNombre) return "El nombre es obligatorio";
+    if (trimmedNombre.length < 2)
+      return "El nombre debe tener al menos 2 caracteres";
+    if (trimmedNombre.length > 100)
+      return "El nombre no puede tener más de 100 caracteres";
+    return "";
+  };
+
+  const validarEmail = (email) => {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) return "El correo electrónico es obligatorio";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail))
+      return "El correo electrónico no es válido";
+    if (trimmedEmail.length > 100)
+      return "El correo electrónico no puede tener más de 100 caracteres";
+    return "";
+  };
+
+  const validarAsunto = (asunto) => {
+    const trimmedAsunto = asunto.trim();
+    if (trimmedAsunto.length > 200)
+      return "El asunto no puede tener más de 200 caracteres";
+    return "";
+  };
 
   const validarMensaje = (mensaje) => {
     const trimmedMensaje = mensaje.trim();
@@ -64,30 +122,49 @@ const Contacto = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) {
+    const requiereLogin = TIPOS_REQUIEREN_LOGIN.has(formData.tipoConsulta);
+    if (!userId && requiereLogin) {
+      setAuthRequiredReason(
+        LABELS_TIPO[formData.tipoConsulta] || "esta consulta",
+      );
       setShowModal(true);
       return;
     }
 
+    const nombreError = validarNombre(formData.nombre);
+    const emailError = validarEmail(formData.email);
+    const asuntoError = validarAsunto(formData.asunto);
     const mensajeError = validarMensaje(formData.mensaje);
-    if (mensajeError) {
-      setErrors({ mensaje: mensajeError });
+
+    const nextErrors = {
+      nombre: nombreError,
+      email: emailError,
+      asunto: asuntoError,
+      mensaje: mensajeError,
+    };
+
+    const hasErrors = Object.values(nextErrors).some(Boolean);
+    if (hasErrors) {
+      setErrors(nextErrors);
       toast.error("Por favor corrige los errores en el formulario");
       return;
     }
 
+    setErrors({});
     setIsSubmitting(true);
     try {
       await axios.post(`${apiUrl}/mensajes/crear`, {
-        idCliente: user.id,
-        nombre: formData.nombre,
-        email: formData.email,
-        asunto: formData.asunto || `Consulta de ${user.nombre}`,
-        mensaje: formData.mensaje,
+        ...(userId ? { idCliente: userId } : {}),
+        nombre: formData.nombre.trim(),
+        email: formData.email.trim(),
+        tipoConsulta: formData.tipoConsulta,
+        asunto: formData.asunto.trim(),
+        mensaje: formData.mensaje.trim(),
       });
       setFormData({
-        nombre: user.nombre || "",
-        email: user.email || "",
+        nombre: user?.nombre || "",
+        email: user?.email || "",
+        tipoConsulta: "general",
         asunto: "",
         mensaje: "",
       });
@@ -107,294 +184,440 @@ const Contacto = () => {
   const handleOutsideClick = (e) => {
     if (e.target.id === "modal-backdrop") {
       setShowModal(false);
+      setAuthRequiredReason("");
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       <MiniBanner />
       <Header />
-      <main className="flex-grow bg-gray-50">
-        <div className="container mx-auto py-12 flex flex-col items-center">
-          <div className="text-center mb-10 max-w-2xl">
-            <h2 className="text-4xl font-bold text-primary-700 mb-4">
-              Contáctanos
-            </h2>
-            <p className="text-lg text-gray-700 mb-6">
-              ¿Tienes preguntas o comentarios? Estamos aquí para ayudarte.
-            </p>
-          </div>
+      <main className="mx-auto w-full max-w-6xl px-4 pb-10 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pb-14">
+        <motion.section
+          initial="hidden"
+          animate="visible"
+          variants={cardEnter}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:mb-8 sm:p-6"
+          aria-labelledby="contacto-title"
+        >
+          <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-700">
+            Soporte Pixel Salud
+          </p>
+          <h1
+            id="contacto-title"
+            className="text-balance text-2xl font-bold leading-tight text-slate-900 sm:text-3xl"
+          >
+            Contáctanos
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+            Resolvemos dudas de compras, productos y facturación. Si tu consulta
+            es sobre pedido o receta, te pediremos iniciar sesión para proteger
+            tus datos.
+          </p>
+        </motion.section>
 
-          <div className="w-full max-w-4xl flex flex-col lg:flex-row gap-8">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:items-start">
+          <motion.section
+            initial="hidden"
+            animate="visible"
+            variants={cardEnter}
+            transition={{ duration: 0.35, delay: 0.1, ease: "easeOut" }}
+            className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:col-span-7"
+            aria-labelledby="formulario-title"
+          >
+            <h2
+              id="formulario-title"
+              className="text-lg font-semibold text-slate-900"
+            >
+              Envíanos tu consulta
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Completá el formulario y te responderemos a la brevedad.
+            </p>
+
             <form
               onSubmit={handleSubmit}
-              className="w-full lg:w-[48%] bg-white p-8 rounded-2xl shadow-xl border border-gray-200"
+              noValidate
+              className="mt-5 space-y-4 sm:space-y-5"
+              aria-label="Formulario de contacto"
             >
-              <div className="space-y-6 h-full flex flex-col">
-                <div className="flex-grow space-y-6">
-                  {/* Nombre Input */}
-                  <div>
-                    <label
-                      htmlFor="nombre"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Nombre
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <FaUser className="text-sm" />
-                      </div>
-                      <input
-                        type="text"
-                        id="nombre"
-                        name="nombre"
-                        value={formData.nombre}
-                        readOnly={!!user}
-                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                          errors.nombre
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:ring-primary-600"
-                        } ${!user ? "bg-gray-100 cursor-not-allowed" : ""}`}
-                        placeholder="Inicia sesión para autocompletar"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Email Input */}
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Correo electrónico
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <FaEnvelope className="text-sm" />
-                      </div>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        readOnly={!!user}
-                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                          errors.email
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:ring-primary-600"
-                        } ${!user ? "bg-gray-100 cursor-not-allowed" : ""}`}
-                        placeholder="Inicia sesión para autocompletar"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Asunto Input */}
-                  <div>
-                    <label
-                      htmlFor="asunto"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Asunto
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <FaAt className="text-sm" />
-                      </div>
-                      <input
-                        type="text"
-                        id="asunto"
-                        name="asunto"
-                        value={formData.asunto || ""}
-                        onChange={handleChange}
-                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                          errors.asunto
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:ring-primary-600"
-                        }`}
-                        placeholder="Motivo del mensaje (opcional)"
-                        maxLength="100"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Mensaje Input */}
-                  <div>
-                    <label
-                      htmlFor="mensaje"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Mensaje *{" "}
-                      <span className="text-gray-500 text-xs">
-                        ({formData.mensaje.length}/1000)
-                      </span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute top-3 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <FaComment className="text-lg" />
-                      </div>
-                      <textarea
-                        id="mensaje"
-                        name="mensaje"
-                        rows="5"
-                        value={formData.mensaje}
-                        onChange={handleChange}
-                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent resize-none transition-colors ${
-                          errors.mensaje
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:ring-primary-600"
-                        }`}
-                        placeholder="Escribe tu mensaje aquí..."
-                        maxLength="1000"
-                      ></textarea>
-                    </div>
-                    {errors.mensaje && (
-                      <div className="flex items-center mt-1 text-red-600 text-sm">
-                        <FaExclamationTriangle className="mr-1 text-xs" />
-                        <span>{errors.mensaje}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`w-full bg-primary-700 text-white py-3 rounded-lg hover:bg-primary-800 transition duration-300 font-medium flex items-center justify-center space-x-2 cursor-pointer ${
-                      isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+              <div>
+                <label
+                  htmlFor="nombre"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
+                >
+                  Nombre
+                </label>
+                <div className="relative">
+                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    id="nombre"
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    aria-invalid={Boolean(errors.nombre)}
+                    aria-describedby={
+                      errors.nombre ? "nombre-error" : undefined
+                    }
+                    className={`h-11 w-full rounded-xl border bg-white pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-primary-500/60 active:scale-[0.998] ${
+                      errors.nombre
+                        ? "border-red-400 focus-visible:border-red-500"
+                        : "border-slate-300 focus-visible:border-primary-600"
                     }`}
+                    placeholder="Tu nombre"
+                    maxLength="100"
+                  />
+                </div>
+                {errors.nombre && (
+                  <p
+                    id="nombre-error"
+                    className="mt-1.5 flex items-center gap-1 text-xs text-red-600"
+                    role="alert"
                   >
-                    {isSubmitting ? (
-                      <>
-                        <svg
-                          className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        <span>Enviando...</span>
-                      </>
-                    ) : (
-                      <>
-                        <FaPaperPlane />
-                        <span>Enviar mensaje</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    {errors.nombre}
+                  </p>
+                )}
               </div>
+
+              <div>
+                <label
+                  htmlFor="email"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
+                >
+                  Correo electrónico
+                </label>
+                <div className="relative">
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    aria-invalid={Boolean(errors.email)}
+                    aria-describedby={errors.email ? "email-error" : undefined}
+                    className={`h-11 w-full rounded-xl border bg-white pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-primary-500/60 active:scale-[0.998] ${
+                      errors.email
+                        ? "border-red-400 focus-visible:border-red-500"
+                        : "border-slate-300 focus-visible:border-primary-600"
+                    }`}
+                    placeholder="tuemail@ejemplo.com"
+                    maxLength="100"
+                  />
+                </div>
+                {errors.email && (
+                  <p
+                    id="email-error"
+                    className="mt-1.5 flex items-center gap-1 text-xs text-red-600"
+                    role="alert"
+                  >
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
+              <fieldset className="space-y-1.5">
+                <label
+                  htmlFor="tipoConsulta"
+                  className="block text-sm font-medium text-slate-700"
+                >
+                  Tipo de consulta
+                </label>
+                <div className="relative">
+                  <Tags className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <select
+                    id="tipoConsulta"
+                    name="tipoConsulta"
+                    value={formData.tipoConsulta}
+                    onChange={handleChange}
+                    aria-label="Seleccionar tipo de consulta"
+                    className="h-11 w-full appearance-none rounded-xl border border-slate-300 bg-white pl-9 pr-8 text-sm text-slate-900 outline-none transition focus-visible:border-primary-600 focus-visible:ring-2 focus-visible:ring-primary-500/60"
+                  >
+                    <option value="general">Consulta general</option>
+                    <option value="pedido">Pedido (requiere cuenta)</option>
+                    <option value="receta">Receta (requiere cuenta)</option>
+                    <option value="facturacion">Facturación</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+                {!userId &&
+                  TIPOS_REQUIEREN_LOGIN.has(formData.tipoConsulta) && (
+                    <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                      Para consultas de pedido o receta, necesitas iniciar
+                      sesión.
+                    </p>
+                  )}
+              </fieldset>
+
+              <div>
+                <label
+                  htmlFor="asunto"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
+                >
+                  Asunto
+                </label>
+                <div className="relative">
+                  <AtSign className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    id="asunto"
+                    name="asunto"
+                    value={formData.asunto || ""}
+                    onChange={handleChange}
+                    aria-invalid={Boolean(errors.asunto)}
+                    aria-describedby={
+                      errors.asunto ? "asunto-error" : undefined
+                    }
+                    className={`h-11 w-full rounded-xl border bg-white pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-primary-500/60 active:scale-[0.998] ${
+                      errors.asunto
+                        ? "border-red-400 focus-visible:border-red-500"
+                        : "border-slate-300 focus-visible:border-primary-600"
+                    }`}
+                    placeholder="Motivo del mensaje (opcional)"
+                    maxLength="200"
+                  />
+                </div>
+                {errors.asunto && (
+                  <p
+                    id="asunto-error"
+                    className="mt-1.5 flex items-center gap-1 text-xs text-red-600"
+                    role="alert"
+                  >
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    {errors.asunto}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <div className="mb-1.5 flex items-center justify-between gap-3">
+                  <label
+                    htmlFor="mensaje"
+                    className="block text-sm font-medium text-slate-700"
+                  >
+                    Mensaje <span className="text-red-600">*</span>
+                  </label>
+                  <span className="text-xs text-slate-500" aria-live="polite">
+                    {formData.mensaje.length}/1000
+                  </span>
+                </div>
+                <div className="relative">
+                  <MessageSquare className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                  <textarea
+                    id="mensaje"
+                    name="mensaje"
+                    rows="5"
+                    value={formData.mensaje}
+                    onChange={handleChange}
+                    aria-invalid={Boolean(errors.mensaje)}
+                    aria-describedby={
+                      errors.mensaje ? "mensaje-error" : undefined
+                    }
+                    className={`w-full resize-none rounded-xl border bg-white pl-9 pr-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-primary-500/60 ${
+                      errors.mensaje
+                        ? "border-red-400 focus-visible:border-red-500"
+                        : "border-slate-300 focus-visible:border-primary-600"
+                    }`}
+                    placeholder="Escribe tu mensaje aquí..."
+                    maxLength="1000"
+                  />
+                </div>
+                {errors.mensaje && (
+                  <p
+                    id="mensaje-error"
+                    className="mt-1.5 flex items-center gap-1 text-xs text-red-600"
+                    role="alert"
+                  >
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    {errors.mensaje}
+                  </p>
+                )}
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.99 }}
+                type="submit"
+                disabled={isSubmitting}
+                className={`inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-primary-700 bg-primary-700 px-4 text-sm font-semibold text-white transition hover:bg-primary-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/70 active:bg-primary-900 disabled:cursor-not-allowed disabled:opacity-70`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <svg
+                      className="h-4 w-4 animate-spin"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        className="opacity-20"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-90"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    <span>Enviando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    <span>Enviar mensaje</span>
+                  </>
+                )}
+              </motion.button>
             </form>
+          </motion.section>
 
-            <div className="w-full lg:w-[48%] bg-white p-8 rounded-2xl shadow-xl border border-gray-100 flex flex-col">
-              <div className="flex-grow">
-                <h3 className="text-xl font-semibold text-primary-700 mb-6">
-                  Información de contacto
-                </h3>
-                <div className="space-y-6">
-                  <div className="flex items-start">
-                    <div className="bg-primary-100 p-3 rounded-full mr-4 flex-shrink-0">
-                      <FaAt className="text-primary-700 text-lg" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-700">
-                        Correo electrónico
-                      </h4>
-                      <a
-                        href="mailto:contacto@pixelsalud.com"
-                        className="text-gray-600 hover:text-primary-700 transition-colors"
-                      >
-                        contacto@pixelsalud.com
-                      </a>
-                    </div>
-                  </div>
+          <motion.aside
+            initial="hidden"
+            animate="visible"
+            variants={cardEnter}
+            transition={{ duration: 0.35, delay: 0.15, ease: "easeOut" }}
+            className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:col-span-5"
+            aria-labelledby="info-contacto-title"
+          >
+            <h2
+              id="info-contacto-title"
+              className="text-lg font-semibold text-slate-900"
+            >
+              Información de contacto
+            </h2>
 
-                  <div className="flex items-start">
-                    <div className="bg-primary-100 p-3 rounded-full mr-4 flex-shrink-0">
-                      <FaClock className="text-primary-700 text-lg" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-700">
-                        Horario de atención
-                      </h4>
-                      <p className="text-gray-600">
-                        Lunes a Viernes: 9:00 - 22:00
-                      </p>
-                      <p className="text-gray-600">Sábados: 10:00 - 18:00</p>
-                    </div>
+            <div className="mt-4 space-y-4">
+              <article className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div className="flex items-start gap-3">
+                  <span className="rounded-lg bg-primary-100 p-2 text-primary-700">
+                    <AtSign className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-800">
+                      Email
+                    </h3>
+                    <a
+                      href="mailto:contacto@pixelsalud.com"
+                      className="text-sm text-slate-600 underline-offset-2 transition hover:text-primary-700 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60"
+                    >
+                      contacto@pixelsalud.com
+                    </a>
                   </div>
                 </div>
-              </div>
+              </article>
 
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <h4 className="font-medium text-gray-700 mb-3">Ubicación</h4>
-                <div className="rounded-lg overflow-hidden h-60 w-full shadow-lg border border-gray-200">
-                  <iframe
-                    src={mapUrl}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen=""
-                    loading="lazy"
-                    title="Ubicación de Pixel Salud en San Miguel de Tucumán"
-                  ></iframe>
+              <article className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div className="flex items-start gap-3">
+                  <span className="rounded-lg bg-primary-100 p-2 text-primary-700">
+                    <Clock3 className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-800">
+                      Horario
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      Lunes a Viernes: 9:00 - 22:00
+                    </p>
+                    <p className="text-sm text-slate-600">
+                      Sábados: 10:00 - 18:00
+                    </p>
+                  </div>
                 </div>
+              </article>
+            </div>
+
+            <div className="mt-5 border-t border-slate-200 pt-5">
+              <h3 className="mb-3 text-sm font-semibold text-slate-800">
+                Ubicación
+              </h3>
+              <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+                <iframe
+                  src={mapUrl}
+                  width="100%"
+                  height="240"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  title="Ubicación de Pixel Salud en San Miguel de Tucumán"
+                />
               </div>
             </div>
-          </div>
+          </motion.aside>
         </div>
       </main>
       <Footer />
-      {showModal && (
-        <div
-          id="modal-backdrop"
-          onClick={handleOutsideClick}
-          className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 p-4"
-        >
-          <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center relative">
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
-              aria-label="Cerrar modal"
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            id="modal-backdrop"
+            onClick={handleOutsideClick}
+            className="fixed inset-0 z-50 grid place-items-center bg-black/35 p-4 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="auth-modal-title"
+              aria-describedby="auth-modal-description"
+              className="relative w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-xl"
             >
-              <FaTimes />
-            </button>
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">
-              Necesitas una cuenta
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Para enviar un mensaje debes iniciar sesión o registrarte.
-            </p>
-            <div className="flex justify-center gap-4">
               <button
-                onClick={() => navigate("/login")}
-                className="px-4 py-2 font-medium bg-white text-primary-700 hover:bg-primary-100 transition-all rounded-lg flex items-center justify-center gap-2 cursor-pointer border-2 border-primary-700 hover:border-primary-700 shadow-sm hover:shadow-md"
+                onClick={() => setShowModal(false)}
+                className="absolute right-3 top-3 rounded-full p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60"
+                aria-label="Cerrar modal"
               >
-                Iniciar Sesión
+                <X className="h-4 w-4" />
               </button>
-              <button
-                onClick={() => navigate("/registro")}
-                className="px-4 py-2 font-medium bg-primary-700 text-white hover:bg-primary-800 transition-all rounded-lg flex items-center justify-center gap-2 cursor-pointer border border-primary-600 hover:border-primary-700 shadow-sm hover:shadow-md"
+
+              <h3
+                id="auth-modal-title"
+                className="text-lg font-semibold text-slate-900"
               >
-                Registrarse
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                Inicia sesión para continuar
+              </h3>
+              <p
+                id="auth-modal-description"
+                className="mt-2 text-sm text-slate-600"
+              >
+                Para enviar una consulta sobre{" "}
+                {authRequiredReason || "pedido o receta"}, debes iniciar sesión
+                o registrarte.
+              </p>
+
+              <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <button
+                  onClick={() => navigate("/login")}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-primary-700 bg-white px-3 text-sm font-semibold text-primary-700 transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 active:bg-primary-100"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Iniciar Sesión
+                </button>
+                <button
+                  onClick={() => navigate("/registro")}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-primary-700 bg-primary-700 px-3 text-sm font-semibold text-white transition hover:bg-primary-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 active:bg-primary-900"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Registrarse
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

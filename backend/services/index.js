@@ -9,6 +9,7 @@ module.exports = {
   MedicosService: require("./MedicosService"),
   MensajesService: require("./MensajesService"),
   MercadoPagoService: require("./MercadoPagoService"),
+  NewsletterService: require("./NewsletterService"),
   // REMOVED: OfertasService: require("./OfertasService"), // DEPRECATED - usar CampanasService
   PermisosService: require("./PermisosService"),
   ProductosService: require("./ProductosService"),

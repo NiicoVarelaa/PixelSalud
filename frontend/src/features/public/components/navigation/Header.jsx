@@ -1,4 +1,4 @@
-import { Navbar } from "@components/organisms";
+import Navbar from "./Navbar";
 
 const Header = () => {
   return (

@@ -63,7 +63,7 @@ const ProductInfo = ({ product, precioOriginal }) => {
     if (cantidadEnCarrito === 0) {
       await agregarCarrito(product);
     }
-    navigate("/carrito");
+    navigate("/checkout");
   };
 
   const handleDisminuir = async () => {

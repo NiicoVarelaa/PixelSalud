@@ -10,9 +10,6 @@ export {
 export {
   Breadcrumbs,
   CarouselNavigation,
-  NavbarAvatar,
-  NavbarMenuCelular,
-  NavbarMenuUsuario,
   SectionHeader,
   WhatsAppButton,
 } from "./navigation";

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useAuthStore } from "@store/useAuthStore";
+import apiClient from "@utils/apiClient";
 
 import LogoPixelSalud from "@assets/LogoPixelSalud.webp";
 import { Link, NavLink } from "react-router-dom";
@@ -13,57 +14,100 @@ import vtex from "@assets/footerImagenes/vtex.webp";
 import cruce from "@assets/footerImagenes/cruce.webp";
 
 const Footer = () => {
-  const { user } = useAuthStore(); // 3. Obtenemos el usuario de Zustand
+  const { user } = useAuthStore();
 
   const [email, setEmail] = useState("");
-  const [usuarioEmail, setUsuarioEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [aceptaMarketing, setAceptaMarketing] = useState(false);
 
-  // 4. useEffect actualizado: Leer el estado de suscripción y el email del usuario
   useEffect(() => {
-    // Si el usuario está logueado, su email es user.email o user.emailCliente
-    const currentEmail = user?.email || "";
-
+    const currentEmail = String(user?.email || "")
+      .trim()
+      .toLowerCase();
     if (currentEmail) {
-      setUsuarioEmail(currentEmail);
-
-      // Verifica el estado de suscripción en localStorage
-      const isAlreadySubscribed = localStorage.getItem(
-        `subscribed_${currentEmail}`,
-      );
-      setIsSubscribed(isAlreadySubscribed === "true");
-    } else {
-      // Usuario deslogueado
-      setUsuarioEmail("");
-      setIsSubscribed(false);
-      setEmail("");
+      setEmail(currentEmail);
     }
-  }, [user]); // Se ejecuta cada vez que el estado del usuario cambia (login/logout)
+  }, [user]);
+
+  useEffect(() => {
+    const normalizedEmail = String(email || "")
+      .trim()
+      .toLowerCase();
+
+    if (!normalizedEmail) {
+      setIsSubscribed(false);
+      return;
+    }
+
+    const isAlreadySubscribed =
+      localStorage.getItem(`newsletter_subscribed_${normalizedEmail}`) ===
+      "true";
+    setIsSubscribed(isAlreadySubscribed);
+  }, [email]);
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
+    const normalizedEmail = String(email || "")
+      .trim()
+      .toLowerCase();
 
-    if (!usuarioEmail) {
-      toast.error("Debes iniciar sesión para suscribirte.");
+    if (!normalizedEmail) {
+      toast.error("Por favor, ingresa un email válido.");
       return;
     }
 
-    if (!email.trim()) {
-      toast.error("Por favor, ingresa un email.");
+    if (!aceptaMarketing) {
+      toast.error("Debes aceptar recibir comunicaciones comerciales.");
       return;
     }
 
-    if (email !== usuarioEmail) {
-      toast.error("Solo puedes suscribirte con el email de tu cuenta.");
+    if (isSubscribed) {
+      toast.info("Este email ya está suscrito.");
       return;
     }
 
-    toast.success("¡Gracias por suscribirte!");
-    setIsSubscribed(true);
-    setEmail("");
+    const idCliente = Number(user?.id) || undefined;
+    const nombre = user?.nombre || user?.nombreCliente || undefined;
 
-    localStorage.setItem(`subscribed_${usuarioEmail}`, "true");
+    try {
+      setIsSubmitting(true);
+
+      const payload = {
+        email: normalizedEmail,
+        nombre,
+        aceptaMarketing: true,
+        fuente: "footer",
+      };
+
+      if (idCliente) {
+        payload.idCliente = idCliente;
+      }
+
+      await apiClient.post("/newsletter/suscripciones", payload);
+
+      localStorage.setItem(`newsletter_subscribed_${normalizedEmail}`, "true");
+      setIsSubscribed(true);
+      toast.success("¡Gracias por suscribirte a nuestras ofertas!");
+    } catch (error) {
+      if (error?.response?.status === 409) {
+        localStorage.setItem(
+          `newsletter_subscribed_${normalizedEmail}`,
+          "true",
+        );
+        setIsSubscribed(true);
+        toast.info("Este email ya está suscrito a novedades.");
+      } else {
+        toast.error("No pudimos registrar tu suscripción. Intenta nuevamente.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  const inputDisabled = isSubscribed || isSubmitting;
+  const buttonDisabled =
+    isSubscribed || isSubmitting || !email.trim() || !aceptaMarketing;
 
   return (
     <div>
@@ -146,10 +190,10 @@ const Footer = () => {
 
             <div className="col-span-2 md:col-span-1 lg:col-span-2 lg:pl-8">
               <p className="text-sm font-semibold tracking-widest text-green-600 uppercase">
-                Subscribete para recibir ofertas
+                Suscribite para recibir ofertas
               </p>
               <form onSubmit={handleSubscribe} className="mt-6">
-                <div className="flex w-full">
+                <div className="flex w-full overflow-hidden rounded-md border border-gray-300 bg-white focus-within:border-green-600">
                   <label htmlFor="email" className="sr-only">
                     Email
                   </label>
@@ -157,21 +201,17 @@ const Footer = () => {
                     type="email"
                     id="email"
                     name="email"
-                    value={isSubscribed ? usuarioEmail : email}
+                    value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={
-                      !usuarioEmail
-                        ? "Inicia sesión para suscribirte"
-                        : "Ingresa tu email"
-                    }
-                    disabled={isSubscribed || !usuarioEmail}
-                    className="block w-3/4 p-4 text-gray-600 placeholder-gray-500 transition-all duration-200 border border-gray-400 rounded-l-md focus:outline-none focus:border-green-600 caret-green-600 disabled:bg-gray-200"
+                    placeholder="Ingresa tu email"
+                    disabled={inputDisabled}
+                    className="block h-11 w-3/4 border-0 bg-transparent px-4 text-sm text-gray-700 placeholder-gray-500 caret-green-600 transition-all duration-200 focus:outline-none disabled:bg-gray-100"
                   />
                   <button
                     type="submit"
-                    disabled={isSubscribed || !usuarioEmail}
-                    className={`w-1/4 inline-flex items-center justify-center px-2 py-4 font-semibold text-white rounded-r-md ${
-                      isSubscribed || !usuarioEmail
+                    disabled={buttonDisabled}
+                    className={`h-11 w-1/4 min-w-[84px] inline-flex items-center justify-center px-2 text-sm font-semibold text-white transition-colors ${
+                      buttonDisabled
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-primary-700 hover:bg-primary-800"
                     }`}
@@ -179,6 +219,17 @@ const Footer = () => {
                     {isSubscribed ? "Subscrito" : "Enviar"}
                   </button>
                 </div>
+
+                <label className="mt-3 inline-flex items-start gap-2 text-xs text-gray-600">
+                  <input
+                    type="checkbox"
+                    checked={aceptaMarketing}
+                    onChange={(e) => setAceptaMarketing(e.target.checked)}
+                    disabled={isSubscribed || isSubmitting}
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-emerald-600 focus:ring-emerald-600"
+                  />
+                  Acepto recibir comunicaciones comerciales por email.
+                </label>
               </form>
             </div>
           </div>

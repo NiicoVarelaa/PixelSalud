@@ -3,10 +3,10 @@ const nodemailer = require("nodemailer");
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
   port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 465,
-  secure: true, 
+  secure: true,
   auth: {
-    user: process.env.SMTP_USER, 
-    pass: process.env.SMTP_PASS, 
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
   tls: {
     rejectUnauthorized: false,
@@ -26,7 +26,7 @@ async function enviarConfirmacionCliente(to, nombre, asunto) {
   await transporter.sendMail(mailOptions);
 }
 
-const enviarCorreoRecuperacion = async (to, nombre, token) => {  
+const enviarCorreoRecuperacion = async (to, nombre, token) => {
   const link = `http://localhost:5173/reset-password?token=${token}`;
 
   const mailOptions = {
@@ -244,9 +244,73 @@ async function enviarCuponBienvenida(
   await transporter.sendMail(mailOptions);
 }
 
+async function enviarCuponPromocional(to, nombre, cupon) {
+  const {
+    codigo,
+    tipoCupon,
+    valorDescuento,
+    descripcion,
+    fechaVencimiento,
+    montoMinimo,
+  } = cupon;
+
+  const esPorcentaje = tipoCupon === "porcentaje";
+  const beneficio = esPorcentaje
+    ? `${valorDescuento}% OFF`
+    : `$${Number(valorDescuento || 0).toLocaleString("es-AR")} OFF`;
+  const fechaFormateada = fechaVencimiento
+    ? new Date(fechaVencimiento).toLocaleDateString("es-AR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "Sin vencimiento";
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM || "PixelSalud <no-reply@pixelsalud.com>",
+    to,
+    subject: `Tu cupón ${codigo} ya está disponible`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+        <h1 style="color: #ea580c; border-bottom: 3px solid #ea580c; padding-bottom: 10px;">
+          Tenemos un cupón para vos
+        </h1>
+
+        <p style="font-size: 16px;">Hola <b>${nombre}</b>,</p>
+        <p>Te compartimos un beneficio exclusivo para tu próxima compra en PixelSalud.</p>
+
+        <div style="background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%); padding: 24px; border-radius: 12px; margin: 24px 0; text-align: center;">
+          <p style="color: white; margin: 0 0 10px 0; font-size: 14px;">CODIGO</p>
+          <p style="background: #fff; color: #ea580c; display: inline-block; padding: 10px 16px; border-radius: 8px; font-weight: bold; font-size: 26px; letter-spacing: 2px; margin: 0; font-family: 'Courier New', monospace;">
+            ${codigo}
+          </p>
+          <p style="color: white; font-size: 24px; margin: 14px 0 0 0; font-weight: bold;">${beneficio}</p>
+        </div>
+
+        ${descripcion ? `<p><b>Detalle:</b> ${descripcion}</p>` : ""}
+        <p><b>Vencimiento:</b> ${fechaFormateada}</p>
+        <p><b>Monto minimo:</b> $${Number(montoMinimo || 0).toLocaleString("es-AR")}</p>
+
+        <div style="background: #fff7ed; border-left: 4px solid #ea580c; padding: 14px; margin: 20px 0;">
+          <p style="margin: 0;"><b>Como usarlo:</b> agrega tus productos al carrito, aplica el codigo en checkout y confirma tu compra.</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}" style="background-color: #ea580c; color: white; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+            Ir a comprar
+          </a>
+        </div>
+      </div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
 module.exports = {
   enviarConfirmacionCliente,
   enviarCorreoRecuperacion,
   enviarConfirmacionCompra,
   enviarCuponBienvenida,
+  enviarCuponPromocional,
 };

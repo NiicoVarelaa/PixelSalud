@@ -14,7 +14,7 @@ import {
   Printer,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { TicketVenta } from "@components/shared";
+import TicketVenta from "@features/admin/components/sales/shared/TicketVenta";
 import Default from "@assets/default.webp";
 
 const MisCompras = () => {

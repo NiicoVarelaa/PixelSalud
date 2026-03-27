@@ -1,4 +1,5 @@
-import { Header, Footer } from "@components/organisms";
+import Header from "@features/public/components/navigation/Header";
+import Footer from "@features/public/components/footer/Footer";
 import { MainCarrito } from "@features/customer/components/cart";
 
 const Carrito = () => {

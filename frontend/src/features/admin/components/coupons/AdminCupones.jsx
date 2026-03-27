@@ -31,6 +31,8 @@ const AdminCupones = () => {
   const {
     cupones,
     historial,
+    clientes,
+    cargandoClientes,
     cargando,
     crearCupon,
     cambiarEstado,
@@ -184,6 +186,8 @@ const AdminCupones = () => {
         isOpen={modalAbierto}
         onClose={() => setModalAbierto(false)}
         onSubmit={handleCrearCupon}
+        clientes={clientes}
+        cargandoClientes={cargandoClientes}
       />
 
       {/* Diálogo de Confirmación */}

@@ -5,7 +5,8 @@ import { useProductDetailStore } from "@store/useProductDetailStore";
 
 import { Frown, ArrowLeft } from "lucide-react";
 
-import { Header, Footer } from "@components/organisms";
+import Header from "@features/public/components/navigation/Header";
+import Footer from "@features/public/components/footer/Footer";
 import { Breadcrumbs } from "@components/molecules/navigation";
 import {
   SkeletonDetailProduct,

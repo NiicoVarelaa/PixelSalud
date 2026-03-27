@@ -7,7 +7,7 @@ import carruselDesktop2 from "@assets/Carrusel2.webp";
 import carruselDesktop3 from "@assets/Carrusel3.webp";
 
 import PromoSideCard from "./PromoSideCard";
-import { usePromoBannerData } from "./usePromoBannerData";
+import { usePromoBannerData } from "./hooks/usePromoBannerData";
 
 const DESKTOP_CAROUSEL_IMAGES = [
   carruselDesktop,

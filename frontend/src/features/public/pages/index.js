@@ -8,3 +8,4 @@ export { default as TerminosCondicionesPage } from "./TerminosCondiciones";
 export { default as LegalesPromocionPage } from "./LegalesPromocion";
 export { default as ProductosPage } from "./Productos";
 export { default as ProductoPage } from "./Producto";
+export { default as NewsletterBajaPage } from "./NewsletterBaja";

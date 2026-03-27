@@ -34,6 +34,7 @@ const routesDashboard = require("./routes/DashboardRoutes");
 const routesAuditoria = require("./routes/AuditoriaRoutes");
 const routesTicket = require("./routes/TicketRoutes");
 const routesCloudinary = require("./routes/CloudinaryRoutes");
+const routesNewsletter = require("./routes/NewsletterRoutes");
 const { errorHandler, notFoundHandler } = require("./middlewares/errorHandler");
 
 const app = express();
@@ -96,6 +97,7 @@ app.use(`${API_PREFIX}/admin`, routesDashboard);
 app.use(`${API_PREFIX}/admin/auditoria`, routesAuditoria);
 app.use(`${API_PREFIX}/ticket`, routesTicket);
 app.use(`${API_PREFIX}/cloudinary`, routesCloudinary);
+app.use(`${API_PREFIX}/newsletter`, routesNewsletter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

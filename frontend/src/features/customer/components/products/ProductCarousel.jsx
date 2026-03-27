@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import bannerCarousel from "@assets/bannerCarousel.webp";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -9,25 +8,23 @@ import CardProductos from "./CardProductos";
 import {
   ChevronLeft,
   ChevronRight,
-  ArrowRight,
   Zap,
-  Clock,
+  Clock3,
   Store,
-  Tags,
+  MessageCircle,
+  ShieldCheck,
 } from "lucide-react";
 
 const CYBER_MONDAY_END_DATE = new Date("December 31, 2026 23:59:59").getTime();
 
 const useCountdown = (targetDate) => {
   const [timeLeft, setTimeLeft] = useState(targetDate - new Date().getTime());
-
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft(targetDate - new Date().getTime());
     }, 1000);
     return () => clearInterval(interval);
   }, [targetDate]);
-
   return timeLeft;
 };
 
@@ -36,8 +33,9 @@ const CountdownTimer = () => {
 
   if (timeLeft <= 0) {
     return (
-      <div className="flex items-center justify-center w-full md:w-auto gap-3 text-red-700 text-sm font-semibold p-3 border-2 border-red-300 rounded-xl bg-red-50 flex-shrink-0">
-        <span>¡Promoción Finalizada!</span>
+      <div className="inline-flex h-12 items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-bold text-red-700">
+        <Clock3 className="h-4 w-4" />
+        Promoción finalizada
       </div>
     );
   }
@@ -48,60 +46,35 @@ const CountdownTimer = () => {
   );
   const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
   const formatTime = (value) => String(value).padStart(2, "0");
 
+  const units = [
+    `${formatTime(days)} DÍAS`,
+    `${formatTime(hours)} HRS`,
+    `${formatTime(minutes)} MIN`,
+    `${formatTime(seconds)} SEG`,
+  ];
+
   return (
-    <div className="flex items-center justify-center w-full sm:w-auto gap-4 text-white font-bold text-sm py-3 rounded-full bg-gradient-to-b from-red-500 to-pink-600 shadow-lg  flex-shrink-0 px-6 ">
-      <Clock className="w-7 h-7 flex-shrink-0 text-white" />
-      <div className="flex gap-3">
-        <div className="text-center">
-          <span className="block text-xl leading-none bg-white/20 rounded-lg px-2 py-1 min-w-[2rem]">
-            {formatTime(days)}
-          </span>
-          <span className="block uppercase text-white/80 font-medium mt-1 text-xs">
-            Días
-          </span>
-        </div>
-        <div className="text-center text-white/50 text-xl font-light leading-none flex items-center">
-          :
-        </div>
-        <div className="text-center">
-          <span className="block text-xl leading-none bg-white/20 rounded-lg px-2 py-1 min-w-[2rem]">
-            {formatTime(hours)}
-          </span>
-          <span className="block uppercase text-white/80 font-medium mt-1 text-xs">
-            Hrs
-          </span>
-        </div>
-        <div className="text-center text-white/50 text-xl font-light leading-none flex items-center">
-          :
-        </div>
-        <div className="text-center">
-          <span className="block text-xl leading-none bg-white/20 rounded-lg px-2 py-1 min-w-[2rem]">
-            {formatTime(minutes)}
-          </span>
-          <span className="block uppercase text-white/80 font-medium mt-1 text-xs">
-            Min
-          </span>
-        </div>
-        <div className="text-center text-white/50 text-xl font-light leading-none flex items-center">
-          :
-        </div>
-        <div className="text-center">
-          <span className="block text-xl leading-none bg-white/20 rounded-lg px-2 py-1 min-w-[2rem]">
-            {formatTime(seconds)}
-          </span>
-          <span className="block uppercase text-white/80 font-medium mt-1 text-xs">
-            Seg
-          </span>
-        </div>
+    <div className="inline-flex h-12 items-center gap-2 rounded-xl border border-orange-200 bg-white px-3 shadow-sm">
+      <Clock3 className="h-4 w-4 text-orange-600" />
+      <div className="flex items-center gap-1 text-xs font-extrabold text-slate-900 sm:text-sm">
+        {units.map((unit, index) => (
+          <div key={unit} className="inline-flex items-center gap-1">
+            <span className="rounded-md bg-orange-50 px-2 py-1 leading-none tabular-nums">
+              {unit}
+            </span>
+            {index < units.length - 1 && (
+              <span className="text-orange-500">:</span>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-const ProductCarousel = ({ products }) => {
+const ProductCarousel = ({ products, title = "Cyber Monday" }) => {
   const swiperRef = useRef(null);
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
@@ -127,161 +100,120 @@ const ProductCarousel = ({ products }) => {
   const slideNext = () => swiperRef.current?.slideNext();
   const slidePrev = () => swiperRef.current?.slidePrev();
 
-  const title = "Ofertas Flash";
-  const subtitle =
-    "¡Solo por tiempo limitado! Los mejores descuentos en los productos más buscados.";
-
-  const benefits = [
-    { icon: Tags, text: "Ofertas exclusivas" },
-    { icon: Store, text: "Retiro gratis" },
-  ];
-
-  const NavButton = (
-    <NavLink
-      to={`/productos`}
-      className="group w-full sm:w-auto flex items-center justify-center gap-3 bg-gray-50 text-pink-600 font-bold py-4 px-2 cursor-pointer flex-shrink-0"
-    >
-      Ver Todas las Ofertas
-      <ArrowRight
-        size={18}
-        className="group-hover:translate-x-1 transition-transform duration-300"
-      />
-    </NavLink>
-  );
-
   return (
     <section
-      className={`my-16 md:my-20 relative transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}
+      className={`relative transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}
+      aria-labelledby="flash-offers-title"
     >
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-purple-50/50 to-pink-50/30 rounded-3xl mx-4"></div>
+      <div className="mb-8 flex flex-col gap-4 border-b border-gray-100 pb-6 md:flex-row md:items-center md:justify-between">
+        <h2
+          id="flash-offers-title"
+          className="flex items-center gap-3 text-3xl font-extrabold tracking-tighter text-slate-950 md:text-4xl"
+        >
+          <Zap
+            className="h-8 w-8 text-orange-600 fill-orange-100"
+            aria-hidden="true"
+          />
+          {title} <span className="text-orange-500">Flash</span>
+        </h2>
 
-      <div className="relative">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-10 lg:mb-12 px-4">
-          <div className="text-left mb-6 lg:mb-0">
-            <div className="inline-flex items-center gap-2 bg-pink-600  text-white text-sm font-extrabold py-2.5 px-5 rounded-full mb-4 shadow-lg transform hover:scale-105 transition-transform duration-300 cursor-default">
-              <Zap className="h-4 w-4" fill="white" />
-              CYBER MONDAY 2025
-            </div>
-
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-4 leading-tight">
-              {title}
-              <span className="block text-transparent bg-clip-text bg-purple-700 drop-shadow-sm">
-                Imbatibles
-              </span>
-            </h2>
-
-            <p className="text-gray-700 text-lg md:text-xl max-w-2xl font-medium mb-6 leading-relaxed">
-              {subtitle}
-            </p>
-
-            <div className="flex flex-wrap gap-4 mt-6">
-              {benefits.map((benefit, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-2 text-sm text-gray-600 bg-white/80 rounded-full px-3 py-2 shadow-sm"
-                >
-                  <benefit.icon className="w-4 h-4 text-purple-600" />
-                  <span className="font-medium">{benefit.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row md:items-center md:justify-end lg:flex-col lg:items-end gap-4 w-full lg:w-auto mt-6 md:mt-0">
-            <CountdownTimer />
-            <div className="w-full sm:w-auto md:order-last">{NavButton}</div>
-          </div>
+        <div className="flex flex-col items-center gap-4 sm:flex-row">
+          <CountdownTimer />
+          <NavLink
+            to="/productos"
+            className="inline-flex h-12 items-center gap-2 rounded-xl bg-orange-500 px-6 text-sm font-bold text-white shadow transition hover:bg-orange-600"
+          >
+            Ver todas las ofertas
+          </NavLink>
         </div>
+      </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 items-stretch px-4">
-          <div className="w-full lg:w-1/4 flex-shrink-0 hidden lg:block pb-8 pt-2">
-            <NavLink to={`/productos`} className="group block h-full">
-              <div className="relative w-full h-[450px] rounded-3xl overflow-hidden shadow-2xl group-hover:shadow-3xl transition-all duration-500 border-2 border-white/20">
-                <img
-                  src={bannerCarousel}
-                  alt="Ofertas Cyber Monday"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0  flex flex-col justify-start p-6">
-                  <div className="text-white">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Tags className="h-5 w-5 text-white" />
-                      <span className="font-semibold text-white uppercase tracking-wider text-sm">
-                        Ofertas Especiales
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+      <div className="relative rounded-3xl border border-gray-100 bg-slate-50 p-5 md:p-6">
+        <div className="flex flex-row items-stretch gap-5 lg:gap-6">
+          <div className="hidden shrink-0 flex-col justify-between rounded-2xl border border-gray-100 bg-white p-6 shadow-sm lg:flex lg:w-[290px]">
+            <div className="space-y-8">
+              <div className="space-y-3">
+                <span className="text-xs font-semibold uppercase tracking-widest text-orange-600">
+                  Tu Farmacia Digital
+                </span>
+                <h3 className="text-4xl font-extrabold leading-tight text-slate-950 tracking-tight">
+                  Pixel
+                  <br /> Salud
+                </h3>
               </div>
-            </NavLink>
+              <ul className="space-y-5 text-sm font-medium text-slate-700">
+                <li className="flex items-center gap-3">
+                  <Store
+                    className="h-5 w-5 text-emerald-600"
+                    aria-hidden="true"
+                  />
+                  Retiro en sucursal disponible
+                </li>
+                <li className="flex items-center gap-3">
+                  <MessageCircle
+                    className="h-5 w-5 text-emerald-600"
+                    aria-hidden="true"
+                  />
+                  Seguimiento por WhatsApp
+                </li>
+                <li className="flex items-center gap-3">
+                  <ShieldCheck
+                    className="h-5 w-5 text-emerald-600"
+                    aria-hidden="true"
+                  />
+                  Pago online seguro integrado
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <div className="w-full lg:w-3/4 flex items-center gap-2 min-w-0">
+          <div className="relative flex-1 group overflow-hidden">
             <button
               onClick={slidePrev}
               disabled={isBeginning}
-              className={`p-3 rounded-full transition-all duration-300 cursor-pointer border-2 hidden sm:flex items-center justify-center ${
-                isBeginning
-                  ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white border-primary-600 text-primary-600 hover:bg-green-50 hover:scale-105 hover:border-primary-700 hover:text-primary-700 shadow-lg active:scale-95"
-              } flex-shrink-0`}
+              className={`absolute left-0 top-1/2 z-20 -translate-y-1/2 rounded-full p-2.5 shadow-xl transition-all duration-300 cursor-pointer ${isBeginning ? "invisible opacity-0" : "visible bg-white/95 text-slate-950 opacity-100 hover:scale-110 hover:text-orange-600 active:scale-95"}`}
               aria-label="Productos anteriores"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={22} strokeWidth={3} />
             </button>
 
-            <div className="flex-1 w-full h-full min-w-0 relative">
-              <Swiper
-                onSwiper={handleSwiper}
-                onSlideChange={handleSlideChange}
-                modules={[Navigation, Autoplay]}
-                spaceBetween={20}
-                slidesPerView={1}
-                autoplay={{
-                  delay: 5000,
-                  disableOnInteraction: false,
-                  pauseOnMouseEnter: true,
-                }}
-                breakpoints={{
-                  430: { slidesPerView: 1.2 },
-                  640: { slidesPerView: 1.5 },
-                  768: { slidesPerView: 2.2 },
-                  1024: { slidesPerView: 2.5 },
-                  1280: { slidesPerView: 3 },
-                  1536: { slidesPerView: 3.2 },
-                }}
-                className="h-full py-2"
-              >
-                {products.map((product, index) => (
-                  <SwiperSlide
-                    key={product.idProducto}
-                    className="h-auto pb-8 pt-2"
-                  >
-                    <div
-                      className="h-full transform transition-all duration-500 hover:scale-[1.02]"
-                      style={{
-                        animationDelay: `${index * 100}ms`,
-                      }}
-                    >
-                      <CardProductos product={product} />
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
+            <Swiper
+              onSwiper={handleSwiper}
+              onSlideChange={handleSlideChange}
+              modules={[Navigation, Autoplay]}
+              spaceBetween={20}
+              slidesPerView={2}
+              grabCursor={true}
+              autoplay={{
+                delay: 5000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
+              breakpoints={{
+                480: { slidesPerView: 2, spaceBetween: 20 },
+                640: { slidesPerView: 3.1, spaceBetween: 20 },
+                1024: { slidesPerView: 3, spaceBetween: 24 },
+                1280: { slidesPerView: 4, spaceBetween: 24 },
+                1440: { slidesPerView: 4, spaceBetween: 24 },
+              }}
+              className="h-auto py-1 [&_.swiper-wrapper]:items-stretch"
+            >
+              {products.map((product) => (
+                <SwiperSlide key={product.idProducto} className="h-auto! flex">
+                  <div className="h-full w-full">
+                    <CardProductos product={product} />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
 
             <button
               onClick={slideNext}
               disabled={isEnd}
-              className={`p-3 rounded-full transition-all duration-300 cursor-pointer border-2 hidden sm:flex items-center justify-center ${
-                isEnd
-                  ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white border-primary-600 text-primary-600 hover:bg-green-50 hover:scale-105 hover:border-primary-700 hover:text-primary-700 shadow-lg active:scale-95"
-              } flex-shrink-0`}
+              className={`absolute right-0 top-1/2 z-20 -translate-y-1/2 rounded-full p-2.5 shadow-xl transition-all duration-300 cursor-pointer ${isEnd ? "invisible opacity-0" : "visible bg-white/95 text-slate-950 opacity-100 hover:scale-110 hover:text-orange-600 active:scale-95"}`}
               aria-label="Siguientes productos"
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={22} strokeWidth={3} />
             </button>
           </div>
         </div>

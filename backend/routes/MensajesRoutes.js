@@ -18,6 +18,7 @@ const {
 const auth = require("../middlewares/Auth");
 const { verificarRol } = require("../middlewares/VerificarPermisos");
 const { validate } = require("../middlewares/validate");
+const { mutationLimiter } = require("../config/rateLimiters");
 
 const {
   idMensajeParamSchema,
@@ -28,7 +29,12 @@ const {
   responderMensajeSchema,
 } = require("../schemas/MensajeSchemas");
 
-router.post("/crear", validate(createMensajeSchema), crearMensaje);
+router.post(
+  "/crear",
+  mutationLimiter,
+  validate(createMensajeSchema),
+  crearMensaje,
+);
 
 router.get("/", auth, verificarRol(["admin"]), listarMensajes);
 

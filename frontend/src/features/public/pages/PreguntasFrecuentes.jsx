@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Navbar, Footer } from "@components/organisms";
+import Navbar from "@features/public/components/navigation/Navbar";
+import Footer from "@features/public/components/footer/Footer";
 import { ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
 
 const faqs = [

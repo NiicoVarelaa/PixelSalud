@@ -1,5 +1,5 @@
 import { Search, X } from "lucide-react";
-import { SearchSuggestions } from "@components/molecules/search";
+import SearchSuggestions from "../search/SearchSuggestions";
 
 export function NavbarSearchDesktop({
   handleSearch,
@@ -14,7 +14,7 @@ export function NavbarSearchDesktop({
 }) {
   const handleClear = () => {
     setSearchTerm("");
-    setShowSuggestions(false); 
+    setShowSuggestions(false);
   };
 
   return (
@@ -34,7 +34,7 @@ export function NavbarSearchDesktop({
           className="w-full px-4 py-2 pr-14 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-700 focus:border-transparent cursor-text"
           aria-label="Buscar productos, marcas o categorías"
         />
-        
+
         {searchTerm && (
           <button
             type="button"

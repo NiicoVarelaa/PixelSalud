@@ -1,7 +1,9 @@
 import { Route, Routes } from "react-router-dom";
 
 // --- COMPONENTES GLOBALES ---
-import { Layout, ScrollToTop, ProtectedRoute } from "@components/templates";
+import { ScrollToTop } from "@components/templates";
+import AppLayout from "@features/public/layout/AppLayout";
+import ProtectedRoute from "@features/auth/routing/ProtectedRoute";
 import Error404 from "./pages/Error404";
 
 // --- VISTAS PÚBLICAS / CLIENTE ---
@@ -15,6 +17,7 @@ import {
   PreguntasFrecuentesPage as PreguntasFrecuentes,
   TerminosCondicionesPage as TerminosCondiciones,
   LegalesPromocionPage as LegalesPromocion,
+  NewsletterBajaPage as NewsletterBaja,
 } from "@features/public/pages";
 import {
   // CarritoPage as Carrito, // Ya no se usa, ahora es un modal
@@ -84,7 +87,7 @@ const App = () => {
         {/* =========================================
             RUTAS PÚBLICAS / CLIENTE
            ========================================= */}
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<AppLayout />}>
           <Route index element={<Inicio />} />
           <Route path="registro" element={<Registro />} />
           <Route path="login" element={<Login />} />
@@ -98,6 +101,17 @@ const App = () => {
           <Route path="checkout/success" element={<CheckoutSuccess />} />
           <Route path="sobreNosotros" element={<SobreNosotros />} />
           <Route path="contacto" element={<Contacto />} />
+          <Route path="sucursales" element={<Sucursales />} />
+          <Route
+            path="preguntas-frecuentes"
+            element={<PreguntasFrecuentes />}
+          />
+          <Route
+            path="terminos-condiciones"
+            element={<TerminosCondiciones />}
+          />
+          <Route path="legales-promocion" element={<LegalesPromocion />} />
+          <Route path="newsletter/baja" element={<NewsletterBaja />} />
 
           <Route path="perfil" element={<DashboardCliente />}>
             <Route index element={<Perfil />} />
