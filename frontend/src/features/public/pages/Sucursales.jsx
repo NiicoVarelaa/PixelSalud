@@ -1,4 +1,5 @@
-import { Navbar, Footer } from "@components/organisms";
+import Navbar from "@features/public/components/navigation/Navbar";
+import Footer from "@features/public/components/footer/Footer";
 import { MapPin, Phone, CalendarDays } from "lucide-react";
 
 const branches = [

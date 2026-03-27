@@ -53,20 +53,25 @@ const crearCupon = async (req, res, next) => {
         evento: "CUPON_CREADO",
         modulo: Auditoria.MODULOS.OFERTAS,
         accion: Auditoria.ACCIONES.CREATE,
-        descripcion: `Cupón "${cuponData.codigo}" creado - Descuento: ${cuponData.descuento}${cuponData.tipoCupon === "porcentaje" ? "%" : "$"}`,
+        descripcion: `Cupón "${cuponData.codigo}" creado - Descuento: ${cuponData.valorDescuento}${cuponData.tipoCupon === "porcentaje" ? "%" : "$"}`,
         tipoUsuario: req.user?.role || "admin",
         idUsuario: req.user?.id || adminId,
         entidadAfectada: "Cupones",
-        idEntidad: cupon.id,
+        idEntidad: cupon.idCupon,
         datosAnteriores: null,
         datosNuevos: cuponData,
       },
       req,
     );
 
+    const envioMail = cupon?.envioMail;
+    const message = envioMail
+      ? `Cupón creado exitosamente. Emails enviados: ${envioMail.enviados}/${envioMail.totalDestinatarios}`
+      : "Cupón creado exitosamente";
+
     res.status(201).json({
       success: true,
-      message: "Cupón creado exitosamente",
+      message,
       data: cupon,
     });
   } catch (error) {

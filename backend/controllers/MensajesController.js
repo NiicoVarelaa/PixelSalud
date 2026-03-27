@@ -41,13 +41,22 @@ const listarMensajesPorCliente = async (req, res, next) => {
 
 const crearMensaje = async (req, res, next) => {
   try {
-    const { idCliente, nombre, email, asunto, mensaje, fechaEnvio } = req.body;
+    const {
+      idCliente,
+      nombre,
+      email,
+      asunto,
+      mensaje,
+      tipoConsulta,
+      fechaEnvio,
+    } = req.body;
     const resultado = await mensajesService.crearMensaje({
       idCliente,
       nombre,
       email,
       asunto,
       mensaje,
+      tipoConsulta,
       fechaEnvio,
     });
     res.status(201).json(resultado);

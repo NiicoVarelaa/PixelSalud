@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { useProductStore } from "@store/useProductStore";
 
-import { Header, Footer } from "@components/organisms";
-import {
-  PromoHeroCarousel,
-  BannerGrid,
-  BannerPromo,
-} from "@components/organisms/banners";
+import Header from "@features/public/components/navigation/Header";
+import Footer from "@features/public/components/footer/Footer";
+import PromoHeroCarousel from "@features/public/components/banners/PromoHeroCarousel";
+import BannerGrid from "@features/public/components/banners/BannerGrid";
+import BannerPromo from "@features/public/components/banners/BannerPromo";
 import { Categorias } from "@features/customer/components/categories";
 import {
   ProductSection,
@@ -16,7 +15,7 @@ import { TrustedBrand } from "@components/molecules/cards";
 import { WhatsAppButton } from "@components/molecules/navigation";
 
 const Inicio = () => {
-  const { productosArriba, productosAbajo, error, fetchProducts } =
+  const { productosArriba, productosCyberMonday, error, fetchProducts } =
     useProductStore();
 
   useEffect(() => {
@@ -48,7 +47,7 @@ const Inicio = () => {
 
         <ProductCarousel
           title="Cyber Monday Ofertas"
-          products={productosAbajo}
+          products={productosCyberMonday}
         />
 
         <div className="my-16 md:my-20">

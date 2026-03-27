@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useCarritoStore } from "@store/useCarritoStore";
 import { useAuthStore } from "@store/useAuthStore";
-import { BotonFavorito } from "@components/atoms";
+import BotonFavorito from "@features/customer/components/favorites/FavoriteToggleButton";
 import { Minus, Plus, Trash2, Loader2, Tag, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
 import cyberMonday from "@assets/Logo-cyber-monday.png";
@@ -59,6 +59,7 @@ const CardProductos = ({ product }) => {
 
   // Lógica de precios y oferta
   const isOffert = !!product.enOferta;
+  const isCyberMondayProduct = Boolean(product.isCyberMonday);
   const regularPrice = product.precioRegular;
   const discountPercentage = product.porcentajeDescuento ?? 25;
   const priceToDisplay = product.precioFinal || product.precio;
@@ -167,7 +168,7 @@ const CardProductos = ({ product }) => {
             loading="lazy"
           />
 
-          {isOffert && (
+          {isCyberMondayProduct && (
             <img
               src={cyberMonday}
               alt="Cyber Monday"
@@ -196,10 +197,10 @@ const CardProductos = ({ product }) => {
             </div>
           </div>
 
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center flex-wrap gap-2">
+          <div className="mt-4 space-y-2 min-h-15">
+            <div className="flex min-h-8 items-end gap-2">
               <p
-                className={`font-black ${isOffert ? "text-xl text-red-600" : "text-xl text-gray-900"}`}
+                className={`font-black whitespace-nowrap ${isOffert ? "text-xl text-red-600" : "text-xl text-gray-900"}`}
               >
                 {new Intl.NumberFormat("es-AR", {
                   style: "currency",
@@ -207,7 +208,7 @@ const CardProductos = ({ product }) => {
                 }).format(priceToDisplay)}
               </p>
               {isOffert && regularPrice && (
-                <p className="text-sm text-gray-500 line-through font-medium">
+                <p className="text-sm text-gray-500 line-through font-medium whitespace-nowrap truncate">
                   {new Intl.NumberFormat("es-AR", {
                     style: "currency",
                     currency: "ARS",

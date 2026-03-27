@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { TicketVenta } from "@components/shared";
+import TicketVenta from "@features/admin/components/sales/shared/TicketVenta";
 import { AdminLayout } from "@features/admin/components/shared";
 import { VentasFilters, VentasTable, Pagination } from "./components";
 import { VentasModal } from "./VentasModal";

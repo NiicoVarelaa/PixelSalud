@@ -246,10 +246,11 @@ CREATE TABLE Recetas (
 -- Tabla: MensajesClientes
 CREATE TABLE MensajesClientes (
   idMensaje INT PRIMARY KEY AUTO_INCREMENT,
-  idCliente INT NOT NULL,
+  idCliente INT NULL,
   nombre VARCHAR(100) NOT NULL,
   email VARCHAR(100) NOT NULL,
-  asunto VARCHAR(100) DEFAULT 'Sin Asunto',
+  asunto VARCHAR(200) DEFAULT 'Sin Asunto',
+  tipoConsulta ENUM('general', 'pedido', 'receta', 'facturacion', 'otro') DEFAULT 'general',
   mensaje TEXT NOT NULL,
   estado VARCHAR(20) DEFAULT 'nuevo',
   fechaEnvio DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -257,7 +258,7 @@ CREATE TABLE MensajesClientes (
   respuesta TEXT NULL,
   fechaRespuesta DATETIME NULL,
   respondidoPor VARCHAR(100) NULL,
-  FOREIGN KEY (idCliente) REFERENCES Clientes(idCliente) ON DELETE CASCADE
+  FOREIGN KEY (idCliente) REFERENCES Clientes(idCliente) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla: Favoritos

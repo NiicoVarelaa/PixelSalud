@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { X } from "lucide-react";
-import UploadImagenes from "@components/molecules/admin/UploadImagenes";
+import UploadImagenes from "./UploadImagenes";
 
 const ManageImagesModal = ({ isOpen, onClose, productId, onUpdateSuccess }) => {
   if (!isOpen) return null;

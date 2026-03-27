@@ -1,4 +1,4 @@
-import NavbarMenuUsuario from "@components/molecules/navigation/NavbarMenuUsuario";
+import NavbarMenuUsuario from "./NavbarMenuUsuario";
 import { motion } from "framer-motion";
 import { Link, NavLink } from "react-router-dom";
 import {
@@ -9,7 +9,7 @@ import {
   Search,
   ChevronDown,
 } from "lucide-react";
-import NavbarAvatar from "@components/molecules/navigation/NavbarAvatar";
+import NavbarAvatar from "./NavbarAvatar";
 import { useCarritoStore } from "@store/useCarritoStore";
 
 export function ActionIcons({

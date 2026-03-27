@@ -52,7 +52,7 @@ export function NavbarCategoriesDropdown({
                     whileTap={{ scale: 0.97 }}
                     whileHover={{ scale: 1.05 }}
                     onClick={() => handleCategoriaClick(categoria.link)}
-                    className="w-full text-left px-4 py-2.5 flex items-center justify-between text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-all duration-200 group"
+                    className="w-full text-left px-4 py-2.5 flex items-center justify-between text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-all duration-200 group cursor-pointer"
                     role="menuitem"
                   >
                     <span className="text-sm font-medium">{categoria.text}</span>

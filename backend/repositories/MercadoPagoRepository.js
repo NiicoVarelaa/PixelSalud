@@ -93,7 +93,7 @@ const updateProductStock = async (items) => {
 
 const findVentaByExternalReference = async (externalReference) => {
   const sql = `
-    SELECT idVentaO, idCliente, estado, totalPago, fechaPago, horaPago
+    SELECT idVentaO, idCliente, estado, totalPago, fechaPago, horaPago, idCuponAplicado
     FROM VentasOnlines
     WHERE externalReference = ?
   `;

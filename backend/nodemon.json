@@ -1,0 +1,23 @@
+{
+    "watch": [
+        "index.js",
+        "config",
+        "controllers",
+        "services",
+        "repositories",
+        "routes",
+        "schemas",
+        "middlewares",
+        "helps",
+        "utils",
+        "errors"
+    ],
+    "ext": "js,json",
+    "ignore": [
+        "database/**",
+        "docs/**",
+        "uploads/**",
+        "*.log"
+    ],
+    "delay": "700"
+}

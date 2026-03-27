@@ -1,5 +1,7 @@
 const cuponesRepository = require("../repositories/CuponesRepository");
+const clientesRepository = require("../repositories/ClientesRepository");
 const { createValidationError, createNotFoundError } = require("../errors");
+const { enviarCuponPromocional } = require("../helps/EnvioMail");
 const crypto = require("crypto");
 
 const generarCodigoUnico = (prefijo = "CUPON") => {
@@ -67,12 +69,64 @@ const crearCupon = async (cuponData, adminId = null) => {
   }
 
   cuponData.creadoPor = adminId;
+  cuponData.valorDescuento = Number(cuponData.valorDescuento);
+  cuponData.usoMaximo = Number(cuponData.usoMaximo) || 1;
+  cuponData.montoMinimo = Number(cuponData.montoMinimo) || 0;
 
   const idCupon = await cuponesRepository.create(cuponData);
+
+  let envioMail = null;
+  if (cuponData.enviarPorMail) {
+    const destinatarios =
+      cuponData.destinatarios === "todos"
+        ? await clientesRepository.findActivosConEmail()
+        : await clientesRepository.findActivosByIdsConEmail(
+            Array.isArray(cuponData.destinatarios)
+              ? cuponData.destinatarios
+                  .map((id) => Number(id))
+                  .filter((id) => Number.isInteger(id) && id > 0)
+              : [],
+          );
+
+    if (destinatarios.length > 0) {
+      const resultados = await Promise.allSettled(
+        destinatarios.map((cliente) =>
+          enviarCuponPromocional(
+            cliente.emailCliente,
+            `${cliente.nombreCliente} ${cliente.apellidoCliente}`.trim(),
+            {
+              codigo: cuponData.codigo,
+              tipoCupon: cuponData.tipoCupon,
+              valorDescuento: cuponData.valorDescuento,
+              descripcion: cuponData.descripcion,
+              fechaVencimiento: cuponData.fechaVencimiento,
+              montoMinimo: cuponData.montoMinimo,
+            },
+          ),
+        ),
+      );
+
+      const enviados = resultados.filter(
+        (r) => r.status === "fulfilled",
+      ).length;
+      envioMail = {
+        totalDestinatarios: destinatarios.length,
+        enviados,
+        fallidos: destinatarios.length - enviados,
+      };
+    } else {
+      envioMail = {
+        totalDestinatarios: 0,
+        enviados: 0,
+        fallidos: 0,
+      };
+    }
+  }
 
   return {
     idCupon,
     ...cuponData,
+    envioMail,
   };
 };
 

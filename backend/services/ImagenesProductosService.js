@@ -169,6 +169,14 @@ const eliminarImagenesProducto = async (idProducto) => {
   return imagenesRepository.deleteByProductoId(idProducto);
 };
 
+const obtenerImagenPorId = async (idImagen) => {
+  return imagenesRepository.findById(idImagen);
+};
+
+const eliminarImagenPorId = async (idImagen) => {
+  return imagenesRepository.deleteById(idImagen);
+};
+
 const reordenarImagenes = async (idProducto, reordenamientos) => {
   const producto = await productosRepository.findById(idProducto);
   if (!producto) {
@@ -205,6 +213,10 @@ module.exports = {
   eliminarImagen,
   eliminarImagenesProducto,
   reordenarImagenes,
+  obtenerImagenPorId,
+  eliminarImagenPorId,
   create: agregarImagen,
   createMany: agregarImagenes,
+  findById: obtenerImagenPorId,
+  deleteById: eliminarImagenPorId,
 };

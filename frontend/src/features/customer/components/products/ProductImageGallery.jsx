@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Default from "@assets/default.webp";
-import { BotonFavorito } from "@components/atoms";
+import BotonFavorito from "@features/customer/components/favorites/FavoriteToggleButton";
 import apiClient from "@utils/apiClient";
 
 const ProductImageGallery = ({ product }) => {

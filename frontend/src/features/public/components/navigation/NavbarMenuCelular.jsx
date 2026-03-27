@@ -9,7 +9,7 @@ import {
   Tag,
 } from "lucide-react";
 import NavbarAvatar from "./NavbarAvatar";
-import { NavbarCategoriesDropdown } from "@components/organisms/navigation/NavbarCategoriesDropdown";
+import { NavbarCategoriesDropdown } from "./NavbarCategoriesDropdown";
 import LogoPixelSalud from "@assets/LogoPixelSalud.webp";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
@@ -82,26 +82,35 @@ const NavbarMenuCelular = ({
     }
   };
 
-  // Misma transición para overlay y panel
-  const transition = { type: "spring", stiffness: 300, damping: 28 };
+  // El overlay usa tween corto para que el blur aparezca al instante.
+  const overlayTransition = { duration: 0.18, ease: "easeOut" };
+  const panelTransition = { duration: 0.24, ease: [0.22, 1, 0.36, 1] };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence initial={false}>
       {isMenuOpen && (
         <motion.div
           className="fixed inset-0 z-50"
-          initial={{ opacity: 0 }}
+          initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={transition}
+          exit={{ opacity: 1 }}
         >
           {/* Overlay */}
           <motion.div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 backdrop-blur-sm"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 1 }}
+            transition={{ duration: 0 }}
+            aria-hidden="true"
+          />
+
+          <motion.div
+            className="absolute inset-0 bg-black/45"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={transition}
+            transition={overlayTransition}
             onClick={() => setIsMenuOpen(false)}
             aria-hidden="true"
           />
@@ -113,7 +122,7 @@ const NavbarMenuCelular = ({
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={transition}
+            transition={panelTransition}
             role="dialog"
             aria-modal="true"
             aria-label="Menú de navegación"

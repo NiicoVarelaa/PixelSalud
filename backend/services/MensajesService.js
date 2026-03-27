@@ -32,17 +32,28 @@ const obtenerMensajesPorCliente = async (idCliente) => {
   return mensajes || [];
 };
 
+const TIPOS_CONSULTA_AUTH_REQUERIDA = new Set(["pedido", "receta"]);
+
+const ASUNTOS_POR_TIPO = {
+  general: "Consulta general",
+  pedido: "Consulta sobre pedido",
+  receta: "Consulta sobre receta",
+  facturacion: "Consulta sobre facturacion",
+  otro: "Otra consulta",
+};
+
 const crearMensaje = async ({
   idCliente,
   nombre,
   email,
   asunto,
   mensaje,
+  tipoConsulta,
   fechaEnvio,
 }) => {
-  if (!idCliente || !nombre || !email || !mensaje) {
+  if (!nombre || !email || !mensaje) {
     throw createValidationError(
-      "Faltan datos obligatorios (idCliente, nombre, email, mensaje)",
+      "Faltan datos obligatorios (nombre, email, mensaje)",
     );
   }
 
@@ -56,22 +67,49 @@ const crearMensaje = async ({
     );
   }
 
-  const clienteExists = await mensajesRepository.existsCliente(idCliente);
-  if (!clienteExists) {
-    throw createNotFoundError(`Cliente con ID ${idCliente} no encontrado`);
+  const tipoConsultaFinal = tipoConsulta || "general";
+  if (TIPOS_CONSULTA_AUTH_REQUERIDA.has(tipoConsultaFinal) && !idCliente) {
+    throw createValidationError(
+      "Debes iniciar sesión para enviar consultas de pedido o receta",
+    );
   }
 
-  const asuntoFinal = asunto && asunto.trim() ? asunto.trim() : "Sin Asunto";
+  if (idCliente) {
+    const clienteExists = await mensajesRepository.existsCliente(idCliente);
+    if (!clienteExists) {
+      throw createNotFoundError(`Cliente con ID ${idCliente} no encontrado`);
+    }
+  }
 
-  const idMensaje = await mensajesRepository.create({
-    idCliente,
-    nombre: nombre.trim(),
-    email: email.trim(),
-    asunto: asuntoFinal,
-    mensaje: mensaje.trim(),
-    fechaEnvio,
-    estado: "nuevo",
-  });
+  const asuntoDefault = ASUNTOS_POR_TIPO[tipoConsultaFinal] || "Consulta";
+  const asuntoFinal = asunto && asunto.trim() ? asunto.trim() : asuntoDefault;
+
+  let idMensaje;
+  try {
+    idMensaje = await mensajesRepository.create({
+      idCliente: idCliente || null,
+      nombre: nombre.trim(),
+      email: email.trim(),
+      asunto: asuntoFinal,
+      tipoConsulta: tipoConsultaFinal,
+      mensaje: mensaje.trim(),
+      fechaEnvio,
+      estado: "nuevo",
+    });
+  } catch (error) {
+    const isIdClienteNullSchemaIssue =
+      error?.code === "ER_BAD_NULL_ERROR" &&
+      typeof error?.message === "string" &&
+      error.message.includes("idCliente");
+
+    if (isIdClienteNullSchemaIssue) {
+      throw createValidationError(
+        "La base de datos requiere migración para contacto público (idCliente nullable en MensajesClientes)",
+      );
+    }
+
+    throw error;
+  }
 
   enviarConfirmacionCliente(email, nombre, asuntoFinal).catch((error) =>
     console.error("Error enviando email de confirmación:", error),

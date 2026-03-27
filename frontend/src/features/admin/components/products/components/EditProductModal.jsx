@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useState, useCallback, useEffect } from "react";
 import { X, Save, Package, Images } from "lucide-react";
 import { cleanPrice, detectAndCleanPrice } from "../utils/productUtils";
-import UploadImagenes from "@components/molecules/admin/UploadImagenes";
+import UploadImagenes from "./UploadImagenes";
 import CustomSelect from "./CustomSelect";
 
 const EditProductModal = ({

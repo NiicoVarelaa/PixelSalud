@@ -31,11 +31,11 @@ const createMensajeSchema = z.object({
   body: z.object({
     idCliente: z
       .number({
-        required_error: "El ID del cliente es requerido",
         invalid_type_error: "El ID del cliente debe ser un número",
       })
       .int("El ID del cliente debe ser un número entero")
-      .positive("El ID del cliente debe ser un número positivo"),
+      .positive("El ID del cliente debe ser un número positivo")
+      .optional(),
 
     nombre: z
       .string({
@@ -62,6 +62,13 @@ const createMensajeSchema = z.object({
       })
       .max(200, "El asunto no debe exceder 200 caracteres")
       .trim()
+      .optional(),
+
+    tipoConsulta: z
+      .enum(["general", "pedido", "receta", "facturacion", "otro"], {
+        invalid_type_error:
+          "El tipo de consulta debe ser: general, pedido, receta, facturacion u otro",
+      })
       .optional(),
 
     mensaje: z

@@ -14,7 +14,8 @@ import {
 import { useProductStore } from "@store/useProductStore";
 import { useFiltroStore } from "@store/useFiltroStore";
 
-import { Header, Footer } from "@components/organisms";
+import Header from "@features/public/components/navigation/Header";
+import Footer from "@features/public/components/footer/Footer";
 import { Breadcrumbs } from "@components/molecules/navigation";
 import { CardSkeleton } from "@components/molecules/cards";
 import { CardProductos } from "@features/customer/components/products";

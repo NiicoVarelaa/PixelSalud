@@ -3,17 +3,31 @@ const { pool } = require("../config/database");
 const findAll = async () => {
   const query = `
     SELECT 
-      idCliente, 
-      nombreCliente, 
-      apellidoCliente, 
-      emailCliente, 
-      dni, 
-      telefono,
-      direccion,
-      activo, 
-      rol 
-    FROM Clientes 
-    ORDER BY idCliente DESC`;
+      c.idCliente,
+      c.nombreCliente,
+      c.apellidoCliente,
+      c.emailCliente,
+      c.dni,
+      c.telefono,
+      c.direccion,
+      c.fecha_registro,
+      c.activo,
+      c.rol,
+      COALESCE(v.totalCompras, 0) AS totalCompras,
+      COALESCE(v.totalGastado, 0) AS totalGastado,
+      v.ultimaCompra
+    FROM Clientes c
+    LEFT JOIN (
+      SELECT
+        idCliente,
+        COUNT(*) AS totalCompras,
+        SUM(totalPago) AS totalGastado,
+        MAX(fechaPago) AS ultimaCompra
+      FROM VentasOnlines
+      WHERE estado = 'retirado'
+      GROUP BY idCliente
+    ) v ON c.idCliente = v.idCliente
+    ORDER BY c.idCliente DESC`;
 
   const [rows] = await pool.query(query);
   return rows;
@@ -82,6 +96,40 @@ const findByDNI = async (dni) => {
 
   const [results] = await pool.query(query, [dni]);
   return results[0] || null;
+};
+
+const findActivosConEmail = async () => {
+  const query = `
+    SELECT idCliente, nombreCliente, apellidoCliente, emailCliente
+    FROM Clientes
+    WHERE activo = true
+      AND emailCliente IS NOT NULL
+      AND emailCliente != ''
+    ORDER BY idCliente DESC
+  `;
+
+  const [rows] = await pool.query(query);
+  return rows;
+};
+
+const findActivosByIdsConEmail = async (ids = []) => {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return [];
+  }
+
+  const placeholders = ids.map(() => "?").join(", ");
+  const query = `
+    SELECT idCliente, nombreCliente, apellidoCliente, emailCliente
+    FROM Clientes
+    WHERE activo = true
+      AND emailCliente IS NOT NULL
+      AND emailCliente != ''
+      AND idCliente IN (${placeholders})
+    ORDER BY idCliente DESC
+  `;
+
+  const [rows] = await pool.query(query, ids);
+  return rows;
 };
 
 const existsEmailExcept = async (email, excludeId) => {
@@ -213,6 +261,8 @@ module.exports = {
   findById,
   findByEmail,
   findByDNI,
+  findActivosConEmail,
+  findActivosByIdsConEmail,
   existsEmailExcept,
   existsByEmail,
   existsByDNI,

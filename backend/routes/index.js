@@ -12,6 +12,7 @@ module.exports = {
   MedicosRoutes: require("./MedicosRoutes"),
   MensajesRoutes: require("./MensajesRoutes"),
   MercadoPagoRoutes: require("./MercadoPagoRoutes"),
+  NewsletterRoutes: require("./NewsletterRoutes"),
   // REMOVED: OfertasRoutes: require("./OfertasRoutes"), // DEPRECATED - usar CampanasRoutes
   PermisosRoutes: require("./PermisosRoutes"),
   ProductosRoutes: require("./ProductosRoutes"),

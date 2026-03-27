@@ -1,10 +1,11 @@
 const mercadoPagoService = require("../services/MercadoPagoService");
 const cuponesService = require("../services/CuponesService");
+const mercadoPagoRepository = require("../repositories/MercadoPagoRepository");
 const { Auditoria } = require("../helps");
 
 const createOrder = async (req, res, next) => {
   try {
-    const { products, customer_info, discount, codigoCupon } = req.body;
+    const { products, customer_info, codigoCupon } = req.body;
     const userId = req.user.id;
 
     console.log("\n=== NUEVA ORDEN DE COMPRA ===");
@@ -13,14 +14,25 @@ const createOrder = async (req, res, next) => {
     console.log("Cliente:", customer_info?.email);
     console.log("Cupón:", codigoCupon || "Sin cupón");
 
-    let descuentoFinal = discount || 0;
+    let descuentoFinal = 0;
     let cuponAplicado = null;
 
     if (codigoCupon) {
-      const subtotal = products.reduce(
-        (sum, p) => sum + p.unit_price * p.quantity,
-        0,
+      const productIds = products.map((p) => Number(p.id));
+      const dbProducts =
+        await mercadoPagoRepository.getProductsByIds(productIds);
+      const dbProductsById = new Map(
+        dbProducts.map((p) => [Number(p.idProducto), p]),
       );
+
+      const subtotal = products.reduce((sum, p) => {
+        const quantity = Number(p.quantity) || 0;
+        const dbProduct = dbProductsById.get(Number(p.id));
+        const unitPrice = Number(
+          dbProduct?.precioFinal || dbProduct?.precio || 0,
+        );
+        return sum + unitPrice * quantity;
+      }, 0);
 
       const validacion = await cuponesService.validarYCalcularDescuento(
         codigoCupon.toUpperCase(),

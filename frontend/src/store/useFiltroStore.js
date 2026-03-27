@@ -17,69 +17,76 @@ export const useFiltroStore = create((set, get) => ({
     }),
 
   getProductosFiltrados: () => {
-    const { productos, productosAbajo } = useProductStore.getState();
+    const { productos, productosAbajo, productosCyberMonday } =
+      useProductStore.getState();
     const { filtroCategoria, busqueda, ordenPrecio } = get();
 
+    const sortByPrice = (lista) =>
+      [...lista].sort((a, b) => {
+        const precioA = Number(
+          a.precioFinal || a.precio || a.precioRegular || 0,
+        );
+        const precioB = Number(
+          b.precioFinal || b.precio || b.precioRegular || 0,
+        );
+
+        if (ordenPrecio === "menor-precio") return precioA - precioB;
+        if (ordenPrecio === "mayor-precio") return precioB - precioA;
+        return 0;
+      });
+
+    const coincideBusqueda = (producto) =>
+      String(producto?.nombreProducto || "")
+        .toLowerCase()
+        .includes(busqueda.toLowerCase());
+
+    const getDiscountPercentages = (producto) => {
+      const descuentos = [];
+
+      const descuentoDirecto = Number(producto?.porcentajeDescuento);
+      if (Number.isFinite(descuentoDirecto) && descuentoDirecto > 0) {
+        descuentos.push(descuentoDirecto);
+      }
+
+      if (Array.isArray(producto?.ofertas)) {
+        producto.ofertas.forEach((offer) => {
+          const value = Number(offer?.porcentajeDescuento || offer?.descuento);
+          if (Number.isFinite(value) && value > 0) {
+            descuentos.push(value);
+          }
+        });
+      }
+
+      return descuentos;
+    };
+
     let productosFiltrados;
-    if (filtroCategoria === "Cyber Monday") {
-      productosFiltrados = productosAbajo
-        .filter((p) =>
-          p.nombreProducto.toLowerCase().includes(busqueda.toLowerCase()),
-        )
-        .sort((a, b) => {
-          const precioA = Number(
-            a.precioFinal || a.precio || a.precioRegular || 0,
-          );
-          const precioB = Number(
-            b.precioFinal || b.precio || b.precioRegular || 0,
-          );
-          if (ordenPrecio === "menor-precio") return precioA - precioB;
-          if (ordenPrecio === "mayor-precio") return precioB - precioA;
-          return 0;
-        });
+    if (filtroCategoria.toLowerCase().includes("cyber monday")) {
+      productosFiltrados = sortByPrice(
+        productosCyberMonday.filter((p) => coincideBusqueda(p)),
+      );
     } else if (filtroCategoria === "Ofertas") {
-      // Filtrar solo productos con ofertas activas
-      productosFiltrados = productos
-        .filter((p) => {
-          const esOferta = p.enOferta && p.porcentajeDescuento > 0;
-          const coincideNombre = p.nombreProducto
-            .toLowerCase()
-            .includes(busqueda.toLowerCase());
-          return esOferta && coincideNombre;
-        })
-        .sort((a, b) => {
-          const precioA = Number(
-            a.precioFinal || a.precio || a.precioRegular || 0,
+      const descuentosObjetivo = new Set([10, 15, 20]);
+
+      productosFiltrados = sortByPrice(
+        productos.filter((p) => {
+          const descuentos = getDiscountPercentages(p);
+          const tieneDescuentoObjetivo = descuentos.some((value) =>
+            descuentosObjetivo.has(Math.round(value)),
           );
-          const precioB = Number(
-            b.precioFinal || b.precio || b.precioRegular || 0,
-          );
-          if (ordenPrecio === "menor-precio") return precioA - precioB;
-          if (ordenPrecio === "mayor-precio") return precioB - precioA;
-          return 0;
-        });
+
+          return tieneDescuentoObjetivo && coincideBusqueda(p);
+        }),
+      );
     } else {
-      productosFiltrados = productos
-        .filter((p) => {
+      productosFiltrados = sortByPrice(
+        productos.filter((p) => {
           const coincideCategoria =
             filtroCategoria === "todos" || p.categoria === filtroCategoria;
-          const coincideNombre = p.nombreProducto
-            .toLowerCase()
-            .includes(busqueda.toLowerCase());
-          return coincideCategoria && coincideNombre;
-        })
-        .sort((a, b) => {
-          // Usar el campo correcto de precio
-          const precioA = Number(
-            a.precioFinal || a.precio || a.precioRegular || 0,
-          );
-          const precioB = Number(
-            b.precioFinal || b.precio || b.precioRegular || 0,
-          );
-          if (ordenPrecio === "menor-precio") return precioA - precioB;
-          if (ordenPrecio === "mayor-precio") return precioB - precioA;
-          return 0;
-        });
+
+          return coincideCategoria && coincideBusqueda(p);
+        }),
+      );
     }
     return productosFiltrados;
   },

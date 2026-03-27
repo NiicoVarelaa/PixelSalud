@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@store/useAuthStore";
 import { User, Heart, ShoppingBag, LogOut } from "lucide-react";
-import { Header } from "@components/organisms";
+import Header from "@features/public/components/navigation/Header";
 const DashboardCliente = () => {
   const { user, logoutUser } = useAuthStore();
   const location = useLocation();

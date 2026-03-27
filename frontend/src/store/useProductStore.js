@@ -4,14 +4,32 @@ import axios from "axios";
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const API_URL_ALL = `${API_BASE_URL}/productos`;
-// UPDATED: Usar sistema de campañas en lugar de ofertas individuales
 const API_URL_CAMPANAS_ACTIVAS = `${API_BASE_URL}/campanas/activas`;
 
 const PRODUCTS_PER_SECTION = 6;
 
+const normalizeCampaignProduct = (product) => {
+  const precioBase = Number(product?.precio) || 0;
+  const porcentajeDescuento = Number(product?.descuentoFinal) || 0;
+  const precioFinal =
+    porcentajeDescuento > 0
+      ? precioBase * (1 - porcentajeDescuento / 100)
+      : precioBase;
+
+  return {
+    ...product,
+    enOferta: true,
+    isCyberMonday: true,
+    porcentajeDescuento,
+    precioRegular: precioBase,
+    precioFinal,
+  };
+};
+
 export const useProductStore = create((set) => ({
   productosArriba: [],
   productosAbajo: [],
+  productosCyberMonday: [],
   productos: [],
   categorias: [],
   isLoading: false,
@@ -23,7 +41,7 @@ export const useProductStore = create((set) => ({
     try {
       const [resAll, resCampanas] = await Promise.all([
         axios.get(API_URL_ALL),
-        axios.get(API_URL_CAMPANAS_ACTIVAS).catch(() => ({ data: [] })), // Campañas opcionales
+        axios.get(API_URL_CAMPANAS_ACTIVAS).catch(() => ({ data: [] })),
       ]);
 
       const todos = resAll.data;
@@ -32,29 +50,54 @@ export const useProductStore = create((set) => ({
       const productosDisponiblesArriba = todos.filter(
         (p) => p.categoria !== "Medicamentos con Receta",
       );
-
       const shuffledArriba = [...productosDisponiblesArriba].sort(
         () => Math.random() - 0.5,
       );
       const arriba = shuffledArriba.slice(0, PRODUCTS_PER_SECTION);
 
-      // Productos en ofertas (de campañas activas)
-      // Nota: Las campañas ahora retornan productos con descuentos aplicados
-      const productosEnOferta = todos.filter(
-        (producto) => producto.ofertas && producto.ofertas.length > 0,
-      );
+      const productosEnOferta = todos.filter((producto) => {
+        const tieneOfertasArray =
+          Array.isArray(producto.ofertas) && producto.ofertas.length > 0;
+        const tieneBanderaOferta = Boolean(producto.enOferta);
+        const tieneDescuento = Number(producto.porcentajeDescuento) > 0;
+
+        return tieneOfertasArray || tieneBanderaOferta || tieneDescuento;
+      });
+
       const abajo = productosEnOferta.slice(0, PRODUCTS_PER_SECTION);
 
-      let categoriasUnicas = [...new Set(todos.map((p) => p.categoria))];
+      const campanaCyberMonday = campanasActivas.find((campana) =>
+        String(campana?.nombreCampana || "")
+          .toLowerCase()
+          .includes("cyber"),
+      );
 
-      // Agregar "Ofertas" como categoría especial si hay campañas activas
-      if (campanasActivas.length > 0 && !categoriasUnicas.includes("Ofertas")) {
+      let productosCyberMonday = [];
+
+      if (campanaCyberMonday?.idCampana) {
+        const responseCyber = await axios
+          .get(
+            `${API_BASE_URL}/campanas/${campanaCyberMonday.idCampana}/productos`,
+          )
+          .catch(() => ({ data: { productos: [] } }));
+
+        productosCyberMonday = (responseCyber.data?.productos || []).map(
+          normalizeCampaignProduct,
+        );
+      }
+
+      let categoriasUnicas = [...new Set(todos.map((p) => p.categoria))];
+      if (
+        (campanasActivas.length > 0 || abajo.length > 0) &&
+        !categoriasUnicas.includes("Ofertas")
+      ) {
         categoriasUnicas = ["Ofertas", ...categoriasUnicas];
       }
 
       set({
         productosArriba: arriba,
         productosAbajo: abajo,
+        productosCyberMonday,
         productos: todos,
         categorias: categoriasUnicas,
         isLoading: false,

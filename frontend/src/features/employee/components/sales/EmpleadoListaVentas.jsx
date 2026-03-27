@@ -13,7 +13,7 @@ import {
   Printer,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { TicketVenta } from "@components/shared";
+import TicketVenta from "@features/admin/components/sales/shared/TicketVenta";
 
 const EmpleadoListaVentas = ({ endpoint, title }) => {
   const navigate = useNavigate();

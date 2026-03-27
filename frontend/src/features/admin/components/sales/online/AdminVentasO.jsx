@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TicketVenta } from "@components/shared";
+import TicketVenta from "@features/admin/components/sales/shared/TicketVenta";
 import { AdminLayout } from "@features/admin/components/shared";
 
 // Hooks customizados

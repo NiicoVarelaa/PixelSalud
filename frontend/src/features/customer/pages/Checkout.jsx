@@ -4,9 +4,10 @@ import { useCarritoStore } from "@store/useCarritoStore";
 import { useAuthStore } from "@store/useAuthStore";
 import { toast } from "react-toastify";
 import { FiShoppingBag, FiArrowLeft, FiTag, FiShield } from "react-icons/fi";
-import { Header } from "@components/organisms";
+import Header from "@features/public/components/navigation/Header";
 import { ChevronRight, Home } from "lucide-react";
 import { CheckoutForm } from "@features/customer/components/checkout";
+import apiClient from "@utils/apiClient";
 import Default from "@assets/default.webp";
 
 // Función de utilidad para formatear precio a ARS (moneda con símbolo)
@@ -63,24 +64,15 @@ const Checkout = () => {
     }
 
     try {
-      const backendUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-      const response = await fetch(`${backendUrl}/cupones/validar`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          auth: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          codigo: discountCode.trim().toUpperCase(),
-          montoCompra: subtotal,
-        }),
+      const response = await apiClient.post("/cupones/validar", {
+        codigo: discountCode.trim().toUpperCase(),
+        montoCompra: subtotal,
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok && data.success) {
-        setAppliedDiscount(data.data.descuento);
+      if (data?.success) {
+        setAppliedDiscount(Number(data.data.descuento) || 0);
         setAppliedCouponCode(discountCode.trim().toUpperCase());
         toast.success(
           `¡Cupón aplicado! Descuento: ${formatPrice(data.data.descuento)}`,
@@ -94,7 +86,7 @@ const Checkout = () => {
       console.error("Error validando cupón:", error);
       setAppliedDiscount(0);
       setAppliedCouponCode(null);
-      toast.error("Error al validar el cupón");
+      toast.error(error.response?.data?.message || "Error al validar el cupón");
     }
   };
 
@@ -213,7 +205,7 @@ const Checkout = () => {
         setIsProcessing(false);
       }
     },
-    [carrito, appliedDiscount, navigate, token],
+    [carrito, appliedCouponCode, appliedDiscount, navigate, token],
   );
 
   const formatPrecio = (price) => {
@@ -422,13 +414,6 @@ const Checkout = () => {
                       </button>
                     </div>
                   )}
-
-                  {discountCode.toUpperCase() === "PIXEL2025" &&
-                    !appliedDiscount && (
-                      <p className="text-green-600 text-xs mt-1">
-                        Cupón válido: PIXEL2025 - 10% OFF
-                      </p>
-                    )}
                 </div>
 
                 {/* Resumen de precios */}

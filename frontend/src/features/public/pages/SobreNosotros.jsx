@@ -12,8 +12,9 @@ import {
   Store,
 } from "lucide-react";
 
-import { Header, Footer } from "@components/organisms";
-import { MiniBanner } from "@components/organisms/banners";
+import Header from "@features/public/components/navigation/Header";
+import Footer from "@features/public/components/footer/Footer";
+import MiniBanner from "@features/public/components/banners/MiniBanner";
 
 import ampollas from "@assets/ampollas.webp";
 import botes from "@assets/botes.webp";

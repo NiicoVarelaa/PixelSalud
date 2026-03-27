@@ -2,7 +2,7 @@ const { pool } = require("../config/database");
 
 const findAll = async () => {
   const [rows] = await pool.query(
-    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
+    `SELECT idMensaje, idCliente, nombre, email, asunto, tipoConsulta, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
      FROM MensajesClientes 
      ORDER BY fechaEnvio DESC`,
   );
@@ -11,7 +11,7 @@ const findAll = async () => {
 
 const findById = async (idMensaje) => {
   const [rows] = await pool.query(
-    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
+    `SELECT idMensaje, idCliente, nombre, email, asunto, tipoConsulta, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
      FROM MensajesClientes 
      WHERE idMensaje = ?`,
     [idMensaje],
@@ -21,7 +21,7 @@ const findById = async (idMensaje) => {
 
 const findByEstado = async (estado) => {
   const [rows] = await pool.query(
-    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
+    `SELECT idMensaje, idCliente, nombre, email, asunto, tipoConsulta, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
      FROM MensajesClientes 
      WHERE estado = ? 
      ORDER BY fechaEnvio DESC`,
@@ -32,7 +32,7 @@ const findByEstado = async (estado) => {
 
 const findByClienteId = async (idCliente) => {
   const [rows] = await pool.query(
-    `SELECT idMensaje, idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
+    `SELECT idMensaje, idCliente, nombre, email, asunto, tipoConsulta, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
      FROM MensajesClientes 
      WHERE idCliente = ? 
      ORDER BY fechaEnvio DESC`,
@@ -46,19 +46,37 @@ const create = async ({
   nombre,
   email,
   asunto,
+  tipoConsulta,
   mensaje,
   fechaEnvio,
   estado = "nuevo",
 }) => {
   const query = fechaEnvio
-    ? `INSERT INTO MensajesClientes (idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
-    : `INSERT INTO MensajesClientes (idCliente, nombre, email, asunto, mensaje, estado) 
-       VALUES (?, ?, ?, ?, ?, ?)`;
+    ? `INSERT INTO MensajesClientes (idCliente, nombre, email, asunto, tipoConsulta, mensaje, fechaEnvio, estado) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    : `INSERT INTO MensajesClientes (idCliente, nombre, email, asunto, tipoConsulta, mensaje, estado) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
   const params = fechaEnvio
-    ? [idCliente, nombre, email, asunto, mensaje, fechaEnvio, estado]
-    : [idCliente, nombre, email, asunto, mensaje, estado];
+    ? [
+        idCliente,
+        nombre,
+        email,
+        asunto,
+        tipoConsulta || "general",
+        mensaje,
+        fechaEnvio,
+        estado,
+      ]
+    : [
+        idCliente,
+        nombre,
+        email,
+        asunto,
+        tipoConsulta || "general",
+        mensaje,
+        estado,
+      ];
 
   const [result] = await pool.query(query, params);
   return result.insertId;
@@ -119,7 +137,7 @@ const countUnread = async () => {
 
 const findRecentUnread = async (limit = 5) => {
   const [rows] = await pool.query(
-    `SELECT idMensaje, nombre, email, asunto, mensaje, fechaEnvio, estado 
+    `SELECT idMensaje, nombre, email, asunto, tipoConsulta, mensaje, fechaEnvio, estado 
      FROM MensajesClientes 
      WHERE leido = 0 
      ORDER BY fechaEnvio DESC 

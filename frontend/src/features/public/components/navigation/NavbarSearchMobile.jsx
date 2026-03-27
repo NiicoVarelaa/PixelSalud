@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { SearchSuggestions } from "@components/molecules/search";
+import SearchSuggestions from "../search/SearchSuggestions";
 
 export function NavbarSearchMobile({
   isSearchOpen,
@@ -48,7 +48,7 @@ export function NavbarSearchMobile({
                 autoFocus
                 aria-label="Buscar productos, marcas o categorías"
               />
-              
+
               {searchTerm && (
                 <button
                   type="button"
@@ -83,7 +83,7 @@ export function NavbarSearchMobile({
                   />
                 </svg>
               </motion.button>
-              
+
               {showSuggestions && (
                 <SearchSuggestions
                   searchTerm={searchTerm}
