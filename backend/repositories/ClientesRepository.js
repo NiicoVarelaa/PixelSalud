@@ -8,6 +8,7 @@ const findAll = async () => {
       c.apellidoCliente,
       c.emailCliente,
       c.dni,
+      c.fechaNacimiento,
       c.telefono,
       c.direccion,
       c.fecha_registro,
@@ -41,6 +42,7 @@ const findInactivos = async () => {
       apellidoCliente, 
       emailCliente, 
       dni, 
+      fechaNacimiento,
       telefono,
       direccion,
       activo, 
@@ -61,6 +63,7 @@ const findById = async (idCliente) => {
       apellidoCliente, 
       emailCliente, 
       dni, 
+      fechaNacimiento,
       telefono,
       direccion,
       activo, 
@@ -87,6 +90,7 @@ const findByDNI = async (dni) => {
       nombreCliente, 
       apellidoCliente, 
       dni,
+      fechaNacimiento,
       emailCliente,
       telefono,
       direccion,
@@ -154,8 +158,8 @@ const existsByDNI = async (dni) => {
 const create = async (clienteData) => {
   const query = `
     INSERT INTO Clientes 
-    (nombreCliente, apellidoCliente, contraCliente, emailCliente, dni, telefono, direccion, rol, activo)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    (nombreCliente, apellidoCliente, contraCliente, emailCliente, dni, fechaNacimiento, telefono, direccion, rol, activo)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   const values = [
     clienteData.nombreCliente,
@@ -163,6 +167,7 @@ const create = async (clienteData) => {
     clienteData.contraCliente,
     clienteData.emailCliente,
     clienteData.dni,
+    clienteData.fechaNacimiento || null,
     clienteData.telefono || null,
     clienteData.direccion || null,
     clienteData.rol || "cliente",
@@ -192,6 +197,10 @@ const update = async (idCliente, updates) => {
   if (updates.dni !== undefined) {
     campos.push("dni = ?");
     valores.push(updates.dni);
+  }
+  if (updates.fechaNacimiento !== undefined) {
+    campos.push("fechaNacimiento = ?");
+    valores.push(updates.fechaNacimiento);
   }
   if (updates.telefono !== undefined) {
     campos.push("telefono = ?");

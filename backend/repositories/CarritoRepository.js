@@ -20,17 +20,37 @@ const findByClienteWithProducts = async (idCliente) => {
       COALESCE(imgPrincipal.urlImagen, p.img) as img,
       p.stock,
       p.activo,
-      o.porcentajeDescuento,
       CASE
-        WHEN o.idOferta IS NOT NULL 
+        WHEN co.tipo = '2X1' THEN NULL
+        WHEN co.idCampana IS NOT NULL THEN COALESCE(pc.porcentajeDescuentoOverride, co.porcentajeDescuento)
+        WHEN o.idOferta IS NOT NULL THEN o.porcentajeDescuento
+        ELSE NULL
+      END AS porcentajeDescuento,
+      CASE
+        WHEN co.tipo = '2X1'
+        THEN (p.precio * CEIL(c.cantidad / 2)) / c.cantidad
+        WHEN co.idCampana IS NOT NULL
+        THEN p.precio * (1 - COALESCE(pc.porcentajeDescuentoOverride, co.porcentajeDescuento) / 100)
+        WHEN o.idOferta IS NOT NULL
         THEN p.precio * (1 - o.porcentajeDescuento / 100)
         ELSE p.precio
       END AS precioFinal, 
       CASE
-        WHEN o.idOferta IS NOT NULL 
+        WHEN co.idCampana IS NOT NULL OR o.idOferta IS NOT NULL
         THEN TRUE
         ELSE FALSE
-      END AS enOferta
+      END AS enOferta,
+      co.tipo AS tipoPromocion,
+      CASE WHEN co.tipo = '2X1' THEN TRUE ELSE FALSE END AS promo2x1Activa,
+      CASE
+        WHEN co.tipo = '2X1'
+        THEN p.precio * CEIL(c.cantidad / 2)
+        WHEN co.idCampana IS NOT NULL
+        THEN (p.precio * (1 - COALESCE(pc.porcentajeDescuentoOverride, co.porcentajeDescuento) / 100)) * c.cantidad
+        WHEN o.idOferta IS NOT NULL
+        THEN (p.precio * (1 - o.porcentajeDescuento / 100)) * c.cantidad
+        ELSE p.precio * c.cantidad
+      END AS subtotalItem
     FROM Carrito c
     JOIN Productos p ON c.idProducto = p.idProducto
     LEFT JOIN (
@@ -38,8 +58,25 @@ const findByClienteWithProducts = async (idCliente) => {
       FROM ImagenesProductos 
       WHERE esPrincipal = TRUE
     ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
+    LEFT JOIN productos_campanas pc ON pc.id = (
+      SELECT pc2.id
+      FROM productos_campanas pc2
+      JOIN campanas_ofertas co2 ON co2.idCampana = pc2.idCampana
+      WHERE pc2.idProducto = p.idProducto
+        AND pc2.esActivo = 1
+        AND co2.esActiva = 1
+        AND NOW() BETWEEN co2.fechaInicio AND co2.fechaFin
+      ORDER BY
+        CASE WHEN co2.tipo = '2X1' THEN 1 ELSE 0 END DESC,
+        co2.prioridad DESC,
+        COALESCE(pc2.porcentajeDescuentoOverride, co2.porcentajeDescuento) DESC,
+        pc2.id DESC
+      LIMIT 1
+    )
+    LEFT JOIN campanas_ofertas co ON co.idCampana = pc.idCampana
     LEFT JOIN Ofertas o ON p.idProducto = o.idProducto
       AND o.esActiva = 1 
+      AND co.idCampana IS NULL
       AND NOW() BETWEEN o.fechaInicio AND o.fechaFin 
     WHERE c.idCliente = ?
     ORDER BY c.idCarrito DESC`;

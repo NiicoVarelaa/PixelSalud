@@ -11,6 +11,16 @@ const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN,
 });
 
+const normalizeDni = (value) => {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  return digits ? Number(digits) : null;
+};
+
+const normalizeArgPhone = (value) => {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  return digits || null;
+};
+
 const isTestPayment = (paymentId) => {
   const testIds = ["123456", "1325317138", "12345678"];
   return testIds.includes(paymentId.toString());
@@ -19,6 +29,7 @@ const isTestPayment = (paymentId) => {
 const createOrder = async ({
   products,
   customer_info,
+  checkout_data,
   discount = 0,
   userId,
   cuponAplicado = null,
@@ -31,6 +42,10 @@ const createOrder = async ({
 
   if (!customer_info || !customer_info.email) {
     throw createValidationError("Información del cliente incompleta");
+  }
+
+  if (!checkout_data) {
+    throw createValidationError("Faltan datos del checkout");
   }
 
   const frontendUrl = process.env.FRONTEND_URL?.trim();
@@ -70,12 +85,46 @@ const createOrder = async ({
     });
   }
 
+  const dniNormalizado = normalizeDni(checkout_data.dni);
+  const celularNormalizado = normalizeArgPhone(checkout_data.celular);
+
+  try {
+    await clientesRepository.update(userId, {
+      dni: dniNormalizado,
+      fechaNacimiento: checkout_data.fechaNacimiento,
+      telefono: celularNormalizado,
+    });
+  } catch (error) {
+    if (error?.code === "ER_DUP_ENTRY") {
+      throw createValidationError(
+        "El DNI ingresado ya está asociado a otro cliente",
+      );
+    }
+    throw error;
+  }
+
+  const sucursal = await mercadoPagoRepository.getSucursalByCodigo(
+    checkout_data.sucursalCodigo,
+  );
+
+  if (!sucursal) {
+    throw createValidationError("La sucursal seleccionada no es válida");
+  }
+
   let subtotal = 0;
   const items = dbProducts.map((product) => {
-    const priceToUse = product.precioFinal || product.precio;
-    const price = Number(priceToUse);
     const quantity = Number(productQuantities[product.idProducto]);
-    const itemTotal = price * quantity;
+    const precioBase = Number(product.precio || 0);
+
+    let unitPrice = Number(product.precioFinal || product.precio || 0);
+    let itemTotal = unitPrice * quantity;
+
+    if (product.promo2x1Activa) {
+      const unidadesCobradas = Math.ceil(quantity / 2);
+      itemTotal = precioBase * unidadesCobradas;
+      unitPrice = itemTotal / quantity;
+    }
+
     subtotal += itemTotal;
 
     return {
@@ -83,7 +132,7 @@ const createOrder = async ({
       idProducto: product.idProducto,
       title: product.nombreProducto,
       description: product.descripcion || product.nombreProducto,
-      unit_price: price,
+      unit_price: Number(unitPrice.toFixed(2)),
       quantity: quantity,
       picture_url: product.img,
       category_id: product.categoria || "general",
@@ -143,6 +192,16 @@ const createOrder = async ({
     estado: "pendiente",
     externalReference: externalReference,
     idCuponAplicado: cuponAplicado?.idCupon || null,
+    idSucursal: sucursal.idSucursal,
+    sucursalNombre: checkout_data.sucursalNombre,
+    sucursalDireccion: checkout_data.sucursalDireccion,
+    tipoEntrega: "retiro_sucursal",
+    dniClienteSnapshot: dniNormalizado,
+    fechaNacimientoSnapshot: checkout_data.fechaNacimiento,
+    celularSnapshot: celularNormalizado,
+    termsAccepted: true,
+    termsAcceptedAt: new Date(),
+    termsVersion: checkout_data.legalVersion || "checkout_2026_03",
   });
 
   await mercadoPagoRepository.createDetalleVentaOnline(idVentaO, items);

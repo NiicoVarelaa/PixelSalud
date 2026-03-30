@@ -105,6 +105,12 @@ const MainCarrito = ({ breadcrumbsCategoria }) => {
 
   // Función para verificar si hay descuento real
   const hasRealDiscount = (product) => {
+    const esDosPorUno =
+      Boolean(product.promo2x1Activa) ||
+      String(product.tipoPromocion || "").toUpperCase() === "2X1";
+
+    if (esDosPorUno) return true;
+
     // Verificar si el producto está en oferta Y tiene un porcentaje de descuento mayor a 0
     const hasDiscount =
       product.enOferta &&
@@ -178,7 +184,7 @@ const MainCarrito = ({ breadcrumbsCategoria }) => {
             </p>
             <Link
               to="/productos"
-              className="inline-flex items-center px-4 py-3 bg-gradient-to-r from-green-600 to-green-600 hover:from-green-700 hover:to-green-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+              className="inline-flex items-center px-4 py-3 bg-linear-to-r from-green-600 to-green-600 hover:from-green-700 hover:to-green-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
             >
               <FiArrowLeftCircle className="h-5 w-5 mr-2" />
               Descubrir productos
@@ -233,6 +239,10 @@ const MainCarrito = ({ breadcrumbsCategoria }) => {
 
                 <div className="divide-y divide-gray-100">
                   {carrito.map((product) => {
+                    const esDosPorUno =
+                      Boolean(product.promo2x1Activa) ||
+                      String(product.tipoPromocion || "").toUpperCase() ===
+                        "2X1";
                     const priceToUse =
                       product.precioFinal ||
                       product.precioRegular ||
@@ -243,7 +253,8 @@ const MainCarrito = ({ breadcrumbsCategoria }) => {
                         ? priceToUse
                         : parseFloat(priceToUse);
 
-                    const total = price * product.cantidad;
+                    const total =
+                      Number(product.subtotalItem) || price * product.cantidad;
                     const isHighlighted = highlightChanges[product.idProducto];
 
                     // Verificar si realmente tiene descuento
@@ -262,7 +273,7 @@ const MainCarrito = ({ breadcrumbsCategoria }) => {
                       >
                         {/* Product Info (Image, Name, Color, Delete button) - Full width on mobile */}
                         <div className="w-full md:col-span-5 flex items-start space-x-4">
-                          <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200 relative">
+                          <div className="w-20 h-20 shrink-0 rounded-lg overflow-hidden border border-gray-200 relative">
                             <img
                               className="w-full h-full object-cover"
                               src={product.img}
@@ -358,7 +369,7 @@ const MainCarrito = ({ breadcrumbsCategoria }) => {
                               >
                                 <FiMinus className="w-3 h-3" />
                               </button>
-                              <span className="mx-3 min-w-[2rem] text-center font-medium text-sm">
+                              <span className="mx-3 min-w-8 text-center font-medium text-sm">
                                 {product.cantidad}
                               </span>
                               <button
@@ -394,8 +405,10 @@ const MainCarrito = ({ breadcrumbsCategoria }) => {
                             </span>
                             {showDiscountBadge && (
                               <span className="mt-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full inline-flex items-center">
-                                <FiTag className="w-3 h-3 mr-1" />-
-                                {product.porcentajeDescuento}% OFF
+                                <FiTag className="w-3 h-3 mr-1" />
+                                {esDosPorUno
+                                  ? "2x1"
+                                  : `-${product.porcentajeDescuento}% OFF`}
                               </span>
                             )}
                           </div>
@@ -419,7 +432,7 @@ const MainCarrito = ({ breadcrumbsCategoria }) => {
                             >
                               <FiMinus className="w-3 h-3" />
                             </button>
-                            <span className="mx-3 min-w-[2rem] text-center font-medium text-sm">
+                            <span className="mx-3 min-w-8 text-center font-medium text-sm">
                               {product.cantidad}
                             </span>
                             <button
@@ -452,8 +465,10 @@ const MainCarrito = ({ breadcrumbsCategoria }) => {
                           </span>
                           {showDiscountBadge && (
                             <span className="mt-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full inline-flex items-center">
-                              <FiTag className="w-3 h-3 mr-1" />-
-                              {product.porcentajeDescuento}% OFF
+                              <FiTag className="w-3 h-3 mr-1" />
+                              {esDosPorUno
+                                ? "2x1"
+                                : `-${product.porcentajeDescuento}% OFF`}
                             </span>
                           )}
                         </div>

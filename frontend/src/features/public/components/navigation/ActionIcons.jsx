@@ -84,7 +84,7 @@ export function ActionIcons({
           <>
             <button
               onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
-              className="flex items-center gap-2 p-2 transition-colors duration-200 cursor-pointer"
+              className="flex items-center ju gap-2  transition-colors duration-200 cursor-pointer"
               aria-label="Abrir menú de perfil"
               aria-haspopup="true"
               aria-expanded={isProfileDropdownOpen}

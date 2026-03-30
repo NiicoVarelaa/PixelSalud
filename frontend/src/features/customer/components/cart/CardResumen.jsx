@@ -55,6 +55,11 @@ const CardResumen = () => {
     const articulos = carrito.reduce((acc, prod) => acc + prod.cantidad, 0);
 
     const sub = carrito.reduce((acc, prod) => {
+      const subtotalItem = Number(prod.subtotalItem);
+      if (Number.isFinite(subtotalItem) && subtotalItem > 0) {
+        return acc + subtotalItem;
+      }
+
       const priceToUse =
         prod.precioFinal || prod.precioRegular || prod.precio || 0;
       const price =
@@ -65,7 +70,10 @@ const CardResumen = () => {
     }, 0);
 
     const hasDisc = carrito.some(
-      (product) => product.enOferta && product.porcentajeDescuento > 0,
+      (product) =>
+        Boolean(product.promo2x1Activa) ||
+        String(product.tipoPromocion || "").toUpperCase() === "2X1" ||
+        (product.enOferta && Number(product.porcentajeDescuento) > 0),
     );
 
     return {

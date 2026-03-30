@@ -1,11 +1,9 @@
-import { useState } from "react";
+import { useState, useId } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
-
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { CardProductos } from "@features/customer/components/products";
 
 import "swiper/css";
@@ -14,125 +12,166 @@ import "swiper/css/autoplay";
 
 const ProductsRelated = ({ relatedProducts, category }) => {
   const navigate = useNavigate();
+  const sectionId = useId();
+  const headingId = `related-heading-${sectionId}`;
 
   const [isBeginning, setIsBeginning] = useState(true);
-  const [isEnd, setIsEnd] = useState(false);
+  const [isEnd, setIsEnd]             = useState(false);
+
+  const prevId = `swiper-prev-${sectionId}`;
+  const nextId = `swiper-next-${sectionId}`;
 
   const handleCategoryClick = () => {
-    let url = "/productos";
-
-    if (category) {
-      const encodedCategoria = encodeURIComponent(category);
-      url = `/productos?categoria=${encodedCategoria}`;
-    }
-
+    const url = category
+      ? `/productos?categoria=${encodeURIComponent(category)}`
+      : "/productos";
     navigate(url);
   };
 
   const swiperParams = {
     modules: [Navigation, Autoplay],
-    spaceBetween: 24,
-    slidesPerView: 1,
+    spaceBetween: 16,
+    slidesPerView: 1.2,          // Shows a peek of next card on mobile
     breakpoints: {
-      640: { slidesPerView: 2 },
-      768: { slidesPerView: 3 },
-      1024: { slidesPerView: 4 },
+      480: { slidesPerView: 2,   spaceBetween: 16 },
+      768: { slidesPerView: 3,   spaceBetween: 20 },
+      1024: { slidesPerView: 4,  spaceBetween: 24 },
     },
-    navigation: {
-      nextEl: ".swiper-button-next-custom",
-      prevEl: ".swiper-button-prev-custom",
-    },
-    autoplay: {
-      delay: 5000,
-      disableOnInteraction: false,
-      pauseOnMouseEnter: true,
-    },
-    speed: 600,
+    navigation: { nextEl: `#${nextId}`, prevEl: `#${prevId}` },
+    autoplay: { delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true },
+    speed: 500,
     grabCursor: true,
-    onSlideChange: (swiper) => {
-      setIsBeginning(swiper.isBeginning);
-      setIsEnd(swiper.isEnd);
+    a11y: {
+      prevSlideMessage: "Productos anteriores",
+      nextSlideMessage: "Productos siguientes",
+      firstSlideMessage: "Esta es la primera diapositiva",
+      lastSlideMessage: "Esta es la última diapositiva",
     },
-    onInit: (swiper) => {
-      setIsBeginning(swiper.isBeginning);
-      setIsEnd(swiper.isEnd);
-    },
+    onSlideChange: (s) => { setIsBeginning(s.isBeginning); setIsEnd(s.isEnd); },
+    onInit:        (s) => { setIsBeginning(s.isBeginning); setIsEnd(s.isEnd); },
   };
 
-  if (relatedProducts.length === 0) {
-    return null;
-  }
+  if (!relatedProducts?.length) return null;
+
+  const navBtnBase = `
+    flex-shrink-0 flex items-center justify-center
+    w-9 h-9 rounded-full border-2
+    transition-all duration-200 shadow-sm
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
+  `;
+  const navBtnActive = "border-primary-500 text-primary-700 bg-white hover:bg-primary-50 hover:shadow-md cursor-pointer";
+  const navBtnDisabled = "border-gray-200 text-gray-300 bg-white cursor-not-allowed";
 
   return (
-    <section>
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-8">
-        <div className="flex flex-col mb-4 lg:mb-0">
-          <h2 className="text-2xl lg:text-4xl font-bold text-gray-900">
+    <section aria-labelledby={headingId} className="w-full">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-5 sm:mb-7 gap-4">
+        <div>
+          <h2
+            id={headingId}
+            className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight"
+          >
             También te puede interesar
           </h2>
-          <p className="text-gray-600 text-sm lg:text-base mt-1">
-            Productos seleccionados especialmente para ti
+          <p className="text-gray-400 text-sm mt-1">
+            {category ? `Más productos en ${category}` : "Productos seleccionados para vos"}
           </p>
         </div>
+
+        {/* Desktop "ver todos" link */}
+        <button
+          onClick={handleCategoryClick}
+          aria-label={category ? `Ver todos los productos en ${category}` : "Ver todos los productos"}
+          className="
+            hidden sm:inline-flex items-center gap-1.5 flex-shrink-0
+            text-sm font-semibold text-primary-600
+            hover:text-primary-800 underline-offset-2 hover:underline
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded
+            transition-colors duration-150 cursor-pointer mt-1
+          "
+        >
+          Ver todos
+          <ArrowRight size={14} aria-hidden="true" />
+        </button>
       </div>
-      <div className="container bg-gradient-to-t from-white via-white to-gray-50 rounded-xl px-4">
-        <div className="flex items-center gap-2">
-          {relatedProducts.length > 1 && (
-            <button
-              className={`swiper-button-prev-custom p-2 rounded-full border transition-all duration-300 shadow-sm flex items-center justify-center ${
-                isBeginning
-                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                  : "border-primary-500 text-primary-700 hover:bg-primary-100 hover:shadow-md hover:scale-105 cursor-pointer"
-              }`}
-              aria-label="Productos anteriores"
-            >
-              <ChevronLeft size={24} />
-            </button>
-          )}
 
-          <div className="flex-1 min-w-0 w-full">
-            <Swiper {...swiperParams} className="products-related-swiper">
-              {relatedProducts.map((product) => (
-                <SwiperSlide key={product.idProducto}>
-                  <div className="h-full transform transition-all duration-500 hover:scale-[1.02] hover:z-10 pb-8">
-                    <CardProductos product={product} />
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </div>
+      {/* Slider + nav */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Prev button — hidden on mobile (swipe handles it) */}
+        <button
+          id={prevId}
+          aria-label="Ver productos anteriores"
+          aria-disabled={isBeginning}
+          className={`hidden sm:flex ${navBtnBase} ${isBeginning ? navBtnDisabled : navBtnActive}`}
+        >
+          <ChevronLeft size={18} aria-hidden="true" />
+        </button>
 
-          {relatedProducts.length > 1 && (
-            <button
-              className={`swiper-button-next-custom p-2 rounded-full border transition-all duration-300 shadow-sm flex items-center justify-center ${
-                isEnd
-                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                  : "border-primary-500 text-primary-700 hover:bg-primary-100 hover:shadow-md hover:scale-105 cursor-pointer"
-              }`}
-              aria-label="Siguientes productos"
-            >
-              <ChevronRight size={24} />
-            </button>
-          )}
+        <div className="flex-1 min-w-0">
+          <Swiper {...swiperParams} className="!pb-2">
+            {relatedProducts.map((product, idx) => (
+              <SwiperSlide key={product.idProducto}>
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, delay: idx * 0.05 }}
+                  className="h-full"
+                >
+                  <CardProductos product={product} />
+                </motion.div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
 
-        <div className="text-center mt-4 pb-8">
-          <button
-            onClick={handleCategoryClick}
-            className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 overflow-hidden cursor-pointer"
-          >
-            <span className="relative z-10 flex items-center gap-3">
-              {category
-                ? `Ver todos en ${category}`
-                : "Ver todos los productos"}
-              <ChevronRight
-                size={20}
-                className="group-hover:translate-x-1 transition-transform duration-300"
-              />
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-700 to-primary-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          </button>
-        </div>
+        {/* Next button — hidden on mobile */}
+        <button
+          id={nextId}
+          aria-label="Ver más productos"
+          aria-disabled={isEnd}
+          className={`hidden sm:flex ${navBtnBase} ${isEnd ? navBtnDisabled : navBtnActive}`}
+        >
+          <ChevronRight size={18} aria-hidden="true" />
+        </button>
+      </div>
+
+      {/* Mobile CTA — full width */}
+      <div className="mt-6 sm:hidden">
+        <button
+          onClick={handleCategoryClick}
+          aria-label={category ? `Ver todos los productos en ${category}` : "Ver todos los productos"}
+          className="
+            w-full flex items-center justify-center gap-2
+            py-3.5 rounded-xl border-2 border-primary-600
+            text-primary-700 font-semibold text-sm bg-white
+            hover:bg-primary-50 active:scale-[0.98]
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
+            transition-all duration-150 cursor-pointer
+          "
+        >
+          {category ? `Ver todos en ${category}` : "Ver todos los productos"}
+          <ArrowRight size={15} aria-hidden="true" />
+        </button>
+      </div>
+
+      {/* Desktop centered CTA */}
+      <div className="hidden sm:flex justify-center mt-8">
+        <button
+          onClick={handleCategoryClick}
+          aria-label={category ? `Ver todos los productos en ${category}` : "Ver todos los productos"}
+          className="
+            inline-flex items-center justify-center gap-2
+            px-7 py-3 rounded-full
+            bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold text-sm
+            hover:from-primary-700 hover:to-primary-800
+            shadow-md hover:shadow-lg active:scale-[0.98]
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
+            transition-all duration-200 cursor-pointer
+          "
+        >
+          {category ? `Ver todos en ${category}` : "Ver todos los productos"}
+          <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+        </button>
       </div>
     </section>
   );

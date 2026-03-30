@@ -9,6 +9,8 @@ export const CampanaCard = ({
   onToggleActiva,
   onEliminar,
 }) => {
+  const esDosPorUno = String(campana.tipo || "").toUpperCase() === "2X1";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -17,7 +19,7 @@ export const CampanaCard = ({
       className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 border border-gray-100"
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 text-white">
+      <div className="bg-linear-to-r from-purple-600 to-pink-600 p-4 text-white">
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <h3 className="text-xl font-bold mb-1">{campana.nombreCampana}</h3>
@@ -26,9 +28,13 @@ export const CampanaCard = ({
             </span>
           </div>
           <div className="bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
-            <span className="text-2xl font-bold">
-              {campana.porcentajeDescuento}%
-            </span>
+            {esDosPorUno ? (
+              <span className="text-2xl font-bold">2x1</span>
+            ) : (
+              <span className="text-2xl font-bold">
+                {campana.porcentajeDescuento}%
+              </span>
+            )}
           </div>
         </div>
       </div>

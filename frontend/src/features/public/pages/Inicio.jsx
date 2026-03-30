@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useProductStore } from "@store/useProductStore";
 
 import Header from "@features/public/components/navigation/Header";
@@ -14,9 +14,31 @@ import {
 import { TrustedBrand } from "@components/molecules/cards";
 import { WhatsAppButton } from "@components/molecules/navigation";
 
+const HOME_CAMPAIGN_NAME =
+  import.meta.env.VITE_HOME_CAMPAIGN_NAME || "Otoño 2026";
+
+const normalizeText = (value = "") =>
+  String(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
 const Inicio = () => {
-  const { productosArriba, productosCyberMonday, error, fetchProducts } =
+  const { productosArriba, campanasInicio, error, fetchProducts } =
     useProductStore();
+
+  const campaignToRender = useMemo(() => {
+    const target = normalizeText(HOME_CAMPAIGN_NAME);
+    if (!target || !Array.isArray(campanasInicio)) return null;
+
+    return (
+      campanasInicio.find((campana) => {
+        const currentName = normalizeText(campana?.nombreCampana);
+        return currentName === target || currentName.includes(target);
+      }) || null
+    );
+  }, [campanasInicio]);
 
   useEffect(() => {
     fetchProducts();
@@ -32,9 +54,9 @@ const Inicio = () => {
 
   return (
     <div>
-      <Header />
-      <PromoHeroCarousel />
-      <main>
+      <main className="w-full max-w-7xl mx-auto lg:px-8">
+        <Header />
+        <PromoHeroCarousel />
         <div className="my-16 md:my-20">
           <Categorias />
         </div>
@@ -45,10 +67,17 @@ const Inicio = () => {
           <BannerPromo />
         </div>
 
-        <ProductCarousel
-          title="Cyber Monday Ofertas"
-          products={productosCyberMonday}
-        />
+        {campaignToRender && (
+          <div className="my-16 md:my-20">
+            <ProductCarousel
+              campaignId={campaignToRender.idCampana}
+              title={campaignToRender.nombreCampana}
+              campaignEndDate={campaignToRender.fechaFin}
+              products={campaignToRender.productos}
+              showFlashLabel={false}
+            />
+          </div>
+        )}
 
         <div className="my-16 md:my-20">
           <BannerGrid />

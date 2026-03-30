@@ -26,7 +26,7 @@ const BotonFavorito = ({ product }) => {
     <button
       onClick={handleToggleFavorite}
       aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
-      className={`absolute top-3 right-3 p-2 rounded-full shadow-md z-10 transition-all duration-200 transform hover:scale-110 cursor-pointer 
+      className={`absolute top-3 right-3 p-2 rounded-full shadow-md z-10 transition-all duration-200 transform hover:scale-110 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600  
         ${
           isFavorite
             ? "bg-red-50 hover:bg-red-100"

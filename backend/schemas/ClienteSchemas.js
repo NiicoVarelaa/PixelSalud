@@ -54,6 +54,13 @@ const createClienteSchema = z.object({
     .refine((val) => typeof val === "string", {
       message: "dniCliente es requerido",
     }),
+  fechaNacimiento: z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2}$/,
+      "fechaNacimiento debe tener formato YYYY-MM-DD",
+    )
+    .optional(),
   telefonoCliente: z
     .string()
     .max(20, "telefonoCliente no puede exceder 20 caracteres")
@@ -108,6 +115,14 @@ const updateClienteSchema = z.object({
         .regex(/^\d{7,8}$/, "DNI debe tener 7 u 8 dígitos")
         .optional(),
     ),
+  fechaNacimiento: z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2}$/,
+      "fechaNacimiento debe tener formato YYYY-MM-DD",
+    )
+    .nullable()
+    .optional(),
   telefonoCliente: z
     .string()
     .max(20, "telefonoCliente no puede exceder 20 caracteres")

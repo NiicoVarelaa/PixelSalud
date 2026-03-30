@@ -1,4 +1,5 @@
 const cuponesService = require("../services/CuponesService");
+const cuponesCumpleanosService = require("../services/CuponesCumpleanosService");
 const { Auditoria } = require("../helps");
 
 const validarCupon = async (req, res, next) => {
@@ -219,6 +220,20 @@ const obtenerHistorial = async (req, res, next) => {
   }
 };
 
+const procesarCuponesCumpleanos = async (req, res, next) => {
+  try {
+    const resumen = await cuponesCumpleanosService.procesarCuponesCumpleanos();
+
+    res.status(200).json({
+      success: true,
+      message: `Proceso completado. Enviados: ${resumen.enviados}, Fallidos: ${resumen.fallidos}`,
+      data: resumen,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   validarCupon,
   crearCupon,
@@ -227,6 +242,7 @@ module.exports = {
   obtenerCuponPorCodigo,
   obtenerMisCupones,
   obtenerHistorial,
+  procesarCuponesCumpleanos,
   actualizarEstado,
   eliminarCupon,
 };

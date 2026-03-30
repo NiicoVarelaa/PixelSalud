@@ -307,10 +307,57 @@ async function enviarCuponPromocional(to, nombre, cupon) {
   await transporter.sendMail(mailOptions);
 }
 
+async function enviarCuponCumpleanos(to, nombre, cupon) {
+  const { codigo, valorDescuento, fechaVencimiento } = cupon;
+  const fechaFormateada = new Date(fechaVencimiento).toLocaleString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM || "PixelSalud <no-reply@pixelsalud.com>",
+    to,
+    subject: `Feliz cumple ${nombre}. Tienes ${valorDescuento}% OFF por 48 horas`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; padding: 22px; color: #1f2937;">
+        <h1 style="margin: 0 0 16px; color: #0891b2;">Feliz cumpleaños</h1>
+        <p style="font-size: 16px; margin: 0 0 12px;">Hola <b>${nombre}</b>,</p>
+        <p style="margin: 0 0 16px;">Como parte de PixelSalud Club te regalamos un cupón exclusivo para celebrar tu día.</p>
+
+        <div style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); border-radius: 14px; padding: 24px; text-align: center; margin: 18px 0; color: white;">
+          <p style="margin: 0 0 8px; font-size: 13px; opacity: 0.95;">CUPON CUMPLEANOS</p>
+          <p style="display: inline-block; background: white; color: #0891b2; font-size: 30px; font-weight: 700; letter-spacing: 2px; margin: 0; padding: 10px 16px; border-radius: 10px; font-family: 'Courier New', monospace;">${codigo}</p>
+          <p style="font-size: 27px; margin: 12px 0 4px; font-weight: 700;">${valorDescuento}% OFF</p>
+          <p style="margin: 0; opacity: 0.95; font-size: 14px;">Valido durante 48 horas</p>
+        </div>
+
+        <div style="background: #ecfeff; border-left: 4px solid #06b6d4; border-radius: 8px; padding: 12px 14px; margin: 18px 0;">
+          <p style="margin: 0 0 8px;"><b>Vencimiento:</b> ${fechaFormateada}</p>
+          <p style="margin: 0;"><b>Uso:</b> 1 sola vez por cliente</p>
+        </div>
+
+        <p style="margin: 0 0 12px;">Aplica el codigo en el checkout para usar el descuento.</p>
+
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="${process.env.FRONTEND_URL || "http://localhost:5173"}" style="display: inline-block; text-decoration: none; background: #0891b2; color: white; padding: 12px 28px; border-radius: 8px; font-weight: 700;">
+            Ir a comprar
+          </a>
+        </div>
+      </div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
 module.exports = {
   enviarConfirmacionCliente,
   enviarCorreoRecuperacion,
   enviarConfirmacionCompra,
   enviarCuponBienvenida,
   enviarCuponPromocional,
+  enviarCuponCumpleanos,
 };

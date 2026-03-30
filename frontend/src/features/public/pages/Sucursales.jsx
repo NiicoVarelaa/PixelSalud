@@ -1,21 +1,7 @@
 import Navbar from "@features/public/components/navigation/Navbar";
 import Footer from "@features/public/components/footer/Footer";
 import { MapPin, Phone, CalendarDays } from "lucide-react";
-
-const branches = [
-  {
-    name: "Sucursal Central",
-    address: "25 de Mayo 789, San Miguel de Tucumán, Tucumán",
-    hours: "Lunes a Viernes 9:00-21:00",
-    phone: "+54 381 123-4567",
-  },
-  {
-    name: "Sucursal Norte",
-    address: "Av. Alem 199, San Miguel de Tucumán, Tucumán",
-    hours: "Lunes a Sábado 8:00-22:00",
-    phone: "+54 381 765-4321",
-  },
-];
+import { sucursalesData } from "@data/sucursalesData";
 
 const Sucursales = () => (
   <>
@@ -42,7 +28,7 @@ const Sucursales = () => (
         </header>
 
         <ul className="grid gap-8 grid-cols-1 lg:grid-cols-2" role="list">
-          {branches.map((branch) => (
+          {sucursalesData.map((branch) => (
             <li
               key={branch.name}
               className="group rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md hover:shadow-xl transition-all duration-300 focus-within:ring-2 focus-within:ring-primary-600 focus-within:ring-offset-2 focus-within:ring-offset-white dark:focus-within:ring-offset-gray-900 outline-none flex flex-col overflow-hidden"

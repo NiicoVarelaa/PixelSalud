@@ -16,7 +16,7 @@ export const CampanaTable = ({
     >
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+          <thead className="bg-linear-to-r from-purple-500 to-pink-500 text-white">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-bold">Campaña</th>
               <th className="px-6 py-4 text-center text-sm font-bold">Tipo</th>
@@ -66,10 +66,16 @@ export const CampanaTable = ({
                   </span>
                 </td>
                 <td className="px-6 py-4 text-center">
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full text-sm font-bold shadow-md">
-                    <Percent className="w-4 h-4" />
-                    {campana.porcentajeDescuento}%
-                  </span>
+                  {String(campana.tipo || "").toUpperCase() === "2X1" ? (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-linear-to-r from-indigo-500 to-cyan-500 text-white rounded-full text-sm font-bold shadow-md">
+                      2x1
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-linear-to-r from-red-500 to-pink-500 text-white rounded-full text-sm font-bold shadow-md">
+                      <Percent className="w-4 h-4" />
+                      {campana.porcentajeDescuento}%
+                    </span>
+                  )}
                 </td>
                 <td className="px-6 py-4 text-center">
                   <div className="text-sm">

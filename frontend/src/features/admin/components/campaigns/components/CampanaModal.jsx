@@ -25,16 +25,18 @@ export const CampanaModal = ({
     onGuardar();
   };
 
+  const esDosPorUno = campana.tipo === "2X1";
+
   const isFormValid =
     campana.nombreCampana &&
-    campana.porcentajeDescuento &&
+    (esDosPorUno || campana.porcentajeDescuento) &&
     productosSeleccionados.length > 0;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-5 text-white z-10">
+        <div className="sticky top-0 bg-linear-to-r from-purple-600 to-pink-600 px-6 py-5 text-white z-10">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold">
@@ -58,7 +60,7 @@ export const CampanaModal = ({
         {/* Contenido */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Formulario de Campaña */}
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-5">
+          <div className="bg-linear-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-5">
             <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
               <Tag className="w-5 h-5" />
               Datos de la Campaña
@@ -103,7 +105,9 @@ export const CampanaModal = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Porcentaje de Descuento * (%)
+                  {esDosPorUno
+                    ? "Descuento porcentual (no aplica en 2x1)"
+                    : "Porcentaje de Descuento * (%)"}
                 </label>
                 <div className="relative">
                   <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -112,16 +116,17 @@ export const CampanaModal = ({
                     min="0"
                     max="100"
                     step="0.01"
-                    value={campana.porcentajeDescuento}
+                    value={esDosPorUno ? 0 : campana.porcentajeDescuento}
                     onChange={(e) =>
                       onCampanaChange({
                         ...campana,
                         porcentajeDescuento: e.target.value,
                       })
                     }
-                    placeholder="Ej: 15, 25, 50"
+                    placeholder={esDosPorUno ? "0" : "Ej: 15, 25, 50"}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    required
+                    required={!esDosPorUno}
+                    disabled={esDosPorUno}
                   />
                 </div>
               </div>
@@ -141,6 +146,7 @@ export const CampanaModal = ({
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 >
                   <option value="DESCUENTO">Descuento</option>
+                  <option value="2X1">2x1</option>
                   <option value="EVENTO">Evento</option>
                   <option value="LIQUIDACION">Liquidación</option>
                   <option value="TEMPORADA">Temporada</option>
@@ -210,7 +216,7 @@ export const CampanaModal = ({
             <button
               type="submit"
               disabled={!isFormValid}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="px-6 py-3 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {modoEdicion ? "Actualizar Campaña" : "Crear Campaña"}
             </button>

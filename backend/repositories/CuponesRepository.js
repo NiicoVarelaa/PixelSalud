@@ -70,7 +70,7 @@ const findAll = async () => {
       *,
       (usoMaximo - vecesUsado) AS usosDisponibles,
       CASE 
-        WHEN CURDATE() > fechaVencimiento THEN 'expirado'
+        WHEN NOW() > fechaVencimiento THEN 'expirado'
         WHEN vecesUsado >= usoMaximo THEN 'agotado'
         ELSE estado
       END AS estadoCalculado

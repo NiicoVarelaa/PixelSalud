@@ -111,7 +111,7 @@ const Footer = () => {
 
   return (
     <div>
-      <section className="py-10 sm:pt-16 lg:pt-24">
+      <section className="py-10 sm:pt-16 lg:pt-24 w-full max-w-7xl mx-auto  lg:px-8">
         <div>
           <div className="grid grid-cols-2 md:col-span-3 lg:grid-cols-6 gap-y-16 gap-x-12">
             {/* Logo y redes */}
