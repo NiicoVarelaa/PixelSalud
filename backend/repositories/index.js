@@ -4,6 +4,7 @@ module.exports = {
   CarritoRepository: require("./CarritoRepository"),
   ClientesRepository: require("./ClientesRepository"),
   CuponesRepository: require("./CuponesRepository"),
+  CuponesCumpleanosRepository: require("./CuponesCumpleanosRepository"),
   DashboardRepository: require("./DashboardRepository"),
   EmpleadosRepository: require("./EmpleadosRepository"),
   FavoritosRepository: require("./FavoritosRepository"),

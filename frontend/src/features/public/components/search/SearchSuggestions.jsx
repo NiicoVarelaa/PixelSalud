@@ -8,10 +8,13 @@ const SearchSuggestions = ({ searchTerm, productos, onClose, isLoading }) => {
     return null;
   }
 
-  const categorias = [...new Set(productos.map((p) => p.categoria))].slice(
-    0,
-    4,
-  );
+  const categorias = [
+    ...new Set(
+      productos
+        .map((p) => p.categoria)
+        .filter((cat) => cat && cat !== "Medicamentos con Receta"),
+    ),
+  ].slice(0, 4);
 
   const sugerenciasBusqueda = [
     ...new Set([

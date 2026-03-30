@@ -103,7 +103,7 @@ const STATS_DATA = [
 
 const HeroSection = memo(function HeroSection() {
   return (
-    <section className="relative pt-24 pb-32 overflow-hidden">
+    <section className="relative my-6 pb-32 overflow-hidden">
       <div
         className="absolute inset-0 bg-linear-to-b from-primary-50/60 to-white -z-10"
         aria-hidden="true"
@@ -233,22 +233,25 @@ const ValuesSection = memo(function ValuesSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {VALUES_DATA.map(({ title, description, colorClass, icon: Icon }) => (
-            <div
-              key={title}
-              className="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:-translate-y-2"
-            >
+          {VALUES_DATA.map(({ title, description, colorClass, icon }) => {
+            const Icon = icon;
+            return (
               <div
-                className={`inline-flex p-4 rounded-xl ${colorClass} border mb-6 transition-transform group-hover:scale-110 duration-300`}
+                key={title}
+                className="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:-translate-y-2"
               >
-                <Icon size={28} />
+                <div
+                  className={`inline-flex p-4 rounded-xl ${colorClass} border mb-6 transition-transform group-hover:scale-110 duration-300`}
+                >
+                  <Icon size={28} />
+                </div>
+                <h4 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-primary-700 transition-colors">
+                  {title}
+                </h4>
+                <p className="text-slate-600 leading-relaxed">{description}</p>
               </div>
-              <h4 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-primary-700 transition-colors">
-                {title}
-              </h4>
-              <p className="text-slate-600 leading-relaxed">{description}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
@@ -320,11 +323,10 @@ const CTASection = memo(function CTASection() {
 
 const SobreNosotros = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-white font-sans">
+    <div className="flex flex-col ">
       <MiniBanner />
       <Header />
-
-      <main className="grow">
+      <main className="grow w-full max-w-7xl mx-auto lg:px-8">
         <HeroSection />
         <StatsSection />
         <PhilosophySection />
@@ -332,7 +334,6 @@ const SobreNosotros = () => {
         <InstallationsGallery />
         <CTASection />
       </main>
-
       <Footer />
     </div>
   );

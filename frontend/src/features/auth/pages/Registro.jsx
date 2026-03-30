@@ -10,27 +10,123 @@ import {
   Eye,
   EyeOff,
   Loader2,
+  ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useAuthStore } from "@store/useAuthStore";
 
 const Registro = () => {
   const [form, setForm] = useState({
     nombreCliente: "",
     apellidoCliente: "",
-    email: "", // Usamos 'email' internamente
+    email: "",
     contraCliente: "",
     dni: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { loginUser } = useAuthStore();
+
+  const normalizeApiBaseUrl = (rawUrl) => {
+    const sanitized = (rawUrl || "http://localhost:5000/api").replace(
+      /\/$/,
+      "",
+    );
+    return /\/api$/i.test(sanitized) ? sanitized : `${sanitized}/api`;
+  };
+
+  const apiBaseUrl = normalizeApiBaseUrl(import.meta.env.VITE_API_URL);
+
+  const googleAuthUrl =
+    import.meta.env.VITE_GOOGLE_AUTH_URL || `${apiBaseUrl}/google-auth`;
+
+  const navigateByRole = (data) => {
+    const rol = (data.rol || "").toString().toLowerCase();
+
+    if (rol === "cliente") {
+      navigate("/");
+    } else if (rol === "empleado") {
+      navigate("/panelempleados");
+    } else if (rol === "admin") {
+      navigate("/admin");
+    } else if (rol === "medico") {
+      navigate("/panelMedico");
+    } else {
+      navigate("/");
+    }
+  };
+
+  const validateForm = () => {
+    const nombre = form.nombreCliente.trim();
+    const apellido = form.apellidoCliente.trim();
+    const email = form.email.trim();
+    const password = form.contraCliente;
+    const dni = form.dni.trim();
+
+    if (!nombre || !apellido || !email || !password || !dni) {
+      return "Completá todos los campos para crear tu cuenta.";
+    }
+
+    if (nombre.length < 2 || apellido.length < 2) {
+      return "Nombre y apellido deben tener al menos 2 caracteres.";
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return "Ingresá un correo electrónico válido.";
+    }
+
+    if (!/^\d{7,8}$/.test(dni)) {
+      return "El DNI debe tener 7 u 8 dígitos.";
+    }
+
+    if (password.length < 8) {
+      return "La contraseña debe tener al menos 8 caracteres.";
+    }
+
+    return null;
+  };
+
+  const getApiErrorMessage = (error) => {
+    const responseData = error?.response?.data;
+
+    if (responseData?.errors && Array.isArray(responseData.errors)) {
+      const first = responseData.errors[0];
+      if (first?.field && first?.message) {
+        return `${first.field}: ${first.message}`;
+      }
+      if (first?.message) {
+        return first.message;
+      }
+    }
+
+    const rawMessage =
+      responseData?.message ||
+      responseData?.mensaje ||
+      responseData?.error ||
+      "No pudimos crear tu cuenta. Intenta nuevamente en unos segundos.";
+
+    if (
+      /duplicate|duplicado|ya existe|already exists|ER_DUP_ENTRY/i.test(
+        rawMessage,
+      )
+    ) {
+      return "Ese email o DNI ya está registrado. Probá iniciar sesión o recuperar contraseña.";
+    }
+
+    if (/validaci[oó]n|validation/i.test(rawMessage)) {
+      return "Revisá los datos ingresados. Hay campos con formato inválido.";
+    }
+
+    return rawMessage;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newValue = value;
 
-    // Solo números para el DNI
     if (name === "dni") {
       newValue = value.replace(/\D/g, "");
     }
@@ -41,35 +137,45 @@ const Registro = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validaciones básicas antes de enviar
-    if (
-      !form.nombreCliente ||
-      !form.apellidoCliente ||
-      !form.email ||
-      !form.contraCliente ||
-      !form.dni
-    ) {
-      toast.warning("Por favor completa todos los campos.");
+    const validationError = validateForm();
+    if (validationError) {
+      toast.warning(validationError);
       return;
     }
 
     setIsSubmitting(true);
 
-    // Preparamos el objeto EXACTO que espera el backend
     const dataToSend = {
       nombreCliente: form.nombreCliente.trim(),
       apellidoCliente: form.apellidoCliente.trim(),
-      emailCliente: form.email.toLowerCase().trim(), // Mapeo clave: email -> emailCliente
+      emailCliente: form.email.toLowerCase().trim(),
       contraCliente: form.contraCliente,
-      dni: form.dni,
+      dniCliente: form.dni,
     };
 
     try {
-      const res = await apiClient.post("/registroCliente", dataToSend);
+      const registerResponse = await apiClient.post(
+        "/registroCliente",
+        dataToSend,
+      );
 
-      toast.success(res.data.mensaje || "¡Registro exitoso! Inicia sesión.");
+      const loginResponse = await apiClient.post("/login", {
+        email: dataToSend.emailCliente,
+        contrasenia: dataToSend.contraCliente,
+      });
 
-      // Limpiamos el formulario
+      const authData = loginResponse.data || {};
+      if (!authData.token || !authData.rol) {
+        throw new Error("No se pudo completar el inicio de sesión automático.");
+      }
+
+      loginUser(authData);
+
+      toast.success(
+        registerResponse.data.mensaje ||
+          "Cuenta creada con éxito. Ya iniciamos tu sesión.",
+      );
+
       setForm({
         nombreCliente: "",
         apellidoCliente: "",
@@ -78,115 +184,154 @@ const Registro = () => {
         dni: "",
       });
 
-      // Redirigimos al login después de un breve delay para que el usuario lea el toast
       setTimeout(() => {
-        navigate("/login");
-      }, 1500);
+        navigateByRole(authData);
+      }, 800);
     } catch (error) {
       console.error("Error de registro:", error);
-      const errorMessage =
-        error.response?.data?.mensaje ||
-        error.response?.data?.error ||
-        "Error al registrar el cliente. Intenta nuevamente.";
-      toast.error(errorMessage);
+      toast.error(getApiErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleGoogleRegister = () => {
+    if (!googleAuthUrl || !/^https?:\/\//.test(googleAuthUrl)) {
+      toast.info(
+        "El acceso con Google aún no está configurado en este entorno.",
+      );
+      return;
+    }
+
+    window.location.href = googleAuthUrl;
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 transform transition-all duration-300 hover:shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center mb-6">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-100 p-4">
+      <div className="pointer-events-none absolute -top-20 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-primary-200/60 blur-3xl" />
+
+      <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-xl transition-all duration-300 hover:shadow-2xl">
+        <div className="mb-6 flex items-center">
           <button
             type="button"
             onClick={() => navigate("/login")}
-            className="text-gray-500 hover:text-primary-600 transition-colors p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-600 cursor-pointer"
+            className="cursor-pointer rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-600"
             aria-label="Volver al inicio de sesión"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-3xl font-extrabold text-center text-primary-700 flex-1">
+          <h1 className="flex-1 text-center text-3xl font-extrabold text-primary-700">
             Crear Cuenta
           </h1>
         </div>
 
-        <p className="text-gray-600 text-center mb-8 text-md leading-relaxed">
-          Únete a nuestra farmacia y comienza tu experiencia
+        <p className="mb-6 text-center text-sm leading-relaxed text-slate-600">
+          Registrate en menos de 1 minuto para comprar rápido y seguir tus
+          pedidos.
         </p>
 
+        <button
+          type="button"
+          onClick={handleGoogleRegister}
+          className="group mb-5 inline-flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-3 font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="#4285F4"
+              d="M23.49 12.27c0-.79-.07-1.54-.2-2.27H12v4.29h6.45a5.52 5.52 0 0 1-2.39 3.63v3.02h3.87c2.26-2.08 3.56-5.15 3.56-8.67z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 24c3.24 0 5.95-1.07 7.93-2.9l-3.87-3.02c-1.07.72-2.44 1.15-4.06 1.15-3.12 0-5.76-2.11-6.7-4.95H1.3v3.11A11.99 11.99 0 0 0 12 24z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.3 14.28A7.2 7.2 0 0 1 4.92 12c0-.79.14-1.55.38-2.28V6.61H1.3A12 12 0 0 0 0 12c0 1.94.46 3.77 1.3 5.39l4-3.11z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 4.77c1.76 0 3.34.6 4.58 1.77l3.43-3.43C17.94 1.17 15.24 0 12 0A11.99 11.99 0 0 0 1.3 6.61l4 3.11c.94-2.84 3.58-4.95 6.7-4.95z"
+            />
+          </svg>
+          Continuar con Google
+          <Sparkles className="h-4 w-4 text-amber-500 opacity-0 transition group-hover:opacity-100" />
+        </button>
+
+        <div className="mb-5 flex items-center gap-3 text-xs uppercase tracking-wide text-slate-400">
+          <span className="h-px flex-1 bg-slate-200" />
+          o con email
+          <span className="h-px flex-1 bg-slate-200" />
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Nombre y Apellido (Grid) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                <User className="w-4 h-4" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <User className="h-4 w-4" />
               </div>
               <input
                 name="nombreCliente"
                 placeholder="Nombre"
                 value={form.nombreCliente}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 transition"
+                className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 transition focus:outline-none focus:ring-2 focus:ring-primary-600"
                 required
+                minLength={2}
               />
             </div>
 
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                <User className="w-4 h-4" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <User className="h-4 w-4" />
               </div>
               <input
                 name="apellidoCliente"
                 placeholder="Apellido"
                 value={form.apellidoCliente}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 transition"
+                className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 transition focus:outline-none focus:ring-2 focus:ring-primary-600"
                 required
+                minLength={2}
               />
             </div>
           </div>
 
-          {/* DNI */}
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-              <ScanText className="w-4 h-4" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <ScanText className="h-4 w-4" />
             </div>
             <input
               type="text"
               name="dni"
-              placeholder="DNI / Cédula"
+              placeholder="DNI"
               value={form.dni}
               onChange={handleChange}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 transition"
+              className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 transition focus:outline-none focus:ring-2 focus:ring-primary-600"
               required
               inputMode="numeric"
               pattern="[0-9]*"
-              maxLength={8} // Opcional: limitar a 8 dígitos
+              maxLength={8}
             />
           </div>
 
-          {/* Email */}
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-              <Mail className="w-4 h-4" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <Mail className="h-4 w-4" />
             </div>
             <input
               type="email"
-              name="email" // Coincide con el estado local
+              name="email"
               placeholder="Correo electrónico"
               value={form.email}
               onChange={handleChange}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 transition"
+              className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 transition focus:outline-none focus:ring-2 focus:ring-primary-600"
               required
             />
           </div>
 
-          {/* Contraseña */}
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-              <Lock className="w-4 h-4" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <Lock className="h-4 w-4" />
             </div>
             <input
               type={showPassword ? "text" : "password"}
@@ -194,63 +339,76 @@ const Registro = () => {
               placeholder="Contraseña"
               value={form.contraCliente}
               onChange={handleChange}
-              className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 transition"
+              className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-10 transition focus:outline-none focus:ring-2 focus:ring-primary-600"
               required
-              minLength={6} // Mínimo recomendado
+              minLength={8}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-primary-700 transition cursor-pointer"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 transition hover:text-primary-700"
+              aria-label="Mostrar u ocultar contraseña"
             >
               {showPassword ? (
-                <EyeOff className="w-5 h-5" />
+                <EyeOff className="h-5 w-5" />
               ) : (
-                <Eye className="w-5 h-5" />
+                <Eye className="h-5 w-5" />
               )}
             </button>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full bg-primary-700 text-white py-3 rounded-lg hover:bg-primary-800 transition duration-300 font-semibold flex items-center justify-center space-x-2 shadow-md hover:shadow-lg cursor-pointer ${
-              isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+            className={`flex w-full cursor-pointer items-center justify-center space-x-2 rounded-lg bg-primary-700 py-3 font-semibold text-white shadow-md transition duration-300 hover:bg-primary-800 hover:shadow-lg ${
+              isSubmitting ? "cursor-not-allowed opacity-75" : ""
             }`}
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="animate-spin w-5 h-5 mr-2" />
-                <span>Registrando...</span>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <span>Creando cuenta...</span>
               </>
             ) : (
               <>
-                <LogIn className="w-5 h-5" />
+                <LogIn className="h-5 w-5" />
                 <span>Crear Cuenta</span>
               </>
             )}
           </button>
         </form>
 
-        {/* Links Footer */}
+        <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
+          <p className="flex items-start gap-2">
+            <ShieldCheck className="mt-0.5 h-4 w-4" />
+            Tus datos viajan cifrados y se usan solo para gestionar tu cuenta y
+            tus compras.
+          </p>
+        </div>
+
         <div className="mt-6 text-center text-sm text-gray-600">
           ¿Ya tienes una cuenta?{" "}
           <Link
             to="/login"
-            className="text-primary-800 font-semibold hover:underline"
+            className="font-semibold text-primary-800 hover:underline"
           >
             Inicia sesión
           </Link>
         </div>
 
-        <p className="mt-4 text-xs text-gray-500 text-center leading-relaxed">
+        <p className="mt-4 text-center text-xs leading-relaxed text-gray-500">
           Al registrarte, aceptas nuestros{" "}
-          <Link to="/terminos" className="text-primary-800 hover:underline">
+          <Link
+            to="/terminos-condiciones"
+            className="text-primary-800 hover:underline"
+          >
             Términos de servicio
           </Link>{" "}
           y{" "}
-          <Link to="/privacidad" className="text-primary-800 hover:underline">
+          <Link
+            to="/terminos-condiciones"
+            className="text-primary-800 hover:underline"
+          >
             Política de privacidad.
           </Link>
         </p>

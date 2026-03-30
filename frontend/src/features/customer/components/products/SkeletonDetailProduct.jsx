@@ -1,71 +1,110 @@
 import CardSkeleton from "@components/molecules/cards/CardSkeleton";
 
+// Reusable shimmer block
+const Shimmer = ({ className = "" }) => (
+  <div className={`bg-gray-200 rounded-lg animate-pulse ${className}`} />
+);
+
 const SkeletonDetailProduct = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 my-10 animate-pulse">
-      {/* Breadcrumbs Skeleton */}
-      <div className="h-4 bg-gray-200 rounded w-1/3 mb-10"></div>
+    <div
+      aria-busy="true"
+      aria-label="Cargando detalle del producto…"
+      role="status"
+      className="max-w-7xl mx-auto px-4 sm:px-6 my-8 sm:my-10"
+    >
+      {/* Breadcrumbs */}
+      <div className="flex items-center gap-2 mb-8">
+        <Shimmer className="h-3.5 w-12 rounded-full" />
+        <Shimmer className="h-3.5 w-2 rounded-full" />
+        <Shimmer className="h-3.5 w-20 rounded-full" />
+        <Shimmer className="h-3.5 w-2 rounded-full" />
+        <Shimmer className="h-3.5 w-36 rounded-full" />
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-        {/* Columna de Galería de Imágenes */}
-        <div className="flex flex-col-reverse sm:flex-row gap-4">
-          <div className="flex sm:flex-col gap-3 justify-center">
-            {/* Thumbnails */}
-            <div className="w-20 h-20 bg-gray-200 rounded-lg"></div>
-            <div className="w-20 h-20 bg-gray-200 rounded-lg"></div>
-            <div className="w-20 h-20 bg-gray-200 rounded-lg"></div>
-            <div className="w-20 h-20 bg-gray-200 rounded-lg"></div>
-          </div>
-          {/* Imagen Principal */}
-          <div className="flex-1 aspect-square bg-gray-200 rounded-xl"></div>
-        </div>
+      {/* Product card shell */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[560px]">
 
-        {/* Columna de Información y Acciones */}
-        <div className="flex flex-col">
-          {/* Título */}
-          <div className="h-8 bg-gray-200 rounded w-4/5 mb-3"></div>
-          {/* Categoría */}
-          <div className="h-4 bg-gray-200 rounded w-1/4 mb-6"></div>
-
-          {/* Precios */}
-          <div className="bg-gray-100 border border-gray-200 rounded-lg p-4 mb-6 space-y-3">
-            <div className="h-10 bg-gray-200 rounded w-1/2"></div>
-            <div className="h-5 bg-gray-200 rounded w-1/3"></div>
-          </div>
-
-          {/* Descripción */}
-          <div className="h-5 bg-gray-200 rounded w-1/3 mb-3"></div>
-          <div className="space-y-2 mb-6">
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
-            <div className="h-4 bg-gray-200 rounded w-full"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          {/* Gallery column */}
+          <div className="p-4 sm:p-6 lg:p-8 flex flex-col gap-4">
+            {/* Main image */}
+            <Shimmer className="w-full aspect-square sm:aspect-[4/3] lg:aspect-square rounded-2xl" />
+            {/* Thumbs */}
+            <div className="hidden sm:flex gap-2">
+              {[...Array(4)].map((_, i) => (
+                <Shimmer key={i} className="w-16 h-16 rounded-xl flex-shrink-0" />
+              ))}
+            </div>
           </div>
 
-          {/* Detalles */}
-          <div className="space-y-3 border-t border-gray-200 pt-4 mb-8">
-            <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-5 bg-gray-200 rounded w-full"></div>
-            <div className="h-5 bg-gray-200 rounded w-4/6"></div>
+          {/* Info column */}
+          <div className="p-4 sm:p-6 lg:p-8 flex flex-col gap-5 border-t lg:border-t-0 lg:border-l border-gray-100">
+            {/* Category */}
+            <Shimmer className="h-3 w-24 rounded-full" />
+            {/* Title */}
+            <div className="flex flex-col gap-2">
+              <Shimmer className="h-7 w-4/5 rounded-lg" />
+              <Shimmer className="h-7 w-2/3 rounded-lg" />
+            </div>
+            {/* Stock badge */}
+            <Shimmer className="h-8 w-36 rounded-full" />
+
+            {/* Price block */}
+            <div className="rounded-2xl bg-gray-50 border border-gray-200 px-4 py-4 flex flex-col gap-2.5">
+              <Shimmer className="h-10 w-40 rounded-lg" />
+              <Shimmer className="h-4 w-28 rounded-lg" />
+            </div>
+
+            {/* Description */}
+            <div className="flex flex-col gap-2">
+              <Shimmer className="h-4 w-full rounded-lg" />
+              <Shimmer className="h-4 w-full rounded-lg" />
+              <Shimmer className="h-4 w-3/5 rounded-lg" />
+            </div>
+
+            {/* Trust badges */}
+            <div className="grid grid-cols-4 gap-2 py-3 border-y border-gray-100">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex flex-col items-center gap-1.5">
+                  <Shimmer className="w-9 h-9 rounded-full" />
+                  <Shimmer className="h-3 w-12 rounded" />
+                </div>
+              ))}
+            </div>
+
+            {/* Payment methods image */}
+            <Shimmer className="h-12 w-full rounded-xl" />
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-3 mt-auto pt-2">
+              <Shimmer className="h-12 flex-1 rounded-xl" />
+              <Shimmer className="h-12 flex-1 rounded-xl" />
+            </div>
           </div>
 
-          {/* Botones */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="h-12 bg-gray-200 rounded-lg"></div>
-            <div className="h-12 bg-gray-200 rounded-lg"></div>
-          </div>
         </div>
       </div>
 
-      {/* Productos Relacionados Skeleton */}
-      <div className="mt-20">
-        <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {/* Usamos el CardSkeleton que ya tenías */}
-          {Array.from({ length: 4 }).map((_, index) => (
-            <CardSkeleton key={index} />
+      {/* Related products */}
+      <div>
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex flex-col gap-2">
+            <Shimmer className="h-7 w-56 rounded-lg" />
+            <Shimmer className="h-3.5 w-36 rounded" />
+          </div>
+          <Shimmer className="hidden sm:block h-5 w-20 rounded" />
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <CardSkeleton key={i} />
           ))}
         </div>
       </div>
+
+      {/* Screen reader announcement */}
+      <span className="sr-only">Cargando información del producto, por favor esperá.</span>
     </div>
   );
 };

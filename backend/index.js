@@ -35,6 +35,9 @@ const routesAuditoria = require("./routes/AuditoriaRoutes");
 const routesTicket = require("./routes/TicketRoutes");
 const routesCloudinary = require("./routes/CloudinaryRoutes");
 const routesNewsletter = require("./routes/NewsletterRoutes");
+const {
+  startBirthdayCouponScheduler,
+} = require("./services/BirthdayCouponScheduler");
 const { errorHandler, notFoundHandler } = require("./middlewares/errorHandler");
 
 const app = express();
@@ -117,5 +120,6 @@ app.listen(PORT, (err) => {
     console.error("Error al iniciar el servidor:", err);
   } else {
     console.log("Servidor corriendo en el puerto " + PORT);
+    startBirthdayCouponScheduler();
   }
 });

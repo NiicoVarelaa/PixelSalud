@@ -1,5 +1,24 @@
 const { z } = require("zod");
 
+const dniSchema = z.union([
+  z.string().regex(/^\d{7,8}$/, { message: "El DNI debe tener 7 u 8 dígitos" }),
+  z
+    .number()
+    .int({ message: "El DNI debe ser un número entero" })
+    .min(1000000, { message: "El DNI debe tener al menos 7 dígitos" })
+    .max(99999999, { message: "El DNI debe tener máximo 8 dígitos" }),
+]);
+
+const fechaNacimientoSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+  message: "La fecha de nacimiento debe tener formato YYYY-MM-DD",
+});
+
+const celularArSchema = z
+  .string()
+  .regex(/^(\+54\s?)?(9\s?)?\d{2,4}[\s-]?\d{6,8}$/, {
+    message: "El celular debe tener formato argentino válido",
+  });
+
 const createOrderSchema = z.object({
   products: z
     .array(
@@ -56,6 +75,31 @@ const createOrderSchema = z.object({
     .number()
     .min(0, { message: "El descuento no puede ser negativo" })
     .optional(),
+
+  checkout_data: z.object({
+    dni: dniSchema,
+    fechaNacimiento: fechaNacimientoSchema,
+    celular: celularArSchema,
+    aceptaTyC: z
+      .boolean({ required_error: "Debes aceptar los términos legales" })
+      .refine(
+        (value) => value === true,
+        "Debes aceptar Términos y condiciones, Política de privacidad y Bases y condiciones",
+      ),
+    sucursalCodigo: z
+      .string({ required_error: "La sucursal es requerida" })
+      .min(1, { message: "La sucursal es requerida" }),
+    sucursalNombre: z
+      .string({ required_error: "El nombre de la sucursal es requerido" })
+      .min(1, { message: "El nombre de la sucursal es requerido" }),
+    sucursalDireccion: z
+      .string({ required_error: "La dirección de la sucursal es requerida" })
+      .min(1, { message: "La dirección de la sucursal es requerida" }),
+    legalVersion: z
+      .string()
+      .min(1, { message: "La versión legal es requerida" })
+      .optional(),
+  }),
 });
 
 const webhookSchema = z.object({

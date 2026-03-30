@@ -18,7 +18,6 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import Header from "@features/public/components/navigation/Header";
 import Footer from "@features/public/components/footer/Footer";
-import MiniBanner from "@features/public/components/banners/MiniBanner";
 import { useAuthStore } from "@store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 
@@ -190,9 +189,8 @@ const Contacto = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <MiniBanner />
       <Header />
-      <main className="mx-auto w-full max-w-6xl px-4 pb-10 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pb-14">
+      <main className="my-12 w-full max-w-7xl mx-auto lg:px-8">
         <motion.section
           initial="hidden"
           animate="visible"
@@ -201,7 +199,7 @@ const Contacto = () => {
           className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:mb-8 sm:p-6"
           aria-labelledby="contacto-title"
         >
-          <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-700">
+          <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary-50  py-1 text-xs font-semibold uppercase tracking-wide text-primary-700">
             Soporte Pixel Salud
           </p>
           <h1
@@ -210,7 +208,7 @@ const Contacto = () => {
           >
             Contáctanos
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+          <p className="mt-3  text-sm leading-relaxed text-slate-600 sm:text-base">
             Resolvemos dudas de compras, productos y facturación. Si tu consulta
             es sobre pedido o receta, te pediremos iniciar sesión para proteger
             tus datos.
@@ -442,7 +440,7 @@ const Contacto = () => {
                 whileTap={{ scale: 0.99 }}
                 type="submit"
                 disabled={isSubmitting}
-                className={`inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-primary-700 bg-primary-700 px-4 text-sm font-semibold text-white transition hover:bg-primary-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/70 active:bg-primary-900 disabled:cursor-not-allowed disabled:opacity-70`}
+                className={`inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-primary-700 bg-primary-700 px-4 text-sm font-semibold text-white transition hover:bg-primary-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/70 active:bg-primary-900 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer`}
               >
                 {isSubmitting ? (
                   <>

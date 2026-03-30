@@ -21,6 +21,7 @@ const Productos = () => {
     busqueda,
     ordenPrecio,
     campanaActiva,
+    campanaDestacada,
     esCategoriaReceta,
     user,
     recetaBuscada,
@@ -35,7 +36,7 @@ const Productos = () => {
   return (
     <div>
       <Header />
-      <section className="w-full my-12 container mx-auto px-4">
+      <main className="my-12 w-full max-w-7xl mx-auto lg:px-8">
         <Breadcrumbs categoria={filtroCategoria} />
 
         <ProductTopBar
@@ -50,6 +51,7 @@ const Productos = () => {
               filtroCategoria={filtroCategoria}
               updateParams={updateParams}
               campanaActiva={campanaActiva}
+              campanaDestacada={campanaDestacada}
             />
           </aside>
 
@@ -83,7 +85,7 @@ const Productos = () => {
               )}
           </div>
         </div>
-      </section>
+      </main>
       <Footer />
 
       <ModalRecetas

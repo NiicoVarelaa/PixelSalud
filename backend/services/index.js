@@ -4,6 +4,7 @@ module.exports = {
   CarritoService: require("./CarritoService"),
   ClientesService: require("./ClientesService"),
   CuponesService: require("./CuponesService"),
+  CuponesCumpleanosService: require("./CuponesCumpleanosService"),
   EmpleadosService: require("./EmpleadosService"),
   FavoritosService: require("./FavoritosService"),
   MedicosService: require("./MedicosService"),

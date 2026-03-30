@@ -51,7 +51,7 @@ const createCampanaSchema = z
 
     porcentajeDescuento: z
       .number()
-      .min(0.01, "El descuento debe ser mayor a 0")
+      .min(0, "El descuento no puede ser negativo")
       .max(100, "El descuento no puede ser mayor a 100"),
 
     fechaInicio: z
@@ -71,7 +71,7 @@ const createCampanaSchema = z
       .optional(),
 
     tipo: z
-      .enum(["EVENTO", "DESCUENTO", "LIQUIDACION", "TEMPORADA"])
+      .enum(["EVENTO", "DESCUENTO", "LIQUIDACION", "TEMPORADA", "2X1"])
       .optional(),
 
     prioridad: z
@@ -81,6 +81,19 @@ const createCampanaSchema = z
       .max(100, "La prioridad no puede ser mayor a 100")
       .optional(),
   })
+  .refine(
+    (data) => {
+      if (data.tipo === "2X1") {
+        return Number(data.porcentajeDescuento) === 0;
+      }
+      return Number(data.porcentajeDescuento) > 0;
+    },
+    {
+      message:
+        "Para campañas 2X1 el descuento debe ser 0. Para el resto, debe ser mayor a 0",
+      path: ["porcentajeDescuento"],
+    },
+  )
   .refine(
     (data) => {
       const inicio = new Date(data.fechaInicio);
@@ -110,7 +123,7 @@ const updateCampanaSchema = z
 
     porcentajeDescuento: z
       .number()
-      .min(0.01, "El descuento debe ser mayor a 0")
+      .min(0, "El descuento no puede ser negativo")
       .max(100, "El descuento no puede ser mayor a 100")
       .optional(),
 
@@ -133,7 +146,7 @@ const updateCampanaSchema = z
       .optional(),
 
     tipo: z
-      .enum(["EVENTO", "DESCUENTO", "LIQUIDACION", "TEMPORADA"])
+      .enum(["EVENTO", "DESCUENTO", "LIQUIDACION", "TEMPORADA", "2X1"])
       .optional(),
 
     prioridad: z
@@ -143,6 +156,26 @@ const updateCampanaSchema = z
       .max(100, "La prioridad no puede ser mayor a 100")
       .optional(),
   })
+  .refine(
+    (data) => {
+      if (data.tipo === "2X1" && data.porcentajeDescuento !== undefined) {
+        return Number(data.porcentajeDescuento) === 0;
+      }
+      if (
+        data.tipo &&
+        data.tipo !== "2X1" &&
+        data.porcentajeDescuento !== undefined
+      ) {
+        return Number(data.porcentajeDescuento) > 0;
+      }
+      return true;
+    },
+    {
+      message:
+        "Para campañas 2X1 el descuento debe ser 0. Para el resto, debe ser mayor a 0",
+      path: ["porcentajeDescuento"],
+    },
+  )
   .refine(
     (data) => {
       if (data.fechaInicio && data.fechaFin) {

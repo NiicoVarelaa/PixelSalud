@@ -1,5 +1,10 @@
 const express = require("express");
-const { login, registrarCliente } = require("../controllers/AuthController");
+const {
+  login,
+  registrarCliente,
+  startGoogleAuth,
+  googleCallback,
+} = require("../controllers/AuthController");
 const validate = require("../middlewares/validate");
 const {
   loginBodySchema,
@@ -16,5 +21,7 @@ router.post(
   validate({ body: registroClienteBodySchema }),
   registrarCliente,
 );
+router.get("/google-auth", startGoogleAuth);
+router.get("/google-callback", googleCallback);
 
 module.exports = router;

@@ -5,7 +5,7 @@ const { Auditoria } = require("../helps");
 
 const createOrder = async (req, res, next) => {
   try {
-    const { products, customer_info, codigoCupon } = req.body;
+    const { products, customer_info, checkout_data, codigoCupon } = req.body;
     const userId = req.user.id;
 
     console.log("\n=== NUEVA ORDEN DE COMPRA ===");
@@ -31,6 +31,12 @@ const createOrder = async (req, res, next) => {
         const unitPrice = Number(
           dbProduct?.precioFinal || dbProduct?.precio || 0,
         );
+
+        if (dbProduct?.promo2x1Activa) {
+          const precioBase = Number(dbProduct?.precio || 0);
+          return sum + precioBase * Math.ceil(quantity / 2);
+        }
+
         return sum + unitPrice * quantity;
       }, 0);
 
@@ -56,6 +62,7 @@ const createOrder = async (req, res, next) => {
     const result = await mercadoPagoService.createOrder({
       products,
       customer_info,
+      checkout_data,
       discount: descuentoFinal,
       userId,
       cuponAplicado,
@@ -75,9 +82,7 @@ const createOrder = async (req, res, next) => {
         datosAnteriores: null,
         datosNuevos: {
           preferenceId: result.id,
-          total:
-            products.reduce((sum, p) => sum + p.unit_price * p.quantity, 0) -
-            descuentoFinal,
+          total: result.total,
           productos: products.length,
           cupon: codigoCupon || null,
         },

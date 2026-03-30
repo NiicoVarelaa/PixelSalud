@@ -9,8 +9,21 @@ const requiredVars = {
 
 const optionalVars = {
   payment: ["MP_WEBHOOK_SECRET"],
+  googleOAuth: [
+    "GOOGLE_OAUTH_URL",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "GOOGLE_REDIRECT_URI",
+  ],
+  birthdayCoupon: [
+    "BIRTHDAY_COUPON_ENABLED",
+    "BIRTHDAY_COUPON_HOUR",
+    "BIRTHDAY_COUPON_MINUTE",
+    "BIRTHDAY_COUPON_RUN_ON_BOOT",
+    "BIRTHDAY_COUPON_PERCENT",
+    "BIRTHDAY_COUPON_MIN_AMOUNT",
+  ],
 };
-
 
 function validateEnv() {
   const missing = [];
@@ -54,7 +67,7 @@ function validateEnv() {
     console.error("   2. Completa las variables faltantes en .env");
     console.error("   3. Reinicia el servidor\n");
 
-    process.exit(1); 
+    process.exit(1);
   }
 
   if (warnings.length > 0) {

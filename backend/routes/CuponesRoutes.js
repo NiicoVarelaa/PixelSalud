@@ -43,6 +43,14 @@ router.post(
   cuponesController.crearCupon,
 );
 
+router.post(
+  "/cupones/cumpleanos/procesar",
+  mutationLimiter,
+  Auth,
+  verificarRol(["admin"]),
+  cuponesController.procesarCuponesCumpleanos,
+);
+
 router.get(
   "/cupones/:codigo",
   Auth,

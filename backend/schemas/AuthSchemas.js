@@ -57,6 +57,13 @@ const registroClienteBodySchema = z.object({
         .transform(String),
     ])
     .optional(),
+  fechaNacimiento: z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2}$/,
+      "fechaNacimiento debe tener formato YYYY-MM-DD",
+    )
+    .optional(),
 });
 
 module.exports = {

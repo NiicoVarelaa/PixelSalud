@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import apiClient from "@utils/apiClient";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Mail,
   Lock,
@@ -23,6 +23,58 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { loginUser } = useAuthStore();
+  const [searchParams] = useSearchParams();
+
+  const navigateByRole = (data) => {
+    const rol = (data.rol || "").toString().toLowerCase();
+
+    if (rol === "cliente") {
+      navigate("/");
+    } else if (rol === "empleado") {
+      navigate("/panelempleados");
+    } else if (rol === "admin") {
+      navigate("/admin");
+    } else if (rol === "medico") {
+      navigate("/panelMedico");
+    } else {
+      navigate("/");
+    }
+  };
+
+  useEffect(() => {
+    const oauthError = searchParams.get("oauth_error");
+    const oauthPayload = searchParams.get("oauth");
+
+    if (oauthError) {
+      toast.error(oauthError);
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    if (!oauthPayload) {
+      return;
+    }
+
+    try {
+      const base64 = oauthPayload.replace(/-/g, "+").replace(/_/g, "/");
+      const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+      const binary = atob(padded);
+      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+      const decoded = new TextDecoder().decode(bytes);
+      const data = JSON.parse(decoded);
+
+      if (!data?.token || !data?.rol) {
+        throw new Error("Datos incompletos");
+      }
+
+      loginUser(data);
+      toast.success("Ingreso con Google exitoso");
+      navigateByRole(data);
+    } catch (error) {
+      toast.error("No se pudo procesar el acceso con Google");
+      navigate("/login", { replace: true });
+    }
+  }, [searchParams, loginUser, navigate]);
 
   // En Login.jsx
 
@@ -55,19 +107,7 @@ const Login = () => {
         (data.nombre?.slice(1) || "");
       toast.success(`¡Bienvenido, ${nombreCapitalizado}!`);
 
-      const rol = (data.rol || "").toString().toLowerCase();
-
-      if (rol === "cliente") {
-        navigate("/");
-      } else if (rol === "empleado") {
-        navigate("/panelempleados");
-      } else if (rol === "admin") {
-        navigate("/admin");
-      } else if (rol === "medico") {
-        navigate("/panelMedico");
-      } else {
-        navigate("/");
-      }
+      navigateByRole(data);
     } catch (error) {
       // ... (tu manejo de errores estaba perfecto)
       const serverMsg =

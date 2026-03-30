@@ -1,4 +1,7 @@
 export { default as CheckoutForm } from "./CheckoutForm";
+export { default as CheckoutPersonalDataStep } from "./CheckoutPersonalDataStep";
+export { default as CheckoutPickupStep } from "./CheckoutPickupStep";
+export { default as CheckoutPaymentStep } from "./CheckoutPaymentStep";
 export { default as CheckoutSuccess } from "./CheckoutSuccess";
-export { default as ModalFormularioEnvio } from "./ModalFormularioEnvio";
-export { default as ModalTipoEntrega } from "./ModalTipoEntrega";
+export { CheckoutSteps } from "./CheckoutSteps";
+export { OrderSummary } from "./OrderSummary";

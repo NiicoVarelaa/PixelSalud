@@ -59,9 +59,12 @@ const CardProductos = ({ product }) => {
 
   // Lógica de precios y oferta
   const isOffert = !!product.enOferta;
+  const isPromoDosPorUno =
+    Boolean(product.promo2x1Activa) ||
+    String(product.tipoPromocion || "").toUpperCase() === "2X1";
   const isCyberMondayProduct = Boolean(product.isCyberMonday);
   const regularPrice = product.precioRegular;
-  const discountPercentage = product.porcentajeDescuento ?? 25;
+  const discountPercentage = Number(product.porcentajeDescuento) || 0;
   const priceToDisplay = product.precioFinal || product.precio;
   const precioSinImpuestos = priceToDisplay / 1.21;
 
@@ -127,11 +130,19 @@ const CardProductos = ({ product }) => {
   return (
     <div className="relative bg-white rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 w-full h-full flex flex-col group overflow-hidden">
       {isOffert && (
-        <div className="absolute top-3 left-3 z-20 px-2.5 py-1 bg-linear-to-r from-red-500 to-red-600 text-white font-bold rounded-lg text-xs shadow-lg flex items-center gap-1">
+        <div
+          className={`absolute top-3 left-3 z-20 px-2.5 py-1 text-white font-bold rounded-lg text-xs shadow-lg flex items-center gap-1 ${
+            isPromoDosPorUno
+              ? "bg-linear-to-r from-cyan-600 to-blue-600"
+              : "bg-linear-to-r from-red-500 to-red-600"
+          }`}
+        >
           <Tag className="w-3 h-3" />
-          {discountPercentage
-            ? `${Math.round(discountPercentage)}% OFF`
-            : "OFERTA"}
+          {isPromoDosPorUno
+            ? "2x1"
+            : discountPercentage > 0
+              ? `${Math.round(discountPercentage)}% OFF`
+              : "OFERTA"}
         </div>
       )}
 
@@ -224,6 +235,11 @@ const CardProductos = ({ product }) => {
                 currency: "ARS",
               }).format(precioSinImpuestos)}
             </p>
+            {isPromoDosPorUno && (
+              <p className="text-xs text-primary-700 font-semibold">
+                Llevas 2 y pagas 1
+              </p>
+            )}
           </div>
         </div>
       </Link>

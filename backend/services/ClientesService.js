@@ -11,7 +11,7 @@ const { enviarCorreoRecuperacion } = require("../helps/EnvioMail");
 const obtenerClientes = async () => {
   return await clientesRepository.findAll();
 };
- 
+
 const obtenerClientesInactivos = async () => {
   const clientes = await clientesRepository.findInactivos();
 
@@ -43,8 +43,14 @@ const buscarClientePorDNI = async (dni) => {
 };
 
 const crearCliente = async (clienteData) => {
-  const { nombreCliente, apellidoCliente, contraCliente, emailCliente, dni } =
-    clienteData;
+  const {
+    nombreCliente,
+    apellidoCliente,
+    contraCliente,
+    emailCliente,
+    dni,
+    fechaNacimiento,
+  } = clienteData;
 
   const emailExiste = await clientesRepository.existsByEmail(emailCliente);
   if (emailExiste) {
@@ -62,6 +68,7 @@ const crearCliente = async (clienteData) => {
     contraCliente: contraEncrip,
     emailCliente,
     dni,
+    fechaNacimiento,
   });
 
   return {
@@ -96,6 +103,7 @@ const actualizarCliente = async (idCliente, updates) => {
     "apellidoCliente",
     "emailCliente",
     "dni",
+    "fechaNacimiento",
     "telefono",
     "direccion",
     "contraCliente",
@@ -187,7 +195,7 @@ const solicitarRecuperacion = async (email) => {
   }
 
   const token = crypto.randomBytes(32).toString("hex");
-  const expiracion = new Date(Date.now() + 3600000); 
+  const expiracion = new Date(Date.now() + 3600000);
 
   await clientesRepository.saveRecoveryToken(
     cliente.idCliente,

@@ -17,9 +17,16 @@ export const useFiltroStore = create((set, get) => ({
     }),
 
   getProductosFiltrados: () => {
-    const { productos, productosAbajo, productosCyberMonday } =
+    const { productos, productosCyberMonday, campanasInicio } =
       useProductStore.getState();
     const { filtroCategoria, busqueda, ordenPrecio } = get();
+
+    const normalizeText = (value = "") =>
+      String(value)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
 
     const sortByPrice = (lista) =>
       [...lista].sort((a, b) => {
@@ -60,10 +67,24 @@ export const useFiltroStore = create((set, get) => ({
       return descuentos;
     };
 
+    const campanaSeleccionada = Array.isArray(campanasInicio)
+      ? campanasInicio.find(
+          (campana) =>
+            normalizeText(campana?.nombreCampana) ===
+            normalizeText(filtroCategoria),
+        )
+      : null;
+
     let productosFiltrados;
     if (filtroCategoria.toLowerCase().includes("cyber monday")) {
       productosFiltrados = sortByPrice(
         productosCyberMonday.filter((p) => coincideBusqueda(p)),
+      );
+    } else if (campanaSeleccionada) {
+      productosFiltrados = sortByPrice(
+        (campanaSeleccionada.productos || []).filter((p) =>
+          coincideBusqueda(p),
+        ),
       );
     } else if (filtroCategoria === "Ofertas") {
       const descuentosObjetivo = new Set([10, 15, 20]);

@@ -44,7 +44,7 @@ const Layout = () => {
       <div className="min-h-screen bg-gray-50">
         <main
           id="main-content"
-          className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12"
+          className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
           role="main"
         >
           <Outlet />

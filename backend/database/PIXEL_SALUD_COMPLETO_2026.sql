@@ -24,6 +24,7 @@ CREATE TABLE Clientes (
   contraCliente VARCHAR(255) NOT NULL,
   emailCliente VARCHAR(50) UNIQUE NOT NULL,
   dni INT UNIQUE,
+  fechaNacimiento DATE NULL,
   telefono VARCHAR(20) NULL,     
   direccion VARCHAR(100) NULL,   
   fecha_registro DATE DEFAULT (DATE(CURRENT_TIMESTAMP)),
@@ -113,8 +114,8 @@ CREATE TABLE Cupones (
     tipoCupon ENUM('porcentaje', 'monto_fijo') NOT NULL DEFAULT 'porcentaje',
     valorDescuento DECIMAL(10, 2) NOT NULL,
     descripcion VARCHAR(255),
-    fechaInicio DATE NOT NULL,
-    fechaVencimiento DATE NOT NULL,
+    fechaInicio DATETIME NOT NULL,
+    fechaVencimiento DATETIME NOT NULL,
     usoMaximo INT DEFAULT 1 COMMENT 'Cantidad máxima de veces que se puede usar',
     vecesUsado INT DEFAULT 0,
     tipoUsuario ENUM('nuevo', 'todos', 'vip') DEFAULT 'todos',
@@ -138,7 +139,7 @@ CREATE TABLE campanas_ofertas (
   fechaInicio DATETIME NOT NULL,
   fechaFin DATETIME NOT NULL,
   esActiva BOOLEAN DEFAULT 1,
-  tipo ENUM('EVENTO', 'DESCUENTO', 'LIQUIDACION', 'TEMPORADA') DEFAULT 'DESCUENTO',
+  tipo ENUM('EVENTO', 'DESCUENTO', 'LIQUIDACION', 'TEMPORADA', '2X1') DEFAULT 'DESCUENTO',
   prioridad INT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -177,6 +178,23 @@ CREATE TABLE Carrito (
   FOREIGN KEY (idProducto) REFERENCES Productos(idProducto) ON DELETE CASCADE  
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Tabla: Sucursales
+CREATE TABLE Sucursales (
+  idSucursal INT PRIMARY KEY AUTO_INCREMENT,
+  codigo VARCHAR(30) NOT NULL UNIQUE,
+  nombre VARCHAR(100) NOT NULL,
+  direccion VARCHAR(255) NOT NULL,
+  horario VARCHAR(120) NULL,
+  telefono VARCHAR(30) NULL,
+  activo BOOLEAN DEFAULT TRUE,
+  fechaCreacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO Sucursales (codigo, nombre, direccion, horario, telefono)
+VALUES
+  ('central', 'Sucursal Central', '25 de Mayo 789, San Miguel de Tucuman, Tucuman', 'Lunes a Viernes 9:00-21:00', '+54 381 123-4567'),
+  ('norte', 'Sucursal Norte', 'Av. Alem 199, San Miguel de Tucuman, Tucuman', 'Lunes a Sabado 8:00-22:00', '+54 381 765-4321');
+
 -- Tabla: VentasOnlines
 CREATE TABLE VentasOnlines (
   idVentaO INT PRIMARY KEY AUTO_INCREMENT,
@@ -187,10 +205,22 @@ CREATE TABLE VentasOnlines (
   estado ENUM('pendiente', 'retirado', 'cancelado') DEFAULT 'pendiente',
   externalReference VARCHAR(255) UNIQUE,
   idCuponAplicado INT DEFAULT NULL COMMENT 'Cupón aplicado en esta venta',
+  idSucursal INT NULL,
+  sucursalNombre VARCHAR(100) NULL,
+  sucursalDireccion VARCHAR(255) NULL,
+  tipoEntrega ENUM('retiro_sucursal') DEFAULT 'retiro_sucursal',
+  dniClienteSnapshot INT NULL,
+  fechaNacimientoSnapshot DATE NULL,
+  celularSnapshot VARCHAR(20) NULL,
+  termsAccepted BOOLEAN DEFAULT FALSE,
+  termsAcceptedAt DATETIME NULL,
+  termsVersion VARCHAR(40) NULL,
   idCliente INT NOT NULL,
   FOREIGN KEY (idCliente) REFERENCES Clientes(idCliente) ON DELETE CASCADE,
+  FOREIGN KEY (idSucursal) REFERENCES Sucursales(idSucursal) ON DELETE SET NULL,
   FOREIGN KEY (idCuponAplicado) REFERENCES Cupones(idCupon) ON DELETE SET NULL,
-  INDEX idx_cupon_aplicado (idCuponAplicado)
+  INDEX idx_cupon_aplicado (idCuponAplicado),
+  INDEX idx_sucursal (idSucursal)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla: DetalleVentaOnline
@@ -324,6 +354,23 @@ CREATE TABLE CuponesUsados (
     INDEX idx_fecha (fechaUso)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Tabla: CuponesCumpleanosEnvios
+CREATE TABLE CuponesCumpleanosEnvios (
+  idEnvio INT PRIMARY KEY AUTO_INCREMENT,
+  idCliente INT NOT NULL,
+  idCupon INT NULL,
+  anioCumple SMALLINT NOT NULL,
+  estado ENUM('enviado', 'fallido') NOT NULL,
+  detalleError VARCHAR(255) NULL,
+  fechaEnvio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (idCliente) REFERENCES Clientes(idCliente) ON DELETE CASCADE,
+  FOREIGN KEY (idCupon) REFERENCES Cupones(idCupon) ON DELETE SET NULL,
+
+  INDEX idx_cliente_anio_estado (idCliente, anioCumple, estado),
+  INDEX idx_fecha_envio (fechaEnvio)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Tabla: Auditoría
 CREATE TABLE auditoria (
   idAuditoria INT PRIMARY KEY AUTO_INCREMENT,
@@ -361,13 +408,13 @@ SELECT
     c.*,
     (c.usoMaximo - c.vecesUsado) AS usosDisponibles,
     CASE 
-        WHEN CURDATE() > c.fechaVencimiento THEN 'expirado'
+        WHEN NOW() > c.fechaVencimiento THEN 'expirado'
         WHEN c.vecesUsado >= c.usoMaximo THEN 'agotado'
         ELSE c.estado
     END AS estadoReal
 FROM Cupones c
 WHERE c.estado = 'activo' 
-  AND CURDATE() BETWEEN c.fechaInicio AND c.fechaVencimiento
+  AND NOW() BETWEEN c.fechaInicio AND c.fechaVencimiento
   AND c.vecesUsado < c.usoMaximo;
 
 -- ============================================================

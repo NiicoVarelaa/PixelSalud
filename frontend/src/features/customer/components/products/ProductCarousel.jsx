@@ -15,8 +15,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-const CYBER_MONDAY_END_DATE = new Date("December 31, 2026 23:59:59").getTime();
-
 const useCountdown = (targetDate) => {
   const [timeLeft, setTimeLeft] = useState(targetDate - new Date().getTime());
   useEffect(() => {
@@ -28,8 +26,20 @@ const useCountdown = (targetDate) => {
   return timeLeft;
 };
 
-const CountdownTimer = () => {
-  const timeLeft = useCountdown(CYBER_MONDAY_END_DATE);
+const CountdownTimer = ({ targetDate }) => {
+  const parsedTarget = new Date(targetDate).getTime();
+  const isValidTarget = Number.isFinite(parsedTarget) && parsedTarget > 0;
+
+  if (!isValidTarget) {
+    return (
+      <div className="inline-flex h-12 items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-bold text-emerald-700">
+        <Clock3 className="h-4 w-4" />
+        Promoción activa
+      </div>
+    );
+  }
+
+  const timeLeft = useCountdown(parsedTarget);
 
   if (timeLeft <= 0) {
     return (
@@ -74,7 +84,13 @@ const CountdownTimer = () => {
   );
 };
 
-const ProductCarousel = ({ products, title = "Cyber Monday" }) => {
+const ProductCarousel = ({
+  products,
+  title = "Campaña",
+  campaignId,
+  campaignEndDate,
+  showFlashLabel = true,
+}) => {
   const swiperRef = useRef(null);
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
@@ -103,27 +119,28 @@ const ProductCarousel = ({ products, title = "Cyber Monday" }) => {
   return (
     <section
       className={`relative transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}
-      aria-labelledby="flash-offers-title"
+      aria-labelledby={`flash-offers-title-${campaignId || "default"}`}
     >
       <div className="mb-8 flex flex-col gap-4 border-b border-gray-100 pb-6 md:flex-row md:items-center md:justify-between">
         <h2
-          id="flash-offers-title"
+          id={`flash-offers-title-${campaignId || "default"}`}
           className="flex items-center gap-3 text-3xl font-extrabold tracking-tighter text-slate-950 md:text-4xl"
         >
           <Zap
             className="h-8 w-8 text-orange-600 fill-orange-100"
             aria-hidden="true"
           />
-          {title} <span className="text-orange-500">Flash</span>
+          {title}
+          {showFlashLabel && <span className="text-orange-500">Flash</span>}
         </h2>
 
         <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <CountdownTimer />
+          <CountdownTimer targetDate={campaignEndDate} />
           <NavLink
-            to="/productos"
+            to={`/productos?categoria=${encodeURIComponent(title)}`}
             className="inline-flex h-12 items-center gap-2 rounded-xl bg-orange-500 px-6 text-sm font-bold text-white shadow transition hover:bg-orange-600"
           >
-            Ver todas las ofertas
+            Ver campaña
           </NavLink>
         </div>
       </div>

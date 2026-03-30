@@ -1,9 +1,17 @@
 import axios from "axios";
 import { useAuthStore } from "../store/useAuthStore";
 
-const API_BASE_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api"
-).replace(/\/$/, "");
+const normalizeApiBaseUrl = (rawUrl) => {
+  const sanitized = (rawUrl || "http://localhost:5000/api").replace(/\/$/, "");
+
+  if (/\/api$/i.test(sanitized)) {
+    return sanitized;
+  }
+
+  return `${sanitized}/api`;
+};
+
+const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_URL);
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

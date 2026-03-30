@@ -4,6 +4,14 @@ const cuponesService = require("../services/CuponesService");
 const { enviarCuponBienvenida } = require("../helps/EnvioMail");
 const { Auditoria } = require("../helps");
 
+const buildFrontendRedirect = (params = {}) => {
+  const frontendUrl = (
+    process.env.FRONTEND_URL || "http://localhost:5173"
+  ).replace(/\/$/, "");
+  const query = new URLSearchParams(params).toString();
+  return `${frontendUrl}/login${query ? `?${query}` : ""}`;
+};
+
 const login = async (req, res, next) => {
   try {
     const { email, contrasenia } = req.body;
@@ -42,6 +50,7 @@ const registrarCliente = async (req, res, next) => {
       contraCliente,
       emailCliente,
       dniCliente,
+      fechaNacimiento,
     } = req.body;
 
     const resultado = await clientesService.crearCliente({
@@ -50,9 +59,10 @@ const registrarCliente = async (req, res, next) => {
       contraCliente,
       emailCliente,
       dni: dniCliente,
+      fechaNacimiento,
     });
 
-    const idCliente = resultado.insertId;
+    const idCliente = resultado.idCliente || resultado.insertId;
 
     try {
       const cupon = await cuponesService.crearCuponBienvenida(idCliente);
@@ -77,7 +87,151 @@ const registrarCliente = async (req, res, next) => {
   }
 };
 
+const startGoogleAuth = async (req, res, next) => {
+  try {
+    const googleOAuthUrl = process.env.GOOGLE_OAUTH_URL;
+
+    if (googleOAuthUrl && /^https?:\/\//.test(googleOAuthUrl)) {
+      return res.redirect(googleOAuthUrl);
+    }
+
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+
+    if (!clientId || !redirectUri) {
+      return res.status(503).json({
+        status: "fail",
+        message:
+          "Registro con Google no configurado. Define GOOGLE_CLIENT_ID y GOOGLE_REDIRECT_URI en el backend.",
+      });
+    }
+
+    const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    authUrl.searchParams.set("client_id", clientId);
+    authUrl.searchParams.set("redirect_uri", redirectUri);
+    authUrl.searchParams.set("response_type", "code");
+    authUrl.searchParams.set("scope", "openid email profile");
+    authUrl.searchParams.set("access_type", "offline");
+    authUrl.searchParams.set("prompt", "select_account");
+
+    return res.redirect(authUrl.toString());
+  } catch (error) {
+    next(error);
+  }
+};
+
+const googleCallback = async (req, res) => {
+  const { code } = req.query;
+
+  if (!code) {
+    return res.redirect(
+      buildFrontendRedirect({
+        oauth_error: "Google no devolvió código de autorización",
+      }),
+    );
+  }
+
+  try {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+
+    if (!clientId || !clientSecret || !redirectUri) {
+      return res.redirect(
+        buildFrontendRedirect({
+          oauth_error: "Falta configuración OAuth de Google en backend",
+        }),
+      );
+    }
+
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        code: String(code),
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: "authorization_code",
+      }),
+    });
+
+    const tokenData = await tokenResponse.json();
+
+    if (!tokenResponse.ok || !tokenData.access_token) {
+      return res.redirect(
+        buildFrontendRedirect({
+          oauth_error: "No se pudo obtener token de Google",
+        }),
+      );
+    }
+
+    const profileResponse = await fetch(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${tokenData.access_token}`,
+        },
+      },
+    );
+
+    const profile = await profileResponse.json();
+
+    if (!profileResponse.ok || !profile.email) {
+      return res.redirect(
+        buildFrontendRedirect({
+          oauth_error: "No se pudo obtener perfil de Google",
+        }),
+      );
+    }
+
+    if (profile.email_verified === false) {
+      return res.redirect(
+        buildFrontendRedirect({
+          oauth_error: "El email de Google no está verificado",
+        }),
+      );
+    }
+
+    const authResult = await authService.loginWithGoogle({
+      email: profile.email,
+      nombre: profile.given_name || profile.name || "Cliente",
+      apellido: profile.family_name || "Google",
+    });
+
+    await Auditoria.registrarLoginExitoso(
+      {
+        id: authResult.id,
+        email: authResult.email,
+        nombre: authResult.nombre,
+        apellido: authResult.apellido || "",
+        rol: authResult.rol,
+      },
+      req,
+    );
+
+    const encodedPayload = Buffer.from(
+      JSON.stringify(authResult),
+      "utf8",
+    ).toString("base64url");
+
+    return res.redirect(buildFrontendRedirect({ oauth: encodedPayload }));
+  } catch (error) {
+    await Auditoria.registrarLoginFallido("google_oauth", error.message, req);
+
+    return res.redirect(
+      buildFrontendRedirect({
+        oauth_error: "No se pudo completar el acceso con Google",
+      }),
+    );
+  }
+};
+
 module.exports = {
   login,
   registrarCliente,
+  startGoogleAuth,
+  googleCallback,
 };

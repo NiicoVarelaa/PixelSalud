@@ -102,6 +102,19 @@ const crearCampana = async (campanaData) => {
     throw new Error("La fecha de fin debe ser posterior a la fecha de inicio");
   }
 
+  const tipoCampana = String(campanaData.tipo || "DESCUENTO").toUpperCase();
+  const porcentajeDescuento = Number(campanaData.porcentajeDescuento || 0);
+
+  if (tipoCampana === "2X1" && porcentajeDescuento !== 0) {
+    throw new Error("Las campañas 2X1 deben tener porcentajeDescuento en 0");
+  }
+
+  if (tipoCampana !== "2X1" && porcentajeDescuento <= 0) {
+    throw new Error(
+      "El descuento debe ser mayor a 0 para este tipo de campaña",
+    );
+  }
+
   const idCampana = await campanasRepository.create(campanaData);
 
   return await obtenerCampanaPorId(idCampana);
@@ -134,6 +147,25 @@ const actualizarCampana = async (idCampana, campanaData) => {
         "La fecha de fin debe ser posterior a la fecha de inicio",
       );
     }
+  }
+
+  const tipoFinal = String(
+    campanaData.tipo !== undefined ? campanaData.tipo : campanaExiste.tipo,
+  ).toUpperCase();
+  const descuentoFinal = Number(
+    campanaData.porcentajeDescuento !== undefined
+      ? campanaData.porcentajeDescuento
+      : campanaExiste.porcentajeDescuento,
+  );
+
+  if (tipoFinal === "2X1" && descuentoFinal !== 0) {
+    throw new Error("Las campañas 2X1 deben tener porcentajeDescuento en 0");
+  }
+
+  if (tipoFinal !== "2X1" && descuentoFinal <= 0) {
+    throw new Error(
+      "El descuento debe ser mayor a 0 para este tipo de campaña",
+    );
   }
 
   await campanasRepository.update(idCampana, campanaData);

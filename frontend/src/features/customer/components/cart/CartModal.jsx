@@ -141,6 +141,11 @@ const CartModal = () => {
 
   // Calcular totales
   const subtotal = carrito.reduce((acc, prod) => {
+    const subtotalItem = Number(prod.subtotalItem);
+    if (Number.isFinite(subtotalItem) && subtotalItem > 0) {
+      return acc + subtotalItem;
+    }
+
     const priceToUse =
       prod.precioFinal || prod.precioRegular || prod.precio || 0;
     const price =
@@ -153,6 +158,12 @@ const CartModal = () => {
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
   const hasRealDiscount = (product) => {
+    const esDosPorUno =
+      Boolean(product.promo2x1Activa) ||
+      String(product.tipoPromocion || "").toUpperCase() === "2X1";
+
+    if (esDosPorUno) return true;
+
     const hasDiscount =
       product.enOferta &&
       product.porcentajeDescuento &&
@@ -240,6 +251,10 @@ const CartModal = () => {
               ) : (
                 <div className="p-4 space-y-4">
                   {carrito.map((product) => {
+                    const esDosPorUno =
+                      Boolean(product.promo2x1Activa) ||
+                      String(product.tipoPromocion || "").toUpperCase() ===
+                        "2X1";
                     const priceToUse =
                       product.precioFinal ||
                       product.precioRegular ||
@@ -248,7 +263,8 @@ const CartModal = () => {
                       typeof priceToUse === "number"
                         ? priceToUse
                         : parseFloat(priceToUse);
-                    const total = price * product.cantidad;
+                    const total =
+                      Number(product.subtotalItem) || price * product.cantidad;
                     const showDiscountBadge = hasRealDiscount(product);
 
                     return (
@@ -290,8 +306,10 @@ const CartModal = () => {
                               </span>
                               {showDiscountBadge && (
                                 <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full inline-flex items-center">
-                                  <FiTag className="w-3 h-3 mr-1" />-
-                                  {product.porcentajeDescuento}%
+                                  <FiTag className="w-3 h-3 mr-1" />
+                                  {esDosPorUno
+                                    ? "2x1"
+                                    : `-${product.porcentajeDescuento}%`}
                                 </span>
                               )}
                             </div>

@@ -37,7 +37,12 @@ export const useCampanasData = () => {
   const crearCampana = useCallback(
     async (nuevaCampana, productosSeleccionados) => {
       try {
-        if (!nuevaCampana.nombreCampana || !nuevaCampana.porcentajeDescuento) {
+        const esDosPorUno = nuevaCampana.tipo === "2X1";
+
+        if (
+          !nuevaCampana.nombreCampana ||
+          (!esDosPorUno && !nuevaCampana.porcentajeDescuento)
+        ) {
           toast.error("Complete los campos obligatorios");
           return false;
         }
@@ -53,7 +58,9 @@ export const useCampanasData = () => {
           {
             nombreCampana: nuevaCampana.nombreCampana,
             descripcion: nuevaCampana.descripcion,
-            porcentajeDescuento: parseFloat(nuevaCampana.porcentajeDescuento),
+            porcentajeDescuento: esDosPorUno
+              ? 0
+              : parseFloat(nuevaCampana.porcentajeDescuento),
             fechaInicio: nuevaCampana.fechaInicio,
             fechaFin: nuevaCampana.fechaFin,
             tipo: nuevaCampana.tipo,
@@ -93,13 +100,17 @@ export const useCampanasData = () => {
   const actualizarCampana = useCallback(
     async (campanaEditando, nuevaCampana, productosSeleccionados) => {
       try {
+        const esDosPorUno = nuevaCampana.tipo === "2X1";
+
         // 1. Actualizar datos de la campaña
         await axios.put(
           `${backendUrl}/campanas/${campanaEditando.idCampana}`,
           {
             nombreCampana: nuevaCampana.nombreCampana,
             descripcion: nuevaCampana.descripcion,
-            porcentajeDescuento: parseFloat(nuevaCampana.porcentajeDescuento),
+            porcentajeDescuento: esDosPorUno
+              ? 0
+              : parseFloat(nuevaCampana.porcentajeDescuento),
             fechaInicio: nuevaCampana.fechaInicio,
             fechaFin: nuevaCampana.fechaFin,
             tipo: nuevaCampana.tipo,

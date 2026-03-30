@@ -147,7 +147,7 @@ const Navbar = () => {
       >
         <MiniBanner />
         <div className="bg-white">
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-14">
             {/* Primera fila: Logo + Buscador + Íconos */}
             <div className="flex items-center justify-between gap-4 py-3 font-medium relative">
               {/* Logo */}
