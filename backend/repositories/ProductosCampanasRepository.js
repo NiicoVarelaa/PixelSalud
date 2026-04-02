@@ -13,18 +13,36 @@ const findByCampana = async (idCampana) => {
         p.precio,
         p.stock,
         p.categoria,
-        p.img,
+        
+        -- NUEVO: Imágenes
+        COALESCE(imgPrincipal.urlImagen, p.img) as img,
+        imgSecundaria.urlImagen as img2,
+
         c.porcentajeDescuento as descuentoCampana,
         COALESCE(pc.porcentajeDescuentoOverride, c.porcentajeDescuento) as descuentoFinal
       FROM productos_campanas pc
       JOIN Productos p ON pc.idProducto = p.idProducto
       JOIN campanas_ofertas c ON pc.idCampana = c.idCampana
+      
+      -- NUEVOS JOINs
+      LEFT JOIN (
+        SELECT idProducto, urlImagen 
+        FROM ImagenesProductos 
+        WHERE esPrincipal = TRUE
+      ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
+      
+      LEFT JOIN (
+        SELECT idProducto, MIN(urlImagen) as urlImagen
+        FROM ImagenesProductos
+        WHERE esPrincipal = FALSE
+        GROUP BY idProducto
+      ) as imgSecundaria ON p.idProducto = imgSecundaria.idProducto
+
       WHERE pc.idCampana = ?`,
     [idCampana],
   );
   return rows;
 };
-
 const findByProducto = async (idProducto) => {
   const [rows] = await pool.query(
     `SELECT 
@@ -63,9 +81,28 @@ const findActiveByCampana = async (idCampana) => {
         p.precio,
         p.stock,
         p.categoria,
-        p.img
+        
+        -- NUEVO: Imágenes
+        COALESCE(imgPrincipal.urlImagen, p.img) as img,
+        imgSecundaria.urlImagen as img2
+
       FROM productos_campanas pc
       JOIN Productos p ON pc.idProducto = p.idProducto
+      
+      -- NUEVOS JOINs
+      LEFT JOIN (
+        SELECT idProducto, urlImagen 
+        FROM ImagenesProductos 
+        WHERE esPrincipal = TRUE
+      ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
+      
+      LEFT JOIN (
+        SELECT idProducto, MIN(urlImagen) as urlImagen
+        FROM ImagenesProductos
+        WHERE esPrincipal = FALSE
+        GROUP BY idProducto
+      ) as imgSecundaria ON p.idProducto = imgSecundaria.idProducto
+
       WHERE pc.idCampana = ? AND pc.esActivo = 1`,
     [idCampana],
   );

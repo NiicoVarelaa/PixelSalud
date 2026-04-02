@@ -264,6 +264,183 @@ const updatePassword = async (idCliente, nuevaContra) => {
   return result;
 };
 
+const findDireccionesByClienteId = async (idCliente) => {
+  const query = `
+    SELECT
+      idDireccion,
+      idCliente,
+      alias,
+      pais,
+      calle,
+      numero,
+      piso,
+      departamento,
+      localidad,
+      provincia,
+      codigoPostal,
+      referencias,
+      esPredeterminada,
+      fechaCreacion
+    FROM DireccionesClientes
+    WHERE idCliente = ?
+    ORDER BY esPredeterminada DESC, fechaCreacion DESC, idDireccion DESC`;
+
+  const [rows] = await pool.query(query, [idCliente]);
+  return rows;
+};
+
+const findDireccionByIdAndCliente = async (idCliente, idDireccion) => {
+  const query = `
+    SELECT
+      idDireccion,
+      idCliente,
+      alias,
+      pais,
+      calle,
+      numero,
+      piso,
+      departamento,
+      localidad,
+      provincia,
+      codigoPostal,
+      referencias,
+      esPredeterminada,
+      fechaCreacion
+    FROM DireccionesClientes
+    WHERE idCliente = ? AND idDireccion = ?`;
+
+  const [rows] = await pool.query(query, [idCliente, idDireccion]);
+  return rows[0] || null;
+};
+
+const findDireccionPredeterminadaByClienteId = async (idCliente) => {
+  const query = `
+    SELECT
+      idDireccion,
+      idCliente,
+      alias,
+      pais,
+      calle,
+      numero,
+      piso,
+      departamento,
+      localidad,
+      provincia,
+      codigoPostal,
+      referencias,
+      esPredeterminada,
+      fechaCreacion
+    FROM DireccionesClientes
+    WHERE idCliente = ? AND esPredeterminada = true
+    LIMIT 1`;
+
+  const [rows] = await pool.query(query, [idCliente]);
+  return rows[0] || null;
+};
+
+const countDireccionesByClienteId = async (idCliente) => {
+  const query = `
+    SELECT COUNT(*) AS total
+    FROM DireccionesClientes
+    WHERE idCliente = ?`;
+
+  const [rows] = await pool.query(query, [idCliente]);
+  return rows[0]?.total || 0;
+};
+
+const createDireccionCliente = async (direccionData) => {
+  const query = `
+    INSERT INTO DireccionesClientes
+    (idCliente, alias, pais, calle, numero, piso, departamento, localidad, provincia, codigoPostal, referencias, esPredeterminada)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  const values = [
+    direccionData.idCliente,
+    direccionData.alias,
+    direccionData.pais,
+    direccionData.calle,
+    direccionData.numero,
+    direccionData.piso || null,
+    direccionData.departamento || null,
+    direccionData.localidad,
+    direccionData.provincia,
+    direccionData.codigoPostal,
+    direccionData.referencias || null,
+    direccionData.esPredeterminada === true,
+  ];
+
+  const [result] = await pool.query(query, values);
+  return result;
+};
+
+const updateDireccionCliente = async (idCliente, idDireccion, updates) => {
+  const campos = [];
+  const valores = [];
+
+  const camposPermitidos = [
+    "alias",
+    "pais",
+    "calle",
+    "numero",
+    "piso",
+    "departamento",
+    "localidad",
+    "provincia",
+    "codigoPostal",
+    "referencias",
+    "esPredeterminada",
+  ];
+
+  for (const campo of camposPermitidos) {
+    if (updates[campo] !== undefined) {
+      campos.push(`${campo} = ?`);
+      valores.push(updates[campo]);
+    }
+  }
+
+  if (campos.length === 0) {
+    throw new Error("No hay campos para actualizar");
+  }
+
+  const query = `
+    UPDATE DireccionesClientes
+    SET ${campos.join(", ")}
+    WHERE idCliente = ? AND idDireccion = ?`;
+
+  valores.push(idCliente, idDireccion);
+  const [result] = await pool.query(query, valores);
+  return result;
+};
+
+const clearDireccionPredeterminadaByClienteId = async (idCliente) => {
+  const query = `
+    UPDATE DireccionesClientes
+    SET esPredeterminada = false
+    WHERE idCliente = ?`;
+
+  const [result] = await pool.query(query, [idCliente]);
+  return result;
+};
+
+const setDireccionPredeterminada = async (idCliente, idDireccion) => {
+  const query = `
+    UPDATE DireccionesClientes
+    SET esPredeterminada = true
+    WHERE idCliente = ? AND idDireccion = ?`;
+
+  const [result] = await pool.query(query, [idCliente, idDireccion]);
+  return result;
+};
+
+const deleteDireccionCliente = async (idCliente, idDireccion) => {
+  const query = `
+    DELETE FROM DireccionesClientes
+    WHERE idDireccion = ? AND idCliente = ?`;
+
+  const [result] = await pool.query(query, [idDireccion, idCliente]);
+  return result;
+};
+
 module.exports = {
   findAll,
   findInactivos,
@@ -281,4 +458,13 @@ module.exports = {
   saveRecoveryToken,
   findByValidToken,
   updatePassword,
+  findDireccionesByClienteId,
+  findDireccionByIdAndCliente,
+  findDireccionPredeterminadaByClienteId,
+  countDireccionesByClienteId,
+  createDireccionCliente,
+  updateDireccionCliente,
+  clearDireccionPredeterminadaByClienteId,
+  setDireccionPredeterminada,
+  deleteDireccionCliente,
 };

@@ -1,19 +1,18 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import banner1 from "@assets/BannerPromo1.webp";
-import banner2 from "@assets/BannerPromo2.webp";
+import { ASSETS } from "../../../../utils/images"; 
 
 const banners = [
   {
     id: "dermocosmetica",
-    image: banner1,
+    image: ASSETS.bannerDermocosmetica,
     category: "Dermocosmética",
     cta: "Explorar ahora",
   },
   {
     id: "cuidado-personal",
-    image: banner2,
+    image: ASSETS.bannerCuidadoPersonal, 
     category: "Cuidado Personal",
     cta: "Explorar ahora",
   },

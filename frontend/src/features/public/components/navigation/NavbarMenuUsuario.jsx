@@ -6,7 +6,7 @@ import {
   User,
   ShoppingBag,
   LogOut,
-  Truck,
+  MapPin,
   Heart,
 } from "lucide-react";
 
@@ -71,6 +71,14 @@ const NavbarMenuUsuario = ({
         >
           <Heart size={16} className="text-gray-700" />
           Mis Favoritos
+        </Link>
+        <Link
+          to="/perfil/direcciones"
+          onClick={() => setIsProfileDropdownOpen(false)}
+          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-150 border-t border-gray-100"
+        >
+          <MapPin size={16} className="text-gray-700" />
+          Mis Direcciones
         </Link>
 
         <div className="border-t border-gray-100">

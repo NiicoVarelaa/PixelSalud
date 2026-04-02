@@ -3,6 +3,7 @@ const {
   createNotFoundError,
   createValidationError,
   createConflictError,
+  createForbiddenError,
 } = require("../errors");
 const bcryptjs = require("bcryptjs");
 const crypto = require("crypto");
@@ -83,21 +84,6 @@ const actualizarCliente = async (idCliente, updates) => {
     throw createNotFoundError("Cliente no encontrado");
   }
 
-  if (updates.emailCliente) {
-    const emailEnUso = await clientesRepository.existsEmailExcept(
-      updates.emailCliente,
-      idCliente,
-    );
-    if (emailEnUso) {
-      throw createConflictError("El email ya está en uso por otro cliente");
-    }
-  }
-
-  if (updates.contraCliente) {
-    const salt = await bcryptjs.genSalt(10);
-    updates.contraCliente = await bcryptjs.hash(updates.contraCliente, salt);
-  }
-
   const camposActualizables = [
     "nombreCliente",
     "apellidoCliente",
@@ -109,15 +95,36 @@ const actualizarCliente = async (idCliente, updates) => {
     "contraCliente",
   ];
 
-  const hayActualizaciones = Object.keys(updates).some((key) =>
-    camposActualizables.includes(key),
+  const updatesFiltrados = Object.fromEntries(
+    Object.entries(updates).filter(
+      ([key, value]) =>
+        camposActualizables.includes(key) && value !== undefined,
+    ),
   );
 
-  if (!hayActualizaciones) {
+  if (Object.keys(updatesFiltrados).length === 0) {
     throw createValidationError("No se enviaron datos para actualizar");
   }
 
-  await clientesRepository.update(idCliente, updates);
+  if (updatesFiltrados.emailCliente) {
+    const emailEnUso = await clientesRepository.existsEmailExcept(
+      updatesFiltrados.emailCliente,
+      idCliente,
+    );
+    if (emailEnUso) {
+      throw createConflictError("El email ya está en uso por otro cliente");
+    }
+  }
+
+  if (updatesFiltrados.contraCliente) {
+    const salt = await bcryptjs.genSalt(10);
+    updatesFiltrados.contraCliente = await bcryptjs.hash(
+      updatesFiltrados.contraCliente,
+      salt,
+    );
+  }
+
+  await clientesRepository.update(idCliente, updatesFiltrados);
 
   return {
     message: "Cliente actualizado con éxito",
@@ -231,6 +238,194 @@ const restablecerPassword = async (token, nuevaPassword) => {
   };
 };
 
+const validarAccesoCliente = (authUser, idClienteObjetivo) => {
+  const esAdmin = authUser?.role === "admin";
+  const esMismoCliente =
+    authUser?.role === "cliente" && authUser?.id === idClienteObjetivo;
+
+  if (!esAdmin && !esMismoCliente) {
+    throw createForbiddenError(
+      "No tienes permisos para gestionar estas direcciones",
+    );
+  }
+};
+
+const obtenerDireccionesCliente = async (idCliente, authUser) => {
+  await obtenerClientePorId(idCliente);
+  validarAccesoCliente(authUser, idCliente);
+
+  return await clientesRepository.findDireccionesByClienteId(idCliente);
+};
+
+const obtenerDireccionPredeterminadaCliente = async (idCliente, authUser) => {
+  await obtenerClientePorId(idCliente);
+  validarAccesoCliente(authUser, idCliente);
+
+  const direccionPredeterminada =
+    await clientesRepository.findDireccionPredeterminadaByClienteId(idCliente);
+
+  if (!direccionPredeterminada) {
+    throw createNotFoundError("No tienes una dirección predeterminada");
+  }
+
+  return direccionPredeterminada;
+};
+
+const crearDireccionCliente = async (idCliente, authUser, direccionData) => {
+  await obtenerClientePorId(idCliente);
+  validarAccesoCliente(authUser, idCliente);
+
+  const cantidad =
+    await clientesRepository.countDireccionesByClienteId(idCliente);
+  if (cantidad >= 2) {
+    throw createValidationError(
+      "Solo se permiten hasta 2 direcciones por cliente",
+    );
+  }
+
+  const pais = (direccionData.pais || "Argentina").trim();
+  if (pais.toLowerCase() !== "argentina") {
+    throw createValidationError("Solo se permiten direcciones de Argentina");
+  }
+
+  const debeSerPredeterminada =
+    cantidad === 0 || direccionData.esPredeterminada === true;
+
+  if (debeSerPredeterminada) {
+    await clientesRepository.clearDireccionPredeterminadaByClienteId(idCliente);
+  }
+
+  const result = await clientesRepository.createDireccionCliente({
+    idCliente,
+    ...direccionData,
+    pais: "Argentina",
+    esPredeterminada: debeSerPredeterminada,
+  });
+
+  return {
+    message: "Dirección guardada correctamente",
+    idDireccion: result.insertId,
+  };
+};
+
+const actualizarDireccionCliente = async (
+  idCliente,
+  idDireccion,
+  authUser,
+  direccionData,
+) => {
+  await obtenerClientePorId(idCliente);
+  validarAccesoCliente(authUser, idCliente);
+
+  const direccionActual = await clientesRepository.findDireccionByIdAndCliente(
+    idCliente,
+    idDireccion,
+  );
+
+  if (!direccionActual) {
+    throw createNotFoundError("Dirección no encontrada");
+  }
+
+  if (direccionData.pais !== undefined) {
+    const pais = direccionData.pais.trim();
+    if (pais.toLowerCase() !== "argentina") {
+      throw createValidationError("Solo se permiten direcciones de Argentina");
+    }
+  }
+
+  if (direccionData.esPredeterminada === false) {
+    throw createValidationError(
+      "Para quitar la predeterminada, primero selecciona otra dirección",
+    );
+  }
+
+  if (direccionData.esPredeterminada === true) {
+    await clientesRepository.clearDireccionPredeterminadaByClienteId(idCliente);
+  }
+
+  const updates = {
+    ...direccionData,
+    pais:
+      direccionData.pais !== undefined
+        ? "Argentina"
+        : direccionActual.pais || "Argentina",
+  };
+
+  const result = await clientesRepository.updateDireccionCliente(
+    idCliente,
+    idDireccion,
+    updates,
+  );
+
+  if (result.affectedRows === 0) {
+    throw createNotFoundError("Dirección no encontrada");
+  }
+
+  return {
+    message: "Dirección actualizada correctamente",
+  };
+};
+
+const marcarDireccionPredeterminadaCliente = async (
+  idCliente,
+  idDireccion,
+  authUser,
+) => {
+  await obtenerClientePorId(idCliente);
+  validarAccesoCliente(authUser, idCliente);
+
+  const direccion = await clientesRepository.findDireccionByIdAndCliente(
+    idCliente,
+    idDireccion,
+  );
+
+  if (!direccion) {
+    throw createNotFoundError("Dirección no encontrada");
+  }
+
+  await clientesRepository.clearDireccionPredeterminadaByClienteId(idCliente);
+  await clientesRepository.setDireccionPredeterminada(idCliente, idDireccion);
+
+  return {
+    message: "Dirección marcada como predeterminada",
+  };
+};
+
+const eliminarDireccionCliente = async (idCliente, idDireccion, authUser) => {
+  await obtenerClientePorId(idCliente);
+  validarAccesoCliente(authUser, idCliente);
+
+  const direccion = await clientesRepository.findDireccionByIdAndCliente(
+    idCliente,
+    idDireccion,
+  );
+
+  if (!direccion) {
+    throw createNotFoundError("Dirección no encontrada");
+  }
+
+  const result = await clientesRepository.deleteDireccionCliente(
+    idCliente,
+    idDireccion,
+  );
+
+  const eraPredeterminada = Boolean(direccion.esPredeterminada);
+  if (eraPredeterminada) {
+    const direccionesRestantes =
+      await clientesRepository.findDireccionesByClienteId(idCliente);
+    if (direccionesRestantes.length > 0) {
+      await clientesRepository.setDireccionPredeterminada(
+        idCliente,
+        direccionesRestantes[0].idDireccion,
+      );
+    }
+  }
+
+  return {
+    message: "Dirección eliminada correctamente",
+  };
+};
+
 module.exports = {
   obtenerClientes,
   obtenerClientesInactivos,
@@ -243,4 +438,10 @@ module.exports = {
   registrarPacienteExpress,
   solicitarRecuperacion,
   restablecerPassword,
+  obtenerDireccionesCliente,
+  obtenerDireccionPredeterminadaCliente,
+  crearDireccionCliente,
+  actualizarDireccionCliente,
+  marcarDireccionPredeterminadaCliente,
+  eliminarDireccionCliente,
 };

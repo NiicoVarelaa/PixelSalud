@@ -10,7 +10,16 @@ const findByClienteId = async (idCliente) => {
       v.totalPago, 
       v.estado,
       p.nombreProducto, 
-      p.img, 
+      COALESCE(
+        (
+          SELECT ip.urlImagen
+          FROM ImagenesProductos ip
+          WHERE ip.idProducto = p.idProducto
+          ORDER BY ip.esPrincipal DESC, ip.orden ASC, ip.idImagen ASC
+          LIMIT 1
+        ),
+        p.img
+      ) AS img,
       d.cantidad, 
       d.precioUnitario
     FROM VentasOnlines v

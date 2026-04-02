@@ -102,19 +102,37 @@ const findWithProductos = async (idCampana) => {
         p.precio,
         p.stock,
         p.categoria,
-        p.img,
+        
+        -- NUEVO: Traemos imagen principal y secundaria desde la tabla ImagenesProductos
+        COALESCE(imgPrincipal.urlImagen, p.img) as img,
+        imgSecundaria.urlImagen as img2,
+
         pc.porcentajeDescuentoOverride,
         pc.esActivo as productoActivo,
         COALESCE(pc.porcentajeDescuentoOverride, c.porcentajeDescuento) as descuentoFinal
       FROM campanas_ofertas c
       LEFT JOIN productos_campanas pc ON c.idCampana = pc.idCampana
       LEFT JOIN Productos p ON pc.idProducto = p.idProducto
+      
+      -- NUEVOS JOINs para las imágenes
+      LEFT JOIN (
+        SELECT idProducto, urlImagen 
+        FROM ImagenesProductos 
+        WHERE esPrincipal = TRUE
+      ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
+      
+      LEFT JOIN (
+        SELECT idProducto, MIN(urlImagen) as urlImagen
+        FROM ImagenesProductos
+        WHERE esPrincipal = FALSE
+        GROUP BY idProducto
+      ) as imgSecundaria ON p.idProducto = imgSecundaria.idProducto
+      
       WHERE c.idCampana = ?`,
     [idCampana],
   );
   return rows;
 };
-
 const create = async (campanaData) => {
   const {
     nombreCampana,

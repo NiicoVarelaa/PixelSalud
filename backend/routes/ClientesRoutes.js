@@ -18,6 +18,9 @@ const {
   olvidePasswordSchema,
   restablecerPasswordSchema,
   tokenParamSchema,
+  idDireccionParamSchema,
+  createDireccionClienteSchema,
+  updateDireccionClienteSchema,
 } = require("../schemas/ClienteSchemas");
 
 const {
@@ -32,6 +35,12 @@ const {
   registrarPacienteExpress,
   olvideContrasena,
   nuevoPassword,
+  getDireccionesCliente,
+  getDireccionPredeterminadaCliente,
+  crearDireccionCliente,
+  actualizarDireccionCliente,
+  marcarDireccionPredeterminadaCliente,
+  eliminarDireccionCliente,
 } = require("../controllers/ClientesController");
 
 const router = express.Router();
@@ -116,6 +125,61 @@ router.post(
   authLimiter,
   validate({ params: tokenParamSchema, body: restablecerPasswordSchema }),
   nuevoPassword,
+);
+
+router.get(
+  "/clientes/:id/direcciones",
+  auth,
+  verificarRol(["admin", "cliente"]),
+  validate({ params: idParamSchema }),
+  getDireccionesCliente,
+);
+
+router.get(
+  "/clientes/:id/direcciones/predeterminada",
+  auth,
+  verificarRol(["admin", "cliente"]),
+  validate({ params: idParamSchema }),
+  getDireccionPredeterminadaCliente,
+);
+
+router.post(
+  "/clientes/:id/direcciones",
+  mutationLimiter,
+  auth,
+  verificarRol(["admin", "cliente"]),
+  validate({ params: idParamSchema, body: createDireccionClienteSchema }),
+  crearDireccionCliente,
+);
+
+router.put(
+  "/clientes/:id/direcciones/:idDireccion",
+  mutationLimiter,
+  auth,
+  verificarRol(["admin", "cliente"]),
+  validate({
+    params: idParamSchema.merge(idDireccionParamSchema),
+    body: updateDireccionClienteSchema,
+  }),
+  actualizarDireccionCliente,
+);
+
+router.put(
+  "/clientes/:id/direcciones/:idDireccion/predeterminada",
+  mutationLimiter,
+  auth,
+  verificarRol(["admin", "cliente"]),
+  validate({ params: idParamSchema.merge(idDireccionParamSchema) }),
+  marcarDireccionPredeterminadaCliente,
+);
+
+router.delete(
+  "/clientes/:id/direcciones/:idDireccion",
+  mutationLimiter,
+  auth,
+  verificarRol(["admin", "cliente"]),
+  validate({ params: idParamSchema.merge(idDireccionParamSchema) }),
+  eliminarDireccionCliente,
 );
 
 module.exports = router;

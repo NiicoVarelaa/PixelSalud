@@ -2,17 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
-import carruselDesktop from "@assets/Carrusel.webp";
-import carruselDesktop2 from "@assets/Carrusel2.webp";
-import carruselDesktop3 from "@assets/Carrusel3.webp";
+import { ASSETS } from "../../../../utils/images"; 
 
 import PromoSideCard from "./PromoSideCard";
 import { usePromoBannerData } from "./hooks/usePromoBannerData";
 
 const DESKTOP_CAROUSEL_IMAGES = [
-  carruselDesktop,
-  carruselDesktop2,
-  carruselDesktop3,
+  ASSETS.carruselDesktop,
+  ASSETS.carruselDesktop2,
+  ASSETS.carruselDesktop3,
 ];
 
 const SIDE_CARDS_FALLBACK = [

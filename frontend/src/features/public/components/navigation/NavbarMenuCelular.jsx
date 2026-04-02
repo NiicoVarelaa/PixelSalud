@@ -7,6 +7,7 @@ import {
   LogOut,
   Heart,
   Tag,
+  MapPin,
 } from "lucide-react";
 import NavbarAvatar from "./NavbarAvatar";
 import { NavbarCategoriesDropdown } from "./NavbarCategoriesDropdown";
@@ -246,6 +247,14 @@ const NavbarMenuCelular = ({
                     <Heart className="w-5 h-5" aria-hidden="true" />{" "}
                     {/* Ícono restaurado */}
                     Mis Favoritos
+                  </Link>
+                  <Link
+                    to="/perfil/direcciones"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center gap-3 py-3 px-1 rounded-md text-base font-medium text-gray-700 hover:text-primary-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                  >
+                    <MapPin className="w-5 h-5" aria-hidden="true" />
+                    Mis Direcciones
                   </Link>
 
                   <hr className="my-4 border-t border-gray-200" />

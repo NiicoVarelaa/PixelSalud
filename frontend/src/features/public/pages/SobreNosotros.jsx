@@ -16,40 +16,45 @@ import Header from "@features/public/components/navigation/Header";
 import Footer from "@features/public/components/footer/Footer";
 import MiniBanner from "@features/public/components/banners/MiniBanner";
 
-import ampollas from "@assets/ampollas.webp";
-import botes from "@assets/botes.webp";
-import deposito from "@assets/deposito.webp";
-import higienePersonal from "@assets/higienePersonal.webp";
-import tienda from "@assets/tienda.webp";
-import mostrador from "@assets/mostrador.webp";
+import { ASSETS } from "../../../utils/images";
 
 const GALLERY_ITEMS = [
   {
     id: 1,
-    img: ampollas,
+    img: ASSETS.sobreNosotros,
     alt: "Tecnología Farmacéutica",
     className: "col-span-1",
   },
   {
     id: 2,
-    img: tienda,
+    img: ASSETS.sobreNosotros2,
     alt: "Atención Personalizada",
     className: "col-span-1 md:col-span-2 lg:col-span-2",
   },
-  { id: 3, img: deposito, alt: "Stock Permanente", className: "col-span-1" },
+  {
+    id: 3,
+    img: ASSETS.sobreNosotros3,
+    alt: "Stock Permanente",
+    className: "col-span-1",
+  },
   {
     id: 4,
-    img: higienePersonal,
+    img: ASSETS.sobreNosotros4,
     alt: "Cuidado Personal",
     className: "col-span-1",
   },
   {
     id: 5,
-    img: mostrador,
+    img: ASSETS.sobreNosotros5,
     alt: "Asesoramiento Experto",
     className: "col-span-1 md:col-span-2 lg:col-span-2",
   },
-  { id: 6, img: botes, alt: "Análisis Clínicos", className: "col-span-1" },
+  {
+    id: 6,
+    img: ASSETS.sobreNosotros6,
+    alt: "Análisis Clínicos",
+    className: "col-span-1",
+  },
 ];
 
 const VALUES_DATA = [
@@ -201,13 +206,13 @@ const PhilosophySection = memo(function PhilosophySection() {
               aria-hidden="true"
             />
             <img
-              src={ampollas}
+              src={ASSETS.sobreNosotros}
               alt="Laboratorio farmacéutico"
               loading="lazy"
               className="rounded-2xl shadow-lg w-full h-64 object-cover transform translate-y-8 hover:-translate-y-2 transition-transform duration-500"
             />
             <img
-              src={tienda}
+              src={ASSETS.sobreNosotros6}
               alt="Atención al cliente"
               loading="lazy"
               className="rounded-2xl shadow-lg w-full h-64 object-cover hover:translate-y-2 transition-transform duration-500"

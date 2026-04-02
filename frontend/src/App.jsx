@@ -116,8 +116,8 @@ const App = () => {
           <Route path="perfil" element={<DashboardCliente />}>
             <Route index element={<Perfil />} />
             <Route path="favoritos" element={<PerfilFavoritos />} />
-            <Route path="mis-compras" element={<MisCompras />} />
-            <Route path="perfil/direcciones" element={<PerfilDirecciones />} />
+            <Route path="pedidos" element={<MisCompras />} />
+            <Route path="direcciones" element={<PerfilDirecciones />} />
           </Route>
         </Route>
 

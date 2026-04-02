@@ -1,410 +1,237 @@
-import { useEffect, useState } from "react";
-import { useAuthStore } from "@store/useAuthStore";
+import { useCallback, useEffect, useId, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, Edit2, Loader2, X } from "lucide-react";
+import PerfilEditForm from "@features/customer/components/profile/perfil/PerfilEditForm";
+import PerfilReadView from "@features/customer/components/profile/perfil/PerfilReadView";
 import {
-  User,
-  Mail,
-  MapPin,
-  Package,
-  Heart,
-  CreditCard,
-  Edit2,
-  Save,
-  X,
-  Camera,
-  Calendar,
-  ShieldCheck,
-  KeyRound,
-  IdCard,
-  Phone,
-} from "lucide-react";
+  FIELD_CONFIG,
+  PASSWORD_FIELDS,
+} from "@features/customer/components/profile/perfil/perfilConfig";
+import usePerfilForm from "@features/customer/hooks/usePerfilForm";
 
 const Perfil = () => {
-  const { user, token } = useAuthStore();
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    nombreCliente: "",
-    apellidoCliente: "",
-    emailCliente: "",
-    telefono: "",
-    direccion: "",
-    dni: "",
-    contraCliente: "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
+  const formId = useId();
+  const formStatusId = `${formId}-status`;
+  const editButtonRef = useRef(null);
+  const firstFieldRef = useRef(null);
 
-  // Cargar datos reales del cliente
-  useEffect(() => {
-    console.log("user en Perfil.jsx:", user);
-    console.log("user.id en Perfil:", user?.id, "tipo:", typeof user?.id);
-    const fetchCliente = async () => {
-      if (!user || !user.id) {
-        console.log("Error: No hay usuario o falta id");
-        setErrorMsg("No hay usuario logueado o falta id en user.");
-        return;
-      }
-      setLoading(true);
-      try {
-        const apiUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-        const url = `${apiUrl}/clientes/${user.id}`;
-        console.log("Fetcheando:", url);
-        const res = await fetch(url, {
-          headers: { auth: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("No se pudo obtener el perfil");
-        const data = await res.json();
-        console.log("Respuesta del backend perfil:", data);
-        if (!data || Object.keys(data).length === 0) {
-          setErrorMsg("No se encontraron datos del usuario en el backend");
-          return;
-        }
-        setFormData({
-          nombreCliente: data.nombreCliente || "",
-          apellidoCliente: data.apellidoCliente || "",
-          emailCliente: data.emailCliente || "",
-          telefono: data.telefono || "",
-          direccion: data.direccion || "",
-          dni: data.dni || "",
-          contraCliente: "",
-        });
-      } catch (err) {
-        setErrorMsg("Error al cargar el perfil");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCliente();
-  }, [user]);
+  const {
+    user,
+    isEditing,
+    formData,
+    loading,
+    fetchLoading,
+    successMsg,
+    errorMsg,
+    hasChanges,
+    openEdit,
+    cancelEdit,
+    submitForm,
+    handleInputChange,
+  } = usePerfilForm();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleCancel = useCallback(() => {
+    const didCancel = cancelEdit();
+    if (didCancel) {
+      editButtonRef.current?.focus();
+    }
+  }, [cancelEdit]);
+
+  const handleEditToggle = () => {
+    if (isEditing) {
+      handleCancel();
+      return;
+    }
+
+    openEdit();
+    requestAnimationFrame(() => firstFieldRef.current?.focus());
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setSuccessMsg("");
-    setErrorMsg("");
-    try {
-      // Solo enviar campos modificados o no vacíos
-      const body = {};
-      Object.keys(formData).forEach((key) => {
-        if (
-          formData[key] !== "" &&
-          formData[key] !== null &&
-          typeof formData[key] !== "undefined"
-        ) {
-          body[key] = formData[key];
-        }
-      });
-      // Si la contraseña está vacía, no la mandes
-      if (!body.contraCliente) delete body.contraCliente;
-      const apiUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-      const res = await fetch(`${apiUrl}/clientes/actualizar/${user.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          auth: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al actualizar");
-      setSuccessMsg("Perfil actualizado con éxito");
-      setIsEditing(false);
-      setFormData((prev) => ({ ...prev, contraCliente: "" })); // Limpiar campo contraseña
-    } catch (err) {
-      setErrorMsg(err.message || "Error al actualizar");
-    } finally {
-      setLoading(false);
+    const didSubmit = await submitForm(e);
+    if (didSubmit) {
+      editButtonRef.current?.focus();
     }
   };
 
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape" && !loading) {
+        handleCancel();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isEditing, loading, handleCancel]);
+
   if (!user) return null;
-  if (errorMsg) {
-    return <div className="text-red-600 font-bold p-8">{errorMsg}</div>;
+
+  if (fetchLoading) {
+    return (
+      <div
+        className="h-full flex items-center justify-center"
+        aria-busy="true"
+        aria-label="Cargando perfil"
+      >
+        <div className="flex flex-col items-center gap-3 text-gray-400">
+          <Loader2
+            size={28}
+            className="animate-spin text-primary-500"
+            aria-hidden="true"
+          />
+          <p className="text-sm font-medium">Cargando tu perfil...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (errorMsg && !formData.nombreCliente) {
+    return (
+      <div
+        role="alert"
+        className="h-full flex items-center justify-center px-4"
+      >
+        <div className="text-center max-w-sm">
+          <AlertCircle
+            size={40}
+            className="mx-auto text-red-400 mb-3"
+            aria-hidden="true"
+          />
+          <p className="text-gray-700 font-semibold mb-1">Ocurrio un error</p>
+          <p className="text-sm text-gray-400">{errorMsg}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50  px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Mi Cuenta</h1>
-          <p className="mt-2 text-gray-600">
-            Administra tu información personal y revisa tu actividad.
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
+      className="h-full overflow-y-auto bg-gray-50 pt-4 pb-8"
+    >
+      <motion.div
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.25, delay: 0.04 }}
+        className="mx-auto flex min-h-full max-w-4xl flex-col pb-4"
+      >
+        <motion.header
+          initial={{ y: -8, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.22, delay: 0.06 }}
+          className="mb-4 shrink-0 sm:mb-5"
+        >
+          <h2 className="text-2xl font-bold leading-tight text-gray-900 sm:text-3xl">
+            Mi cuenta
+          </h2>
+          <p  className="mt-1 text-sm text-gray-500">
+            Gestiona tu informacion personal.
           </p>
-        </div>
+        
+        </motion.header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="h-32 bg-linear-to-b from-primary-600 to-primary-500 relative">
-                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
-                  <div className="relative group">
-                    <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center shadow-lg overflow-hidden">
-                      <span className="text-3xl font-bold text-gray-500">
-                        {user.nombre?.charAt(0)}
-                        {user.apellido?.charAt(0)}
-                      </span>
-                    </div>
-                    <button className="absolute bottom-0 right-0 bg-white p-1.5 rounded-full shadow-md border border-gray-100 text-gray-600 hover:text-primary-600 transition-colors">
-                      <Camera size={14} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-16 pb-8 px-6 text-center">
-                <h2 className="text-xl font-bold text-gray-900">
-                  {formData.nombreCliente} {formData.apellidoCliente}
+        <main
+          className="w-full"
+          role="region"
+          aria-label="Formulario de perfil"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.995 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.25, delay: 0.1 }}
+            className="flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.22, delay: 0.12 }}
+              className="flex items-center justify-between border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5"
+            >
+              <div>
+                <h2 className="text-base font-bold text-gray-900 sm:text-lg">
+                  Informacion personal
                 </h2>
-                <p className="text-sm text-gray-500 mt-1 flex items-center justify-center gap-2">
-                  <ShieldCheck size={16} className="text-green-600" />
-                  Cuenta Verificada
-                </p>
-
-                {/* Info de pedidos/favoritos eliminada por pedido */}
+                {isEditing && (
+                  <p className="mt-0.5 text-xs text-gray-400">
+                    Los campos marcados se actualizaran al guardar.
+                  </p>
+                )}
               </div>
-            </div>
-          </div>
 
-          <div className="lg:col-span-8 space-y-6">
-            {/* Cards de método de pago, lista de deseos y dirección principal eliminadas por pedido */}
+              <div className="flex items-center gap-2">
+                {isEditing && (
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    aria-label="Cancelar edicion"
+                    className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-150 hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:outline-none active:scale-95"
+                  >
+                    <X size={14} aria-hidden="true" />
+                    <span className="hidden sm:inline">Cancelar</span>
+                  </button>
+                )}
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-                <h3 className="text-lg font-bold text-gray-900">
-                  Información Personal
-                </h3>
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all
-                    ${
-                      isEditing
-                        ? "bg-red-50 text-red-600 hover:bg-red-100"
-                        : "bg-primary-50 text-primary-700 hover:bg-primary-100"
-                    }`}
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  ref={editButtonRef}
+                  type="button"
+                  onClick={handleEditToggle}
+                  aria-label={
+                    isEditing ? "Cancelar edicion del perfil" : "Editar perfil"
+                  }
+                  aria-pressed={isEditing}
+                  className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none active:scale-95 sm:px-4 ${
+                    isEditing
+                      ? "bg-red-50 text-red-600 hover:bg-red-100 focus-visible:ring-red-400"
+                      : "bg-primary-50 text-primary-700 hover:bg-primary-100 focus-visible:ring-primary-500"
+                  }`}
                 >
                   {isEditing ? (
                     <>
-                      <X size={16} /> Cancelar
+                      <X size={14} aria-hidden="true" />
+                      <span className="hidden sm:inline">Cerrar</span>
                     </>
                   ) : (
                     <>
-                      <Edit2 size={16} /> Editar
+                      <Edit2 size={14} aria-hidden="true" />
+                      <span>Editar</span>
                     </>
                   )}
-                </button>
+                </motion.button>
               </div>
+            </motion.div>
 
-              <div className="p-6">
+            <div className="min-h-0 p-5 sm:p-6">
+              <AnimatePresence mode="wait">
                 {isEditing ? (
-                  <form
+                  <PerfilEditForm
+                    formId={formId}
+                    formStatusId={formStatusId}
+                    fields={FIELD_CONFIG}
+                    passwordFields={PASSWORD_FIELDS}
+                    formData={formData}
+                    onChange={handleInputChange}
+                    firstFieldRef={firstFieldRef}
+                    loading={loading}
+                    hasChanges={hasChanges}
+                    successMsg={successMsg}
+                    errorMsg={errorMsg}
                     onSubmit={handleSubmit}
-                    className="grid grid-cols-1 md:grid-cols-2 gap-6"
-                  >
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Nombre
-                      </label>
-                      <input
-                        type="text"
-                        name="nombreCliente"
-                        value={formData.nombreCliente}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Apellido
-                      </label>
-                      <input
-                        type="text"
-                        name="apellidoCliente"
-                        value={formData.apellidoCliente}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Correo Electrónico
-                      </label>
-                      <div className="relative">
-                        <Mail className="absolute left-4 top-3 text-gray-400 w-5 h-5" />
-                        <input
-                          type="email"
-                          name="emailCliente"
-                          value={formData.emailCliente}
-                          onChange={handleInputChange}
-                          className="w-full pl-12 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        DNI
-                      </label>
-                      <input
-                        type="number"
-                        name="dni"
-                        value={formData.dni}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Teléfono
-                      </label>
-                      <input
-                        type="text"
-                        name="telefono"
-                        value={formData.telefono}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">
-                        Dirección
-                      </label>
-                      <input
-                        type="text"
-                        name="direccion"
-                        value={formData.direccion}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                      <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                        <KeyRound size={16} /> Nueva Contraseña{" "}
-                        <span className="text-xs text-gray-400">
-                          (opcional)
-                        </span>
-                      </label>
-                      <input
-                        type="password"
-                        name="contraCliente"
-                        value={formData.contraCliente}
-                        onChange={handleInputChange}
-                        autoComplete="new-password"
-                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
-                        placeholder="Dejar vacío para no cambiar"
-                      />
-                    </div>
-                    <div className="md:col-span-2 pt-4 flex justify-end">
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-all shadow-md hover:shadow-lg transform active:scale-95 disabled:opacity-60"
-                      >
-                        <Save size={18} />
-                        {loading ? "Guardando..." : "Guardar Cambios"}
-                      </button>
-                    </div>
-                    {successMsg && (
-                      <div className="md:col-span-2 text-green-600 font-medium mt-2">
-                        {successMsg}
-                      </div>
-                    )}
-                    {errorMsg && (
-                      <div className="md:col-span-2 text-red-600 font-medium mt-2">
-                        {errorMsg}
-                      </div>
-                    )}
-                  </form>
+                  />
                 ) : (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                        <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
-                          <User size={20} />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500 font-medium">
-                            Nombre Completo
-                          </p>
-                          <p className="text-gray-900 font-semibold mt-0.5">
-                            {formData.nombreCliente || "-"}{" "}
-                            {formData.apellidoCliente || "-"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                        <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
-                          <Mail size={20} />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500 font-medium">
-                            Correo Electrónico
-                          </p>
-                          <p className="text-gray-900 font-semibold mt-0.5">
-                            {formData.emailCliente || "-"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                        <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
-                          <IdCard size={20} />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500 font-medium">
-                            DNI
-                          </p>
-                          <p className="text-gray-900 font-semibold mt-0.5">
-                            {formData.dni || "-"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                        <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
-                          <Phone size={20} />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500 font-medium">
-                            Teléfono
-                          </p>
-                          <p className="text-gray-900 font-semibold mt-0.5">
-                            {formData.telefono || "-"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors md:col-span-2">
-                        <div className="p-2 bg-white rounded-lg shadow-sm text-primary-600">
-                          <MapPin size={20} />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500 font-medium">
-                            Dirección
-                          </p>
-                          <p className="text-gray-900 font-semibold mt-0.5">
-                            {formData.direccion || "-"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <PerfilReadView formData={formData} successMsg={successMsg} />
                 )}
-              </div>
+              </AnimatePresence>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </motion.div>
+        </main>
+      </motion.div>
+    </motion.div>
   );
 };
 

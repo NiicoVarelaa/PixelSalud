@@ -9,6 +9,10 @@ const findAllWithOfertas = async () => {
         p.descripcion,
         p.precio AS precioRegular,
         COALESCE(imgPrincipal.urlImagen, p.img) as img,
+        
+        -- NUEVO: Traemos la segunda imagen con MIN() para evitar el error de GROUP BY
+        imgSecundaria.urlImagen as img2, 
+
         p.categoria,
         p.stock,
         p.activo,
@@ -42,6 +46,15 @@ const findAllWithOfertas = async () => {
       FROM ImagenesProductos 
       WHERE esPrincipal = TRUE
     ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
+    
+    -- NUEVO JOIN CORREGIDO: Usamos MIN()
+    LEFT JOIN (
+      SELECT idProducto, MIN(urlImagen) as urlImagen
+      FROM ImagenesProductos
+      WHERE esPrincipal = FALSE
+      GROUP BY idProducto
+    ) as imgSecundaria ON p.idProducto = imgSecundaria.idProducto
+
     LEFT JOIN productos_campanas pc ON pc.id = (
       SELECT pc2.id
       FROM productos_campanas pc2
@@ -77,6 +90,10 @@ const findByIdWithOfertas = async (idProducto) => {
         p.descripcion,
         p.precio AS precioRegular,
         COALESCE(imgPrincipal.urlImagen, p.img) as img,
+        
+        -- NUEVO: Traemos la segunda imagen con MIN() al igual que en findAll
+        imgSecundaria.urlImagen as img2,
+
         p.categoria,
         p.stock,
         p.activo,
@@ -110,6 +127,15 @@ const findByIdWithOfertas = async (idProducto) => {
       FROM ImagenesProductos 
       WHERE esPrincipal = TRUE
     ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
+    
+    -- NUEVO JOIN CORREGIDO: Usamos MIN()
+    LEFT JOIN (
+      SELECT idProducto, MIN(urlImagen) as urlImagen
+      FROM ImagenesProductos
+      WHERE esPrincipal = FALSE
+      GROUP BY idProducto
+    ) as imgSecundaria ON p.idProducto = imgSecundaria.idProducto
+
     LEFT JOIN productos_campanas pc ON pc.id = (
       SELECT pc2.id
       FROM productos_campanas pc2
@@ -160,6 +186,10 @@ const findByCategoriaWithOfertas = async (categoria) => {
         p.descripcion,
         p.precio AS precioRegular,
         COALESCE(imgPrincipal.urlImagen, p.img) as img,
+        
+        -- NUEVO: Traemos la segunda imagen para el hover
+        imgSecundaria.urlImagen as img2,
+
         p.categoria,
         o.porcentajeDescuento,
         p.precio * (1 - o.porcentajeDescuento / 100) AS precioFinal,
@@ -173,6 +203,15 @@ const findByCategoriaWithOfertas = async (categoria) => {
       FROM ImagenesProductos 
       WHERE esPrincipal = TRUE
     ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
+    
+    -- NUEVO JOIN CORREGIDO: Usamos MIN() igual que en las otras consultas
+    LEFT JOIN (
+      SELECT idProducto, MIN(urlImagen) as urlImagen
+      FROM ImagenesProductos
+      WHERE esPrincipal = FALSE
+      GROUP BY idProducto
+    ) as imgSecundaria ON p.idProducto = imgSecundaria.idProducto
+
     WHERE 
         p.activo = 1 
         AND p.categoria = ?

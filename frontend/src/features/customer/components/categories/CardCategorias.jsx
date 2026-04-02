@@ -1,29 +1,5 @@
 import { useState, useMemo } from "react";
-import { ArrowRight, Zap, Star, TrendingUp } from "lucide-react";
-
-const BADGE_CONFIGS = {
-  isNew: {
-    bgColor: "bg-gradient-to-r from-secondary-400 to-secondary-500",
-    textColor: "text-white",
-    icon: Zap,
-    label: "NUEVO",
-    borderColor: "border-secondary-500",
-  },
-  isTrending: {
-    bgColor: "bg-gradient-to-r from-orange-500 to-red-500",
-    textColor: "text-white",
-    icon: TrendingUp,
-    label: "TENDENCIA",
-    borderColor: "border-orange-500",
-  },
-  isPopular: {
-    bgColor: "bg-gradient-to-r from-amber-500 to-yellow-500",
-    textColor: "text-white",
-    icon: Star,
-    label: "POPULAR",
-    borderColor: "border-amber-500",
-  },
-};
+import { ArrowRight } from "lucide-react";
 
 const CARD_BASE_CLASSES = `
   relative group cursor-pointer
@@ -48,42 +24,9 @@ const INNER_CONTENT_CLASSES = `
   h-full
 `;
 
-const CardBadge = ({ config }) => {
-  const BadgeIcon = config.icon;
-  return (
-    <div
-      className={`
-        absolute top-3 right-3
-        ${config.bgColor}
-        ${config.textColor}
-        px-3 py-1.5
-        rounded-full
-        font-bold text-xs
-        z-30
-        flex items-center gap-1.5
-        shadow-lg
-        transform
-        group-hover:scale-110
-        transition-transform duration-300
-        border ${config.borderColor}
-      `}
-    >
-      {BadgeIcon && <BadgeIcon className="h-3 w-3" fill="currentColor" />}
-      {config.label}
-    </div>
-  );
-};
-
 const CardCategorias = ({ categoria, onClick }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-
-  const badgeConfig = useMemo(() => {
-    if (categoria.isNew) return BADGE_CONFIGS.isNew;
-    if (categoria.isTrending) return BADGE_CONFIGS.isTrending;
-    if (categoria.isPopular) return BADGE_CONFIGS.isPopular;
-    return null;
-  }, [categoria]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" || e.key === " ") {
@@ -106,7 +49,7 @@ const CardCategorias = ({ categoria, onClick }) => {
         className={`
           absolute inset-[-5px]
           rounded-[20px]
-          bg-gradient-to-r from-primary-500 to-secondary-500
+          bg-linear-to-r from-primary-500 to-primary-600
           opacity-0
           group-hover:opacity-100
           group-hover:scale-105
@@ -117,19 +60,7 @@ const CardCategorias = ({ categoria, onClick }) => {
       />
 
       <div className={INNER_CONTENT_CLASSES}>
-        <div
-          className="
-            absolute inset-0
-            bg-gradient-to-br from-primary-50 via-white to-secondary-50
-            opacity-0
-            group-hover:opacity-100
-            transition-opacity duration-500
-            rounded-[16px]
-            -z-10
-          "
-        />
-
-        {badgeConfig && <CardBadge config={badgeConfig} />}
+         
 
         <div className="relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center mb-2 z-10">
           {!imageLoaded && (
@@ -156,7 +87,7 @@ const CardCategorias = ({ categoria, onClick }) => {
           <div
             className="
               absolute inset-0
-              bg-gradient-to-r from-primary-200/30 to-secondary-200/30
+              bg-linear-to-r from-primary-600/20 to-primary-700/20
               rounded-full
               blur-xl
               opacity-0
