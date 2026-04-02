@@ -54,23 +54,15 @@ const NavbarMenuUsuario = ({
           className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-150"
         >
           <User size={16} className="text-gray-700 " />
-          Mi Perfil
+          Perfil
         </Link>
         <Link
-          to="/perfil/mis-compras"
+          to="/perfil/pedidos"
           onClick={() => setIsProfileDropdownOpen(false)}
           className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-150 border-t border-gray-100"
         >
           <ShoppingBag size={16} className="text-gray-700" />
-          Mis Pedidos
-        </Link>
-        <Link
-          to="/perfil/favoritos"
-          onClick={() => setIsProfileDropdownOpen(false)}
-          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-150 border-t border-gray-100"
-        >
-          <Heart size={16} className="text-gray-700" />
-          Mis Favoritos
+          Pedidos
         </Link>
         <Link
           to="/perfil/direcciones"
@@ -78,7 +70,15 @@ const NavbarMenuUsuario = ({
           className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-150 border-t border-gray-100"
         >
           <MapPin size={16} className="text-gray-700" />
-          Mis Direcciones
+          Direcciones
+        </Link>
+        <Link
+          to="/perfil/favoritos"
+          onClick={() => setIsProfileDropdownOpen(false)}
+          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-150 border-t border-gray-100"
+        >
+          <Heart size={16} className="text-gray-700" />
+          Favoritos
         </Link>
 
         <div className="border-t border-gray-100">

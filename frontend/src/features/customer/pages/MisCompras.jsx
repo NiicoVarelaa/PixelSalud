@@ -35,7 +35,7 @@ const MisCompras = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className="pt-4 mx-auto flex min-h-full max-w-4xl flex-col pb-4"
+      className="mx-auto flex h-full min-h-0 max-w-4xl flex-col pt-4"
     >
       <motion.div
         initial={{ y: -8, opacity: 0 }}
@@ -63,7 +63,7 @@ const MisCompras = () => {
             onOpenTicket={openTicket}
           />
 
-          <div className="mt-4 shrink-0">
+          <div className="mt-auto shrink-0 pt-4">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
