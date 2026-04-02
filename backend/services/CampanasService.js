@@ -78,6 +78,7 @@ const obtenerCampanaConProductos = async (idCampana) => {
         stock: p.stock,
         categoria: p.categoria,
         img: p.img,
+        img2: p.img2,
         porcentajeDescuentoOverride: p.porcentajeDescuentoOverride,
         productoActivo: p.productoActivo,
         descuentoFinal: p.descuentoFinal,

@@ -78,9 +78,13 @@ const updateCliente = async (req, res, next) => {
 
     const updateData = {
       ...req.body,
-      dni: req.body.dniCliente || req.body.dni,
+      dni: req.body.dniCliente ?? req.body.dni,
+      telefono: req.body.telefonoCliente ?? req.body.telefono,
+      direccion: req.body.direccionCliente ?? req.body.direccion,
     };
     delete updateData.dniCliente;
+    delete updateData.telefonoCliente;
+    delete updateData.direccionCliente;
 
     // Obtener cliente antes de actualizar para auditoría
     const clienteAnterior =
@@ -232,6 +236,88 @@ const nuevoPassword = async (req, res, next) => {
   }
 };
 
+const getDireccionesCliente = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const direcciones = await clientesService.obtenerDireccionesCliente(
+      id,
+      req.user,
+    );
+    res.status(200).json(direcciones);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getDireccionPredeterminadaCliente = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const direccionPredeterminada =
+      await clientesService.obtenerDireccionPredeterminadaCliente(id, req.user);
+    res.status(200).json(direccionPredeterminada);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const crearDireccionCliente = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const resultado = await clientesService.crearDireccionCliente(
+      id,
+      req.user,
+      req.body,
+    );
+    res.status(201).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const actualizarDireccionCliente = async (req, res, next) => {
+  try {
+    const { id, idDireccion } = req.params;
+    const resultado = await clientesService.actualizarDireccionCliente(
+      id,
+      idDireccion,
+      req.user,
+      req.body,
+    );
+    res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const marcarDireccionPredeterminadaCliente = async (req, res, next) => {
+  try {
+    const { id, idDireccion } = req.params;
+    const resultado =
+      await clientesService.marcarDireccionPredeterminadaCliente(
+        id,
+        idDireccion,
+        req.user,
+      );
+    res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const eliminarDireccionCliente = async (req, res, next) => {
+  try {
+    const { id, idDireccion } = req.params;
+    const resultado = await clientesService.eliminarDireccionCliente(
+      id,
+      idDireccion,
+      req.user,
+    );
+    res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getClientes,
   getClienteBajados,
@@ -244,4 +330,10 @@ module.exports = {
   registrarPacienteExpress,
   olvideContrasena,
   nuevoPassword,
+  getDireccionesCliente,
+  getDireccionPredeterminadaCliente,
+  crearDireccionCliente,
+  actualizarDireccionCliente,
+  marcarDireccionPredeterminadaCliente,
+  eliminarDireccionCliente,
 };

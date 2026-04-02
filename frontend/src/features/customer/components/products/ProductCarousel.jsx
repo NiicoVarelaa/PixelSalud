@@ -184,7 +184,7 @@ const ProductCarousel = ({
             </div>
           </div>
 
-          <div className="relative flex-1 group overflow-hidden">
+          <div className="relative flex-1 overflow-hidden">
             <button
               onClick={slidePrev}
               disabled={isBeginning}

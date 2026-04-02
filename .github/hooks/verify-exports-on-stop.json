@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "echo Hook: verify-exports si cambian index.js de capas backend",
+        "windows": "powershell -NoProfile -Command \"$ErrorActionPreference='Stop'; if (-not (Test-Path 'backend/package.json')) { exit 0 }; $changes = git status --porcelain | Select-String -Pattern 'backend/(controllers|repositories|errors|helps)/index\\.js' -Quiet; if ($changes) { Push-Location backend; npm run verify-exports; $code=$LASTEXITCODE; Pop-Location; exit $code } else { Write-Output 'No backend layer index.js changes detected.'; exit 0 }\"",
+        "linux": "bash -lc 'if [ ! -f backend/package.json ]; then exit 0; fi; if git status --porcelain | grep -Eq backend/(controllers|repositories|errors|helps)/index\\.js; then cd backend && npm run verify-exports; else echo No-backend-layer-index.js-changes-detected.; fi'",
+        "osx": "bash -lc 'if [ ! -f backend/package.json ]; then exit 0; fi; if git status --porcelain | grep -Eq backend/(controllers|repositories|errors|helps)/index\\.js; then cd backend && npm run verify-exports; else echo No-backend-layer-index.js-changes-detected.; fi'",
+        "timeout": 120
+      }
+    ]
+  }
+}

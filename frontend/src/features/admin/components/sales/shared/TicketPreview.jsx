@@ -47,6 +47,34 @@ const TicketPreview = React.forwardRef(({ ticket }, ref) => {
           <span className="text-gray-500">Pago:</span>
           <span className="font-medium">{ticket.metodoPago}</span>
         </div>
+        {ticket.entrega?.tipoEntrega && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">Entrega:</span>
+            <span className="font-medium">{ticket.entrega.tipoEntrega}</span>
+          </div>
+        )}
+        {ticket.entrega?.sucursalNombre && (
+          <div className="flex justify-between gap-2">
+            <span className="text-gray-500">Sucursal:</span>
+            <span
+              className="font-medium text-right max-w-[150px] truncate"
+              title={ticket.entrega.sucursalNombre}
+            >
+              {ticket.entrega.sucursalNombre}
+            </span>
+          </div>
+        )}
+        {ticket.entrega?.sucursalDireccion && (
+          <div className="flex justify-between gap-2">
+            <span className="text-gray-500">Dirección retiro:</span>
+            <span
+              className="font-medium text-right max-w-[150px] truncate"
+              title={ticket.entrega.sucursalDireccion}
+            >
+              {ticket.entrega.sucursalDireccion}
+            </span>
+          </div>
+        )}
       </div>
       <div className="mb-4">
         <div className="text-xs font-bold text-gray-500 border-b border-gray-300 pb-2 mb-3 uppercase tracking-wider">

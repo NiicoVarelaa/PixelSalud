@@ -11,6 +11,7 @@ const { createNotFoundError } = require("../errors");
  */
 const formatearTicket = (venta, detalles, tipo) => {
   const fecha = new Date(venta.fechaPago || venta.fechaVenta || venta.fecha);
+  const esOnline = tipo === "online";
 
   const ticket = {
     numero: venta.idVentaE || venta.idVentaO,
@@ -38,6 +39,14 @@ const formatearTicket = (venta, detalles, tipo) => {
         : null,
     metodoPago: venta.metodoPago || "Efectivo",
     estado: venta.estado,
+    entrega: esOnline
+      ? {
+          tipoEntrega: venta.tipoEntrega || null,
+          sucursalNombre: venta.sucursalNombre || null,
+          sucursalDireccion: venta.sucursalDireccion || null,
+          direccionEnvio: venta.direccionEnvio || null,
+        }
+      : null,
     productos: detalles.map((detalle) => ({
       cantidad: detalle.cantidad,
       descripcion: detalle.nombreProducto,

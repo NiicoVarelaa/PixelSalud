@@ -3,7 +3,7 @@ import { useCarritoStore } from "@store/useCarritoStore";
 import { useAuthStore } from "@store/useAuthStore";
 import BotonFavorito from "@features/customer/components/favorites/FavoriteToggleButton";
 import { Minus, Plus, Trash2, Loader2, Tag, ShoppingCart } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import cyberMonday from "@assets/Logo-cyber-monday.png";
 import Default from "@assets/default.webp";
 import apiClient from "@utils/apiClient";
@@ -50,7 +50,21 @@ const CardProductos = ({ product }) => {
     };
     fetchPrincipalImage();
   }, [product]);
-  // Eliminado: const [isAdded, setIsAdded] = useState(false);
+
+  // Lógica para encontrar la segunda imagen para el Hover
+  const hoverImage = useMemo(() => {
+    // Si el backend ya nos trae img2 directo (por el SQL optimizado)
+    if (product.img2) return product.img2;
+    
+    // Fallback: si viene en el array de imagenes
+    if (Array.isArray(product.imagenes) && product.imagenes.length > 1) {
+      const sec = product.imagenes.find((img) => !img.esPrincipal);
+      if (sec?.urlImagen) return sec.urlImagen;
+      return product.imagenes[1]?.urlImagen; 
+    }
+    
+    return null;
+  }, [product]);
 
   const itemEnCarrito = carrito.find(
     (item) => item.idProducto === product.idProducto,
@@ -68,7 +82,6 @@ const CardProductos = ({ product }) => {
   const priceToDisplay = product.precioFinal || product.precio;
   const precioSinImpuestos = priceToDisplay / 1.21;
 
-  // Manejo de agregar al carrito con feedback visual y chequeo de autenticación
   const handleLoadingAgregar = async (e) => {
     e.stopPropagation();
 
@@ -78,15 +91,9 @@ const CardProductos = ({ product }) => {
     }
 
     setIsLoading(true);
-
-    // Simulación de carga (mantener si es por UX)
     await new Promise((resolve) => setTimeout(resolve, 800));
-
     agregarCarrito(product);
-
     setIsLoading(false);
-    // Eliminada la lógica de isAdded, el botón pasará a ser el control de cantidad
-    // tan pronto como sincronizarCarrito() actualice el estado global.
   };
 
   const handleDisminuir = (e) => {
@@ -164,20 +171,34 @@ const CardProductos = ({ product }) => {
       >
         <div className="w-full h-48 flex items-center justify-center p-4 relative overflow-hidden">
           {!imageLoaded && (
-            <div className="absolute inset-0 bg-linear-to-br from-gray-100 to-gray-200 animate-pulse rounded-t-2xl flex items-center justify-center">
+            <div className="absolute inset-0 bg-gray-100 animate-pulse rounded-t-2xl flex items-center justify-center">
               <ShoppingCart className="w-10 h-10 text-gray-300" />
             </div>
           )}
+          
+          {/* Imagen Principal */}
           <img
             src={principalImage}
             alt={product.nombreProducto}
-            className={`max-h-full object-contain transition-all duration-500 group-hover:scale-105 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+            className={`absolute max-h-[85%] object-contain transition-all duration-500 group-hover:scale-105 
+              ${hoverImage ? 'group-hover:opacity-0' : ''} 
+              ${imageLoaded ? "opacity-100" : "opacity-0"}`}
             onLoad={() => setImageLoaded(true)}
             onError={(e) => {
               e.target.src = Default;
             }}
             loading="lazy"
           />
+
+          {/* Imagen Secundaria (se muestra en hover) */}
+          {hoverImage && (
+            <img
+              src={hoverImage}
+              alt={`${product.nombreProducto} - vista alternativa`}
+              className="absolute max-h-[85%] object-contain opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105"
+              loading="lazy"
+            />
+          )}
 
           {isCyberMondayProduct && (
             <img
@@ -262,7 +283,7 @@ const CardProductos = ({ product }) => {
               ${
                 isLoading
                   ? "bg-primary-700 cursor-not-allowed text-white"
-                  : "hover:shadow-md text-white bg-linear-to-b from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 cursor-pointer"
+                  : "bg-primary-600 hover:bg-primary-700 text-white cursor-pointer"
               } 
             `}
           >

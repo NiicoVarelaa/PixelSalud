@@ -6,12 +6,16 @@ import apiClient from "@utils/apiClient";
 import LogoPixelSalud from "@assets/LogoPixelSalud.webp";
 import { Link, NavLink } from "react-router-dom";
 
-import cyberMonday from "@assets/footerImagenes/cyberMonday.webp";
-import hotSale from "@assets/footerImagenes/hotSale.webp";
-import dataFiscal from "@assets/footerImagenes/dataFiscal.webp";
-import cace from "@assets/footerImagenes/cace.webp";
-import vtex from "@assets/footerImagenes/vtex.webp";
-import cruce from "@assets/footerImagenes/cruce.webp";
+import { ASSETS } from "../../../../utils/images";
+
+const FOOTER_LOGOS = [
+  { id: "cyberMonday", src: ASSETS.logoFooter, alt: "Cyber Monday" },
+  { id: "hotSale", src: ASSETS.logoFooter2, alt: "Hot Sale" },
+  { id: "dataFiscal", src: ASSETS.logoFooter3, alt: "Data Fiscal" },
+  { id: "cace", src: ASSETS.logoFooter4, alt: "CACE" },
+  { id: "vtex", src: ASSETS.logoFooter5, alt: "VTEX" },
+  { id: "cruce", src: ASSETS.logoFooter6, alt: "Cruce" },
+];
 
 const Footer = () => {
   const { user } = useAuthStore();
@@ -244,24 +248,11 @@ const Footer = () => {
               </p>
             </div>
             <div className="flex items-center justify-center gap-4">
-              <NavLink to="/error404">
-                <img src={cyberMonday} alt="cyberMonday" />
-              </NavLink>
-              <NavLink to="/error404">
-                <img src={hotSale} alt="hotSale" />
-              </NavLink>
-              <NavLink to="/error404">
-                <img src={dataFiscal} alt="dataFiscal" />
-              </NavLink>
-              <NavLink to="/error404">
-                <img src={cace} alt="cace" />
-              </NavLink>
-              <NavLink to="/error404">
-                <img src={vtex} alt="vtex" />
-              </NavLink>
-              <NavLink to="/error404">
-                <img src={cruce} alt="cruce" />
-              </NavLink>
+              {FOOTER_LOGOS.map((logo) => (
+                <NavLink key={logo.id} to="/error404">
+                  <img src={logo.src} alt={logo.alt} loading="lazy" />
+                </NavLink>
+              ))}
             </div>
           </div>
         </div>

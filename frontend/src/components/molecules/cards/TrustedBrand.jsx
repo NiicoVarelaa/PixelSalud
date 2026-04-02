@@ -1,31 +1,20 @@
 import { ShieldCheck } from "lucide-react";
-import LogoCalvinKlein from "@assets/Logo-Calvin-Klein.png";
-import LogoCaviahue from "@assets/Logo-Caviahue.webp";
-import LogoCeraVe from "@assets/Logo-CeraVe.webp";
-import LogoDior from "@assets/Logo-Dior.webp";
-import LogoLoreal from "@assets/Logo-Loreal.webp";
-import LogoMaybelline from "@assets/Logo-Maybelline.webp";
-import LogoVichy from "@assets/Logo-Vichy.webp";
-import LogoColgate from "@assets/Logo-colgate.webp";
-import LogoDove from "@assets/Logo-Dove.webp";
-import LogoHuggies from "@assets/Logo-Huggies.webp";
-import LogoPampers from "@assets/Logo-Pampers.webp";
-import LogoPantene from "@assets/Logo-Pantene.webp";
+import { ASSETS } from "../../../utils/images";
 
 const TrustedBrand = () => {
   const companyLogos = [
-    { src: LogoCalvinKlein, alt: "Calvin Klein" },
-    { src: LogoCaviahue, alt: "Caviahue" },
-    { src: LogoCeraVe, alt: "CeraVe" },
-    { src: LogoDior, alt: "Dior" },
-    { src: LogoLoreal, alt: "Loreal" },
-    { src: LogoMaybelline, alt: "Maybelline" },
-    { src: LogoVichy, alt: "Vichy" },
-    { src: LogoColgate, alt: "Colgate" },
-    { src: LogoDove, alt: "Dove" },
-    { src: LogoHuggies, alt: "Huggies" },
-    { src: LogoPampers, alt: "Pampers" },
-    { src: LogoPantene, alt: "Pantene" },
+    { src: ASSETS.logo1, alt: "Vichy" },
+    { src: ASSETS.logo2, alt: "Pantene" },
+    { src: ASSETS.logo3, alt: "Pampers" },
+    { src: ASSETS.logo4, alt: "Maybelline" },
+    { src: ASSETS.logo5, alt: "Loreal" },
+    { src: ASSETS.logo6, alt: "Huggies" },
+    { src: ASSETS.logo7, alt: "Dove" },
+    { src: ASSETS.logo8, alt: "Dior" },
+    { src: ASSETS.logo9, alt: "Colgate" },
+    { src: ASSETS.logo10, alt: "CeraVe" },
+    { src: ASSETS.logo11, alt: "Caviahue" },
+    { src: ASSETS.logo12, alt: "Calvin Klein" },
   ];
   const marqueeLogos = [...companyLogos, ...companyLogos];
 

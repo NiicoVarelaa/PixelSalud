@@ -9,6 +9,56 @@ import { useCarritoStore } from "./useCarritoStore";
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
+const construirDireccionEnvioDesdePerfil = async (idCliente, token) => {
+  const headers = {
+    auth: `Bearer ${token}`,
+  };
+
+  const [direccionRes, clienteRes] = await Promise.all([
+    axios.get(
+      `${API_BASE_URL}/clientes/${idCliente}/direcciones/predeterminada`,
+      {
+        headers,
+      },
+    ),
+    axios.get(`${API_BASE_URL}/clientes/${idCliente}`, { headers }),
+  ]);
+
+  const direccion = direccionRes.data;
+  const cliente = clienteRes.data;
+  const nombreDestinatario =
+    `${cliente?.nombreCliente || ""} ${cliente?.apellidoCliente || ""}`.trim();
+  const telefono = (cliente?.telefono || "").toString().trim();
+
+  if (!nombreDestinatario) {
+    throw new Error("No pudimos obtener tu nombre para el envío");
+  }
+
+  if (!telefono || telefono.length < 8) {
+    throw new Error(
+      "Necesitas un teléfono válido en tu perfil para usar envío a domicilio",
+    );
+  }
+
+  const direccionTexto = [
+    `${direccion.calle} ${direccion.numero}`,
+    direccion.piso ? `Piso ${direccion.piso}` : "",
+    direccion.departamento ? `Depto ${direccion.departamento}` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  return {
+    nombreDestinatario,
+    telefono,
+    direccion: direccionTexto,
+    ciudad: direccion.localidad,
+    provincia: direccion.provincia,
+    codigoPostal: direccion.codigoPostal,
+    referencias: direccion.referencias || "",
+  };
+};
+
 export const useCompraStore = create(() => ({
   realizarCompraInd: async (producto, metodoPago) => {
     try {
@@ -72,6 +122,7 @@ export const useCompraStore = create(() => ({
       }
 
       const carrito = useCarritoStore.getState().carrito;
+      const { token } = useAuthStore.getState();
 
       if (carrito.length === 0) {
         Swal.fire({
@@ -87,6 +138,35 @@ export const useCompraStore = create(() => ({
         0,
       );
 
+      let direccionEnvioFinal = direccionEnvio;
+      if (tipoEntrega === "Envio" && !direccionEnvioFinal) {
+        if (!token) {
+          Swal.fire({
+            icon: "error",
+            title: "Sesión inválida",
+            text: "Inicia sesión nuevamente para completar el envío.",
+          });
+          return;
+        }
+
+        try {
+          direccionEnvioFinal = await construirDireccionEnvioDesdePerfil(
+            idCliente,
+            token,
+          );
+        } catch (error) {
+          Swal.fire({
+            icon: "warning",
+            title: "No pudimos usar tu dirección predeterminada",
+            text:
+              error?.response?.data?.error ||
+              error?.message ||
+              "Configura una dirección predeterminada en tu perfil.",
+          });
+          return;
+        }
+      }
+
       const compra = {
         totalPago,
         metodoPago,
@@ -98,13 +178,12 @@ export const useCompraStore = create(() => ({
           cantidad: prod.cantidad,
           precioUnitario: prod.precio,
         })),
-        direccionEnvio: tipoEntrega === "Envio" ? direccionEnvio : null,
+        direccionEnvio: tipoEntrega === "Envio" ? direccionEnvioFinal : null,
       };
 
       await axios.post(`${API_BASE_URL}/ventaOnline/crear`, compra);
 
       // Marcar receta como usada si corresponde
-      const { token } = useAuthStore.getState();
       for (const prod of carrito) {
         if (prod.categoria === "Medicamentos con Receta" && prod.idReceta) {
           await marcarRecetaUsada(prod.idReceta, token);
