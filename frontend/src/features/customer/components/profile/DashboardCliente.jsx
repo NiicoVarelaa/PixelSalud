@@ -100,29 +100,29 @@ const DashboardCliente = () => {
                   </motion.li>
                 );
               })}
+
+              <li className="mt-6 border-t border-gray-100 pt-4">
+                <button
+                  onClick={handleLogout}
+                  aria-label="Cerrar sesión y volver al inicio"
+                  className="
+                    group flex items-center gap-3 w-full px-3 py-2.5 rounded-lg
+                    text-sm font-medium text-red-600 transition-all duration-200
+                    hover:bg-red-50 hover:text-red-700
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 cursor-pointer
+                  "
+                >
+                  <LogOut
+                    size={20}
+                    className="shrink-0 group-hover:scale-110 transition-transform"
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  />
+                  <span>Cerrar Sesión</span>
+                </button>
+              </li>
             </ul>
           </nav>
-
-          <div className="p-3 border-t border-gray-100 mt-auto">
-            <button
-              onClick={handleLogout}
-              aria-label="Cerrar sesión y volver al inicio"
-              className="
-                group flex items-center gap-3 w-full px-3 py-2.5 rounded-lg
-                text-sm font-medium text-red-600 transition-all duration-200
-                hover:bg-red-50 hover:text-red-700
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 cursor-pointer
-              "
-            >
-              <LogOut
-                size={20}
-                className="shrink-0 group-hover:scale-110 transition-transform"
-                strokeWidth={2}
-                aria-hidden="true"
-              />
-              <span>Cerrar Sesión</span>
-            </button>
-          </div>
         </motion.aside>
 
         <motion.main
@@ -134,7 +134,7 @@ const DashboardCliente = () => {
           role="main"
           aria-label="Contenido principal"
         >
-          <div className="h-full my-8">
+          <div className="h-full overflow-hidden py-8">
             <Outlet />
           </div>
         </motion.main>

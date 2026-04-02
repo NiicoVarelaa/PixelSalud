@@ -229,24 +229,15 @@ const NavbarMenuCelular = ({
                     className="flex items-center gap-3 py-3 px-1 rounded-md text-base font-medium text-gray-700 hover:text-primary-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   >
                     <User className="w-5 h-5" aria-hidden="true" />
-                    Mi Perfil
+                    Perfil
                   </NavLink>
                   <Link
-                    to="/perfil/mis-compras"
+                    to="/perfil/pedidos"
                     onClick={() => setIsMenuOpen(false)}
                     className="flex items-center gap-3 py-3 px-1 rounded-md text-base font-medium text-gray-700 hover:text-primary-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   >
                     <ShoppingBag className="w-5 h-5" aria-hidden="true" />
-                    Mis Pedidos
-                  </Link>
-                  <Link
-                    to="/perfil/favoritos"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center gap-3 py-3 px-1 rounded-md text-base font-medium text-gray-700 hover:text-red-500 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                  >
-                    <Heart className="w-5 h-5" aria-hidden="true" />{" "}
-                    {/* Ícono restaurado */}
-                    Mis Favoritos
+                    Pedidos
                   </Link>
                   <Link
                     to="/perfil/direcciones"
@@ -254,7 +245,14 @@ const NavbarMenuCelular = ({
                     className="flex items-center gap-3 py-3 px-1 rounded-md text-base font-medium text-gray-700 hover:text-primary-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   >
                     <MapPin className="w-5 h-5" aria-hidden="true" />
-                    Mis Direcciones
+                    Direcciones
+                  </Link>
+                  <Link
+                    to="/perfil/favoritos"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center gap-3 py-3 px-1 rounded-md text-base font-medium text-gray-700 hover:text-red-500 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                  >
+                    <Heart className="w-5 h-5" aria-hidden="true" /> Favoritos
                   </Link>
 
                   <hr className="my-4 border-t border-gray-200" />

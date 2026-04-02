@@ -27,23 +27,19 @@ const OrderCard = ({ venta, isExpanded, onToggle, onOpenTicket, index }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: 0.03 * index }}
-      className={`overflow-hidden rounded-2xl border bg-white transition-all duration-300 ${
-        isExpanded
-          ? "border-primary-200 shadow-lg shadow-primary-900/5"
-          : "border-slate-200 shadow-sm hover:border-primary-100 hover:shadow-md"
-      }`}
+      className={`overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 `}
     >
       <div onClick={onToggle} className="cursor-pointer p-5">
         <div className="flex flex-col gap-4">
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-4 bg-slate-100/90 rounded-xl p-2">
             <div
               className={`hidden rounded-xl p-3 md:flex ${
                 isExpanded
-                  ? "bg-primary-50 text-primary-600"
-                  : "bg-slate-50 text-slate-400"
+                  ? "bg-primary-600 text-slate-50"
+                  : "bg-slate-50 text-slate-500"
               }`}
             >
-              <Package size={24} />
+              <Package size={30} />
             </div>
 
             <div className="min-w-0 flex-1">
@@ -89,7 +85,7 @@ const OrderCard = ({ venta, isExpanded, onToggle, onOpenTicket, index }) => {
                   event.stopPropagation();
                   onOpenTicket(venta.idVentaO);
                 }}
-                className="rounded-full bg-orange-100 p-2 text-orange-600 transition-colors hover:bg-orange-200"
+                className="rounded-full bg-orange-100 p-2 text-orange-600 transition-colors hover:bg-orange-200 cursor-pointer"
                 title="Ver Ticket"
               >
                 <Printer size={20} />
@@ -121,7 +117,7 @@ const OrderCard = ({ venta, isExpanded, onToggle, onOpenTicket, index }) => {
             <div className="overflow-hidden border-t border-slate-100 bg-slate-50/50">
               <div className="p-5">
                 <h4 className="mb-4 flex items-center gap-2 text-sm font-bold text-slate-900">
-                  <ShoppingBag size={16} className="text-primary-600" />
+                  <ShoppingBag size={16} className="text-primary-700" />
                   Productos ({venta.productos.length})
                 </h4>
 

@@ -205,13 +205,18 @@ export const useCheckout = () => {
       const responseData = await response.json();
       if (!response.ok)
         throw new Error(responseData.message || `Error ${response.status}`);
-      if (!responseData.init_point)
+      const checkoutUrl =
+        responseData.checkout_url ||
+        responseData.init_point ||
+        responseData.sandbox_init_point;
+
+      if (!checkoutUrl)
         throw new Error("No se recibió URL de pago del servidor");
 
       if (responseData.success) {
         toast.info("Redirigiendo a Mercado Pago...", { autoClose: 2000 });
         setTimeout(() => {
-          window.location.href = responseData.init_point;
+          window.location.href = checkoutUrl;
         }, 1000);
       } else {
         throw new Error(

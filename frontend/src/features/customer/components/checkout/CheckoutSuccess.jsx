@@ -19,7 +19,7 @@ const CheckoutSuccess = () => {
   const [countdown, setCountdown] = useState(3);
   const [status, setStatus] = useState("approved");
 
-  const targetPath = "/perfil/mis-compras";
+  const targetPath = "/perfil/pedidos";
 
   const clearCartInDB = useCallback(async () => {
     if (!token) {
@@ -139,23 +139,6 @@ const CheckoutSuccess = () => {
               <span className="font-bold text-primary-700">{countdown}</span>{" "}
               segundos...
             </p>
-          </div>
-
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={() => navigate(targetPath, { replace: true })}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-primary-700"
-            >
-              <FiShoppingBag className="h-4 w-4" />
-              Ver mis compras
-            </button>
-            <Link
-              to="/"
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
-            >
-              <FiHome className="h-4 w-4" />
-              Volver al inicio
-            </Link>
           </div>
         </div>
       </div>
