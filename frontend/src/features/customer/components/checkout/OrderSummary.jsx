@@ -1,5 +1,5 @@
-import { FiShoppingBag, FiTag, FiShield } from "react-icons/fi";
 import Default from "@assets/default.webp";
+import { ShoppingBag, Tag } from "lucide-react";
 
 export const OrderSummary = ({ 
   carrito, 
@@ -19,7 +19,7 @@ export const OrderSummary = ({
         <div className="bg-secondary-500 p-5 md:p-6 text-white">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-white p-2 shrink-0">
-              <FiShoppingBag className="h-6 w-6 text-secondary-500" />
+              <ShoppingBag className="h-6 w-6 text-secondary-500" />
             </div>
             <div>
               <h2 className="text-xl font-bold">Resumen del pedido</h2>
@@ -56,7 +56,7 @@ export const OrderSummary = ({
 
           <div className="mb-6 rounded-xl border border-slate-100 bg-slate-50 p-4">
             <label className="mb-2 flex items-center text-sm font-semibold text-gray-700">
-              <FiTag className="mr-1 h-4 w-4 text-primary-600" />
+              <Tag className="mr-1 h-4 w-4 text-primary-600" />
               Cupón de descuento
             </label>
 

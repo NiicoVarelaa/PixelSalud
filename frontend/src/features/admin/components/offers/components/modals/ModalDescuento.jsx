@@ -93,7 +93,7 @@ export const ModalDescuento = ({
               <button
                 ref={closeButtonRef}
                 onClick={onClose}
-                className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary-500"
+                className="absolute top-4 right-4 z-10 w-10 h-10 flex cursor-pointer items-center justify-center text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary-500"
                 aria-label="Cerrar modal"
               >
                 <X size={20} />
@@ -172,7 +172,7 @@ export const ModalDescuento = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full h-12 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium text-base transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2"
+                className="w-full h-12 cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium text-base transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2"
                 aria-label="Cancelar y cerrar"
               >
                 Cancelar

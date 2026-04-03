@@ -1,101 +1,130 @@
 import Navbar from "@features/public/components/navigation/Navbar";
 import Footer from "@features/public/components/footer/Footer";
 import { MapPin, Phone, CalendarDays } from "lucide-react";
+import { motion } from "framer-motion";
 import { sucursalesData } from "@data/sucursalesData";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+};
 
 const Sucursales = () => (
   <>
     <Navbar />
-    <main className="min-h-screen pt-8" aria-label="Sucursales de Pixel Salud">
-      <section className="py-8 sm:py-12">
-        <header className="mb-10 flex flex-col items-center text-center">
-          <div className="mb-3 flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900 shadow-lg">
-            <MapPin
-              className="w-7 h-7 text-primary-600 dark:text-primary-400"
-              aria-hidden="true"
-            />
+
+    <main
+      id="sucursales-main"
+      className="min-h-screen bg-slate-50 pb-10"
+      aria-labelledby="sucursales-title"
+    >
+      <section className="mx-auto w-full max-w-7xl lg:px-8 my-8 lg:my-12">
+        <header className="rounded-3xl border border-slate-200 bg-white p-5 text-center shadow-sm sm:p-8">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-primary-100 bg-primary-50 sm:h-14 sm:w-14">
+            <MapPin className="h-6 w-6 text-primary-700" aria-hidden="true" />
           </div>
+
           <h1
-            className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight"
-            tabIndex={0}
+            id="sucursales-title"
+            className="text-balance text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl"
           >
             Sucursales
           </h1>
-          <p className="text-base text-gray-600 dark:text-gray-300 max-w-xs">
-            Encuentra aquí la información de nuestras sucursales y horarios de
-            atención.
+
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base">
+            Encuentra la sucursal más cercana, su horario de atención y un
+            acceso rápido para llamarnos.
           </p>
         </header>
 
-        <ul className="grid gap-8 grid-cols-1 lg:grid-cols-2" role="list">
+        <motion.ul
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:gap-6 lg:grid-cols-2"
+          role="list"
+          aria-label="Listado de sucursales"
+        >
           {sucursalesData.map((branch) => (
-            <li
+            <motion.li
               key={branch.name}
-              className="group rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md hover:shadow-xl transition-all duration-300 focus-within:ring-2 focus-within:ring-primary-600 focus-within:ring-offset-2 focus-within:ring-offset-white dark:focus-within:ring-offset-gray-900 outline-none flex flex-col overflow-hidden"
-              tabIndex={0}
+              variants={cardVariants}
+              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg focus-within:ring-2 focus-within:ring-primary-600 focus-within:ring-offset-2"
               aria-label={`Información de ${branch.name}`}
             >
-              <div className="flex-1 p-6 flex flex-col justify-center">
-                <div className="flex items-center gap-3 mb-3">
-                  <MapPin
-                    className="w-6 h-6 text-primary-600 dark:text-primary-400 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors duration-200">
-                    {branch.name}
-                  </h2>
-                </div>
-
-                <address className="not-italic text-gray-700 dark:text-gray-300 text-base mb-4 flex items-start gap-3">
-                  <span className="sr-only">Dirección:</span>
-                  <MapPin
-                    className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span>{branch.address}</span>
-                </address>
-
-                <div className="text-gray-600 dark:text-gray-400 text-sm mb-6 flex items-center gap-3">
-                  <CalendarDays
-                    className="w-5 h-5 text-primary-500 dark:text-primary-300 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <div>
-                    <span className="font-medium block">Horario:</span>
-                    {branch.hours}
+              <article
+                className="flex h-full flex-col"
+                aria-labelledby={`branch-${branch.name}`}
+              >
+                <div className="flex-1 p-4 sm:p-6">
+                  <div className="mb-4 flex items-start gap-3">
+                    <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700">
+                      <MapPin className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <h2
+                      id={`branch-${branch.name}`}
+                      className="text-lg font-bold leading-snug text-slate-900 transition-colors duration-200 group-hover:text-primary-700 sm:text-xl"
+                    >
+                      {branch.name}
+                    </h2>
                   </div>
-                </div>
 
-                <div className="mt-auto">
+                  <address className="mb-4 px-2 flex items-start gap-3 text-sm not-italic text-slate-700 sm:text-base">
+                    <MapPin
+                      className="mt-0.5 h-5 w-5 shrink-0 text-slate-400"
+                      aria-hidden="true"
+                    />
+                    <span>{branch.address}</span>
+                  </address>
+
+                  <div className="mb-5 flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700 sm:text-base">
+                    <CalendarDays
+                      className="mt-0.5 h-5 w-5 shrink-0 text-primary-600"
+                      aria-hidden="true"
+                    />
+                    <div>
+                      <p className="font-semibold text-slate-800">Horario</p>
+                      <p>{branch.hours}</p>
+                    </div>
+                  </div>
+
                   <a
                     href={`tel:${branch.phone.replace(/[^\d+]/g, "")}`}
-                    className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-5 py-2.5 rounded-lg bg-primary-600 text-white dark:bg-primary-500 dark:text-gray-900 font-semibold shadow hover:bg-primary-700 dark:hover:bg-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 transition-all duration-200 active:scale-95"
+                    className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary-700 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-primary-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 active:scale-[0.98] sm:w-auto"
                     aria-label={`Llamar a ${branch.name}`}
-                    tabIndex={0}
                   >
-                    <Phone className="w-5 h-5" aria-hidden="true" />
+                    <Phone className="h-4 w-4" aria-hidden="true" />
                     Llamar: {branch.phone}
                   </a>
                 </div>
-              </div>
 
-              <div className="w-full h-64 border-t border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900">
-                <iframe
-                  title={`Mapa de ${branch.name}`}
-                  src={`https://www.google.com/maps?q=$?q=${encodeURIComponent(branch.address)}&output=embed`}
-                  className="w-full h-full object-cover"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  aria-label={`Mapa de ${branch.name}`}
-                ></iframe>
-              </div>
-            </li>
+                <div className="h-56 border-t border-slate-200 bg-slate-100 sm:h-64">
+                  <iframe
+                    title={`Mapa de ${branch.name}`}
+                    src={`https://www.google.com/maps?q=${encodeURIComponent(branch.address)}&output=embed`}
+                    className="h-full w-full cursor-pointer"
+                    style={{ border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    aria-label={`Mapa de ${branch.name}`}
+                  />
+                </div>
+              </article>
+            </motion.li>
           ))}
-        </ul>
+        </motion.ul>
       </section>
     </main>
+
     <Footer />
   </>
 );

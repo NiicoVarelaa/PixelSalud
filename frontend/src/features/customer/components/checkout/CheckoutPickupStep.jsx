@@ -1,4 +1,4 @@
-import { FiCalendar, FiCheckCircle, FiMapPin, FiArrowLeft } from "react-icons/fi";
+import { ArrowLeft, Calendar, CheckCircle, MapPin } from "lucide-react";
 
 const CheckoutPickupStep = ({
   branches,
@@ -38,11 +38,11 @@ const CheckoutPickupStep = ({
                       {branch.name}
                     </p>
                     <p className="mt-1 flex items-start gap-2 text-sm text-slate-700">
-                      <FiMapPin className="mt-0.5 h-4 w-4 text-primary-800" />
+                      <MapPin className="mt-0.5 h-4 w-4 text-primary-800" />
                       {branch.address}
                     </p>
                     <p className="mt-1 flex items-center gap-2 text-sm text-slate-700">
-                      <FiCalendar className="h-4 w-4 text-primary-800" />
+                      <Calendar className="h-4 w-4 text-primary-800" />
                       {branch.hours}
                     </p>
                     <span className="mt-3 inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
@@ -70,7 +70,7 @@ const CheckoutPickupStep = ({
             onClick={onBack}
             className="group inline-flex w-full items-center gap-2  justify-center rounded-xl border border-slate-300 px-5 py-2.5 font-semibold text-slate-700 transition hover:bg-slate-50 sm:w-auto cursor-pointer"
           >
-            <FiArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             Volver
           </button>
 
@@ -85,7 +85,7 @@ const CheckoutPickupStep = ({
                 : "cursor-not-allowed bg-slate-300"
             }`}
           >
-            <FiCheckCircle className="h-5 w-5" />
+            <CheckCircle className="h-5 w-5" />
             Continuar a Metodos de pago
           </button>
         </div>

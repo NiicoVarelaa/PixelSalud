@@ -1,4 +1,3 @@
-// Public Pages Barrel Export
 export { default as InicioPage } from "./Inicio";
 export { default as SobreNosotrosPage } from "./SobreNosotros";
 export { default as ContactoPage } from "./Contacto";

@@ -83,7 +83,6 @@ export const usePromoBannerData = () => {
   }, [fetchProducts, isLoading, productos.length]);
 
   const offerProducts = useMemo(() => {
-    // Prioridad: ofertas reales del catalogo; fallback a seccion de ofertas y luego a productos generales.
     const fromProducts = productos.filter(isOfferProduct);
 
     if (fromProducts.length > 0) return fromProducts;
@@ -93,7 +92,6 @@ export const usePromoBannerData = () => {
   }, [productos, productosAbajo]);
 
   const heroSlides = useMemo(() => {
-    // El hero se construye con productos reales para evitar texto e imagenes hardcodeadas.
     const source = offerProducts.slice(0, 3);
 
     return source.map((product, index) => {
@@ -128,7 +126,6 @@ export const usePromoBannerData = () => {
   const sideCards = useMemo(() => {
     if (!offerProducts.length) return [];
 
-    // Las cards se agrupan por categoria y muestran descuento maximo dinamico.
     const grouped = offerProducts.reduce((acc, product) => {
       const key = normalizeText(product.categoria) || "Ofertas destacadas";
       const current = acc.get(key) || { products: [], maxDiscount: 0 };

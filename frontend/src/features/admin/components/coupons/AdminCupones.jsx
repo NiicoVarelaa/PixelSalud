@@ -90,16 +90,11 @@ const AdminCupones = () => {
     });
 
   return (
-    <AdminLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          Gestión de Cupones
-        </h1>
-        <p className="text-gray-600">
-          Administra cupones de descuento y visualiza su historial de uso
-        </p>
-      </div>
-
+    <AdminLayout
+      title="Gestión de Cupones"
+      description="Administra cupones de descuento y visualiza su historial de uso"
+      contentClassName="flex h-full min-h-0 flex-col gap-4"
+    >
       <StatsCards estadisticas={estadisticas} />
 
       <TabNavigation
@@ -115,7 +110,7 @@ const AdminCupones = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setModalAbierto(true)}
-            className="mb-4 flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="mb-4 flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
           >
             <FiPlus className="w-5 h-5" />
             Crear Cupón
@@ -131,50 +126,52 @@ const AdminCupones = () => {
             onResetPaginacion={resetPaginacion}
           />
 
-          {cargando ? (
-            <LoadingState />
-          ) : cuponesPaginados.length === 0 ? (
-            <EmptyState mensaje="No se encontraron cupones" />
-          ) : (
-            <>
-              {/* Vista Mobile */}
-              <div className="block md:hidden">
-                <div className="grid gap-4">
-                  {cuponesPaginados.map((cupon) => (
-                    <CuponCard
-                      key={cupon.idCupon}
-                      cupon={cupon}
-                      onCambiarEstado={handleCambiarEstado}
-                      onEliminar={handleEliminar}
-                    />
-                  ))}
+          <div className="min-h-0 flex-1">
+            {cargando ? (
+              <LoadingState />
+            ) : cuponesPaginados.length === 0 ? (
+              <EmptyState mensaje="No se encontraron cupones" />
+            ) : (
+              <>
+                {/* Vista Mobile */}
+                <div className="block md:hidden">
+                  <div className="grid gap-4">
+                    {cuponesPaginados.map((cupon) => (
+                      <CuponCard
+                        key={cupon.idCupon}
+                        cupon={cupon}
+                        onCambiarEstado={handleCambiarEstado}
+                        onEliminar={handleEliminar}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Vista Desktop */}
-              <div className="hidden md:block">
-                <CuponTable
-                  cupones={cuponesPaginados}
-                  onCambiarEstado={handleCambiarEstado}
-                  onEliminar={handleEliminar}
+                {/* Vista Desktop */}
+                <div className="hidden md:block">
+                  <CuponTable
+                    cupones={cuponesPaginados}
+                    onCambiarEstado={handleCambiarEstado}
+                    onEliminar={handleEliminar}
+                  />
+                </div>
+
+                <CuponesPagination
+                  paginaActual={paginaActual}
+                  totalPaginas={totalPaginas}
+                  indicePrimero={indicePrimero}
+                  indiceUltimo={indiceUltimo}
+                  totalItems={cuponesFiltrados.length}
+                  onPaginaAnterior={() =>
+                    setPaginaActual((prev) => Math.max(prev - 1, 1))
+                  }
+                  onPaginaSiguiente={() =>
+                    setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))
+                  }
                 />
-              </div>
-
-              <CuponesPagination
-                paginaActual={paginaActual}
-                totalPaginas={totalPaginas}
-                indicePrimero={indicePrimero}
-                indiceUltimo={indiceUltimo}
-                totalItems={cuponesFiltrados.length}
-                onPaginaAnterior={() =>
-                  setPaginaActual((prev) => Math.max(prev - 1, 1))
-                }
-                onPaginaSiguiente={() =>
-                  setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))
-                }
-              />
-            </>
-          )}
+              </>
+            )}
+          </div>
         </>
       ) : (
         /* Vista Historial */

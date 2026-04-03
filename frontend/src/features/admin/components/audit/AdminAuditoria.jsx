@@ -42,6 +42,7 @@ const AdminAuditoria = () => {
     <AdminLayout
       title="Auditoría del Sistema"
       description="Registro completo de todas las acciones críticas del sistema"
+      contentClassName="flex h-full min-h-0 flex-col gap-4"
     >
       <AuditoriaFilters
         filtros={filtros}
@@ -53,7 +54,7 @@ const AdminAuditoria = () => {
       {error && <ErrorBanner error={error} />}
 
       {/* Vista Mobile */}
-      <div className="block md:hidden mb-6">
+      <div className="mb-6 block md:hidden">
         <div className="grid gap-4">
           {loading ? (
             <div className="bg-white rounded-lg p-12">
@@ -90,7 +91,7 @@ const AdminAuditoria = () => {
       </div>
 
       {/* Vista Desktop */}
-      <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="hidden min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm md:block">
         <table className="w-full">
           <AuditoriaTable auditorias={auditorias} onVerDetalles={verDetalles} />
           {loading && <LoadingState />}

@@ -19,11 +19,7 @@ import {
   LegalesPromocionPage as LegalesPromocion,
   NewsletterBajaPage as NewsletterBaja,
 } from "@features/public/pages";
-import {
-  // CarritoPage as Carrito, // Ya no se usa, ahora es un modal
-  CheckoutPage as Checkout,
-  CheckoutSuccess,
-} from "@features/customer";
+import { CheckoutPage as Checkout, CheckoutSuccess } from "@features/customer";
 import {
   LoginPage as Login,
   RegistroPage as Registro,
@@ -52,8 +48,6 @@ import {
   AdminClientes,
   AdminEmpleados,
   MenuVentas,
-  AdminVentasE,
-  AdminVentasO,
   OpcionesVentas,
   AdminReportes,
   AdminCupones,
@@ -142,8 +136,6 @@ const App = () => {
 
             <Route path="MenuVentas/*" element={<MenuVentas />}>
               <Route index element={<OpcionesVentas />} />
-              <Route path="VentasE" element={<AdminVentasE />} />
-              <Route path="VentasO" element={<AdminVentasO />} />
             </Route>
 
             <Route path="reportes" element={<AdminReportes />} />

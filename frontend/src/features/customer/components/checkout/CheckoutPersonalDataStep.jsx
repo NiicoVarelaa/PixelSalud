@@ -3,14 +3,8 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import {
-  FiCalendar,
-  FiCheckCircle,
-  FiMail,
-  FiPhone,
-  FiUser,
-} from "react-icons/fi";
 import { toast } from "react-toastify";
+import { Calendar, CheckCircle, Mail, Phone, User } from "lucide-react";
 
 const today = new Date();
 const isoToday = today.toISOString().split("T")[0];
@@ -85,7 +79,7 @@ const CheckoutPersonalDataStep = ({ defaultValues, onContinue }) => {
             htmlFor="email"
             className="mb-1.5 flex items-center gap-2 text-sm font-semibold text-slate-700"
           >
-            <FiMail className="h-4 w-4 text-primary-700" />
+            <Mail className="h-4 w-4 text-primary-700" />
             Email
             <span className="text-red-600">*</span>
           </label>
@@ -107,7 +101,7 @@ const CheckoutPersonalDataStep = ({ defaultValues, onContinue }) => {
               htmlFor="nombre"
               className="mb-1.5 flex items-center gap-2 text-sm font-semibold text-slate-700"
             >
-              <FiUser className="h-4 w-4 text-primary-700" />
+              <User className="h-4 w-4 text-primary-700" />
               Nombres
               <span className="text-red-600">*</span>
             </label>
@@ -154,7 +148,7 @@ const CheckoutPersonalDataStep = ({ defaultValues, onContinue }) => {
               htmlFor="fechaNacimiento"
               className="mb-1.5 flex items-center gap-2 text-sm font-semibold text-slate-700"
             >
-              <FiCalendar className="h-4 w-4 text-primary-700" />
+              <Calendar className="h-4 w-4 text-primary-700" />
               Fecha de nacimiento
               <span className="text-red-600">*</span>
             </label>
@@ -177,7 +171,6 @@ const CheckoutPersonalDataStep = ({ defaultValues, onContinue }) => {
               htmlFor="dni"
               className="mb-1.5 block text-sm font-semibold text-slate-700"
             >
-                
               Numero de documento
               <span className="ml-1 text-red-600">*</span>
             </label>
@@ -199,7 +192,7 @@ const CheckoutPersonalDataStep = ({ defaultValues, onContinue }) => {
               htmlFor="celular"
               className="mb-1.5 flex items-center gap-2 text-sm font-semibold text-slate-700"
             >
-              <FiPhone className="h-4 w-4 text-primary-700" />
+              <Phone className="h-4 w-4 text-primary-700" />
               Telefono/Celular
               <span className="text-red-600">*</span>
             </label>
@@ -265,7 +258,7 @@ const CheckoutPersonalDataStep = ({ defaultValues, onContinue }) => {
           type="submit"
           className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-3.5 text-base font-bold text-white transition hover:bg-primary-700 cursor-pointer"
         >
-          <FiCheckCircle className="h-5 w-5" />
+          <CheckCircle className="h-5 w-5" />
           Continuar
         </button>
       </form>

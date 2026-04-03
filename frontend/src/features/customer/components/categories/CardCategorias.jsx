@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 
 const CARD_BASE_CLASSES = `

@@ -24,7 +24,7 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
   };
 
   return (
-    <div className="hidden lg:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="hidden lg:block">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -130,7 +130,7 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
                         label="Editar"
                       />
                       <PermisoBadge activo={permisos.ventas} label="Ventas" />
-                      <PermisoBadge activo={permisos.ver} label="Ver $$" />
+                      <PermisoBadge activo={permisos.ver} label="Ver Ventas" />
                     </div>
                   </td>
 

@@ -32,12 +32,15 @@ export const useOfertasData = () => {
       const response = await axios.get(`${backendUrl}/campanas/activas`);
       const ids = new Set();
 
-      for (const campana of response.data) {
-        const prodResponse = await axios.get(
-          `${backendUrl}/campanas/${campana.idCampana}/productos`,
-        );
+      const productosPorCampana = await Promise.all(
+        response.data.map((campana) =>
+          axios.get(`${backendUrl}/campanas/${campana.idCampana}/productos`),
+        ),
+      );
+
+      productosPorCampana.forEach((prodResponse) => {
         prodResponse.data.productos?.forEach((p) => ids.add(p.idProducto));
-      }
+      });
 
       setIdsProductosEnCampanas(Array.from(ids));
     } catch (error) {

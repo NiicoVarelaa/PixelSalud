@@ -1,143 +1,49 @@
-import { NavbarSearchMobile } from "./NavbarSearchMobile";
-import { NavbarSearchDesktop } from "./NavbarSearchDesktop";
-import { NavbarLinks } from "./NavbarLinks";
-import { NavbarOffersLink } from "./NavbarOffersLink";
-import { NavbarCategoriesDropdown } from "./NavbarCategoriesDropdown";
-import { useState, useEffect, useRef, useMemo } from "react";
-import { useNavbarGlobalEvents } from "@hooks/useNavbarGlobalEvents";
-import { useCarritoStore } from "@store/useCarritoStore";
-import { useAuthStore } from "@store/useAuthStore";
-import { Link, useNavigate } from "react-router-dom";
-import NavbarMenuCelular from "./NavbarMenuCelular";
+import { Link } from "react-router-dom";
 import MiniBanner from "@features/public/components/banners/MiniBanner";
 import { CartModal } from "@features/customer/components/cart";
-import apiClient from "@utils/apiClient";
 import LogoPixelSalud from "@assets/LogoPixelSalud.webp";
-import { ActionIcons } from "./ActionIcons";
+import {
+  ActionIcons,
+  NavbarCategoriesDropdown,
+  NavbarLinks,
+  NavbarMenuCelular,
+  NavbarOffersLink,
+  NavbarSearchDesktop,
+  NavbarSearchMobile,
+} from "./components";
+import { NAV_LINKS } from "./constants";
+import { useNavbar } from "./hooks";
 
 const Navbar = () => {
-  const { carrito, sincronizarCarrito } = useCarritoStore();
-  const { user, logoutUser } = useAuthStore();
-  const navigate = useNavigate();
-
-  const totalItems = useMemo(
-    () => (carrito || []).reduce((acc, item) => acc + (item.cantidad || 0), 0),
-    [carrito],
-  );
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [showBanner, setShowBanner] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isCategoriasOpen, setIsCategoriasOpen] = useState(false);
-  const [suggestedProducts, setSuggestedProducts] = useState([]);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
-  const menuRef = useRef(null);
-  const profileRef = useRef(null);
-  const categoriasRef = useRef(null);
-  const searchDesktopRef = useRef(null);
-  const searchMobileRef = useRef(null);
-
-  useEffect(() => {
-    sincronizarCarrito();
-  }, [user, sincronizarCarrito]);
-
-  useNavbarGlobalEvents({
+  const {
+    user,
+    totalItems,
+    isMenuOpen,
+    isProfileDropdownOpen,
+    showBanner,
+    searchTerm,
+    isSearchOpen,
+    isCategoriasOpen,
+    suggestedProducts,
+    isLoadingSuggestions,
+    showSuggestions,
     menuRef,
     profileRef,
     categoriasRef,
     searchDesktopRef,
+    searchMobileRef,
+    setSearchTerm,
+    setShowSuggestions,
+    setIsSearchOpen,
     setIsMenuOpen,
     setIsProfileDropdownOpen,
     setIsCategoriasOpen,
-    setShowSuggestions,
-    setIsSearchOpen,
-  });
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setShowBanner(false);
-      } else {
-        setShowBanner(true);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    if (!searchTerm || searchTerm.length < 3) {
-      setSuggestedProducts([]);
-      setShowSuggestions(false);
-      return;
-    }
-
-    setIsLoadingSuggestions(true);
-    setShowSuggestions(true);
-
-    const timer = setTimeout(async () => {
-      try {
-        const response = await apiClient.get("/productos/buscar", {
-          params: { term: searchTerm },
-        });
-        if (Array.isArray(response.data)) {
-          setSuggestedProducts(response.data);
-        }
-      } catch (error) {
-        console.error("Error al buscar productos:", error);
-        setSuggestedProducts([]);
-      } finally {
-        setIsLoadingSuggestions(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  const handleLogout = () => {
-    logoutUser();
-    setIsProfileDropdownOpen(false);
-    setIsMenuOpen(false);
-    navigate("/");
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/productos?busqueda=${encodeURIComponent(searchTerm.trim())}`);
-      setSearchTerm("");
-      setIsSearchOpen(false);
-      setShowSuggestions(false);
-      setSuggestedProducts([]);
-    }
-  };
-
-  const handleCloseSuggestions = () => {
-    setShowSuggestions(false);
-  };
-
-  const handleCloseMobileSearch = () => {
-    setShowSuggestions(false);
-    setSearchTerm("");
-    setSuggestedProducts([]);
-    setIsSearchOpen(false);
-  };
-
-  const navLinks = [
-    { to: "/productos", label: "TIENDA" },
-    { to: "/sobreNosotros", label: "NOSOTROS" },
-    { to: "/contacto", label: "CONTACTO" },
-  ];
-
-  const handleCategoriaClick = (categoria) => {
-    navigate(`/productos?categoria=${encodeURIComponent(categoria)}`);
-    setIsCategoriasOpen(false);
-  };
+    handleLogout,
+    handleSearch,
+    handleCloseSuggestions,
+    handleCloseMobileSearch,
+    handleCategoriaClick,
+  } = useNavbar();
 
   return (
     <>
@@ -148,9 +54,7 @@ const Navbar = () => {
         <MiniBanner />
         <div className="bg-white">
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-14">
-            {/* Primera fila: Logo + Buscador + Íconos */}
             <div className="flex items-center justify-between gap-4 py-3 font-medium relative">
-              {/* Logo */}
               <Link
                 to="/"
                 className="shrink-0"
@@ -164,7 +68,6 @@ const Navbar = () => {
                 />
               </Link>
 
-              {/* Buscador - Desktop (Centro) */}
               <NavbarSearchDesktop
                 handleSearch={handleSearch}
                 searchTerm={searchTerm}
@@ -177,7 +80,6 @@ const Navbar = () => {
                 searchDesktopRef={searchDesktopRef}
               />
 
-              {/* Action Icons */}
               <ActionIcons
                 user={user}
                 handleLogout={handleLogout}
@@ -187,15 +89,12 @@ const Navbar = () => {
                 isProfileDropdownOpen={isProfileDropdownOpen}
                 setIsProfileDropdownOpen={setIsProfileDropdownOpen}
                 totalItems={totalItems}
-                navLinks={navLinks}
                 menuRef={menuRef}
               />
             </div>
 
-            {/* Segunda fila: Nav Links (Desktop) */}
             <nav className="hidden lg:block" aria-label="Enlaces principales">
               <ul className="flex items-center justify-center gap-8 pb-3 text-sm text-gray-700">
-                {/* Dropdown de Categorías */}
                 <NavbarCategoriesDropdown
                   isCategoriasOpen={isCategoriasOpen}
                   setIsCategoriasOpen={setIsCategoriasOpen}
@@ -203,15 +102,12 @@ const Navbar = () => {
                   handleCategoriaClick={handleCategoriaClick}
                 />
 
-                {/* Link de Ofertas */}
                 <NavbarOffersLink />
 
-                {/* Otros Links */}
-                <NavbarLinks navLinks={navLinks} />
+                <NavbarLinks navLinks={NAV_LINKS} />
               </ul>
             </nav>
 
-            {/* Buscador - Mobile (Expandible) */}
             <NavbarSearchMobile
               isSearchOpen={isSearchOpen}
               handleSearch={handleSearch}
@@ -228,7 +124,6 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
-      {/* Spacer para compensar navbar fijo */}
       <div
         className="h-[98px] md:h-[98px] lg:h-[130px]"
         aria-hidden="true"
@@ -239,7 +134,7 @@ const Navbar = () => {
         menuRef={menuRef}
         user={user}
         handleLogout={handleLogout}
-        navLinks={navLinks}
+        navLinks={NAV_LINKS}
         totalItems={totalItems}
       />
       <CartModal />

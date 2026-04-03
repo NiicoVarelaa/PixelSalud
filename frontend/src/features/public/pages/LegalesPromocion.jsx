@@ -1,7 +1,7 @@
-import React from "react";
 import Navbar from "@features/public/components/navigation/Navbar";
 import Footer from "@features/public/components/footer/Footer";
 import { BadgePercent } from "lucide-react";
+import { motion } from "framer-motion";
 
 const legales = [
   {
@@ -36,48 +36,72 @@ const legales = [
   },
 ];
 
-const LegalesPromocion = () => (
-  <>
-    <Navbar />
-    <main className="min-h-screen pt-8">
-      <section className="layout py-8 sm:py-12">
-        <header className="mb-10 flex flex-col items-center text-center">
-          <div className="mb-3 flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900 shadow-lg">
-            <BadgePercent
-              className="w-7 h-7 text-primary-600 dark:text-primary-400"
-              aria-hidden="true"
-            />
-          </div>
-          <h1
-            className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight"
-            tabIndex={0}
+const LegalesPromocion = () => {
+  return (
+    <>
+      <Navbar />
+
+      <main className="min-h-screen bg-gray-50 pt-6 sm:pt-8" role="main">
+        <section
+          className="layout py-6 sm:py-10 lg:px-8"
+          aria-labelledby="legales-title"
+        >
+          <motion.header
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="mb-7 rounded-2xl border border-primary-100 bg-white p-5 shadow-sm sm:mb-10 sm:p-7"
           >
-            Legales de Promoción
-          </h1>
-          <p className="text-base text-gray-600 dark:text-gray-300">
-            Consulta aquí la información legal relacionada con nuestras
-            promociones.
-          </p>
-        </header>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-6" role="list">
-          {legales.map((item) => (
-            <li
-              key={item.title}
-              className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md p-6"
-            >
-              <h2 className="text-lg font-bold text-primary-700 dark:text-primary-400 mb-2">
-                {item.title}
-              </h2>
-              <p className="text-gray-700 dark:text-gray-300 text-sm">
-                {item.content}
+            <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 shadow-sm sm:h-14 sm:w-14">
+                <BadgePercent
+                  className="h-6 w-6 text-primary-700 sm:h-7 sm:w-7"
+                  aria-hidden="true"
+                />
+              </div>
+
+              <h1
+                id="legales-title"
+                className="text-balance text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl"
+              >
+                Legales de Promoción
+              </h1>
+
+              <p className="mt-2 max-w-prose text-sm leading-relaxed text-gray-600 sm:text-base">
+                Consulta aquí la información legal relacionada con nuestras
+                promociones.
               </p>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </main>
-    <Footer />
-  </>
-);
+            </div>
+          </motion.header>
+
+          <ul
+            className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2 lg:gap-6"
+            role="list"
+          >
+            {legales.map((item, index) => (
+              <motion.li
+                key={item.title}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: index * 0.03 }}
+                className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-within:ring-2 focus-within:ring-primary-500/70 focus-within:ring-offset-2 sm:p-6"
+              >
+                <h2 className="mb-2 text-base font-bold text-primary-700 sm:text-lg">
+                  {item.title}
+                </h2>
+
+                <p className="text-sm leading-relaxed text-gray-700 sm:text-[0.95rem]">
+                  {item.content}
+                </p>
+              </motion.li>
+            ))}
+          </ul>
+        </section>
+      </main>
+
+      <Footer />
+    </>
+  );
+};
 
 export default LegalesPromocion;

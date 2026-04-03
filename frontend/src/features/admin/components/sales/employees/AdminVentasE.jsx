@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import TicketVenta from "@features/admin/components/sales/shared/TicketVenta";
-import { AdminLayout } from "@features/admin/components/shared";
 import { VentasFilters, VentasTable, Pagination } from "./components";
 import { VentasModal } from "./VentasModal";
 import { useVentasData } from "./hooks/useVentasData";
@@ -48,23 +47,28 @@ const AdminVentasE = () => {
   };
 
   return (
-    <AdminLayout
-      title="Ventas Empleados"
-      description="Gestiona y registra las ventas del local"
-      contentClassName="space-y-6"
-      nested
-      headerAction={
-        <button
-          onClick={abrirModalRegistro}
-          className="group w-full sm:w-auto flex items-center justify-center gap-2.5 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-md shadow-green-600/20 hover:shadow-lg hover:shadow-green-600/25 font-semibold cursor-pointer"
-        >
-          <span className="h-6 w-6 rounded-md bg-white/15 flex items-center justify-center">
-            <Plus size={16} />
-          </span>
-          Nueva Venta
-        </button>
-      }
-    >
+    <>
+      <div className="mb-4 flex shrink-0 flex-col gap-4 sm:mb-5 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-bold text-gray-900">Ventas Empleados</h2>
+          <p className="text-sm text-gray-600">
+            Gestiona y registra las ventas del local
+          </p>
+        </div>
+
+        <div className="shrink-0">
+          <button
+            onClick={abrirModalRegistro}
+            className="group flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-green-600 px-5 py-2.5 font-semibold text-white shadow-md shadow-green-600/20 transition-all hover:bg-green-700 hover:shadow-lg hover:shadow-green-600/25 sm:w-auto"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white/15">
+              <Plus size={16} />
+            </span>
+            Nueva Venta
+          </button>
+        </div>
+      </div>
+
       {/* Modal de registro/edición */}
       <VentasModal
         isOpen={isModalOpen}
@@ -81,18 +85,20 @@ const AdminVentasE = () => {
       {/* Filtros */}
       <VentasFilters />
 
-      <div className="space-y-4 lg:flex lg:flex-col lg:min-h-120">
-        {/* Tabla de ventas */}
-        <VentasTable
-          onVerDetalle={handleVerDetalle}
-          onEditar={handleEditarVenta}
-          onAnular={handleAnular}
-          onReactivar={handleReactivar}
-          onPrintTicket={(idVenta) => setTicketModal({ show: true, idVenta })}
-        />
+      <div className="flex min-h-0 flex-1 flex-col gap-4">
+        <div className="min-h-0 flex-1">
+          {/* Tabla de ventas */}
+          <VentasTable
+            onVerDetalle={handleVerDetalle}
+            onEditar={handleEditarVenta}
+            onAnular={handleAnular}
+            onReactivar={handleReactivar}
+            onPrintTicket={(idVenta) => setTicketModal({ show: true, idVenta })}
+          />
+        </div>
 
         {/* Paginación */}
-        <div className="lg:mt-auto">
+        <div className="mt-auto">
           <Pagination />
         </div>
       </div>
@@ -104,7 +110,7 @@ const AdminVentasE = () => {
         show={ticketModal.show}
         onClose={() => setTicketModal({ show: false, idVenta: null })}
       />
-    </AdminLayout>
+    </>
   );
 };
 
