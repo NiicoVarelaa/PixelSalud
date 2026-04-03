@@ -37,7 +37,7 @@ export const ProductActions = ({
               bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700
               text-white rounded-xl
               font-semibold text-sm shadow-lg
-              transition-all duration-200
+              cursor-pointer transition-all duration-200
               focus:outline-none focus-visible:ring-4 focus-visible:ring-orange-300
             "
             aria-label={`Cambiar descuento de ${producto.nombreProducto}`}
@@ -53,7 +53,7 @@ export const ProductActions = ({
               flex items-center justify-center gap-2 h-12 px-4
               bg-linear-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700
               text-white rounded-xl shadow-lg
-              transition-all duration-200
+              cursor-pointer transition-all duration-200
               focus:outline-none focus-visible:ring-4 focus-visible:ring-red-300
             "
             aria-label={`Desactivar oferta de ${producto.nombreProducto}`}
@@ -75,7 +75,7 @@ export const ProductActions = ({
           className="
             px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg
             text-xs font-semibold shadow-sm whitespace-nowrap
-            transition-all duration-200
+            cursor-pointer transition-all duration-200
             focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
           "
           aria-label={`Editar descuento de ${producto.nombreProducto}`}
@@ -90,7 +90,7 @@ export const ProductActions = ({
             inline-flex items-center gap-1 px-3 py-1.5
             bg-red-500 hover:bg-red-600 text-white rounded-lg
             text-xs font-semibold shadow-sm whitespace-nowrap
-            transition-all duration-200
+            cursor-pointer transition-all duration-200
             focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2
           "
           aria-label={`Desactivar oferta de ${producto.nombreProducto}`}
@@ -112,7 +112,7 @@ export const ProductActions = ({
         bg-linear-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800
         text-white rounded-xl
         font-semibold text-xs shadow-lg whitespace-nowrap
-        transition-all duration-200
+        cursor-pointer transition-all duration-200
         focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-300
         ${isMobile ? "flex-1 h-12" : "px-3 py-1.5"}
       `}

@@ -25,7 +25,7 @@ const AdminMenu = () => {
     <AdminLayout
       title="Dashboard"
       description="Panel de control y métricas principales"
-      contentClassName="flex flex-col gap-3 min-h-0 pb-3"
+      contentClassName="flex flex-col gap-3 min-h-0"
     >
       {error && (
         <div

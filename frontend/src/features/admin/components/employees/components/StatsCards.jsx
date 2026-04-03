@@ -60,7 +60,7 @@ export const StatsCards = ({ estadisticas }) => {
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-5"
+      className="grid grid-cols-2 gap-3 xl:grid-cols-4"
     >
       {stats.map((stat, index) => {
         const Icon = stat.icono;

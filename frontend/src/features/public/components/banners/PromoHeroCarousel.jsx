@@ -1,56 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
-import { ASSETS } from "../../../../utils/images"; 
+import { Pause, Play } from "lucide-react";
 
 import PromoSideCard from "./PromoSideCard";
+import { PromoControlButton, PromoDots } from "./promoHero";
+import usePromoHeroCarousel from "./hooks/usePromoHeroCarousel";
 import { usePromoBannerData } from "./hooks/usePromoBannerData";
-
-const DESKTOP_CAROUSEL_IMAGES = [
-  ASSETS.carruselDesktop,
-  ASSETS.carruselDesktop2,
-  ASSETS.carruselDesktop3,
-];
-
-const SIDE_CARDS_FALLBACK = [
-  {
-    id: "fallback-dermo",
-    badge: "Oferta activa",
-    title: "Dermocosmetica",
-    subtitle: "Promociones activas",
-    detail: "Descubri productos destacados",
-    ctaTo: "/productos?categoria=Dermocosmetica",
-    ctaAriaLabel: "Ver ofertas de dermocosmetica",
-  },
-  {
-    id: "fallback-cuidado",
-    badge: "Destacado",
-    title: "Cuidado personal",
-    subtitle: "Promociones activas",
-    detail: "Explora la categoria completa",
-    ctaTo: "/productos",
-    ctaAriaLabel: "Ver ofertas de cuidado personal",
-  },
-  {
-    id: "fallback-bienestar",
-    badge: "Mas elegidos",
-    title: "Bienestar",
-    subtitle: "Promociones activas",
-    detail: "Encontrá tus productos favoritos",
-    ctaTo: "/productos",
-    ctaAriaLabel: "Ver ofertas de bienestar",
-  },
-  {
-    id: "fallback-capilar",
-    badge: "Oferta activa",
-    title: "Capilar",
-    subtitle: "Promociones activas",
-    detail: "Tratamientos y cuidado diario",
-    ctaTo: "/productos",
-    ctaAriaLabel: "Ver ofertas capilares",
-  },
-];
 
 const SLIDE_INTERVAL = 5500;
 
@@ -76,79 +31,24 @@ const mobileCardMotion = {
 
 const PromoHeroCarousel = ({ autoplay = true, interval = SLIDE_INTERVAL }) => {
   const { sideCards } = usePromoBannerData();
-
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [currentCard, setCurrentCard] = useState(0);
-
-  const cards = sideCards.length ? sideCards : SIDE_CARDS_FALLBACK;
-  const slidesCount = DESKTOP_CAROUSEL_IMAGES.length;
-  const cardsCount = cards.length;
-  const currentCarouselImage = useMemo(
-    () =>
-      DESKTOP_CAROUSEL_IMAGES[currentSlide % DESKTOP_CAROUSEL_IMAGES.length],
-    [currentSlide],
-  );
-  const currentCardData = useMemo(
-    () => cards[currentCard],
-    [cards, currentCard],
-  );
-  const desktopLeftCards = useMemo(() => cards.slice(0, 2), [cards]);
-  const desktopRightCards = useMemo(() => cards.slice(2), [cards]);
-
-  const goToSlide = useCallback(
-    (index) => {
-      const nextIndex = (index + slidesCount) % slidesCount;
-      setCurrentSlide(nextIndex);
-    },
-    [slidesCount],
-  );
-
-  const goToPrev = useCallback(() => {
-    goToSlide(currentSlide - 1);
-  }, [currentSlide, goToSlide]);
-
-  const goToNext = useCallback(() => {
-    goToSlide(currentSlide + 1);
-  }, [currentSlide, goToSlide]);
-
-  const goToCard = useCallback(
-    (index) => {
-      if (!cardsCount) return;
-      const nextIndex = (index + cardsCount) % cardsCount;
-      setCurrentCard(nextIndex);
-    },
-    [cardsCount],
-  );
-
-  const goToPrevCard = useCallback(() => {
-    goToCard(currentCard - 1);
-  }, [currentCard, goToCard]);
-
-  const goToNextCard = useCallback(() => {
-    goToCard(currentCard + 1);
-  }, [currentCard, goToCard]);
-
-  useEffect(() => {
-    if (!autoplay || isPaused) return undefined;
-
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slidesCount);
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [autoplay, interval, isPaused, slidesCount]);
-
-  useEffect(() => {
-    if (!cardsCount) {
-      setCurrentCard(0);
-      return;
-    }
-
-    if (currentCard > cardsCount - 1) {
-      setCurrentCard(0);
-    }
-  }, [cardsCount, currentCard]);
+  const {
+    cards,
+    currentSlide,
+    currentCard,
+    isPaused,
+    currentCarouselImage,
+    slideIndicators,
+    currentCardData,
+    desktopLeftCards,
+    desktopRightCards,
+    goToSlide,
+    goToPrevSlide,
+    goToNextSlide,
+    goToCard,
+    goToPrevCard,
+    goToNextCard,
+    togglePause,
+  } = usePromoHeroCarousel({ sideCards, autoplay, interval });
 
   return (
     <section className="mt-8 w-full lg:mt-14">
@@ -189,48 +89,27 @@ const PromoHeroCarousel = ({ autoplay = true, interval = SLIDE_INTERVAL }) => {
 
             <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm">
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={goToPrev}
-                  aria-label="Slide anterior"
-                  className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={goToNext}
-                  aria-label="Slide siguiente"
-                  className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
+                <PromoControlButton
+                  onClick={goToPrevSlide}
+                  label="Slide anterior"
+                  direction="left"
+                />
+                <PromoControlButton
+                  onClick={goToNextSlide}
+                  label="Slide siguiente"
+                  direction="right"
+                />
               </div>
 
-              <div className="flex items-center gap-2">
-                {DESKTOP_CAROUSEL_IMAGES.map((_, index) => {
-                  const active = index === currentSlide;
-
-                  return (
-                    <button
-                      key={`slide-${index}`}
-                      type="button"
-                      aria-label={`Ir al slide ${index + 1}`}
-                      onClick={() => goToSlide(index)}
-                      className={`h-2.5 rounded-full transition-all ${
-                        active
-                          ? "w-7 cursor-pointer bg-orange-500"
-                          : "w-2.5 cursor-pointer bg-slate-300 hover:bg-slate-400"
-                      }`}
-                    />
-                  );
-                })}
-              </div>
+              <PromoDots
+                items={slideIndicators}
+                activeIndex={currentSlide}
+                onSelect={goToSlide}
+              />
 
               <button
                 type="button"
-                onClick={() => setIsPaused((prev) => !prev)}
+                onClick={togglePause}
                 aria-label={
                   isPaused
                     ? "Reanudar reproduccion automatica"
@@ -262,44 +141,26 @@ const PromoHeroCarousel = ({ autoplay = true, interval = SLIDE_INTERVAL }) => {
 
             <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
+                <PromoControlButton
                   onClick={goToPrevCard}
-                  aria-label="Card anterior"
-                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-slate-200 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-
-                <button
-                  type="button"
+                  label="Card anterior"
+                  direction="left"
+                  size="sm"
+                />
+                <PromoControlButton
                   onClick={goToNextCard}
-                  aria-label="Card siguiente"
-                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-slate-200 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
+                  label="Card siguiente"
+                  direction="right"
+                  size="sm"
+                />
               </div>
 
-              <div className="flex items-center gap-1.5">
-                {cards.map((card, index) => {
-                  const active = index === currentCard;
-
-                  return (
-                    <button
-                      key={card.id}
-                      type="button"
-                      aria-label={`Ir a card ${index + 1}`}
-                      onClick={() => goToCard(index)}
-                      className={`h-2 rounded-full transition-all ${
-                        active
-                          ? "w-6 cursor-pointer bg-orange-500"
-                          : "w-2 cursor-pointer bg-slate-300"
-                      }`}
-                    />
-                  );
-                })}
-              </div>
+              <PromoDots
+                items={cards}
+                activeIndex={currentCard}
+                onSelect={goToCard}
+                compact={true}
+              />
             </div>
           </aside>
 

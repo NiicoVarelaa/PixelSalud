@@ -33,7 +33,6 @@ const Producto = () => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [idProducto, fetchProductDetail]);
 
-  // ── Loading ──
   if (isLoading) {
     return (
       <>
@@ -44,7 +43,6 @@ const Producto = () => {
     );
   }
 
-  // ── Error ──
   if (error || !producto) {
     return (
       <>
@@ -92,28 +90,20 @@ const Producto = () => {
     );
   }
 
-  // ── Success ──
   return (
     <>
       <Header />
 
       <main className="w-full max-w-7xl mx-auto lg:px-8 my-6 sm:my-10 lg:my-12">
-        {/* Breadcrumbs */}
         <Breadcrumbs categoria={producto.categoria} />
 
-        {/* Product card */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-10 sm:mb-14 mt-4"
         >
-          {/*
-            Mobile: single column (gallery → info stacked)
-            Desktop: two equal columns side by side
-          */}
           <div className="grid grid-cols-1 lg:grid-cols-2">
-            {/* Divider only appears on desktop between columns */}
             <div className="lg:border-r lg:border-gray-100">
               <ProductImageGallery product={producto} />
             </div>
@@ -121,7 +111,6 @@ const Producto = () => {
           </div>
         </motion.div>
 
-        {/* Related products */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

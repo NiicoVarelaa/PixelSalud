@@ -1,0 +1,1 @@
+export { validateContactoForm } from "./validation";

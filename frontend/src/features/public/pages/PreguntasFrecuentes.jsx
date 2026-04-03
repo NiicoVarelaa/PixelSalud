@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Navbar from "@features/public/components/navigation/Navbar";
 import Footer from "@features/public/components/footer/Footer";
 import { ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 const faqs = [
   {
@@ -46,77 +47,100 @@ const PreguntasFrecuentes = () => {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-8">
-        <section className="layout py-8 sm:py-12">
-          <header className="mb-10 flex flex-col items-center text-center">
-            <div className="mb-3 flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900 shadow-lg">
-              <HelpCircle
-                className="w-7 h-7 text-primary-600 dark:text-primary-400"
-                aria-hidden="true"
-              />
-            </div>
-            <h1
-              className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 tracking-tight"
-              tabIndex={0}
-            >
-              Preguntas Frecuentes
-            </h1>
-            <p className="text-base text-gray-600 dark:text-gray-300 max-w-xs">
-              Respuestas a las preguntas más comunes de nuestros clientes.
-            </p>
-          </header>
+      <main className="min-h-screen bg-gray-50 pt-6 sm:pt-8" role="main">
+        <section
+          className="layout py-6 sm:py-10 lg:px-8"
+          aria-labelledby="faq-title"
+        >
+          <motion.header
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="mb-7 rounded-2xl border border-primary-100 bg-white p-5 shadow-sm sm:mb-10 sm:p-7"
+          >
+            <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 shadow-sm sm:h-14 sm:w-14">
+                <HelpCircle
+                  className="h-6 w-6 text-primary-700 sm:h-7 sm:w-7"
+                  aria-hidden="true"
+                />
+              </div>
 
-          {/* CAMBIO PRINCIPAL AQUÍ: Usamos columns-2 en lugar de grid */}
-          <ul className="sm:columns-2 gap-5 space-y-5" role="list">
-            {faqs.map((faq, idx) => (
-              <li
-                key={faq.question}
-                /* AGREGADO: break-inside-avoid evita que la tarjeta se parta entre columnas */
-                className="break-inside-avoid mb-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md transition-all duration-300 hover:cursor-pointer"
-                tabIndex={0}
-                style={{ outline: "none" }}
+              <h1
+                id="faq-title"
+                className="text-balance text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl"
               >
-                <div
-                  className="w-full flex items-center justify-between px-5 py-4 text-left rounded-2xl group cursor-pointer select-none"
-                  onClick={() => handleToggle(idx)}
-                  role="button"
-                  tabIndex={0}
-                  aria-expanded={openIndex === idx}
-                  aria-controls={`faq-panel-${idx}`}
-                  id={`faq-header-${idx}`}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter" || e.key === " ") handleToggle(idx);
-                  }}
+                Preguntas Frecuentes
+              </h1>
+
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-gray-600 sm:text-base">
+                Respuestas rápidas a las consultas más comunes de nuestros
+                clientes.
+              </p>
+            </div>
+          </motion.header>
+
+          <ul className="space-y-3 sm:space-y-4" role="list">
+            {faqs.map((faq, idx) => {
+              const isOpen = openIndex === idx;
+
+              return (
+                <motion.li
+                  key={faq.question}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: idx * 0.02 }}
+                  className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
                 >
-                  <span className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors duration-200 cursor-pointer">
-                    {faq.question}
-                  </span>
-                  <span className="cursor-pointer flex items-center">
-                    {openIndex === idx ? (
-                      <ChevronUp
-                        className="w-5 h-5 text-primary-600 dark:text-primary-400"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <ChevronDown
-                        className="w-5 h-5 text-gray-400 dark:text-gray-500"
-                        aria-hidden="true"
-                      />
+                  <h2>
+                    <button
+                      type="button"
+                      onClick={() => handleToggle(idx)}
+                      className="group flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition-colors hover:bg-primary-50 active:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/70 focus-visible:ring-offset-2 sm:px-5 cursor-pointer"
+                      aria-expanded={isOpen}
+                      aria-controls={`faq-panel-${idx}`}
+                      id={`faq-header-${idx}`}
+                      aria-label={`Abrir respuesta: ${faq.question}`}
+                    >
+                      <span className="text-sm font-semibold leading-snug text-gray-900 transition-colors group-hover:text-primary-700 sm:text-base">
+                        {faq.question}
+                      </span>
+
+                      {isOpen ? (
+                        <ChevronUp
+                          className="h-5 w-5 shrink-0 text-primary-700"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <ChevronDown
+                          className="h-5 w-5 shrink-0 text-gray-500"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </button>
+                  </h2>
+
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        id={`faq-panel-${idx}`}
+                        role="region"
+                        aria-labelledby={`faq-header-${idx}`}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="overflow-hidden"
+                      >
+                        <p className="px-4 pb-4 text-sm leading-relaxed text-gray-700 sm:px-5 sm:text-[0.95rem]">
+                          {faq.answer}
+                        </p>
+                      </motion.div>
                     )}
-                  </span>
-                </div>
-                {openIndex === idx && (
-                  <div
-                    id={`faq-panel-${idx}`}
-                    role="region"
-                    aria-labelledby={`faq-header-${idx}`}
-                    className="px-5 pb-4 text-gray-700 dark:text-gray-300 text-sm animate-fadeIn"
-                  >
-                    {faq.answer}
-                  </div>
-                )}
-              </li>
-            ))}
+                  </AnimatePresence>
+                </motion.li>
+              );
+            })}
           </ul>
         </section>
       </main>

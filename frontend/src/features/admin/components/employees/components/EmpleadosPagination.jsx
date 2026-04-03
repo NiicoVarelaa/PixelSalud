@@ -45,63 +45,89 @@ export const EmpleadosPagination = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex justify-center items-center gap-2 mt-6 pb-6"
+      className="w-full rounded-2xl border border-gray-200/80 bg-white px-4 py-4 shadow-sm"
     >
-      {/* Botón Anterior */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => onCambiarPagina(Math.max(1, paginaActual - 1))}
-        disabled={paginaActual === 1}
-        className={`p-2 rounded-lg transition-colors ${
-          paginaActual === 1
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : "bg-white text-green-700 hover:bg-green-50 border border-gray-200"
-        }`}
+      <nav
+        className="flex justify-center"
+        role="navigation"
+        aria-label="Paginación de empleados"
       >
-        <ChevronLeft size={20} />
-      </motion.button>
-
-      {/* Números de página */}
-      <div className="flex gap-1">
-        {getPaginationNumbers().map((number, index) => (
+        <div className="flex w-full max-w-md items-center justify-between px-1 sm:px-4">
           <motion.button
-            key={index}
-            whileHover={typeof number === "number" ? { scale: 1.1 } : {}}
-            whileTap={typeof number === "number" ? { scale: 0.9 } : {}}
-            onClick={() =>
-              typeof number === "number" ? onCambiarPagina(number) : null
-            }
-            disabled={typeof number !== "number"}
-            className={`w-10 h-10 rounded-lg font-medium transition-all ${
-              number === paginaActual
-                ? "bg-green-600 text-white shadow-sm"
-                : typeof number === "number"
-                  ? "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
-                  : "bg-transparent text-gray-400 cursor-default"
+            whileHover={{ scale: paginaActual === 1 ? 1 : 1.05 }}
+            whileTap={{ scale: paginaActual === 1 ? 1 : 0.95 }}
+            onClick={() => onCambiarPagina(Math.max(1, paginaActual - 1))}
+            disabled={paginaActual === 1}
+            className={`flex h-10 w-10 items-center justify-center rounded-full bg-slate-200/50 transition-all duration-200 ${
+              paginaActual === 1
+                ? "cursor-not-allowed opacity-40"
+                : "cursor-pointer hover:bg-slate-300/50"
             }`}
+            aria-label="Página anterior"
+            aria-disabled={paginaActual === 1}
           >
-            {number}
+            <ChevronLeft className="h-5 w-5 text-slate-600" />
           </motion.button>
-        ))}
-      </div>
 
-      {/* Botón Siguiente */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() =>
-          onCambiarPagina(Math.min(totalPaginas, paginaActual + 1))
-        }
-        disabled={paginaActual === totalPaginas}
-        className={`p-2 rounded-lg transition-colors ${
-          paginaActual === totalPaginas
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : "bg-white text-green-700 hover:bg-green-50 border border-gray-200"
-        }`}
-      >
-        <ChevronRight size={20} />
-      </motion.button>
+          <div className="flex items-center gap-2">
+            {getPaginationNumbers().map((number, index) => {
+              if (number === "...") {
+                return (
+                  <span
+                    key={`dots-${index}`}
+                    className="flex h-10 w-10 items-center justify-center text-sm font-medium text-gray-400"
+                    aria-hidden="true"
+                  >
+                    ...
+                  </span>
+                );
+              }
+
+              const isActive = number === paginaActual;
+
+              return (
+                <motion.button
+                  key={number}
+                  whileHover={isActive ? { scale: 1 } : { scale: 1.05 }}
+                  whileTap={isActive ? { scale: 1 } : { scale: 0.95 }}
+                  onClick={() => onCambiarPagina(number)}
+                  className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all duration-200 ${
+                    isActive
+                      ? "border border-green-600 text-green-600"
+                      : "cursor-pointer text-green-600 hover:bg-green-100"
+                  }`}
+                  aria-label={
+                    isActive
+                      ? `Página ${number} (actual)`
+                      : `Ir a página ${number}`
+                  }
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {number}
+                </motion.button>
+              );
+            })}
+          </div>
+
+          <motion.button
+            whileHover={{ scale: paginaActual === totalPaginas ? 1 : 1.05 }}
+            whileTap={{ scale: paginaActual === totalPaginas ? 1 : 0.95 }}
+            onClick={() =>
+              onCambiarPagina(Math.min(totalPaginas, paginaActual + 1))
+            }
+            disabled={paginaActual === totalPaginas}
+            className={`flex h-10 w-10 items-center justify-center rounded-full bg-slate-200/50 transition-all duration-200 ${
+              paginaActual === totalPaginas
+                ? "cursor-not-allowed opacity-40"
+                : "cursor-pointer hover:bg-slate-300/50"
+            }`}
+            aria-label="Página siguiente"
+            aria-disabled={paginaActual === totalPaginas}
+          >
+            <ChevronRight className="h-5 w-5 text-slate-600" />
+          </motion.button>
+        </div>
+      </nav>
     </motion.div>
   );
 };

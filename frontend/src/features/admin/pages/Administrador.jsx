@@ -10,7 +10,6 @@ const Administrador = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
-  // 3. LLAMAR AL STORE AL MONTAR EL COMPONENTE
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
@@ -26,11 +25,11 @@ const Administrador = () => {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row h-screen bg-gray-50 overflow-hidden">
+      <div className="flex h-dvh flex-col overflow-hidden bg-gray-50 lg:flex-row">
         <SiderbarAdmin user={user} />
 
-        <main className="flex-1 overflow-y-auto bg-gray-50 lg:p-6">
-          <div className="p-4 lg:p-0 h-full min-h-0 flex flex-col">
+        <main className="flex h-full min-h-0 flex-1 overflow-hidden bg-gray-50 lg:p-6">
+          <div className="flex h-full min-h-0 w-full flex-col p-4 lg:p-0">
             <Outlet />
           </div>
         </main>

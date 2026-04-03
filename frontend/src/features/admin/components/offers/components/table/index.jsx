@@ -46,8 +46,14 @@ export const OfertasTable = ({
   return (
     <section
       aria-label="Listado de productos para ofertas"
-      className="space-y-2 sm:space-y-3"
+      className="space-y-2"
     >
+      <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-xs sm:px-4">
+        <p className="text-sm font-semibold text-gray-900">
+          Productos con oferta activa
+        </p>
+      </div>
+
       <p className="sr-only" role="status" aria-live="polite">
         Hay {productosPaginados.length} productos visibles en esta pagina.
       </p>
@@ -74,7 +80,7 @@ export const OfertasTable = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"
+        className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm lg:block"
         role="region"
         aria-label="Tabla de productos en oferta"
       >
@@ -85,34 +91,34 @@ export const OfertasTable = ({
               individuales.
             </caption>
             <thead>
-              <tr className="bg-linear-to-r from-primary-50 to-primary-100/50 border-b-2 border-primary-200">
+              <tr className="bg-linear-to-r from-primary-50 to-primary-100/50 border-b border-primary-200">
                 <th
                   scope="col"
-                  className="px-4 py-2.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
+                  className="px-3 py-1.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
                 >
                   Producto
                 </th>
                 <th
                   scope="col"
-                  className="px-4 py-2.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
+                  className="px-3 py-1.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
                 >
                   Categoría
                 </th>
                 <th
                   scope="col"
-                  className="px-4 py-2.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
+                  className="px-3 py-1.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
                 >
                   Precio
                 </th>
                 <th
                   scope="col"
-                  className="px-4 py-2.5 text-center text-[11px] font-bold text-gray-700 uppercase tracking-wider"
+                  className="px-3 py-1.5 text-center text-[11px] font-bold text-gray-700 uppercase tracking-wider"
                 >
                   Estado
                 </th>
                 <th
                   scope="col"
-                  className="px-4 py-2.5 text-center text-[11px] font-bold text-gray-700 uppercase tracking-wider"
+                  className="px-3 py-1.5 text-center text-[11px] font-bold text-gray-700 uppercase tracking-wider"
                 >
                   Acciones
                 </th>

@@ -48,7 +48,6 @@ export const ProductPagination = ({
   const paginationNumbers = getPaginationNumbers();
 
   return (
-    // CAMBIO: Contenedor principal con bg-white, shadow y justify-between para abarcar todo el ancho
     <div className="mt-8 w-full flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
       
       <div className="text-sm text-gray-500 font-medium text-center sm:text-left">
@@ -61,7 +60,6 @@ export const ProductPagination = ({
         aria-label="Paginación de productos"
       >
         <div className="flex items-center gap-1 sm:gap-2">
-          {/* Botón Anterior */}
           <button
             onClick={() => paginaActual > 1 && irAPagina(paginaActual - 1)}
             disabled={paginaActual === 1}
@@ -80,7 +78,6 @@ export const ProductPagination = ({
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
 
-          {/* Números de página */}
           <div className="flex items-center gap-1">
             {paginationNumbers.map((number, index) => {
               if (number === "...") {
@@ -124,7 +121,6 @@ export const ProductPagination = ({
             })}
           </div>
 
-          {/* Botón Siguiente */}
           <button
             onClick={() =>
               paginaActual < totalPaginas && irAPagina(paginaActual + 1)

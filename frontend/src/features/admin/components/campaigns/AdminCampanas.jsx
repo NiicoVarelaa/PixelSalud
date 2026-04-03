@@ -21,7 +21,7 @@ import {
 
 const AdminCampanas = () => {
   // Hooks
-  const { productos, fetchProducts, categorias } = useProductStore();
+  const { productos, categorias } = useProductStore();
   const {
     campanas,
     cargando,
@@ -182,107 +182,107 @@ const AdminCampanas = () => {
   };
 
   return (
-    <AdminLayout
-      title="Gestión de Campañas"
-      description="Administra campañas de ofertas con múltiples productos"
-      headerAction={
-        <>
-          <ToastContainer position="top-right" autoClose={3000} />
-          <div className="flex gap-3 shrink-0">
+    <>
+      <AdminLayout
+        title="Gestión de Campañas"
+        description="Administra campañas de ofertas con múltiples productos"
+        contentClassName="flex h-full min-h-0 flex-col gap-4"
+        headerAction={
+          <div className="flex shrink-0 gap-3">
             <button
               onClick={handleAbrirModal}
-              className="flex items-center gap-2 bg-white text-purple-600 hover:bg-purple-50 px-6 py-3 rounded-xl transition-all shadow-lg font-semibold"
+              className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-purple-600 shadow-lg transition-all hover:bg-purple-50"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="h-5 w-5" />
               Nueva Campaña
             </button>
             <Link
               to="/admin"
-              className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-3 rounded-xl transition-all"
+              className="flex items-center gap-2 rounded-xl bg-gray-200 px-4 py-3 text-gray-700 transition-all hover:bg-gray-300"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
               Volver
             </Link>
           </div>
-        </>
-      }
-    >
-      <StatsCards campanas={campanas} productos={productos} />
-
-      <CampanasFilters
-        busqueda={busqueda}
-        setBusqueda={setBusqueda}
-        filtroEstado={filtroEstado}
-        setFiltroEstado={setFiltroEstado}
-        vistaMode={vistaMode}
-        setVistaMode={setVistaMode}
-      />
-
-      <div className="mt-4">
-        {cargando ? (
-          <LoadingState />
-        ) : campanasActuales.length === 0 ? (
-          <EmptyState onCrearCampana={handleAbrirModal} />
-        ) : vistaMode === "cards" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {campanasActuales.map((campana, index) => (
-              <CampanaCard
-                key={campana.idCampana}
-                campana={campana}
-                index={index}
-                onEditar={handleEditarCampana}
-                onToggleActiva={handleToggleActiva}
-                onEliminar={handleEliminarCampana}
-              />
-            ))}
-          </div>
-        ) : (
-          <CampanaTable
-            campanasActuales={campanasActuales}
-            onEditar={handleEditarCampana}
-            onToggleActiva={handleToggleActiva}
-            onEliminar={handleEliminarCampana}
-          />
-        )}
-
-        <CampanasPagination
-          paginaActual={paginaActual}
-          totalPaginas={totalPaginas}
-          onCambiarPagina={setPaginaActual}
-        />
-      </div>
-
-      <CampanaModal
-        isOpen={modalAbierto}
-        modoEdicion={modoEdicion}
-        campana={nuevaCampana}
-        onCampanaChange={setNuevaCampana}
-        productosSeleccionados={productosSeleccionados}
-        onToggleProducto={toggleProductoSeleccion}
-        onSeleccionarTodos={seleccionarTodos}
-        productos={productos}
-        categorias={categorias}
-        busquedaProducto={busquedaProducto}
-        onBusquedaProductoChange={setBusquedaProducto}
-        categoriaFiltro={categoriaFiltro}
-        onCategoriaFiltroChange={setCategoriaFiltro}
-        onClose={() => setModalAbierto(false)}
-        onGuardar={handleGuardarCampana}
-      />
-
-      <ConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        title={confirmDialog.title}
-        message={confirmDialog.message}
-        type={confirmDialog.type}
-        onConfirm={confirmDialog.onConfirm}
-        onClose={() =>
-          setConfirmDialog({ ...confirmDialog, isOpen: false })
         }
-        confirmText="Confirmar"
-        cancelText="Cancelar"
-      />
-    </AdminLayout>
+      >
+        <StatsCards campanas={campanas} productos={productos} />
+
+        <CampanasFilters
+          busqueda={busqueda}
+          setBusqueda={setBusqueda}
+          filtroEstado={filtroEstado}
+          setFiltroEstado={setFiltroEstado}
+          vistaMode={vistaMode}
+          setVistaMode={setVistaMode}
+        />
+
+        <div className="mt-4 min-h-0 flex-1">
+          {cargando ? (
+            <LoadingState />
+          ) : campanasActuales.length === 0 ? (
+            <EmptyState onCrearCampana={handleAbrirModal} />
+          ) : vistaMode === "cards" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {campanasActuales.map((campana, index) => (
+                <CampanaCard
+                  key={campana.idCampana}
+                  campana={campana}
+                  index={index}
+                  onEditar={handleEditarCampana}
+                  onToggleActiva={handleToggleActiva}
+                  onEliminar={handleEliminarCampana}
+                />
+              ))}
+            </div>
+          ) : (
+            <CampanaTable
+              campanasActuales={campanasActuales}
+              onEditar={handleEditarCampana}
+              onToggleActiva={handleToggleActiva}
+              onEliminar={handleEliminarCampana}
+            />
+          )}
+
+          <CampanasPagination
+            paginaActual={paginaActual}
+            totalPaginas={totalPaginas}
+            onCambiarPagina={setPaginaActual}
+          />
+        </div>
+
+        <CampanaModal
+          isOpen={modalAbierto}
+          modoEdicion={modoEdicion}
+          campana={nuevaCampana}
+          onCampanaChange={setNuevaCampana}
+          productosSeleccionados={productosSeleccionados}
+          onToggleProducto={toggleProductoSeleccion}
+          onSeleccionarTodos={seleccionarTodos}
+          productos={productos}
+          categorias={categorias}
+          busquedaProducto={busquedaProducto}
+          onBusquedaProductoChange={setBusquedaProducto}
+          categoriaFiltro={categoriaFiltro}
+          onCategoriaFiltroChange={setCategoriaFiltro}
+          onClose={() => setModalAbierto(false)}
+          onGuardar={handleGuardarCampana}
+        />
+
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          type={confirmDialog.type}
+          onConfirm={confirmDialog.onConfirm}
+          onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+          confirmText="Confirmar"
+          cancelText="Cancelar"
+        />
+      </AdminLayout>
+
+      <ToastContainer position="top-right" autoClose={3000} />
+    </>
   );
 };
 

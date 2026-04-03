@@ -1,23 +1,23 @@
-import { FiShoppingBag, FiTruck, FiLock } from "react-icons/fi";
+import { Lock, ShoppingBag, Truck } from "lucide-react";
 
 const steps = [
   {
     id: 1,
     label: "Paso 1",
     title: "Datos personales",
-    icon: FiShoppingBag,
+    icon: ShoppingBag,
   },
   {
     id: 2,
     label: "Paso 2",
     title: "Retiro en sucursal",
-    icon: FiTruck,
+    icon: Truck,
   },
   {
     id: 3,
     label: "Paso 3",
     title: "Pago",
-    icon: FiLock,
+    icon: Lock,
   },
 ];
 

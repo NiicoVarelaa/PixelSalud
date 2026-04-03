@@ -129,95 +129,98 @@ const AdminClientes = () => {
   };
 
   return (
-    <AdminLayout
-      title="Administración de Clientes"
-      description="Gestiona los usuarios registrados en la farmacia"
-      headerAction={
-        <div className="flex gap-3">
-          <button
-            onClick={handleCrearCliente}
-            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md cursor-pointer"
-          >
-            <UserPlus size={20} /> Nuevo Cliente
-          </button>
-          <Link
-            to="/admin"
-            className="flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer font-medium"
-          >
-            ← Volver
-          </Link>
+    <>
+      <AdminLayout
+        title="Administración de Clientes"
+        description="Gestiona los usuarios registrados en la farmacia"
+        contentClassName="flex h-full min-h-0 flex-col gap-4"
+        headerAction={
+          <div className="flex gap-3">
+            <button
+              onClick={handleCrearCliente}
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white shadow-md transition-colors hover:bg-green-700"
+            >
+              <UserPlus size={20} /> Nuevo Cliente
+            </button>
+            <Link
+              to="/admin"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-200 px-4 py-2 font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-300"
+            >
+              ← Volver
+            </Link>
+          </div>
+        }
+      >
+        {/* Tarjetas de Estadísticas */}
+        <StatsCards estadisticas={estadisticas} />
+
+        {/* Filtros de Búsqueda */}
+        <ClientesFilters
+          busqueda={busqueda}
+          setBusqueda={setBusqueda}
+          filtroEstado={filtroEstado}
+          setFiltroEstado={setFiltroEstado}
+        />
+
+        {/* Contenido Principal */}
+        <div className="min-h-0 flex-1 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+          {cargando ? (
+            <LoadingState />
+          ) : clientesActuales.length === 0 ? (
+            <EmptyState onCrearCliente={handleCrearCliente} />
+          ) : (
+            <>
+              {/* Vista Móvil - Cards */}
+              <div className="lg:hidden p-4">
+                {clientesActuales.map((cliente) => (
+                  <ClienteCard
+                    key={cliente.idCliente}
+                    cliente={cliente}
+                    onEditar={handleEditarCliente}
+                    onCambiarEstado={handleCambiarEstado}
+                  />
+                ))}
+              </div>
+
+              {/* Vista Desktop - Tabla */}
+              <ClienteTable
+                clientes={clientesActuales}
+                onEditar={handleEditarCliente}
+                onCambiarEstado={handleCambiarEstado}
+              />
+
+              {/* Paginación */}
+              <ClientesPagination
+                paginaActual={paginaActual}
+                totalPaginas={totalPaginas}
+                onCambiarPagina={setPaginaActual}
+              />
+            </>
+          )}
         </div>
-      }
-    >
+
+        {/* Modal de Crear/Editar Cliente */}
+        <ClienteModal
+          isOpen={modalAbierto}
+          onClose={() => setModalAbierto(false)}
+          onGuardar={handleGuardarCliente}
+          clienteEditar={clienteEditando}
+        />
+
+        {/* Diálogo de Confirmación */}
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+          onConfirm={handleConfirmarAccion}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          type={confirmDialog.type}
+          confirmText={confirmDialog.confirmText}
+        />
+      </AdminLayout>
+
       <ToastContainer position="top-right" autoClose={3000} />
-
-      {/* Tarjetas de Estadísticas */}
-      <StatsCards estadisticas={estadisticas} />
-
-      {/* Filtros de Búsqueda */}
-      <ClientesFilters
-        busqueda={busqueda}
-        setBusqueda={setBusqueda}
-        filtroEstado={filtroEstado}
-        setFiltroEstado={setFiltroEstado}
-      />
-
-      {/* Contenido Principal */}
-      <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
-        {cargando ? (
-          <LoadingState />
-        ) : clientesActuales.length === 0 ? (
-          <EmptyState onCrearCliente={handleCrearCliente} />
-        ) : (
-          <>
-            {/* Vista Móvil - Cards */}
-            <div className="lg:hidden p-4">
-              {clientesActuales.map((cliente) => (
-                <ClienteCard
-                  key={cliente.idCliente}
-                  cliente={cliente}
-                  onEditar={handleEditarCliente}
-                  onCambiarEstado={handleCambiarEstado}
-                />
-              ))}
-            </div>
-
-            {/* Vista Desktop - Tabla */}
-            <ClienteTable
-              clientes={clientesActuales}
-              onEditar={handleEditarCliente}
-              onCambiarEstado={handleCambiarEstado}
-            />
-
-            {/* Paginación */}
-            <ClientesPagination
-              paginaActual={paginaActual}
-              totalPaginas={totalPaginas}
-              onCambiarPagina={setPaginaActual}
-            />
-          </>
-        )}
-      </div>
-
-      {/* Modal de Crear/Editar Cliente */}
-      <ClienteModal
-        isOpen={modalAbierto}
-        onClose={() => setModalAbierto(false)}
-        onGuardar={handleGuardarCliente}
-        clienteEditar={clienteEditando}
-      />
-
-      {/* Diálogo de Confirmación */}
-      <ConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
-        onConfirm={handleConfirmarAccion}
-        title={confirmDialog.title}
-        message={confirmDialog.message}
-        type={confirmDialog.type}
-        confirmText={confirmDialog.confirmText}
-      />
-    </AdminLayout>
+    </>
   );
 };
 

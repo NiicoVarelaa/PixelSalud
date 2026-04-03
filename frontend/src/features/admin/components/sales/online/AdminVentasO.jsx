@@ -1,6 +1,5 @@
 import { useState } from "react";
 import TicketVenta from "@features/admin/components/sales/shared/TicketVenta";
-import { AdminLayout } from "@features/admin/components/shared";
 
 // Hooks customizados
 import { useVentasOnlineData } from "./hooks/useVentasOnlineData";
@@ -63,23 +62,27 @@ const AdminVentasO = () => {
   };
 
   return (
-    <AdminLayout
-      title="Ventas Online"
-      description="Gestiona pedidos web, estado de retiro y emisión de tickets"
-      contentClassName="space-y-4"
-      nested
-    >
+    <>
+      <div className="mb-4 shrink-0 space-y-1 sm:mb-5">
+        <h2 className="text-2xl font-bold text-gray-900">Ventas Online</h2>
+        <p className="text-sm text-gray-600">
+          Gestiona pedidos web, estado de retiro y emisión de tickets
+        </p>
+      </div>
+
       <VentasOnlineFilters />
 
-      <div className="space-y-4 lg:flex lg:flex-col lg:min-h-120">
-        <VentasOnlineTable
-          onVerDetalle={handleVerDetalle}
-          onEditar={handleEditar}
-          onEstadoChange={handleEstadoChange}
-          onPrintTicket={handlePrintTicket}
-        />
+      <div className="flex min-h-0 flex-1 flex-col gap-4">
+        <div className="min-h-0 flex-1">
+          <VentasOnlineTable
+            onVerDetalle={handleVerDetalle}
+            onEditar={handleEditar}
+            onEstadoChange={handleEstadoChange}
+            onPrintTicket={handlePrintTicket}
+          />
+        </div>
 
-        <div className="lg:mt-auto">
+        <div className="mt-auto">
           <Pagination />
         </div>
       </div>
@@ -101,7 +104,7 @@ const AdminVentasO = () => {
         show={ticketModal.show}
         onClose={() => setTicketModal({ show: false, idVenta: null })}
       />
-    </AdminLayout>
+    </>
   );
 };
 

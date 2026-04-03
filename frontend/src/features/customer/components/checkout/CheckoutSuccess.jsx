@@ -1,15 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCarritoStore } from "@store/useCarritoStore";
 import { useAuthStore } from "@store/useAuthStore";
-import {
-  FiCheckCircle,
-  FiLoader,
-  FiShoppingBag,
-  FiHome,
-  FiClock,
-  FiTruck,
-} from "react-icons/fi";
+import { CheckCircle, Clock, Loader2, ShoppingBag, Truck } from "lucide-react";
 
 const CheckoutSuccess = () => {
   const navigate = useNavigate();
@@ -85,7 +78,7 @@ const CheckoutSuccess = () => {
         <div className="border-b border-emerald-100 bg-linear-to-r from-emerald-500 to-emerald-600 p-8 text-white">
           <div className="mx-auto flex max-w-xl flex-col items-center text-center">
             <div className="mb-4 rounded-full bg-white/20 p-3">
-              <FiCheckCircle className="h-11 w-11" />
+              <CheckCircle className="h-11 w-11" />
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight">
               {isApproved ? "Pago aprobado" : "Pago procesado"}
@@ -101,7 +94,7 @@ const CheckoutSuccess = () => {
         <div className="p-6 md:p-8">
           <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 text-center">
-              <FiShoppingBag className="mx-auto mb-2 h-5 w-5 text-emerald-600" />
+              <ShoppingBag className="mx-auto mb-2 h-5 w-5 text-emerald-600" />
               <p className="text-xs uppercase tracking-wide text-slate-500">
                 Estado
               </p>
@@ -110,7 +103,7 @@ const CheckoutSuccess = () => {
               </p>
             </div>
             <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 text-center">
-              <FiTruck className="mx-auto mb-2 h-5 w-5 text-emerald-600" />
+              <Truck className="mx-auto mb-2 h-5 w-5 text-emerald-600" />
               <p className="text-xs uppercase tracking-wide text-slate-500">
                 Entrega
               </p>
@@ -119,7 +112,7 @@ const CheckoutSuccess = () => {
               </p>
             </div>
             <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 text-center">
-              <FiClock className="mx-auto mb-2 h-5 w-5 text-emerald-600" />
+              <Clock className="mx-auto mb-2 h-5 w-5 text-emerald-600" />
               <p className="text-xs uppercase tracking-wide text-slate-500">
                 Actualizacion
               </p>
@@ -133,7 +126,7 @@ const CheckoutSuccess = () => {
           </div>
 
           <div className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white p-3 text-gray-600">
-            <FiLoader className="animate-spin" />
+            <Loader2 className="animate-spin" />
             <p className="text-sm">
               Redirigiendo en{" "}
               <span className="font-bold text-primary-700">{countdown}</span>{" "}

@@ -11,7 +11,10 @@ const DayFilterTabs = ({ activeTab, onTabChange }) => {
 
   return (
     <nav className="w-full" aria-label="Filtro de período">
-      <div className="flex p-0.5 bg-white border border-gray-100 rounded-lg gap-1 shadow-sm" role="tablist">
+      <div
+        className="grid grid-cols-3 gap-1 rounded-xl border border-gray-200 bg-white p-1 shadow-sm"
+        role="tablist"
+      >
         {tabs.map((tab) => {
           const isActive = activeTab === tab.value;
           return (
@@ -21,16 +24,16 @@ const DayFilterTabs = ({ activeTab, onTabChange }) => {
               aria-selected={isActive}
               onClick={() => onTabChange(tab.value)}
               className={`
-                relative flex-1 py-1.5 px-3 rounded-md text-xs font-bold
+                relative min-h-10 rounded-lg px-2 py-2 text-xs font-bold sm:text-sm
                 transition-all duration-200 outline-none cursor-pointer
-                focus-visible:ring-2 focus-visible:ring-orange-600
-                ${isActive ? "text-white" : "text-gray-600 hover:bg-orange-50"}
+                focus-visible:ring-2 focus-visible:ring-orange-600 focus-visible:ring-offset-1
+                ${isActive ? "text-white" : "text-gray-600 hover:bg-orange-50 active:bg-orange-100"}
               `}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute inset-0 bg-orange-500 rounded-md z-0"
+                  className="absolute inset-0 z-0 rounded-lg bg-orange-500"
                   transition={{ type: "spring", bounce: 0, duration: 0.4 }}
                 />
               )}

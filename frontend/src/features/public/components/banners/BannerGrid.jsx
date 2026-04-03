@@ -1,15 +1,13 @@
 import { useEffect } from "react";
-
 import { ShieldCheck, ShoppingBasket } from "lucide-react";
-
 import { useProductStore } from "@store/useProductStore";
 
 import {
-  PersonalAttentionCard,
+  IconCard,
   LoyaltyCard,
-} from "@components/molecules/cards";
-import { PrescriptionCard } from "@features/customer/components/prescription";
-import { IconCard } from "@components/atoms";
+  PersonalAttentionCard,
+  PrescriptionCard,
+} from "./componentes";
 
 const BannerGrid = () => {
   const productosArriba = useProductStore((state) => state.productosArriba);

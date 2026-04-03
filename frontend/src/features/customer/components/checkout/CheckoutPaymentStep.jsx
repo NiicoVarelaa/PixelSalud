@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  FiCheckCircle,
-  FiCreditCard,
-  FiInfo,
-  FiArrowLeft,
-} from "react-icons/fi";
-import { WalletCards } from "lucide-react";
+import { ArrowLeft, CheckCircle, CreditCard, Info, WalletCards } from "lucide-react";
 import mpLogo from "@/assets/mpLogo.webp";
 
 const CheckoutPaymentStep = ({ onBack, onPay, isProcessing }) => {
@@ -33,14 +27,14 @@ const CheckoutPaymentStep = ({ onBack, onPay, isProcessing }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">Mercado Pago</div>
               {selectedMethod === "mp" && (
-                <FiCheckCircle className="h-5 w-5 text-primary-700" />
+                <CheckCircle className="h-5 w-5 text-primary-700" />
               )}
             </div>
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-500 cursor-not-allowed">
             <div className="flex items-center gap-2">
-              <FiCreditCard className="h-4 w-4" />
+              <CreditCard className="h-4 w-4" />
               Tarjeta de debito
             </div>
           </div>
@@ -84,7 +78,7 @@ const CheckoutPaymentStep = ({ onBack, onPay, isProcessing }) => {
 
         <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
           <p className="flex items-start gap-2">
-            <FiInfo className="mt-0.5 h-4 w-4" />
+            <Info className="mt-0.5 h-4 w-4" />
             Si pagas con billetera de Mercado Pago, la acreditacion puede ser
             inmediata o demorar segun el medio elegido.
           </p>
@@ -96,7 +90,7 @@ const CheckoutPaymentStep = ({ onBack, onPay, isProcessing }) => {
             onClick={onBack}
             className="group inline-flex w-full items-center gap-2  justify-center rounded-xl border border-slate-300 px-5 py-2.5 font-semibold text-slate-700 transition hover:bg-slate-50 sm:w-auto cursor-pointer"
           >
-            <FiArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             Volver
           </button>
 

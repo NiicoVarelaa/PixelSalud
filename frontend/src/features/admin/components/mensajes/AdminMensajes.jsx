@@ -58,63 +58,66 @@ const AdminMensajes = () => {
   };
 
   return (
-    <AdminLayout
-      title="Gestión de Mensajes"
-      description="Administra los mensajes recibidos de los clientes"
-    >
-      <MensajesFilters
-        filtroEstado={filtroEstado}
-        onFiltroEstadoChange={setFiltroEstado}
-        busqueda={busqueda}
-        onBusquedaChange={setBusqueda}
-        onLimpiar={limpiarFiltros}
-      />
+    <>
+      <AdminLayout
+        title="Gestión de Mensajes"
+        description="Administra los mensajes recibidos de los clientes"
+        contentClassName="flex h-full min-h-0 flex-col gap-4"
+      >
+        <MensajesFilters
+          filtroEstado={filtroEstado}
+          onFiltroEstadoChange={setFiltroEstado}
+          busqueda={busqueda}
+          onBusquedaChange={setBusqueda}
+          onLimpiar={limpiarFiltros}
+        />
 
-      {error && <ErrorBanner error={error} />}
+        {error && <ErrorBanner error={error} />}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        {loading ? (
-          <LoadingState />
-        ) : mensajesFiltrados.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <table className="w-full">
-            <MensajesTable
-              mensajes={mensajesFiltrados}
-              onVerDetalle={handleVerDetalle}
-              onResponder={handleResponder}
-              onArchivar={handleArchivar}
-              onEliminar={eliminarMensaje}
-            />
-          </table>
-        )}
-      </div>
+        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          {loading ? (
+            <LoadingState />
+          ) : mensajesFiltrados.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <table className="w-full">
+              <MensajesTable
+                mensajes={mensajesFiltrados}
+                onVerDetalle={handleVerDetalle}
+                onResponder={handleResponder}
+                onArchivar={handleArchivar}
+                onEliminar={eliminarMensaje}
+              />
+            </table>
+          )}
+        </div>
 
-      <MensajeDetalle
-        mensaje={mensajeSeleccionado}
-        isOpen={mostrarDetalle}
-        onClose={() => {
-          setMostrarDetalle(false);
-          setMensajeSeleccionado(null);
-        }}
-        onMarcarLeido={marcarLeido}
-        onResponder={handleResponder}
-        onArchivar={handleArchivar}
-        onEliminar={eliminarMensaje}
-      />
+        <MensajeDetalle
+          mensaje={mensajeSeleccionado}
+          isOpen={mostrarDetalle}
+          onClose={() => {
+            setMostrarDetalle(false);
+            setMensajeSeleccionado(null);
+          }}
+          onMarcarLeido={marcarLeido}
+          onResponder={handleResponder}
+          onArchivar={handleArchivar}
+          onEliminar={eliminarMensaje}
+        />
 
-      <MensajeRespuesta
-        mensaje={mensajeSeleccionado}
-        isOpen={mostrarRespuesta}
-        onClose={() => {
-          setMostrarRespuesta(false);
-          setMensajeSeleccionado(null);
-        }}
-        onEnviar={enviarRespuesta}
-      />
+        <MensajeRespuesta
+          mensaje={mensajeSeleccionado}
+          isOpen={mostrarRespuesta}
+          onClose={() => {
+            setMostrarRespuesta(false);
+            setMensajeSeleccionado(null);
+          }}
+          onEnviar={enviarRespuesta}
+        />
+      </AdminLayout>
 
       <ToastContainer position="bottom-right" autoClose={3000} />
-    </AdminLayout>
+    </>
   );
 };
 

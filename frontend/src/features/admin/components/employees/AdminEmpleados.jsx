@@ -129,96 +129,106 @@ const AdminEmpleados = () => {
   };
 
   return (
-    <AdminLayout
-      title="Administración de Empleados"
-      description="Gestiona usuarios internos, accesos y permisos de manera centralizada"
-      contentClassName="space-y-4"
-      headerAction={
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <button
-            onClick={handleCrearEmpleado}
-            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition-colors shadow-sm cursor-pointer"
-          >
-            <UserPlus size={20} /> Agregar Empleado
-          </button>
-          <Link
-            to="/admin"
-            className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg transition-colors shadow-sm cursor-pointer font-medium"
-          >
-            <ArrowLeft size={18} /> Volver
-          </Link>
-        </div>
-      }
-    >
-      <ToastContainer position="top-right" autoClose={3000} />
+    <>
+      <AdminLayout
+        title="Administración de Empleados"
+        description="Gestiona usuarios internos, accesos y permisos de manera centralizada"
+        contentClassName="flex h-full min-h-0 flex-col gap-4"
+        headerAction={
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <button
+              onClick={handleCrearEmpleado}
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-white shadow-sm transition-colors hover:bg-green-700"
+            >
+              <UserPlus size={20} /> Agregar Empleado
+            </button>
+            <Link
+              to="/admin"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+            >
+              <ArrowLeft size={18} /> Volver
+            </Link>
+          </div>
+        }
+      >
+        {/* Tarjetas de Estadísticas */}
+        <StatsCards estadisticas={estadisticas} />
 
-      {/* Tarjetas de Estadísticas */}
-      <StatsCards estadisticas={estadisticas} />
+        {/* Filtros de Búsqueda */}
+        <EmpleadosFilters
+          busqueda={busqueda}
+          setBusqueda={setBusqueda}
+          filtroEstado={filtroEstado}
+          setFiltroEstado={setFiltroEstado}
+        />
 
-      {/* Filtros de Búsqueda */}
-      <EmpleadosFilters
-        busqueda={busqueda}
-        setBusqueda={setBusqueda}
-        filtroEstado={filtroEstado}
-        setFiltroEstado={setFiltroEstado}
-      />
+        {/* Contenido Principal */}
+        <div className="flex min-h-0 flex-1 flex-col">
+          {cargando ? (
+            <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm">
+              <LoadingState />
+            </div>
+          ) : empleadosActuales.length === 0 ? (
+            <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm">
+              <EmptyState onCrearEmpleado={handleCrearEmpleado} />
+            </div>
+          ) : (
+            <>
+              <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+                {/* Vista Móvil - Cards */}
+                <div className="p-4 lg:hidden">
+                  {empleadosActuales.map((empleado) => (
+                    <EmpleadoCard
+                      key={empleado.idEmpleado}
+                      empleado={empleado}
+                      onEditar={handleEditarEmpleado}
+                      onCambiarEstado={handleCambiarEstado}
+                    />
+                  ))}
+                </div>
 
-      {/* Contenido Principal */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        {cargando ? (
-          <LoadingState />
-        ) : empleadosActuales.length === 0 ? (
-          <EmptyState onCrearEmpleado={handleCrearEmpleado} />
-        ) : (
-          <>
-            {/* Vista Móvil - Cards */}
-            <div className="lg:hidden p-4">
-              {empleadosActuales.map((empleado) => (
-                <EmpleadoCard
-                  key={empleado.idEmpleado}
-                  empleado={empleado}
+                {/* Vista Desktop - Tabla */}
+                <EmpleadoTable
+                  empleados={empleadosActuales}
                   onEditar={handleEditarEmpleado}
                   onCambiarEstado={handleCambiarEstado}
                 />
-              ))}
-            </div>
+              </div>
 
-            {/* Vista Desktop - Tabla */}
-            <EmpleadoTable
-              empleados={empleadosActuales}
-              onEditar={handleEditarEmpleado}
-              onCambiarEstado={handleCambiarEstado}
-            />
+              {/* Paginación */}
+              <div className="mt-4 lg:mt-auto">
+                <EmpleadosPagination
+                  paginaActual={paginaActual}
+                  totalPaginas={totalPaginas}
+                  onCambiarPagina={setPaginaActual}
+                />
+              </div>
+            </>
+          )}
+        </div>
 
-            {/* Paginación */}
-            <EmpleadosPagination
-              paginaActual={paginaActual}
-              totalPaginas={totalPaginas}
-              onCambiarPagina={setPaginaActual}
-            />
-          </>
-        )}
-      </div>
+        {/* Modal de Crear/Editar Empleado */}
+        <EmpleadoModal
+          isOpen={modalAbierto}
+          onClose={() => setModalAbierto(false)}
+          onGuardar={handleGuardarEmpleado}
+          empleadoEditar={empleadoEditando}
+        />
 
-      {/* Modal de Crear/Editar Empleado */}
-      <EmpleadoModal
-        isOpen={modalAbierto}
-        onClose={() => setModalAbierto(false)}
-        onGuardar={handleGuardarEmpleado}
-        empleadoEditar={empleadoEditando}
-      />
+        {/* Diálogo de Confirmación */}
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+          onConfirm={handleConfirmarAccion}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          type={confirmDialog.type}
+          confirmText={confirmDialog.confirmText}
+        />
+      </AdminLayout>
 
-      {/* Diálogo de Confirmación */}
-      <ConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
-        onConfirm={handleConfirmarAccion}
-        title={confirmDialog.title}
-        message={confirmDialog.message}
-        type={confirmDialog.type}
-        confirmText={confirmDialog.confirmText}
-      />
-    </AdminLayout>
+      <ToastContainer position="top-right" autoClose={3000} />
+    </>
   );
 };
 

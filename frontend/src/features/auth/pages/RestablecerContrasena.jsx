@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaLock, FaCheckCircle, FaArrowLeft } from "react-icons/fa";
+import {
+  ArrowLeft,
+  CheckCircle,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+} from "lucide-react";
+import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -8,16 +16,12 @@ const RestablecerContrasena = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-  // Obtener el token de la URL
   const token = new URLSearchParams(location.search).get("token");
-
-  const primaryColor = "bg-green-600";
-  const primaryHover = "hover:bg-green-700";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,10 +35,8 @@ const RestablecerContrasena = () => {
     }
     setIsSubmitting(true);
     try {
-      // Lógica para restablecer la contraseña en el backend
-      // Reemplaza esta URL con la ruta de tu API
       await axios.post(`${apiUrl}/clientes/restablecer-password/${token}`, {
-        nuevaPassword: password, // Asegurate que la variable se llame igual que en el controller
+        nuevaPassword: password,
       });
 
       toast.success("¡Contraseña restablecida con éxito!");
@@ -55,107 +57,137 @@ const RestablecerContrasena = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 transform transition-all duration-300 hover:shadow-2xl">
-        {/* Encabezado */}
-        <div className="flex items-center mb-6">
+    <main
+      className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-6 sm:px-6"
+      role="main"
+      aria-label="Restablecer contraseña"
+    >
+      <motion.section
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-5 shadow-lg transition-all duration-300 hover:shadow-2xl sm:p-8"
+        aria-labelledby="reset-title"
+        aria-describedby="reset-subtitle"
+      >
+        <div className="mb-6 grid grid-cols-[auto_1fr_auto] items-center gap-3">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="text-gray-500 hover:text-primary-600 transition-colors p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-600 cursor-pointer"
+            className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-white p-2 text-gray-600 shadow-sm transition-all duration-200 hover:border-primary-700 hover:bg-slate-50 hover:text-primary-700 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
             aria-label="Volver atrás"
           >
-            <FaArrowLeft className="text-lg" />
+            <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </button>
-          <h1 className="text-3xl font-extrabold text-center text-green-700 flex-1">
-            {" "}
-            Nueva Contraseña
+          <h1
+            id="reset-title"
+            className="text-center text-2xl font-extrabold tracking-tight text-primary-700 sm:text-3xl"
+          >
+            Nueva contraseña
           </h1>
+          <div className="min-h-11 min-w-11" aria-hidden="true" />
         </div>
-        <p className="text-gray-600 text-center mb-8 text-md leading-relaxed">
+
+        <p
+          id="reset-subtitle"
+          className="mb-6 text-center text-sm leading-relaxed text-gray-600 sm:text-base"
+        >
           Ingresa y confirma tu nueva contraseña.
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Campo de Contraseña */}
-          <div className="relative">
-            <label className="sr-only" htmlFor="password">
-              Nueva Contraseña
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <div className="space-y-1.5">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Nueva contraseña
             </label>
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-              <FaLock className="text-sm" />
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <Lock className="h-4 w-4" aria-hidden="true" />
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                placeholder="Nueva contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-11 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 focus:border-primary-700 focus:outline-none focus:ring focus:ring-primary-600/60 disabled:cursor-not-allowed disabled:bg-slate-50"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute inset-y-0 right-0 inline-flex min-w-11 items-center justify-center rounded-r-xl px-2 text-slate-500 transition hover:text-primary-700 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/70 cursor-pointer"
+                aria-label={
+                  showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                }
+                aria-controls="password confirmPassword"
+                aria-pressed={showPassword}
+                disabled={isSubmitting}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-5 w-5" aria-hidden="true" />
+                )}
+              </button>
             </div>
-            <input
-              type={showPassword ? "text" : "password"}
-              id="password"
-              placeholder="Nueva Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition duration-200"
-              required
-            />
           </div>
 
-          {/* Campo de Confirmar Contraseña */}
-          <div className="relative">
-            <label className="sr-only" htmlFor="confirmPassword">
-              Confirmar Contraseña
+          <div className="space-y-1.5">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Confirmar contraseña
             </label>
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-              <FaLock className="text-sm" />
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <Lock className="h-4 w-4" aria-hidden="true" />
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="confirmPassword"
+                placeholder="Confirmar contraseña"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-11 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 focus:border-primary-700 focus:outline-none focus:ring focus:ring-primary-600/60 disabled:cursor-not-allowed disabled:bg-slate-50"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                disabled={isSubmitting}
+              />
             </div>
-            <input
-              type={showPassword ? "text" : "password"}
-              id="confirmPassword"
-              placeholder="Confirmar Contraseña"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition duration-200"
-              required
-            />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full ${primaryColor} text-white py-3 rounded-lg ${primaryHover} transition duration-300 font-semibold flex items-center justify-center space-x-2 shadow-md hover:shadow-lg cursor-pointer ${
-              isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+            aria-busy={isSubmitting}
+            className={`flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-primary-700 bg-primary-700 py-3 text-sm font-semibold text-white shadow-md transition duration-300 hover:bg-primary-800 hover:shadow-lg active:scale-[0.995] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/70 focus-visible:ring-offset-2 ${
+              isSubmitting ? "cursor-not-allowed opacity-75" : ""
             }`}
           >
             {isSubmitting ? (
               <>
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
                 <span>Cambiando...</span>
               </>
             ) : (
               <>
-                <FaCheckCircle className="text-xl" />
+                <CheckCircle className="h-5 w-5" aria-hidden="true" />
                 <span>Restablecer Contraseña</span>
               </>
             )}
           </button>
         </form>
-      </div>
-    </div>
+      </motion.section>
+    </main>
   );
 };
 

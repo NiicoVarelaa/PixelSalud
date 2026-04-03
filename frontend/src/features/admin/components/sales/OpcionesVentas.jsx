@@ -15,40 +15,46 @@ const OpcionesVentas = () => {
   };
 
   return (
-    <AdminLayout
-      title="Gestión de Ventas"
-      description="Alterna entre ventas del mostrador y pedidos online en una misma vista."
-      contentClassName="flex flex-col gap-4 sm:gap-5 h-full"
-    >
-      <nav 
-        className="shrink-0 w-full sm:w-fit" 
-        aria-label="Navegación de vistas de ventas"
+    <>
+      <AdminLayout
+        title="Gestión de Ventas"
+        description="Alterna entre ventas del mostrador y pedidos online en una misma vista."
+        contentClassName="flex h-full min-h-0 flex-col"
       >
-        <VentasSwitch
-          activeOption={activeOption}
-          onOptionChange={handleOptionChange}
-        />
-      </nav>
+        <nav
+          className="mb-4 w-full shrink-0 sm:mb-5 sm:w-fit"
+          aria-label="Navegación de vistas de ventas"
+        >
+          <VentasSwitch
+            activeOption={activeOption}
+            onOptionChange={handleOptionChange}
+          />
+        </nav>
 
-      <main 
-        role="tabpanel" 
-        aria-labelledby={`tab-${activeOption}`}
-        className="flex-1 flex flex-col min-h-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded-xl"
-        tabIndex={-1}
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeOption}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="flex-1 flex flex-col min-h-0 w-full"
-          >
-            {activeOption === "empleados" ? <AdminVentasE /> : <AdminVentasO />}
-          </motion.div>
-        </AnimatePresence>
-      </main>
+        <main
+          role="tabpanel"
+          aria-labelledby={`tab-${activeOption}`}
+          className="flex min-h-0 flex-1 flex-col rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          tabIndex={-1}
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeOption}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="flex min-h-0 w-full flex-1 flex-col"
+            >
+              {activeOption === "empleados" ? (
+                <AdminVentasE />
+              ) : (
+                <AdminVentasO />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </AdminLayout>
 
       <ToastContainer
         position="bottom-right"
@@ -57,7 +63,7 @@ const OpcionesVentas = () => {
         limit={3}
         toastClassName="rounded-xl shadow-lg font-sans text-sm"
       />
-    </AdminLayout>
+    </>
   );
 };
 

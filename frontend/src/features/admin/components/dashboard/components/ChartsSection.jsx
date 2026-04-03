@@ -1,4 +1,6 @@
 import PropTypes from "prop-types";
+import { motion } from "framer-motion";
+import { Activity, BarChart3 } from "lucide-react";
 import ChartCard from "./ChartCard";
 import DayFilterTabs from "./DayFilterTabs";
 import { tooltipStyle } from "../utils/dashboardUtils";
@@ -10,25 +12,50 @@ const ChartsSection = ({
   currentTab,
   onTabChange,
 }) => {
+  const periodLabel = `${currentTab} días`;
+
   return (
-    <section
+    <motion.section
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
       aria-labelledby="charts-heading"
-      className="w-full flex-1 flex flex-col min-h-0"
+      aria-describedby="charts-description"
+      className="flex w-full flex-col xl:min-h-0 xl:flex-1"
     >
-      <div className="bg-white rounded-xl border border-gray-100 p-3 flex-1 flex flex-col min-h-0 relative">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 px-1 shrink-0">
-          <h2
-            id="charts-heading"
-            className="text-sm sm:text-base font-extrabold text-gray-900"
-          >
-            Evolución de Ventas
-          </h2>
-          <div className="w-full sm:w-auto sm:min-w-[300px]">
+      <div className="relative flex flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4 xl:min-h-0 xl:flex-1">
+        <header className="mb-4 flex shrink-0 flex-col gap-3 sm:mb-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
+              <BarChart3 className="h-3.5 w-3.5" aria-hidden="true" />
+              Analytics
+            </div>
+
+            <h2
+              id="charts-heading"
+              className="min-w-0 text-base font-extrabold tracking-tight text-gray-900 sm:text-lg"
+            >
+              Evolución de Ventas
+            </h2>
+
+            <p
+              id="charts-description"
+              className="mt-1 flex items-center gap-1.5 text-xs text-gray-600 sm:text-sm"
+            >
+              <Activity
+                className="h-3.5 w-3.5 text-emerald-600"
+                aria-hidden="true"
+              />
+              Datos acumulados del período activo: {periodLabel}
+            </p>
+          </div>
+
+          <div className="w-full lg:w-auto lg:min-w-[320px]">
             <DayFilterTabs activeTab={currentTab} onTabChange={onTabChange} />
           </div>
-        </div>
+        </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-1 min-h-0">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 xl:min-h-0 xl:flex-1 xl:grid-cols-2">
           <ChartCard
             title="Ingresos Diarios"
             subtitle="Total facturado por día"
@@ -53,7 +80,7 @@ const ChartsSection = ({
           />
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
