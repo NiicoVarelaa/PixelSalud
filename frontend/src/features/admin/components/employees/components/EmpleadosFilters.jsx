@@ -1,4 +1,4 @@
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
 
 /**
@@ -10,18 +10,22 @@ export const EmpleadosFilters = ({
   setBusqueda,
   filtroEstado,
   setFiltroEstado,
+  totalFiltrados = 0,
+  totalEmpleados = 0,
 }) => {
+  const hayFiltrosActivos = busqueda.trim() !== "" || filtroEstado !== "todos";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+      className="mb-5 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
     >
-      <div className="flex flex-col md:flex-row gap-3">
+      <div className="flex flex-col md:flex-row gap-4">
         {/* Input de Búsqueda */}
         <div className="relative flex-1">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="text-gray-400" size={18} />
+            <Search className="text-gray-400" size={20} />
           </div>
           <input
             type="text"
@@ -30,38 +34,48 @@ export const EmpleadosFilters = ({
             placeholder="Buscar por nombre, DNI, email o ID..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+            className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-800 placeholder-gray-400 transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100"
           />
         </div>
 
         {/* Filtro por Estado */}
         <div className="relative w-full md:w-64">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Filter className="text-orange-500" size={18} />
+            <Filter className="text-gray-400" size={20} />
           </div>
           <select
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all appearance-none bg-white cursor-pointer"
+            className="w-full appearance-none rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-700 transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100"
           >
             <option value="todos">Todos los empleados</option>
             <option value="activos">✓ Activos</option>
             <option value="inactivos">✗ Inactivos</option>
           </select>
         </div>
+
+        {hayFiltrosActivos && (
+          <button
+            type="button"
+            onClick={() => {
+              setBusqueda("");
+              setFiltroEstado("todos");
+            }}
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
+          >
+            <RotateCcw size={14} />
+            Limpiar
+          </button>
+        )}
       </div>
 
-      {/* Contador de resultados */}
-      {busqueda && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-sm text-gray-500 mt-3"
-        >
-          Buscando:{" "}
-          <span className="font-semibold text-green-700">{busqueda}</span>
-        </motion.p>
-      )}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="mt-3 text-xs font-medium text-gray-500"
+      >
+        {totalFiltrados} de {totalEmpleados} empleados visibles
+      </motion.p>
     </motion.div>
   );
 };

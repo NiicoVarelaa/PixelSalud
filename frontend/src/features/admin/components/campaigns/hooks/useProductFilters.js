@@ -4,9 +4,14 @@ export const useProductFilters = ({
   productos,
   busquedaProducto,
   categoriaFiltro,
+  idsProductosBloqueados = [],
 }) => {
   const productosDisponibles = useMemo(() => {
+    const idsBloqueadosSet = new Set(idsProductosBloqueados);
+
     return productos.filter((p) => {
+      if (idsBloqueadosSet.has(p.idProducto)) return false;
+
       const matchBusqueda = p.nombreProducto
         .toLowerCase()
         .includes(busquedaProducto.toLowerCase());
@@ -14,7 +19,7 @@ export const useProductFilters = ({
         !categoriaFiltro || p.categoria === categoriaFiltro;
       return matchBusqueda && matchCategoria;
     });
-  }, [productos, busquedaProducto, categoriaFiltro]);
+  }, [productos, busquedaProducto, categoriaFiltro, idsProductosBloqueados]);
 
   return {
     productosDisponibles,

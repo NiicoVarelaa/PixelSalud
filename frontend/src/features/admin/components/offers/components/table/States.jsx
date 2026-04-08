@@ -1,29 +1,22 @@
 import { motion } from "framer-motion";
 import { Tag } from "lucide-react";
 
-export const LoadingState = () => {
-  return (
+export const LoadingState = () => (
+  <div
+    className="flex items-center justify-center py-16"
+    role="status"
+    aria-live="polite"
+    aria-label="Cargando productos"
+  >
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center"
-      role="status"
-      aria-live="polite"
-    >
-      <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full"
-          aria-hidden="true"
-        />
-      </div>
-      <p className="text-base text-gray-600 font-medium">
-        Cargando productos...
-      </p>
-    </motion.div>
-  );
-};
+      animate={{ rotate: 360 }}
+      transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+      className="h-8 w-8 rounded-full border-2 border-gray-200 border-t-green-600"
+      aria-hidden="true"
+    />
+    <span className="ml-3 text-sm text-gray-500">Cargando productos...</span>
+  </div>
+);
 
 export const EmptyState = ({ busqueda, filtroCategoria, filtroDescuento }) => {
   const hasFilters =
@@ -31,24 +24,24 @@ export const EmptyState = ({ busqueda, filtroCategoria, filtroDescuento }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center"
+      className="flex flex-col items-center justify-center py-16 text-center"
       role="status"
     >
       <div
-        className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center shadow-inner"
+        className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100"
         aria-hidden="true"
       >
-        <Tag className="w-10 h-10 text-gray-400" />
+        <Tag size={22} className="text-gray-400" />
       </div>
-      <h3 className="text-lg font-bold text-gray-900 mb-2">
-        No se encontraron productos
-      </h3>
-      <p className="text-base text-gray-600">
+      <p className="text-sm font-semibold text-gray-700">
+        {hasFilters ? "Sin resultados" : "No hay productos"}
+      </p>
+      <p className="mt-1 text-xs text-gray-400">
         {hasFilters
-          ? "Intenta ajustar los filtros de búsqueda"
-          : "No hay productos disponibles"}
+          ? "Ajustá los filtros para ver más productos"
+          : "Aún no hay productos cargados"}
       </p>
     </motion.div>
   );

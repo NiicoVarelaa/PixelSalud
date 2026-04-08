@@ -31,6 +31,7 @@ const AdminCampanas = () => {
     toggleActiva,
     eliminarCampana,
     cargarProductosCampana,
+    cargarIdsProductosEnCampanas,
   } = useCampanasData();
 
   // Estados de modal
@@ -50,6 +51,7 @@ const AdminCampanas = () => {
 
   // Estados de productos
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+  const [idsProductosBloqueados, setIdsProductosBloqueados] = useState([]);
   const [busquedaProducto, setBusquedaProducto] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("");
 
@@ -102,12 +104,15 @@ const AdminCampanas = () => {
     setProductosSeleccionados([]);
     setModoEdicion(false);
     setCampanaEditando(null);
+    setIdsProductosBloqueados([]);
     setBusquedaProducto("");
     setCategoriaFiltro("");
   };
 
-  const handleAbrirModal = () => {
+  const handleAbrirModal = async () => {
     limpiarFormulario();
+    const idsBloqueados = await cargarIdsProductosEnCampanas();
+    setIdsProductosBloqueados(idsBloqueados);
     setModalAbierto(true);
   };
 
@@ -119,13 +124,27 @@ const AdminCampanas = () => {
     );
   };
 
-  const seleccionarTodos = () => {
-    // Aquí deberíamos usar los productos filtrados, pero por simplicidad...
-    const todosIds = productos.map((p) => p.idProducto);
-    if (productosSeleccionados.length === todosIds.length) {
+  const seleccionarTodos = (idsDisponibles = []) => {
+    const idsSeleccionables = idsDisponibles;
+
+    if (idsSeleccionables.length === 0) {
       setProductosSeleccionados([]);
+      return;
+    }
+
+    const todosVisiblesSeleccionados = idsSeleccionables.every((id) =>
+      productosSeleccionados.includes(id),
+    );
+
+    if (todosVisiblesSeleccionados) {
+      setProductosSeleccionados((prev) =>
+        prev.filter((id) => !idsSeleccionables.includes(id)),
+      );
     } else {
-      setProductosSeleccionados(todosIds);
+      setProductosSeleccionados((prev) => {
+        const merged = new Set([...prev, ...idsSeleccionables]);
+        return Array.from(merged);
+      });
     }
   };
 
@@ -146,6 +165,9 @@ const AdminCampanas = () => {
 
   const handleEditarCampana = async (campana) => {
     const productosIds = await cargarProductosCampana(campana.idCampana);
+    const idsBloqueados = await cargarIdsProductosEnCampanas({
+      excluirCampanaId: campana.idCampana,
+    });
 
     setCampanaEditando(campana);
     setModoEdicion(true);
@@ -158,6 +180,7 @@ const AdminCampanas = () => {
       tipo: campana.tipo,
     });
     setProductosSeleccionados(productosIds);
+    setIdsProductosBloqueados(idsBloqueados);
     setModalAbierto(true);
   };
 
@@ -191,14 +214,14 @@ const AdminCampanas = () => {
           <div className="flex shrink-0 gap-3">
             <button
               onClick={handleAbrirModal}
-              className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-purple-600 shadow-lg transition-all hover:bg-purple-50"
+              className="flex cursor-pointer items-center gap-2 rounded-xl border border-primary-700 bg-primary-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-primary-800"
             >
               <Plus className="h-5 w-5" />
               Nueva Campaña
             </button>
             <Link
               to="/admin"
-              className="flex items-center gap-2 rounded-xl bg-gray-200 px-4 py-3 text-gray-700 transition-all hover:bg-gray-300"
+              className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 transition-colors hover:bg-gray-50"
             >
               <ArrowLeft className="h-5 w-5" />
               Volver
@@ -223,7 +246,7 @@ const AdminCampanas = () => {
           ) : campanasActuales.length === 0 ? (
             <EmptyState onCrearCampana={handleAbrirModal} />
           ) : vistaMode === "cards" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {campanasActuales.map((campana, index) => (
                 <CampanaCard
                   key={campana.idCampana}
@@ -257,6 +280,7 @@ const AdminCampanas = () => {
           campana={nuevaCampana}
           onCampanaChange={setNuevaCampana}
           productosSeleccionados={productosSeleccionados}
+          idsProductosBloqueados={idsProductosBloqueados}
           onToggleProducto={toggleProductoSeleccion}
           onSeleccionarTodos={seleccionarTodos}
           productos={productos}

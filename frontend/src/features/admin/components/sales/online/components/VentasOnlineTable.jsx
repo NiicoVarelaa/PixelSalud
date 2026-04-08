@@ -208,7 +208,6 @@ const EstadoChip = ({ estado }) => {
 };
 
 export const VentasOnlineTable = ({
-  onVerDetalle,
   onEditar,
   onEstadoChange,
   onPrintTicket,
@@ -484,20 +483,6 @@ export const VentasOnlineTable = ({
 
             <div className="flex gap-2 p-3 bg-gray-50 border-t border-gray-100">
               <button
-                onClick={() => onVerDetalle(venta)}
-                className="
-                  flex-1 flex items-center justify-center gap-2 h-11
-                  bg-primary-600 hover:bg-primary-700 text-white rounded-lg
-                  font-medium text-sm transition-colors cursor-pointer
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
-                "
-                aria-label={`Ver detalle de venta online ${venta.idVentaO}`}
-              >
-                <Eye size={18} aria-hidden="true" />
-                <span>Detalle</span>
-              </button>
-
-              <button
                 onClick={() => onPrintTicket(venta.idVentaO)}
                 className="
                   flex items-center justify-center w-11 h-11
@@ -530,11 +515,11 @@ export const VentasOnlineTable = ({
       </div>
 
       <div
-        className="hidden lg:block bg-white rounded-2xl shadow-md border border-gray-200/80 overflow-hidden"
+        className="hidden overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-md lg:block"
         role="region"
         aria-label="Tabla de ventas online"
       >
-        <div className="overflow-x-auto">
+        <div className="max-h-[410px] overflow-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-linear-to-r from-primary-50 to-emerald-50/70 border-b border-primary-100/80">
@@ -619,19 +604,6 @@ export const VentasOnlineTable = ({
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-center gap-1.5">
-                      <button
-                        onClick={() => onVerDetalle(venta)}
-                        className="
-                          p-2 bg-primary-100 text-primary-700 rounded-lg
-                          hover:bg-primary-200 transition-colors cursor-pointer
-                          focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500
-                        "
-                        aria-label={`Ver detalle de venta online ${venta.idVentaO}`}
-                        title="Ver detalle"
-                      >
-                        <Eye size={16} aria-hidden="true" />
-                      </button>
-
                       <button
                         onClick={() => onPrintTicket(venta.idVentaO)}
                         className="

@@ -9,15 +9,12 @@ export const ProductPrice = ({
   if (isMobile) {
     return (
       <div>
-        <p className="text-xs font-medium text-gray-500 mb-1">Precio actual</p>
         {tieneOferta && (
-          <p className="text-sm text-gray-400 line-through font-medium">
+          <p className="text-xs text-gray-400 line-through">
             {formatearPrecio(precioRegular)}
           </p>
         )}
-        <p
-          className={`text-2xl font-bold ${tieneOferta ? "text-red-600" : "text-gray-900"}`}
-        >
+        <p className={`text-xl font-bold ${tieneOferta ? "text-orange-600" : "text-gray-900"}`}>
           {formatearPrecio(precioConDescuento)}
         </p>
       </div>
@@ -27,13 +24,11 @@ export const ProductPrice = ({
   return (
     <div className="flex flex-col">
       {tieneOferta && (
-        <span className="text-xs text-gray-400 line-through font-medium">
+        <span className="text-xs text-gray-400 line-through">
           {formatearPrecio(precioRegular)}
         </span>
       )}
-      <span
-        className={`font-bold ${tieneOferta ? "text-red-600 text-base" : "text-gray-900 text-sm"}`}
-      >
+      <span className={`font-semibold ${tieneOferta ? "text-orange-600 text-sm" : "text-gray-900 text-sm"}`}>
         {formatearPrecio(precioConDescuento)}
       </span>
     </div>

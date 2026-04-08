@@ -38,12 +38,22 @@ const AdminAuditoria = () => {
     setAuditoriaSeleccionada(null);
   };
 
+  const paginationProps = {
+    totalRegistros: auditorias.length,
+    offset: filtros.offset,
+    limite: filtros.limite,
+    onAnterior: paginaAnterior,
+    onSiguiente: paginaSiguiente,
+    onCambiarLimite: (v) => handleFiltroChange("limite", v),
+  };
+
   return (
     <AdminLayout
-      title="Auditoría del Sistema"
-      description="Registro completo de todas las acciones críticas del sistema"
-      contentClassName="flex h-full min-h-0 flex-col gap-4"
+      title="Auditoría"
+      description="Registro completo de acciones críticas del sistema"
+      contentClassName="flex h-full min-h-0 flex-col gap-3"
     >
+      {/* Filtros */}
       <AuditoriaFilters
         filtros={filtros}
         onFiltroChange={handleFiltroChange}
@@ -51,67 +61,70 @@ const AdminAuditoria = () => {
         onBuscar={cargarAuditorias}
       />
 
+      {/* Error */}
       {error && <ErrorBanner error={error} />}
 
-      {/* Vista Mobile */}
-      <div className="mb-6 block md:hidden">
-        <div className="grid gap-4">
-          {loading ? (
-            <div className="bg-white rounded-lg p-12">
-              <LoadingState />
+      {/* ── Mobile: cards ── */}
+      <div className="flex flex-col gap-2 md:hidden">
+        {loading ? (
+          <div className="rounded-xl border border-gray-200 bg-white">
+            <LoadingState />
+          </div>
+        ) : auditorias.length === 0 ? (
+          <div className="rounded-xl border border-gray-200 bg-white">
+            <EmptyState />
+          </div>
+        ) : (
+          <>
+            {auditorias.map((a, i) => (
+              <AuditoriaCard
+                key={a.idAuditoria}
+                auditoria={a}
+                index={i}
+                onVerDetalles={verDetalles}
+              />
+            ))}
+            <div className="rounded-xl border border-gray-200 bg-white">
+              <AuditoriaPagination {...paginationProps} />
             </div>
-          ) : auditorias.length === 0 ? (
-            <div className="bg-white rounded-lg p-12">
-              <EmptyState />
-            </div>
-          ) : (
-            <>
-              {auditorias.map((auditoria) => (
-                <AuditoriaCard
-                  key={auditoria.idAuditoria}
-                  auditoria={auditoria}
-                  onVerDetalles={verDetalles}
-                />
-              ))}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                <AuditoriaPagination
-                  totalRegistros={auditorias.length}
-                  offset={filtros.offset}
-                  limite={filtros.limite}
-                  onAnterior={paginaAnterior}
-                  onSiguiente={paginaSiguiente}
-                  onCambiarLimite={(nuevoLimite) =>
-                    handleFiltroChange("limite", nuevoLimite)
-                  }
-                />
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Vista Desktop */}
-      <div className="hidden min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm md:block">
-        <table className="w-full">
-          <AuditoriaTable auditorias={auditorias} onVerDetalles={verDetalles} />
-          {loading && <LoadingState />}
-          {!loading && auditorias.length === 0 && <EmptyState />}
-        </table>
-
-        {!loading && auditorias.length > 0 && (
-          <AuditoriaPagination
-            totalRegistros={auditorias.length}
-            offset={filtros.offset}
-            limite={filtros.limite}
-            onAnterior={paginaAnterior}
-            onSiguiente={paginaSiguiente}
-            onCambiarLimite={(nuevoLimite) =>
-              handleFiltroChange("limite", nuevoLimite)
-            }
-          />
+          </>
         )}
       </div>
 
+      {/* ── Desktop: tabla ── */}
+      <div className="hidden min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs md:flex">
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {loading ? (
+            /*
+             * LoadingState y EmptyState se usan dentro de la tabla en desktop
+             * pasando asTableRow=true, pero como el contenedor es un div
+             * con overflow, es más limpio usarlos como standalone aquí también.
+             * El prop asTableRow permite usar ambos dentro de <tbody> si fuera necesario.
+             */
+            <table className="w-full">
+              <tbody>
+                <LoadingState asTableRow />
+              </tbody>
+            </table>
+          ) : auditorias.length === 0 ? (
+            <table className="w-full">
+              <tbody>
+                <EmptyState asTableRow />
+              </tbody>
+            </table>
+          ) : (
+            <AuditoriaTable auditorias={auditorias} onVerDetalles={verDetalles} />
+          )}
+        </div>
+
+        {!loading && auditorias.length > 0 && (
+          <div className="shrink-0 border-t border-gray-100">
+            <AuditoriaPagination {...paginationProps} />
+          </div>
+        )}
+      </div>
+
+      {/* Modal */}
       <AuditoriaModal
         auditoria={auditoriaSeleccionada}
         isOpen={mostrarModal}

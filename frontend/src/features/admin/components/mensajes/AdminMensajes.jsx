@@ -60,10 +60,11 @@ const AdminMensajes = () => {
   return (
     <>
       <AdminLayout
-        title="Gestión de Mensajes"
-        description="Administra los mensajes recibidos de los clientes"
-        contentClassName="flex h-full min-h-0 flex-col gap-4"
+        title="Mensajes"
+        description="Mensajes recibidos de clientes"
+        contentClassName="flex h-full min-h-0 flex-col gap-3"
       >
+        {/* Filtros */}
         <MensajesFilters
           filtroEstado={filtroEstado}
           onFiltroEstadoChange={setFiltroEstado}
@@ -72,15 +73,25 @@ const AdminMensajes = () => {
           onLimpiar={limpiarFiltros}
         />
 
+        {/* Banner de error */}
         {error && <ErrorBanner error={error} />}
 
-        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        {/* Contenido principal */}
+        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs">
           {loading ? (
             <LoadingState />
           ) : mensajesFiltrados.length === 0 ? (
             <EmptyState />
           ) : (
-            <table className="w-full">
+            /*
+             * MensajesTable renderiza internamente:
+             *  - mobile: lista de <article> cards (no necesita <table> wrapper)
+             *  - desktop: <table> con thead/tbody
+             *
+             * Por eso el wrapper aquí es un <div> neutral,
+             * no un <table> como en la versión original.
+             */
+            <div className="h-full overflow-y-auto">
               <MensajesTable
                 mensajes={mensajesFiltrados}
                 onVerDetalle={handleVerDetalle}
@@ -88,17 +99,15 @@ const AdminMensajes = () => {
                 onArchivar={handleArchivar}
                 onEliminar={eliminarMensaje}
               />
-            </table>
+            </div>
           )}
         </div>
 
+        {/* Modales */}
         <MensajeDetalle
           mensaje={mensajeSeleccionado}
           isOpen={mostrarDetalle}
-          onClose={() => {
-            setMostrarDetalle(false);
-            setMensajeSeleccionado(null);
-          }}
+          onClose={() => { setMostrarDetalle(false); setMensajeSeleccionado(null); }}
           onMarcarLeido={marcarLeido}
           onResponder={handleResponder}
           onArchivar={handleArchivar}
@@ -108,15 +117,16 @@ const AdminMensajes = () => {
         <MensajeRespuesta
           mensaje={mensajeSeleccionado}
           isOpen={mostrarRespuesta}
-          onClose={() => {
-            setMostrarRespuesta(false);
-            setMensajeSeleccionado(null);
-          }}
+          onClose={() => { setMostrarRespuesta(false); setMensajeSeleccionado(null); }}
           onEnviar={enviarRespuesta}
         />
       </AdminLayout>
 
-      <ToastContainer position="bottom-right" autoClose={3000} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        toastClassName="!rounded-xl !text-sm !shadow-lg"
+      />
     </>
   );
 };

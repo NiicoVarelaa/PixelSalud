@@ -9,7 +9,7 @@ export const useOfertasStore = create((set) => ({
   filtroCategoria: "todas",
   filtroDescuento: "todos", // todos, 10, 15, 20, sin-oferta
   paginaActual: 1,
-  itemsPorPagina: 3,
+  itemsPorPagina: 6,
 
   // Acciones
   setProductos: (productos) => set({ productos }),
@@ -21,6 +21,8 @@ export const useOfertasStore = create((set) => ({
   setFiltroDescuento: (filtroDescuento) =>
     set({ filtroDescuento, paginaActual: 1 }),
   setPaginaActual: (paginaActual) => set({ paginaActual }),
+  setItemsPorPagina: (itemsPorPagina) =>
+    set({ itemsPorPagina, paginaActual: 1 }),
 
   // Reset
   resetFiltros: () =>

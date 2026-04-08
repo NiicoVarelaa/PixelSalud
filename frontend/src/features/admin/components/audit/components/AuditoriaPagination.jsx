@@ -1,4 +1,6 @@
-import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+const LIMITE_OPCIONES = [5, 10, 15, 20, 25, 50];
 
 export const AuditoriaPagination = ({
   totalRegistros,
@@ -8,64 +10,63 @@ export const AuditoriaPagination = ({
   onSiguiente,
   onCambiarLimite,
 }) => {
-  const esPrimeraPagina = offset === 0;
+  const esPrimera  = offset === 0;
   const puedeAvanzar = totalRegistros === limite;
   const paginaActual = Math.floor(offset / limite) + 1;
   const desde = offset + 1;
   const hasta = offset + totalRegistros;
 
   return (
-    <div className="px-6 py-4 border-t border-gray-200">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Info y selector de límite */}
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-gray-600">
-            Mostrando <span className="font-medium text-gray-900">{desde}</span>{" "}
-            - <span className="font-medium text-gray-900">{hasta}</span>{" "}
-            registros
-          </span>
-          <div className="flex items-center gap-2">
-            <label className="text-gray-600">Por página:</label>
-            <select
-              value={limite}
-              onChange={(e) => onCambiarLimite(Number(e.target.value))}
-              className="px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={15}>15</option>
-              <option value={20}>20</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
-          </div>
-        </div>
+    <nav
+      className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+      aria-label="Paginación de auditorías"
+    >
+      {/* Info + por página */}
+      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
+        <span aria-live="polite">
+          <span className="font-semibold text-gray-700">{desde}–{hasta}</span> registros · página{" "}
+          <span className="font-semibold text-gray-700">{paginaActual}</span>
+        </span>
 
-        {/* Botones de navegación */}
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-600">Página {paginaActual}</span>
-          <div className="flex gap-2">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={onAnterior}
-              disabled={esPrimeraPagina}
-              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Anterior
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={onSiguiente}
-              disabled={!puedeAvanzar}
-              className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Siguiente
-            </motion.button>
-          </div>
+        <div className="flex items-center gap-1.5">
+          <label htmlFor="limite-pagina" className="text-gray-400">
+            Por página:
+          </label>
+          <select
+            id="limite-pagina"
+            value={limite}
+            onChange={(e) => onCambiarLimite(Number(e.target.value))}
+            className="h-7 rounded-md border border-gray-200 bg-white px-1.5 text-xs text-gray-700 cursor-pointer focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-colors"
+            aria-label="Registros por página"
+          >
+            {LIMITE_OPCIONES.map((v) => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </select>
         </div>
       </div>
-    </div>
+
+      {/* Navegación */}
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={onAnterior}
+          disabled={esPrimera}
+          className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-all hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          aria-label="Página anterior"
+        >
+          <ChevronLeft size={14} />
+        </button>
+        <button
+          type="button"
+          onClick={onSiguiente}
+          disabled={!puedeAvanzar}
+          className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-all hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          aria-label="Página siguiente"
+        >
+          <ChevronRight size={14} />
+        </button>
+      </div>
+    </nav>
   );
 };

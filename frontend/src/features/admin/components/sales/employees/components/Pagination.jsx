@@ -2,6 +2,13 @@ import { useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useVentasStore } from "../store/useVentasStore";
 
+const normalizarTextoBusqueda = (valor) =>
+  String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
 export const Pagination = () => {
   const {
     paginaActual,
@@ -15,17 +22,19 @@ export const Pagination = () => {
 
   const { totalPaginas, totalItems } = useMemo(() => {
     const ventasFiltradas = ventas.filter((v) => {
-      const termino = filtro.toLowerCase();
-      const id = v.idVentaE?.toString() || "";
-      const dni = v.dniEmpleado?.toString() || "";
-      const nombre = v.nombreEmpleado?.toLowerCase() || "";
-      const apellido = v.apellidoEmpleado?.toLowerCase() || "";
-      const nombreCompleto = `${nombre} ${apellido}`;
+      const termino = normalizarTextoBusqueda(filtro);
+      const id = normalizarTextoBusqueda(v.idVentaE);
+      const dni = normalizarTextoBusqueda(v.dniEmpleado);
+      const nombre = normalizarTextoBusqueda(v.nombreEmpleado);
+      const apellido = normalizarTextoBusqueda(v.apellidoEmpleado);
+      const nombreCompleto = `${nombre} ${apellido}`.trim();
+      const apellidoNombre = `${apellido} ${nombre}`.trim();
 
       const coincideBusqueda =
         id.includes(termino) ||
         dni.includes(termino) ||
-        nombreCompleto.includes(termino);
+        nombreCompleto.includes(termino) ||
+        apellidoNombre.includes(termino);
       const coincideEstado =
         filtroEstado === "todas" ? true : v.estado === filtroEstado;
       return coincideBusqueda && coincideEstado;

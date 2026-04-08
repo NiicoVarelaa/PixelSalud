@@ -8,6 +8,7 @@ export const Pagination = () => {
     setPaginaActual,
     itemsPorPagina,
     productos,
+    idsProductosEnCampanas,
     busqueda,
     filtroCategoria,
     filtroDescuento,
@@ -20,6 +21,7 @@ export const Pagination = () => {
       busqueda,
       filtroCategoria,
       filtroDescuento,
+      idsProductosEnCampanas,
       paginaActual,
       itemsPorPagina,
     });

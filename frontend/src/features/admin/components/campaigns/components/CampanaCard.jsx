@@ -1,6 +1,30 @@
 import { motion } from "framer-motion";
-import { Calendar, Users, Edit2, Power, Trash2 } from "lucide-react";
+import { Calendar, Package, Edit2, Power, Trash2, Percent } from "lucide-react";
 import { formatearFecha } from "../utils/formatters";
+
+/* Badge de tipo de campaña */
+const TipoBadge = ({ tipo }) => (
+  <span className="inline-block rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+    {tipo}
+  </span>
+);
+
+/* Badge de estado activo/inactivo */
+const EstadoBadge = ({ esActiva }) => (
+  <span
+    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
+      esActiva
+        ? "bg-green-50 text-green-700 border border-green-200"
+        : "bg-gray-100 text-gray-500 border border-gray-200"
+    }`}
+  >
+    <span
+      className={`h-1.5 w-1.5 rounded-full ${esActiva ? "bg-green-500" : "bg-gray-400"}`}
+      aria-hidden="true"
+    />
+    {esActiva ? "Activa" : "Inactiva"}
+  </span>
+);
 
 export const CampanaCard = ({
   campana,
@@ -12,103 +36,100 @@ export const CampanaCard = ({
   const esDosPorUno = String(campana.tipo || "").toUpperCase() === "2X1";
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
+    <motion.article
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 border border-gray-100"
+      transition={{ delay: index * 0.05, duration: 0.2 }}
+      className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs transition-shadow hover:shadow-md"
+      aria-label={`Campaña: ${campana.nombreCampana}`}
     >
+      {/* Acento superior — solo verde si activa */}
+      <div
+        className={`h-1 w-full ${campana.esActiva ? "bg-green-500" : "bg-gray-200"}`}
+        aria-hidden="true"
+      />
+
       {/* Header */}
-      <div className="bg-linear-to-r from-purple-600 to-pink-600 p-4 text-white">
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <h3 className="text-xl font-bold mb-1">{campana.nombreCampana}</h3>
-            <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-medium">
-              {campana.tipo}
+      <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-sm font-semibold text-gray-900">
+            {campana.nombreCampana}
+          </h3>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <TipoBadge tipo={campana.tipo} />
+            <EstadoBadge esActiva={campana.esActiva} />
+          </div>
+        </div>
+
+        {/* Valor del descuento */}
+        <div className="shrink-0 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center min-w-[52px]">
+          {esDosPorUno ? (
+            <span className="text-base font-bold text-gray-800">2x1</span>
+          ) : (
+            <span className="flex items-center gap-0.5 text-base font-bold text-orange-600">
+              <Percent size={12} aria-hidden="true" />
+              {campana.porcentajeDescuento}
             </span>
-          </div>
-          <div className="bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg">
-            {esDosPorUno ? (
-              <span className="text-2xl font-bold">2x1</span>
-            ) : (
-              <span className="text-2xl font-bold">
-                {campana.porcentajeDescuento}%
-              </span>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
       {/* Body */}
-      <div className="p-4 space-y-3">
+      <div className="flex-1 space-y-2 px-4 pb-3">
         {campana.descripcion && (
-          <p className="text-gray-600 text-sm line-clamp-2">
+          <p className="line-clamp-2 text-xs text-gray-500">
             {campana.descripcion}
           </p>
         )}
 
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Calendar className="w-4 h-4" />
+        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+          <Calendar size={13} aria-hidden="true" />
           <span>
-            {formatearFecha(campana.fechaInicio)} -{" "}
-            {formatearFecha(campana.fechaFin)}
+            {formatearFecha(campana.fechaInicio)} → {formatearFecha(campana.fechaFin)}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Users className="w-4 h-4" />
+        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+          <Package size={13} aria-hidden="true" />
           <span>{campana.cantidadProductos || 0} productos</span>
         </div>
-
-        <div className="pt-3 border-t border-gray-200">
-          <span
-            className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
-              campana.esActiva
-                ? "bg-green-100 text-green-700"
-                : "bg-gray-100 text-gray-700"
-            }`}
-          >
-            {campana.esActiva ? "✓ Activa" : "⊗ Inactiva"}
-          </span>
-        </div>
       </div>
 
-      {/* Footer */}
-      <div className="p-4 bg-gray-50 border-t border-gray-200">
-        <div className="flex gap-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onEditar(campana)}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all text-sm font-medium"
-          >
-            <Edit2 className="w-4 h-4" />
-            Editar
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onToggleActiva(campana)}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
-              campana.esActiva
-                ? "bg-red-600 hover:bg-red-700 text-white"
-                : "bg-green-600 hover:bg-green-700 text-white"
-            }`}
-          >
-            <Power className="w-4 h-4" />
-            {campana.esActiva ? "Desactivar" : "Activar"}
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onEliminar(campana)}
-            className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-all"
-            title="Eliminar"
-          >
-            <Trash2 className="w-4 h-4" />
-          </motion.button>
-        </div>
+      {/* Footer: acciones */}
+      <div className="flex items-center gap-1.5 border-t border-gray-100 bg-gray-50 px-4 py-2.5">
+        <button
+          type="button"
+          onClick={() => onEditar(campana)}
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg h-8 text-xs font-medium text-gray-700 border border-gray-200 bg-white hover:bg-gray-100 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          aria-label={`Editar campaña ${campana.nombreCampana}`}
+        >
+          <Edit2 size={13} aria-hidden="true" />
+          Editar
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onToggleActiva(campana)}
+          className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg h-8 text-xs font-medium border active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 ${
+            campana.esActiva
+              ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100 focus-visible:ring-red-400"
+              : "border-green-200 bg-green-50 text-green-700 hover:bg-green-100 focus-visible:ring-green-500"
+          }`}
+          aria-label={`${campana.esActiva ? "Desactivar" : "Activar"} campaña ${campana.nombreCampana}`}
+        >
+          <Power size={13} aria-hidden="true" />
+          {campana.esActiva ? "Desactivar" : "Activar"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onEliminar(campana)}
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 hover:border-red-200 hover:bg-red-50 hover:text-red-500 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+          aria-label={`Eliminar campaña ${campana.nombreCampana}`}
+        >
+          <Trash2 size={14} aria-hidden="true" />
+        </button>
       </div>
-    </motion.div>
+    </motion.article>
   );
 };

@@ -1,5 +1,27 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, AlertTriangle } from "lucide-react";
+import { X, AlertTriangle, Info } from "lucide-react";
+import { useEffect, useRef } from "react";
+
+const TYPE_CONFIG = {
+  warning: {
+    Icon: AlertTriangle,
+    iconBg: "bg-amber-50 border border-amber-200",
+    iconColor: "text-amber-600",
+    confirmClass: "bg-amber-600 hover:bg-amber-700 text-white focus-visible:ring-amber-500",
+  },
+  danger: {
+    Icon: AlertTriangle,
+    iconBg: "bg-red-50 border border-red-200",
+    iconColor: "text-red-600",
+    confirmClass: "bg-red-600 hover:bg-red-700 text-white focus-visible:ring-red-500",
+  },
+  info: {
+    Icon: Info,
+    iconBg: "bg-green-50 border border-green-200",
+    iconColor: "text-green-600",
+    confirmClass: "bg-green-600 hover:bg-green-700 text-white focus-visible:ring-green-500",
+  },
+};
 
 export const ConfirmDialog = ({
   isOpen,
@@ -9,97 +31,104 @@ export const ConfirmDialog = ({
   message,
   confirmText = "Confirmar",
   cancelText = "Cancelar",
-  type = "warning", // warning, danger, info
+  type = "warning",
   isProcessing = false,
 }) => {
-  if (!isOpen) return null;
+  const closeRef = useRef(null);
 
-  const typeConfig = {
-    warning: {
-      bgColor: "from-yellow-500 to-orange-500",
-      icon: AlertTriangle,
-      iconColor: "text-yellow-500",
-      confirmBg:
-        "from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700",
-    },
-    danger: {
-      bgColor: "from-red-500 to-pink-500",
-      icon: AlertTriangle,
-      iconColor: "text-red-500",
-      confirmBg:
-        "from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700",
-    },
-    info: {
-      bgColor: "from-blue-500 to-purple-500",
-      icon: AlertTriangle,
-      iconColor: "text-blue-500",
-      confirmBg:
-        "from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700",
-    },
-  };
+  useEffect(() => {
+    if (!isOpen) return;
+    closeRef.current?.focus();
+    const onKey = (e) => { if (e.key === "Escape" && !isProcessing) onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, isProcessing, onClose]);
 
-  const config = typeConfig[type];
-  const Icon = config.icon;
+  const { Icon, iconBg, iconColor, confirmClass } = TYPE_CONFIG[type] ?? TYPE_CONFIG.warning;
 
   const handleConfirm = async () => {
-    await onConfirm();
+    await onConfirm?.();
     onClose();
   };
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-title"
+          aria-describedby="confirm-message"
+          onClick={(e) => { if (e.target === e.currentTarget && !isProcessing) onClose(); }}
         >
-          {/* Header */}
-          <div className={`bg-gradient-to-r ${config.bgColor} p-6 text-white`}>
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                  <Icon className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold">{title}</h3>
-                </div>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            aria-hidden="true"
+          />
+
+          {/* Panel */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
+          >
+            {/* Header */}
+            <div className="flex items-start gap-3 p-5 pb-3">
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconBg}`}>
+                <Icon size={17} className={iconColor} aria-hidden="true" />
+              </div>
+              <div className="flex-1 min-w-0 pt-1">
+                <h3 id="confirm-title" className="text-sm font-semibold text-gray-900">
+                  {title}
+                </h3>
               </div>
               <button
+                ref={closeRef}
+                type="button"
                 onClick={onClose}
                 disabled={isProcessing}
-                className="p-1 hover:bg-white/20 rounded-lg transition-all disabled:opacity-50"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:opacity-40 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+                aria-label="Cerrar"
               >
-                <X className="w-5 h-5" />
+                <X size={15} />
               </button>
             </div>
-          </div>
 
-          {/* Body */}
-          <div className="p-6">
-            <p className="text-gray-700 text-base leading-relaxed">{message}</p>
-          </div>
+            {/* Message */}
+            <p id="confirm-message" className="px-5 pb-5 text-sm text-gray-600 leading-relaxed">
+              {message}
+            </p>
 
-          {/* Footer */}
-          <div className="p-6 pt-0 flex gap-3">
-            <button
-              onClick={onClose}
-              disabled={isProcessing}
-              className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {cancelText}
-            </button>
-            <button
-              onClick={handleConfirm}
-              disabled={isProcessing}
-              className={`flex-1 px-6 py-3 bg-gradient-to-r ${config.confirmBg} text-white rounded-xl font-semibold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {isProcessing ? "Procesando..." : confirmText}
-            </button>
-          </div>
-        </motion.div>
-      </div>
+            {/* Actions */}
+            <div className="flex gap-2 border-t border-gray-100 px-5 py-3.5">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isProcessing}
+                className="flex-1 h-9 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+              >
+                {cancelText}
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirm}
+                disabled={isProcessing}
+                className={`flex-1 h-9 rounded-lg text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${confirmClass}`}
+              >
+                {isProcessing ? "Procesando..." : confirmText}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </AnimatePresence>
   );
 };

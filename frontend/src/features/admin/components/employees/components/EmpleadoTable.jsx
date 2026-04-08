@@ -24,30 +24,30 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
   };
 
   return (
-    <div className="hidden lg:block">
+    <div className="hidden overflow-hidden rounded-xl bg-white lg:block">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider w-16">
+            <tr className="bg-gray-50">
+              <th className="w-16 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                 ID
               </th>
-              <th className="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Empleado
               </th>
-              <th className="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider w-32">
+              <th className="w-32 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                 DNI
               </th>
-              <th className="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+              <th className="w-64 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Email
               </th>
-              <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Permisos
               </th>
-              <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-28">
+              <th className="w-32 px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Estado
               </th>
-              <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-40">
+              <th className="w-48 px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Acciones
               </th>
             </tr>
@@ -82,33 +82,33 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className={`hover:bg-green-50/50 transition-colors ${!esActivo ? "opacity-70 bg-gray-50" : ""}`}
+                  className={`transition-colors hover:bg-green-50/40 ${!esActivo ? "bg-gray-50/40 opacity-70" : ""}`}
                 >
                   {/* ID */}
-                  <td className="px-3 py-4 whitespace-nowrap">
-                    <span className="text-gray-500 font-mono text-xs">
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    <span className="font-mono text-xs text-gray-400">
                       #{empleado.idEmpleado}
                     </span>
                   </td>
 
                   {/* Nombre completo */}
-                  <td className="px-3 py-4">
-                    <div className="text-sm font-medium text-gray-900">
+                  <td className="px-4 py-4">
+                    <div className="text-sm font-semibold text-gray-900">
                       {empleado.nombreEmpleado} {empleado.apellidoEmpleado}
                     </div>
                   </td>
 
                   {/* DNI */}
-                  <td className="px-3 py-4 whitespace-nowrap">
+                  <td className="px-4 py-4 whitespace-nowrap">
                     <span className="text-sm text-gray-600">
                       {empleado.dniEmpleado || "---"}
                     </span>
                   </td>
 
                   {/* Email */}
-                  <td className="px-3 py-4">
+                  <td className="px-4 py-4">
                     <div
-                      className="text-sm text-gray-600 truncate max-w-[180px]"
+                      className="max-w-[200px] truncate text-sm text-gray-600"
                       title={empleado.emailEmpleado}
                     >
                       {empleado.emailEmpleado}
@@ -116,10 +116,10 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
                   </td>
 
                   {/* Permisos */}
-                  <td className="px-3 py-4 text-center">
+                  <td className="px-4 py-4 text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <Shield className="text-green-700" size={16} />
-                      <span className="text-xs font-semibold text-green-700">
+                      <Shield className="text-green-600" size={16} />
+                      <span className="text-xs font-semibold text-green-600">
                         {totalPermisos}/4
                       </span>
                     </div>
@@ -135,44 +135,44 @@ export const EmpleadoTable = ({ empleados, onEditar, onCambiarEstado }) => {
                   </td>
 
                   {/* Estado */}
-                  <td className="px-3 py-4 whitespace-nowrap text-center">
+                  <td className="px-4 py-4 whitespace-nowrap text-center">
                     <span
-                      className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
+                      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
                         esActivo
-                          ? "bg-green-100 text-green-800"
-                          : "bg-orange-100 text-orange-800"
+                          ? "border-green-200 bg-green-50 text-green-700"
+                          : "border-red-200 bg-red-50 text-red-700"
                       }`}
                     >
-                      {esActivo ? "Activo" : "Inactivo"}
+                      {esActivo ? "✓ Activo" : "✗ Inactivo"}
                     </span>
                   </td>
 
                   {/* Acciones */}
-                  <td className="px-3 py-4 whitespace-nowrap text-center">
+                  <td className="px-4 py-4 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-2">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => onEditar(empleado)}
-                        className="flex items-center gap-1 px-2.5 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium rounded-md transition-colors shadow-sm"
+                        className="flex items-center gap-1.5 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-1.5 text-sm font-medium text-yellow-700 transition-colors hover:bg-yellow-100"
                         title="Editar Empleado"
                       >
-                        <Edit size={14} />
+                        <Edit size={16} />
                         Editar
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => onCambiarEstado(empleado)}
-                        className={`flex items-center gap-1 px-2.5 py-1.5 text-white text-xs font-medium rounded-md transition-colors shadow-sm ${
+                        className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                           esActivo
-                            ? "bg-gray-600 hover:bg-gray-700"
-                            : "bg-green-600 hover:bg-green-700"
+                            ? "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                            : "border border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
                         }`}
                         title={esActivo ? "Desactivar" : "Activar"}
                       >
-                        <Power size={14} />
-                        {esActivo ? "Baja" : "Activar"}
+                        <Power size={16} />
+                        {esActivo ? "Desactivar" : "Activar"}
                       </motion.button>
                     </div>
                   </td>

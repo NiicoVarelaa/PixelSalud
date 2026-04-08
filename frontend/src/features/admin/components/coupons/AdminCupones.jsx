@@ -93,7 +93,18 @@ const AdminCupones = () => {
     <AdminLayout
       title="Gestión de Cupones"
       description="Administra cupones de descuento y visualiza su historial de uso"
-      contentClassName="flex h-full min-h-0 flex-col gap-4"
+      contentClassName="flex h-full min-h-0 flex-col gap-3"
+      headerAction={
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setModalAbierto(true)}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700 sm:w-auto"
+        >
+          <FiPlus className="h-5 w-5" />
+          Crear Cupón
+        </motion.button>
+      }
     >
       <StatsCards estadisticas={estadisticas} />
 
@@ -104,18 +115,7 @@ const AdminCupones = () => {
       />
 
       {vistaActual === "cupones" ? (
-        <>
-          {/* Botón Crear */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setModalAbierto(true)}
-            className="mb-4 flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
-          >
-            <FiPlus className="w-5 h-5" />
-            Crear Cupón
-          </motion.button>
-
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
           <CuponesFilters
             busqueda={busqueda}
             setBusqueda={setBusqueda}
@@ -126,16 +126,16 @@ const AdminCupones = () => {
             onResetPaginacion={resetPaginacion}
           />
 
-          <div className="min-h-0 flex-1">
+          <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
             {cargando ? (
               <LoadingState />
             ) : cuponesPaginados.length === 0 ? (
               <EmptyState mensaje="No se encontraron cupones" />
             ) : (
-              <>
+              <div className="flex min-h-0 flex-1 flex-col">
                 {/* Vista Mobile */}
-                <div className="block md:hidden">
-                  <div className="grid gap-4">
+                <div className="block min-h-0 flex-1 overflow-y-auto p-4 md:hidden">
+                  <div className="grid gap-3">
                     {cuponesPaginados.map((cupon) => (
                       <CuponCard
                         key={cupon.idCupon}
@@ -148,7 +148,7 @@ const AdminCupones = () => {
                 </div>
 
                 {/* Vista Desktop */}
-                <div className="hidden md:block">
+                <div className="hidden min-h-0 flex-1 overflow-y-auto md:block">
                   <CuponTable
                     cupones={cuponesPaginados}
                     onCambiarEstado={handleCambiarEstado}
@@ -156,26 +156,32 @@ const AdminCupones = () => {
                   />
                 </div>
 
-                <CuponesPagination
-                  paginaActual={paginaActual}
-                  totalPaginas={totalPaginas}
-                  indicePrimero={indicePrimero}
-                  indiceUltimo={indiceUltimo}
-                  totalItems={cuponesFiltrados.length}
-                  onPaginaAnterior={() =>
-                    setPaginaActual((prev) => Math.max(prev - 1, 1))
-                  }
-                  onPaginaSiguiente={() =>
-                    setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))
-                  }
-                />
-              </>
+                <div className="shrink-0 border-t border-gray-100 bg-white/95 px-3 py-3 sm:px-4">
+                  <CuponesPagination
+                    paginaActual={paginaActual}
+                    totalPaginas={totalPaginas}
+                    indicePrimero={indicePrimero}
+                    indiceUltimo={indiceUltimo}
+                    totalItems={cuponesFiltrados.length}
+                    onPaginaAnterior={() =>
+                      setPaginaActual((prev) => Math.max(prev - 1, 1))
+                    }
+                    onPaginaSiguiente={() =>
+                      setPaginaActual((prev) =>
+                        Math.min(prev + 1, totalPaginas),
+                      )
+                    }
+                  />
+                </div>
+              </div>
             )}
           </div>
-        </>
+        </div>
       ) : (
         /* Vista Historial */
-        <HistorialTable historial={historial} />
+        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <HistorialTable historial={historial} />
+        </div>
       )}
 
       {/* Modal Crear Cupón */}
