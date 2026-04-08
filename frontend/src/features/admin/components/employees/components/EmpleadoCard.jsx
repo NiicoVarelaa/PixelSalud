@@ -59,38 +59,36 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
-      className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4"
+      whileHover={{ y: -2, boxShadow: "0 10px 18px -8px rgb(0 0 0 / 0.12)" }}
+      className="mb-3 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
     >
-      {/* Header con gradiente y estado */}
-      <div
-        className={`bg-linear-to-r ${esActivo ? "from-green-600 to-green-700" : "from-gray-600 to-gray-700"} p-4`}
-      >
+      <div className={`h-1 ${esActivo ? "bg-green-500" : "bg-red-500"}`} />
+
+      {/* Header */}
+      <div className="p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-white font-bold text-lg">
+            <h3 className="text-base font-semibold text-gray-900">
               {empleado.nombreEmpleado} {empleado.apellidoEmpleado}
             </h3>
-            <p className="text-white text-xs opacity-90">
-              ID: #{empleado.idEmpleado}
-            </p>
+            <p className="text-xs text-gray-400">ID: #{empleado.idEmpleado}</p>
           </div>
-          <div className="bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
+          <div className="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1.5">
             {esActivo ? (
-              <CheckCircle className="text-white" size={20} />
+              <CheckCircle className="text-green-600" size={18} />
             ) : (
-              <XCircle className="text-white" size={20} />
+              <XCircle className="text-red-600" size={18} />
             )}
           </div>
         </div>
       </div>
 
       {/* Información del empleado */}
-      <div className="p-4 space-y-3">
+      <div className="space-y-3 px-4 pb-4">
         {/* Email */}
         <div className="flex items-center gap-3">
-          <div className="bg-gray-100 p-2 rounded-lg">
-            <Mail className="text-gray-600" size={18} />
+          <div className="rounded-lg bg-sky-50 p-2">
+            <Mail className="text-sky-600" size={16} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-500 uppercase font-semibold">
@@ -107,8 +105,8 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
 
         {/* DNI */}
         <div className="flex items-center gap-3">
-          <div className="bg-gray-100 p-2 rounded-lg">
-            <CreditCard className="text-gray-600" size={18} />
+          <div className="rounded-lg bg-violet-50 p-2">
+            <CreditCard className="text-violet-600" size={16} />
           </div>
           <div>
             <p className="text-xs text-gray-500 uppercase font-semibold">DNI</p>
@@ -124,7 +122,7 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
             className={`${esActivo ? "bg-green-50" : "bg-red-50"} p-2 rounded-lg`}
           >
             {esActivo ? (
-              <CheckCircle className="text-green-600" size={18} />
+              <CheckCircle className="text-green-600" size={16} />
             ) : (
               <XCircle className="text-red-600" size={18} />
             )}
@@ -134,7 +132,7 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
               Estado
             </p>
             <p
-              className={`text-sm font-semibold ${esActivo ? "text-green-700" : "text-orange-700"}`}
+              className={`text-sm font-semibold ${esActivo ? "text-green-600" : "text-red-600"}`}
             >
               {esActivo ? "Activo" : "Inactivo"}
             </p>
@@ -142,9 +140,9 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
         </div>
 
         {/* Permisos */}
-        <div className="pt-3 border-t border-gray-200">
+        <div className="border-t border-gray-100 pt-3">
           <div className="flex items-center gap-2 mb-2">
-            <Shield className="text-green-700" size={16} />
+            <Shield className="text-green-600" size={16} />
             <p className="text-xs text-gray-500 uppercase font-semibold">
               Permisos ({permisosActivos}/4)
             </p>
@@ -171,27 +169,27 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado }) => {
       </div>
 
       {/* Botones de acción */}
-      <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-2">
+      <div className="flex gap-2 border-t border-gray-100 bg-gray-50 p-4">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onEditar(empleado)}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors shadow-sm"
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-2.5 font-medium text-yellow-700 transition-colors hover:bg-yellow-100"
         >
-          <Edit size={18} />
+          <Edit size={16} />
           Editar
         </motion.button>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onCambiarEstado(empleado)}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white font-medium rounded-lg transition-colors shadow-md ${
+          className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-medium transition-colors ${
             esActivo
-              ? "bg-gray-600 hover:bg-gray-700"
-              : "bg-green-500 hover:bg-green-600"
+              ? "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+              : "border border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
           }`}
         >
-          <Power size={18} />
+          <Power size={16} />
           {esActivo ? "Desactivar" : "Activar"}
         </motion.button>
       </div>

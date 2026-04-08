@@ -78,8 +78,7 @@ const AdminReportes = () => {
     <AdminLayout
       title="Reportes y Estadísticas"
       description="Exporta reportes de ventas y productos en formato Excel con análisis detallados"
-      contentClassName="space-y-2.5 sm:space-y-3 pb-2"
-      usePageScroll
+      contentClassName="flex h-full min-h-0 flex-col gap-2.5 sm:gap-3"
     >
       {/* Toast notifications */}
       <ToastContainer
@@ -113,46 +112,48 @@ const AdminReportes = () => {
         />
       </motion.div>
 
-      {/* Grid de Reportes */}
-      <motion.section
-        aria-labelledby="reportes-heading"
-        className="space-y-2 sm:space-y-2.5 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 xl:grid-cols-4 xl:gap-3"
-        variants={staggerContainer}
-        initial="initial"
-        animate="animate"
-      >
-        <h2 id="reportes-heading" className="sr-only">
-          Tipos de reportes disponibles
-        </h2>
+      <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
+        {/* Grid de Reportes */}
+        <motion.section
+          aria-labelledby="reportes-heading"
+          className="space-y-2 sm:space-y-2.5 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 xl:grid-cols-4 xl:gap-3"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <h2 id="reportes-heading" className="sr-only">
+            Tipos de reportes disponibles
+          </h2>
 
-        <AnimatePresence mode="wait">
-          {reports.map((report, index) => (
-            <motion.div
-              key={report.id}
-              variants={fadeInUp}
-              custom={index}
-              layout
-            >
-              <ReportCard
-                report={report}
-                downloading={downloading[report.id]}
-                onViewDetails={handleOpenDetails(report)}
-                onDownload={handleDownloadReport(report.id)}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.section>
+          <AnimatePresence mode="wait">
+            {reports.map((report, index) => (
+              <motion.div
+                key={report.id}
+                variants={fadeInUp}
+                custom={index}
+                layout
+              >
+                <ReportCard
+                  report={report}
+                  downloading={downloading[report.id]}
+                  onViewDetails={handleOpenDetails(report)}
+                  onDownload={handleDownloadReport(report.id)}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.section>
 
-      {/* Información adicional */}
-      <motion.div
-        variants={fadeInUp}
-        initial="initial"
-        animate="animate"
-        className="lg:hidden"
-      >
-        <ReportInfo />
-      </motion.div>
+        {/* Información adicional */}
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          className="mt-3 lg:hidden"
+        >
+          <ReportInfo />
+        </motion.div>
+      </div>
 
       <ReportIncludesModal
         isOpen={Boolean(selectedReport)}

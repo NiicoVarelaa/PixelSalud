@@ -1,20 +1,16 @@
-import { motion } from "framer-motion";
-import {
-  Search,
-  Percent,
-  Filter,
-  Plus,
-  XCircle,
-  RotateCcw,
-  Package,
-  TrendingUp,
-  Sparkles,
-  SlidersHorizontal,
-} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, Plus, XCircle, RotateCcw, Tag } from "lucide-react";
 import { useOfertasStore } from "../../store/useOfertasStore";
 import { useMemo } from "react";
 import CustomSelect from "../../../products/components/CustomSelect";
 import { hasActiveOffer } from "../../utils/ofertasFilters";
+
+const DESCUENTO_ATAJOS = [
+  { key: "todos", label: "Todos" },
+  { key: "10", label: "10% OFF" },
+  { key: "15", label: "15% OFF" },
+  { key: "20", label: "20% OFF" },
+];
 
 export const OfertasFilters = ({
   categorias = [],
@@ -31,14 +27,13 @@ export const OfertasFilters = ({
     productos,
   } = useOfertasStore();
 
-  // Calcular stats para mostrar
   const stats = useMemo(() => {
-    const productosConOferta = productos.filter((p) => hasActiveOffer(p));
-    const total = productos.length;
-    const conOferta = productosConOferta.length;
-    const sinOferta = total - conOferta;
-
-    return { total, conOferta, sinOferta };
+    const conOferta = productos.filter((p) => hasActiveOffer(p)).length;
+    return {
+      total: productos.length,
+      conOferta,
+      sinOferta: productos.length - conOferta,
+    };
   }, [productos]);
 
   const hayFiltrosActivos =
@@ -64,207 +59,133 @@ export const OfertasFilters = ({
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: -10 }}
+      initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="mb-2 overflow-visible rounded-xl border border-gray-200 bg-white shadow-sm"
+      transition={{ duration: 0.25 }}
+      className="overflow-visible rounded-2xl border border-gray-200 bg-white shadow-sm"
       role="search"
-      aria-label="Filtros de ofertas"
+      aria-label="Filtros del gestor de ofertas"
     >
-      <div className="border-b border-primary-200/80 bg-linear-to-r from-primary-50 via-emerald-50 to-primary-100/40">
-        <div className="relative overflow-hidden px-3 py-2.5 sm:px-4 sm:py-3 lg:py-2">
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-1.5 bg-linear-to-b from-primary-500 to-emerald-500" />
-
-          <div className="ml-1.5 flex items-start justify-between gap-3 lg:items-center lg:gap-2.5">
-            <div className="flex items-start gap-3 lg:items-center lg:gap-2.5 min-w-0">
-              <div
-                className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600/95 text-white shadow-xs ring-1 ring-primary-300/70"
+      {/* ── Header ── */}
+      <div className="border-b border-gray-100 px-4 py-3.5 sm:px-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5">
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-green-600 text-white"
                 aria-hidden="true"
               >
-                <Sparkles className="w-4.5 h-4.5" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2 mb-1 lg:mb-0.5">
-                  <h3 className="text-sm font-bold tracking-tight text-primary-950 lg:text-[13px]">
-                    Filtros y acciones
-                  </h3>
-                  <span className="inline-flex items-center rounded-full border border-primary-300/80 bg-white/70 px-2 py-0.5 text-[11px] font-semibold text-primary-800">
-                    Oferta individual
-                  </span>
-                </div>
-
-                <p className="text-xs text-primary-900/90 sm:text-sm">
-                  Filtra y aplica cambios rapidos.
-                </p>
-              </div>
+                <Tag size={14} />
+              </span>
+              <p className="text-sm font-semibold leading-none text-gray-900">
+                Ofertas individuales
+              </p>
             </div>
-
-            <button
-              type="button"
-              onClick={onOpenAgregarOferta}
-              className="inline-flex shrink-0 items-center justify-center gap-2 h-9 px-3 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
-            >
-              <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-              Agregar oferta
-            </button>
+            <p className="mt-1 text-xs text-gray-500">
+              {stats.total} productos · {stats.conOferta} con descuento activo
+            </p>
           </div>
+
+          <button
+            type="button"
+            onClick={onOpenAgregarOferta}
+            className="inline-flex h-9 w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3.5 text-xs font-semibold text-white transition-all hover:bg-green-700 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 sm:w-auto"
+            aria-label="Agregar nuevo producto en oferta"
+          >
+            <Plus size={15} aria-hidden="true" />
+            Agregar producto
+          </button>
         </div>
       </div>
 
-      <div className="space-y-2.5 p-3 sm:p-4">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {/* ── Filtros ── */}
+      <div className="space-y-3 p-3 sm:p-4">
+        {/* Fila 1: búsqueda + selects */}
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
           {/* Búsqueda */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <label
-              htmlFor="search-ofertas"
-              className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
-            >
+            <label htmlFor="search-ofertas" className="sr-only">
+              Buscar producto por nombre
+            </label>
+            <div className="relative">
               <Search
                 size={16}
-                className="text-primary-500"
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                 aria-hidden="true"
               />
-              Buscar producto
-            </label>
-            <div className="relative group">
               <input
                 id="search-ofertas"
                 type="search"
                 inputMode="search"
-                placeholder="Escribe el nombre..."
+                placeholder="Buscar producto..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                className="
-                  w-full h-11 px-3.5 pr-11
-                  bg-gray-50 border-2 border-gray-200 rounded-xl
-                  text-sm text-gray-900 placeholder-gray-400
-                  font-medium
-                  transition-all duration-200
-                  hover:border-gray-300 hover:bg-white
-                  focus:outline-none focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-100
-                "
+                className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-9 text-sm text-gray-900 placeholder-gray-400 transition-colors hover:border-gray-300 hover:bg-white focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100"
                 aria-describedby="search-hint"
               />
-              {busqueda && (
-                <motion.button
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  type="button"
-                  onClick={() => setBusqueda("")}
-                  className="
-                    absolute inset-y-0 right-0 pr-3 flex items-center
-                    text-gray-400 hover:text-gray-600 transition-colors cursor-pointer
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-lg
-                  "
-                  aria-label="Limpiar búsqueda"
-                >
-                  <XCircle size={20} />
-                </motion.button>
-              )}
-              {!busqueda && (
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <Search
-                    size={18}
-                    className="text-gray-400"
-                    aria-hidden="true"
-                  />
-                </div>
-              )}
-            </div>
-            <span id="search-hint" className="sr-only">
-              Escribe el nombre del producto para filtrar
-            </span>
-          </div>
-
-          {/* Filtro por categoría */}
-          <div>
-            <label
-              htmlFor="filter-categoria"
-              className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
-            >
-              <Package
-                size={16}
-                className="text-orange-500"
-                aria-hidden="true"
-              />
-              Categoría
-            </label>
-            <div className="[&>label]:sr-only [&>div]:rounded-xl! [&>div]:min-h-12! lg:[&>div]:min-h-10! [&>div]:bg-gray-50! [&>div]:border-2! [&>div]:border-gray-200! [&>div]:hover:border-gray-300! [&>div]:focus-within:border-primary-500! [&>div]:focus-within:ring-4! [&>div]:focus-within:ring-primary-100!">
-              <CustomSelect
-                id="filter-categoria"
-                label="Categoría"
-                value={filtroCategoria}
-                onChange={setFiltroCategoria}
-                options={opcionesCategoria}
-                hideLabel
-              />
+              <span id="search-hint" className="sr-only">
+                Filtra los productos por nombre
+              </span>
+              <AnimatePresence>
+                {busqueda && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    type="button"
+                    onClick={() => setBusqueda("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded"
+                    aria-label="Limpiar búsqueda"
+                  >
+                    <XCircle size={17} />
+                  </motion.button>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
-          {/* Filtro por descuento */}
-          <div>
-            <label
-              htmlFor="filter-descuento"
-              className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
-            >
-              <Percent size={16} className="text-red-500" aria-hidden="true" />
-              Descuento
-            </label>
-            <div className="[&>label]:sr-only [&>div]:rounded-xl! [&>div]:min-h-12! lg:[&>div]:min-h-10! [&>div]:bg-gray-50! [&>div]:border-2! [&>div]:border-gray-200! [&>div]:hover:border-gray-300! [&>div]:focus-within:border-primary-500! [&>div]:focus-within:ring-4! [&>div]:focus-within:ring-primary-100!">
-              <CustomSelect
-                id="filter-descuento"
-                label="Descuento"
-                value={filtroDescuento}
-                onChange={setFiltroDescuento}
-                options={opcionesDescuento}
-                hideLabel
-              />
-            </div>
-          </div>
+          {/* Categoría */}
+          <CustomSelect
+            id="filter-categoria"
+            label="Categoría"
+            value={filtroCategoria}
+            onChange={setFiltroCategoria}
+            options={opcionesCategoria}
+            hideLabel
+          />
+
+          {/* Descuento */}
+          <CustomSelect
+            id="filter-descuento"
+            label="Descuento"
+            value={filtroDescuento}
+            onChange={setFiltroDescuento}
+            options={opcionesDescuento}
+            hideLabel
+          />
         </div>
 
-        <div
-          className="rounded-xl border border-gray-200 bg-gray-50/70 p-2.5"
-          aria-label="Atajos de filtro"
-        >
-          <div className="flex items-center gap-2 mb-2 lg:mb-1.5">
-            <SlidersHorizontal
-              size={16}
-              className="text-primary-600"
-              aria-hidden="true"
-            />
-            <p className="text-xs font-semibold text-gray-800 sm:text-sm">
-              Atajos rapidos
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {[
-              { key: "todos", label: "Todos" },
-              { key: "10", label: "10% OFF" },
-              { key: "15", label: "15% OFF" },
-              { key: "20", label: "20% OFF" },
-            ].map((atajo) => {
+        {/* Fila 2: atajos de descuento + limpiar filtros */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div
+            className="flex flex-wrap gap-1.5"
+            role="group"
+            aria-label="Filtrar por porcentaje de descuento"
+          >
+            {DESCUENTO_ATAJOS.map((atajo) => {
               const activo = filtroDescuento === atajo.key;
               return (
                 <button
                   key={atajo.key}
                   type="button"
                   onClick={() => setFiltroDescuento(atajo.key)}
-                  className={`
-                    h-8 rounded-lg px-2.5 text-xs font-semibold transition-all
-                    cursor-pointer
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
-                    ${
-                      activo
-                        ? "bg-primary-600 text-white shadow-sm"
-                        : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-100"
-                    }
-                  `}
+                  className={`h-8 rounded-md px-3 text-xs font-semibold transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-1 ${
+                    activo
+                      ? "bg-green-600 text-white"
+                      : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                  }`}
                   aria-pressed={activo}
-                  aria-label={`Filtrar por ${atajo.label}`}
+                  aria-label={`Filtrar: ${atajo.label}`}
                 >
                   {atajo.label}
                 </button>
@@ -272,145 +193,72 @@ export const OfertasFilters = ({
             })}
           </div>
 
-          <div className="mt-2.5 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="grid grid-cols-3 items-center gap-2 text-xs sm:flex sm:flex-wrap sm:gap-3 sm:text-sm">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5"
-              >
-                <div className="flex items-center gap-1.5">
-                  <Package
-                    size={16}
-                    className="text-gray-400 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span className="text-gray-600 font-medium hidden sm:inline">
-                    Total:
-                  </span>
-                </div>
-                <span className="font-bold text-gray-900">{stats.total}</span>
-                <span className="text-xs text-gray-500 sm:hidden">Total</span>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="flex items-center gap-1.5 rounded-lg border border-primary-100 bg-primary-50 px-2.5 py-1.5"
-              >
-                <div className="flex items-center gap-1.5">
-                  <TrendingUp
-                    size={16}
-                    className="text-primary-500 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span className="text-primary-700 font-medium hidden sm:inline">
-                    Con oferta:
-                  </span>
-                </div>
-                <span className="font-bold text-primary-700">
-                  {stats.conOferta}
-                </span>
-                <span className="text-xs text-primary-600 sm:hidden">
-                  Ofertas
-                </span>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5"
-              >
-                <div className="flex items-center gap-1.5">
-                  <Filter
-                    size={16}
-                    className="text-gray-400 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span className="text-gray-600 font-medium hidden sm:inline">
-                    Sin oferta:
-                  </span>
-                </div>
-                <span className="font-bold text-gray-700">
-                  {stats.sinOferta}
-                </span>
-                <span className="text-xs text-gray-500 sm:hidden">
-                  Sin oferta
-                </span>
-              </motion.div>
-            </div>
-
+          <AnimatePresence>
             {hayFiltrosActivos && (
               <motion.button
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 8 }}
                 type="button"
                 onClick={resetFiltros}
-                className="
-                  inline-flex h-9 items-center justify-center gap-2 px-4 bg-linear-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300
-                  text-gray-700 rounded-xl
-                  text-xs font-semibold shadow-sm
-                  cursor-pointer
-                  transition-all duration-200
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2
-                "
-                aria-label="Limpiar todos los filtros"
+                className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-600 transition-all hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-1"
+                aria-label="Limpiar todos los filtros activos"
               >
-                <RotateCcw size={16} aria-hidden="true" />
-                <span>Limpiar filtros</span>
+                <RotateCcw size={13} aria-hidden="true" />
+                Limpiar
               </motion.button>
             )}
-          </div>
+          </AnimatePresence>
         </div>
 
-        {hayFiltrosActivos && (
-          <div
-            className="rounded-lg border border-primary-100 bg-primary-50/70 p-2.5 sm:p-3"
-            aria-label="Filtros activos"
-          >
-            <p className="mb-2 text-sm font-semibold text-primary-900">
-              Filtros activos
-            </p>
-            <div className="flex flex-wrap gap-2">
+        {/* Fila 3: chips de filtros activos */}
+        <AnimatePresence>
+          {hayFiltrosActivos && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="flex flex-wrap gap-1.5"
+              aria-label="Filtros activos"
+            >
               {busqueda && (
-                <button
-                  type="button"
-                  onClick={() => setBusqueda("")}
-                  className="inline-flex items-center gap-1 rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-semibold text-primary-800 hover:bg-primary-100 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                  aria-label="Quitar filtro de busqueda"
-                >
-                  Busqueda: {busqueda}
-                  <XCircle size={14} aria-hidden="true" />
-                </button>
+                <Chip
+                  label={`"${busqueda}"`}
+                  onRemove={() => setBusqueda("")}
+                  removeLabel="Quitar filtro de búsqueda"
+                />
               )}
-
               {filtroCategoria !== "todas" && (
-                <button
-                  type="button"
-                  onClick={() => setFiltroCategoria("todas")}
-                  className="inline-flex items-center gap-1 rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-semibold text-primary-800 hover:bg-primary-100 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                  aria-label="Quitar filtro de categoria"
-                >
-                  Categoria: {filtroCategoria}
-                  <XCircle size={14} aria-hidden="true" />
-                </button>
+                <Chip
+                  label={filtroCategoria}
+                  onRemove={() => setFiltroCategoria("todas")}
+                  removeLabel="Quitar filtro de categoría"
+                />
               )}
-
               {filtroDescuento !== "todos" && (
-                <button
-                  type="button"
-                  onClick={() => setFiltroDescuento("todos")}
-                  className="inline-flex items-center gap-1 rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-semibold text-primary-800 hover:bg-primary-100 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                  aria-label="Quitar filtro de descuento"
-                >
-                  Descuento: {`${filtroDescuento}% OFF`}
-                  <XCircle size={14} aria-hidden="true" />
-                </button>
+                <Chip
+                  label={`${filtroDescuento}% OFF`}
+                  onRemove={() => setFiltroDescuento("todos")}
+                  removeLabel="Quitar filtro de descuento"
+                />
               )}
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.section>
   );
 };
+
+/* ── Chip de filtro activo ── */
+const Chip = ({ label, onRemove, removeLabel }) => (
+  <button
+    type="button"
+    onClick={onRemove}
+    className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 text-xs font-medium text-orange-700 transition-all hover:bg-orange-100 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1"
+    aria-label={removeLabel}
+  >
+    {label}
+    <XCircle size={13} aria-hidden="true" />
+  </button>
+);

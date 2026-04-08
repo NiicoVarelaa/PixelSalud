@@ -2,11 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import apiClient from "@utils/apiClient"; // Usamos tu cliente configurado
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuthStore } from "@store/useAuthStore";
 import { AdminLayout } from "@features/admin/components/shared";
 
 const AdminMedicos = () => {
-  const { token } = useAuthStore();
   const [medicos, setMedicos] = useState([]);
   const [editandoId, setEditandoId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,12 +29,6 @@ const AdminMedicos = () => {
     matricula: "",
     emailMedico: "",
     contraMedico: "",
-  });
-
-  const getConfig = () => ({
-    headers: {
-      Auth: `Bearer ${token}`,
-    },
   });
 
   useEffect(() => {
@@ -315,6 +307,7 @@ const AdminMedicos = () => {
     <AdminLayout
       title="Administración de Médicos"
       description="Gestiona los médicos autorizados para prescripciones"
+      contentClassName="flex h-full min-h-0 flex-col gap-3"
       headerAction={
         <>
           <ToastContainer position="top-right" autoClose={3000} />
@@ -349,19 +342,19 @@ const AdminMedicos = () => {
         </>
       }
     >
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <input
           type="text"
           placeholder="Buscar por nombre, matrícula o email..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          className="border p-2 rounded w-full md:w-1/2"
+          className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100 sm:col-span-2"
         />
 
         <select
           value={filtroEstado}
           onChange={(e) => setFiltroEstado(e.target.value)}
-          className="border p-2 rounded w-full md:w-1/4"
+          className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100"
         >
           <option value="todos">Todos los estados</option>
           <option value="activos">Activos</option>
@@ -369,10 +362,73 @@ const AdminMedicos = () => {
         </select>
       </div>
 
-      <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        {/* Vista Mobile */}
+        <div className="grid gap-3 overflow-y-auto p-3 lg:hidden">
+          {medicosFiltrados.length > 0 ? (
+            medicosFiltrados.map((med) => {
+              const isActive =
+                med.activo === 0
+                  ? false
+                  : med.activo === 1
+                    ? true
+                    : med.activo === undefined
+                      ? true
+                      : med.activo;
+
+              return (
+                <article
+                  key={med.idMedico}
+                  className="rounded-lg border border-gray-200 bg-white p-3"
+                >
+                  <div className="mb-2 flex items-start justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {med.nombreMedico} {med.apellidoMedico || ""}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Matrícula: {med.matricula}
+                      </p>
+                    </div>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${isActive ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}
+                    >
+                      {isActive ? "Activo" : "Inactivo"}
+                    </span>
+                  </div>
+
+                  <p className="mb-3 truncate text-xs text-gray-600">
+                    {med.emailMedico}
+                  </p>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => iniciarEdicion(med)}
+                      className="flex-1 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-1.5 text-xs font-medium text-yellow-700 transition-colors hover:bg-yellow-100"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => toggleActivo(med.idMedico, isActive)}
+                      className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${isActive ? "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100" : "border border-green-200 bg-green-50 text-green-700 hover:bg-green-100"}`}
+                    >
+                      {isActive ? "Desactivar" : "Activar"}
+                    </button>
+                  </div>
+                </article>
+              );
+            })
+          ) : (
+            <p className="py-10 text-center text-sm text-gray-500">
+              No se encontraron médicos registrados.
+            </p>
+          )}
+        </div>
+
+        {/* Vista Desktop */}
+        <div className="hidden h-full overflow-x-auto lg:block">
           <table className="w-full divide-y divide-gray-200">
-            <thead className="bg-primary-100">
+            <thead className="bg-gray-50">
               <tr>
                 {[
                   "Nombre",
@@ -384,14 +440,14 @@ const AdminMedicos = () => {
                 ].map((title, i) => (
                   <th
                     key={i}
-                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${title === "Acciones" ? "text-right" : ""}`}
+                    className={`px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 ${title === "Acciones" ? "text-right" : ""}`}
                   >
                     {title}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-100 bg-white">
               {medicosFiltrados.length > 0 ? (
                 medicosFiltrados.map((med) => {
                   const isActive =
@@ -404,31 +460,34 @@ const AdminMedicos = () => {
                           : med.activo;
 
                   return (
-                    <tr key={med.idMedico} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <tr
+                      key={med.idMedico}
+                      className="transition-colors hover:bg-gray-50"
+                    >
+                      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                         {med.nombreMedico}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                         {med.apellidoMedico || "N/A"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                         {med.matricula}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
                         {med.emailMedico}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="whitespace-nowrap px-6 py-4">
                         <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${isActive ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}
                         >
                           {isActive ? "Activo" : "Inactivo"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex gap-2 justify-end">
+                      <td className="whitespace-nowrap px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
                           <button
                             onClick={() => iniciarEdicion(med)}
-                            className="bg-secondary-500 hover:bg-secondary-600 text-white px-3 py-1 rounded-md text-xs transition-colors flex items-center gap-1"
+                            className="flex items-center gap-1 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-1.5 text-xs font-medium text-yellow-700 transition-colors hover:bg-yellow-100"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -442,7 +501,7 @@ const AdminMedicos = () => {
                           </button>
                           <button
                             onClick={() => toggleActivo(med.idMedico, isActive)}
-                            className={`px-3 py-1 text-white rounded hover:opacity-90 text-xs flex items-center gap-1 ${isActive ? "bg-yellow-500 hover:bg-yellow-600" : "bg-green-500 hover:bg-green-600"}`}
+                            className={`flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${isActive ? "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100" : "border border-green-200 bg-green-50 text-green-700 hover:bg-green-100"}`}
                           >
                             {isActive ? (
                               <svg
@@ -482,7 +541,7 @@ const AdminMedicos = () => {
                 <tr>
                   <td
                     colSpan="6"
-                    className="px-6 py-4 text-center text-gray-500"
+                    className="px-6 py-10 text-center text-sm text-gray-500"
                   >
                     No se encontraron médicos registrados.
                   </td>

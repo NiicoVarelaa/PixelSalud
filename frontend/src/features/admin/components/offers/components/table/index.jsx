@@ -12,6 +12,7 @@ export const OfertasTable = ({
 }) => {
   const {
     productos,
+    idsProductosEnCampanas,
     busqueda,
     filtroCategoria,
     filtroDescuento,
@@ -25,13 +26,12 @@ export const OfertasTable = ({
     busqueda,
     filtroCategoria,
     filtroDescuento,
+    idsProductosEnCampanas,
     paginaActual,
     itemsPorPagina,
   });
 
-  if (cargando) {
-    return <LoadingState />;
-  }
+  if (cargando) return <LoadingState />;
 
   if (productosPaginados.length === 0) {
     return (
@@ -45,23 +45,18 @@ export const OfertasTable = ({
 
   return (
     <section
+      className="flex flex-col lg:min-h-0"
       aria-label="Listado de productos para ofertas"
-      className="space-y-2"
     >
-      <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-xs sm:px-4">
-        <p className="text-sm font-semibold text-gray-900">
-          Productos con oferta activa
-        </p>
-      </div>
-
       <p className="sr-only" role="status" aria-live="polite">
-        Hay {productosPaginados.length} productos visibles en esta pagina.
+        {productosPaginados.length} productos visibles en esta página.
       </p>
 
+      {/* Mobile: cards */}
       <div
-        className="lg:hidden space-y-3"
+        className="lg:hidden space-y-2"
         role="list"
-        aria-label="Lista de productos en oferta"
+        aria-label="Productos en oferta"
       >
         {productosPaginados.map((producto, index) => (
           <div key={producto.idProducto} role="listitem">
@@ -76,55 +71,40 @@ export const OfertasTable = ({
         ))}
       </div>
 
+      {/* Desktop: tabla */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm lg:block"
+        transition={{ duration: 0.2 }}
+        className="hidden min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm lg:flex lg:flex-col"
         role="region"
         aria-label="Tabla de productos en oferta"
       >
-        <div className="overflow-x-auto">
-          <table className="w-full" aria-describedby="tabla-ofertas-ayuda">
-            <caption id="tabla-ofertas-ayuda" className="sr-only">
-              Tabla de productos para activar, cambiar o quitar ofertas
-              individuales.
+        <div className="min-h-0 flex-1 overflow-auto">
+          <table className="w-full" aria-describedby="tabla-ofertas-desc">
+            <caption id="tabla-ofertas-desc" className="sr-only">
+              Gestión de ofertas individuales por producto
             </caption>
             <thead>
-              <tr className="bg-linear-to-r from-primary-50 to-primary-100/50 border-b border-primary-200">
-                <th
-                  scope="col"
-                  className="px-3 py-1.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
-                >
-                  Producto
-                </th>
-                <th
-                  scope="col"
-                  className="px-3 py-1.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
-                >
-                  Categoría
-                </th>
-                <th
-                  scope="col"
-                  className="px-3 py-1.5 text-left text-[11px] font-bold text-gray-700 uppercase tracking-wider"
-                >
-                  Precio
-                </th>
-                <th
-                  scope="col"
-                  className="px-3 py-1.5 text-center text-[11px] font-bold text-gray-700 uppercase tracking-wider"
-                >
-                  Estado
-                </th>
-                <th
-                  scope="col"
-                  className="px-3 py-1.5 text-center text-[11px] font-bold text-gray-700 uppercase tracking-wider"
-                >
-                  Acciones
-                </th>
+              <tr className="border-b border-gray-200 bg-gray-50/80">
+                {["Producto", "Categoría", "Precio", "Estado", "Acciones"].map(
+                  (col) => (
+                    <th
+                      key={col}
+                      scope="col"
+                      className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-gray-500 ${
+                        ["Estado", "Acciones"].includes(col)
+                          ? "text-center"
+                          : "text-left"
+                      }`}
+                    >
+                      {col}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-100">
               {productosPaginados.map((producto, index) => (
                 <ProductTableRow
                   key={producto.idProducto}

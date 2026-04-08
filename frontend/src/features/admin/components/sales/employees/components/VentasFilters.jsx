@@ -48,8 +48,8 @@ export const VentasFilters = () => {
 
           <input
             id="search-ventas"
-            type="search"
-            inputMode="search"
+            type="text"
+            autoComplete="off"
             placeholder="Buscar por ID, DNI o empleado..."
             value={filtro}
             onChange={(e) => setFiltro(e.target.value)}
@@ -59,7 +59,7 @@ export const VentasFilters = () => {
               text-sm sm:text-base text-gray-900 placeholder-gray-500
               transition-all duration-200
               hover:border-gray-300 hover:bg-white
-              focus:outline-none focus:ring-2 focus:ring-primary-700/40 focus:border-primary-700
+              focus:outline-none focus:ring focus:ring-green-500 focus:border-green-500
               disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
             "
             aria-describedby="search-hint"

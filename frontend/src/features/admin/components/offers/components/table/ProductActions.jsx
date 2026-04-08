@@ -1,5 +1,7 @@
-import { motion } from "framer-motion";
-import { Edit, XCircle, CheckCircle } from "lucide-react";
+// ─────────────────────────────────────────────
+// ProductActions.jsx
+// ─────────────────────────────────────────────
+import { Edit2, XCircle, CheckCircle } from "lucide-react";
 
 export const ProductActions = ({
   producto,
@@ -10,116 +12,72 @@ export const ProductActions = ({
   isMobile = false,
 }) => {
   if (enCampana) {
-    if (isMobile) {
-      return (
-        <div className="w-full text-center py-3 text-sm text-purple-700 font-semibold bg-purple-50 rounded-xl border-2 border-purple-100">
-          Producto en campaña activa
-        </div>
-      );
-    }
-    return (
-      <span className="text-xs text-purple-600 font-semibold whitespace-nowrap">
-        Producto en campaña
+    return isMobile ? (
+      <p className="w-full rounded-xl border border-orange-200 bg-orange-50 py-3 text-center text-xs font-semibold text-orange-700">
+        En campaña activa
+      </p>
+    ) : (
+      <span className="whitespace-nowrap text-xs font-medium text-orange-700">
+        En campaña
       </span>
     );
   }
 
   if (tieneOferta) {
-    if (isMobile) {
-      return (
-        <>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onEstablecerDescuento(producto)}
-            className="
-              flex-1 flex items-center justify-center gap-2 h-12
-              bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700
-              text-white rounded-xl
-              font-semibold text-sm shadow-lg
-              cursor-pointer transition-all duration-200
-              focus:outline-none focus-visible:ring-4 focus-visible:ring-orange-300
-            "
-            aria-label={`Cambiar descuento de ${producto.nombreProducto}`}
-          >
-            <Edit size={18} aria-hidden="true" />
-            <span>Editar</span>
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onCambiarOferta(producto, false)}
-            className="
-              flex items-center justify-center gap-2 h-12 px-4
-              bg-linear-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700
-              text-white rounded-xl shadow-lg
-              cursor-pointer transition-all duration-200
-              focus:outline-none focus-visible:ring-4 focus-visible:ring-red-300
-            "
-            aria-label={`Desactivar oferta de ${producto.nombreProducto}`}
-            title="Desactivar oferta"
-          >
-            <XCircle size={20} aria-hidden="true" />
-            <span className="text-sm font-semibold">Desactivar</span>
-          </motion.button>
-        </>
-      );
-    }
-
-    return (
+    return isMobile ? (
       <>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <button
+          type="button"
           onClick={() => onEstablecerDescuento(producto)}
-          className="
-            px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg
-            text-xs font-semibold shadow-sm whitespace-nowrap
-            cursor-pointer transition-all duration-200
-            focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
-          "
+          className="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-sm font-semibold transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
+          aria-label={`Editar descuento de ${producto.nombreProducto}`}
+        >
+          <Edit2 size={15} aria-hidden="true" />
+          Editar
+        </button>
+        <button
+          type="button"
+          onClick={() => onCambiarOferta(producto, false)}
+          className="flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 px-4 text-sm font-semibold text-orange-700 transition-all hover:bg-orange-100 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
+          aria-label={`Desactivar oferta de ${producto.nombreProducto}`}
+        >
+          <XCircle size={15} aria-hidden="true" />
+          Quitar
+        </button>
+      </>
+    ) : (
+      <>
+        <button
+          type="button"
+          onClick={() => onEstablecerDescuento(producto)}
+          className="h-7 px-3 rounded-lg bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-xs font-semibold whitespace-nowrap cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1"
           aria-label={`Editar descuento de ${producto.nombreProducto}`}
         >
           Editar
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        </button>
+        <button
+          type="button"
           onClick={() => onCambiarOferta(producto, false)}
-          className="
-            inline-flex items-center gap-1 px-3 py-1.5
-            bg-red-500 hover:bg-red-600 text-white rounded-lg
-            text-xs font-semibold shadow-sm whitespace-nowrap
-            cursor-pointer transition-all duration-200
-            focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2
-          "
-          aria-label={`Desactivar oferta de ${producto.nombreProducto}`}
+          className="h-7 cursor-pointer whitespace-nowrap rounded-lg border border-orange-200 bg-orange-50 px-3 text-xs font-semibold text-orange-700 transition-all hover:bg-orange-100 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1"
+          aria-label={`Quitar oferta de ${producto.nombreProducto}`}
         >
-          <XCircle size={16} aria-hidden="true" />
-          Desactivar
-        </motion.button>
+          Quitar
+        </button>
       </>
     );
   }
 
   return (
-    <motion.button
-      whileHover={{ scale: isMobile ? 1.02 : 1.05 }}
-      whileTap={{ scale: 0.98 }}
+    <button
+      type="button"
       onClick={() => onEstablecerDescuento(producto)}
-      className={`
-        inline-flex items-center justify-center gap-2
-        bg-linear-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800
-        text-white rounded-xl
-        font-semibold text-xs shadow-lg whitespace-nowrap
-        cursor-pointer transition-all duration-200
-        focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-300
-        ${isMobile ? "flex-1 h-12" : "px-3 py-1.5"}
-      `}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-xl bg-green-600 hover:bg-green-700 active:scale-95 text-white font-semibold text-xs transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 ${
+        isMobile ? "flex-1 h-10" : "h-7 px-3 whitespace-nowrap"
+      }`}
       aria-label={`Activar oferta en ${producto.nombreProducto}`}
     >
-      <CheckCircle size={isMobile ? 20 : 18} aria-hidden="true" />
-      <span>Activar Oferta</span>
-    </motion.button>
+      <CheckCircle size={14} aria-hidden="true" />
+      Activar oferta
+    </button>
   );
 };

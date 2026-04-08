@@ -1,140 +1,111 @@
 import { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Percent, Sparkles } from "lucide-react";
+import { X } from "lucide-react";
 
-/**
- * Modal para seleccionar porcentaje de descuento.
- * En mobile se comporta como drawer inferior.
- */
+const DESCUENTOS = [
+  { valor: 10, label: "Suave" },
+  { valor: 15, label: "Medio" },
+  { valor: 20, label: "Alto" },
+];
+
 export const ModalDescuento = ({
   isOpen,
   onClose,
   producto,
   onConfirm,
   title = "Aplicar descuento",
-  description = "Selecciona el porcentaje de descuento a aplicar:",
+  description = "Seleccioná el porcentaje a aplicar:",
   confirmLabel = "OFF",
 }) => {
-  const modalRef = useRef(null);
   const closeButtonRef = useRef(null);
-
-  const descuentos = [
-    {
-      valor: 10,
-      color:
-        "bg-primary-500 hover:bg-primary-600 focus-visible:ring-primary-500",
-    },
-    {
-      valor: 15,
-      color: "bg-orange-500 hover:bg-orange-600 focus-visible:ring-orange-500",
-    },
-    {
-      valor: 20,
-      color: "bg-red-500 hover:bg-red-600 focus-visible:ring-red-500",
-    },
-  ];
 
   useEffect(() => {
     if (!isOpen) return;
-
     closeButtonRef.current?.focus();
+    const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
     };
-
-    document.addEventListener("keydown", handleKeyDown);
-
+    document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = "unset";
-      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
     };
   }, [isOpen, onClose]);
-
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-0 sm:px-4"
-          onClick={handleBackdropClick}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="modal-titulo"
-          aria-describedby="modal-descripcion"
+          aria-labelledby="descuento-titulo"
+          aria-describedby="descuento-descripcion"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
         >
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm"
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
             aria-hidden="true"
           />
 
           <motion.div
-            ref={modalRef}
-            initial={{ opacity: 0, scale: 0.98, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 20 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden max-h-[92vh]"
+            className="relative w-full sm:max-w-sm bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden"
           >
-            <div className="bg-linear-to-r from-primary-500 to-primary-600 p-5 sm:p-6 pb-16 sm:pb-20">
-              <button
-                ref={closeButtonRef}
-                onClick={onClose}
-                className="absolute top-4 right-4 z-10 w-10 h-10 flex cursor-pointer items-center justify-center text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary-500"
-                aria-label="Cerrar modal"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="flex justify-center mb-3">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                  <Sparkles className="w-7 h-7 text-white" aria-hidden="true" />
-                </div>
-              </div>
-
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <h2
-                id="modal-titulo"
-                className="text-xl sm:text-2xl font-bold text-white text-center leading-tight"
+                id="descuento-titulo"
+                className="text-base font-semibold text-gray-900"
               >
                 {title}
               </h2>
+              <button
+                ref={closeButtonRef}
+                onClick={onClose}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                aria-label="Cerrar modal"
+              >
+                <X size={17} />
+              </button>
             </div>
 
-            <div className="px-5 sm:px-6 pb-6 -mt-10 sm:-mt-12 relative z-10 overflow-y-auto">
-              <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border border-gray-100">
-                <p className="text-sm text-gray-600 mb-1">
-                  Producto seleccionado:
-                </p>
-                <p className="font-semibold text-gray-900 line-clamp-2">
-                  {producto?.nombreProducto}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  {producto?.categoria}
-                </p>
-              </div>
+            <div className="px-5 py-4 space-y-4">
+              {producto && (
+                <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+                  <p className="text-xs text-gray-500 mb-0.5">Producto</p>
+                  <p className="text-sm font-semibold text-gray-900 line-clamp-2">
+                    {producto.nombreProducto}
+                  </p>
+                  {producto.categoria && (
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {producto.categoria}
+                    </p>
+                  )}
+                </div>
+              )}
 
-              <p
-                id="modal-descripcion"
-                className="text-center text-gray-600 mb-6"
-              >
+              <p id="descuento-descripcion" className="text-sm text-gray-500">
                 {description}
               </p>
 
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                {descuentos.map((desc) => (
+              <div
+                role="group"
+                aria-label="Opciones de descuento"
+                className="space-y-2"
+              >
+                {DESCUENTOS.map((desc) => (
                   <button
                     key={desc.valor}
                     type="button"
@@ -142,37 +113,23 @@ export const ModalDescuento = ({
                       onConfirm(desc.valor);
                       onClose();
                     }}
-                    className={`group relative ${desc.color} text-white rounded-xl py-5 px-3 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`}
-                    aria-label={`Aplicar descuento de ${desc.valor} por ciento`}
+                    className="flex h-12 w-full cursor-pointer items-center justify-between rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-800 transition-colors hover:border-green-500 hover:bg-green-50 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                    aria-label={`Aplicar ${desc.valor}% de descuento`}
                   >
-                    <div className="flex justify-center mb-2">
-                      <div className="w-8 h-8 bg-white/30 rounded-lg flex items-center justify-center group-hover:bg-white/40 transition-colors">
-                        <Percent
-                          size={18}
-                          className="text-white"
-                          aria-hidden="true"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="text-center">
-                      <div className="text-2xl font-extrabold">
-                        {desc.valor}%
-                      </div>
-                      <div className="text-[11px] font-semibold uppercase tracking-wide opacity-90">
-                        {confirmLabel}
-                      </div>
-                    </div>
-
-                    <div className="absolute inset-0 rounded-xl bg-linear-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                    <span>{desc.label}</span>
+                    <span className="inline-flex items-center rounded-md bg-orange-100 px-2 py-0.5 text-xs font-bold text-orange-700">
+                      {desc.valor}% {confirmLabel}
+                    </span>
                   </button>
                 ))}
               </div>
+            </div>
 
+            <div className="px-5 pb-5">
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full h-12 cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium text-base transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2"
+                className="w-full h-10 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                 aria-label="Cancelar y cerrar"
               >
                 Cancelar

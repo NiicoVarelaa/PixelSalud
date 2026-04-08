@@ -27,6 +27,8 @@ import {
  * Orquesta todos los sub-componentes y gestiona el estado global del módulo
  */
 const AdminClientes = () => {
+  const ITEMS_POR_PAGINA = 5;
+
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
@@ -48,8 +50,9 @@ const AdminClientes = () => {
     paginaActual,
     setPaginaActual,
     totalPaginas,
+    clientesFiltrados,
     clientesActuales,
-  } = useClientesFilters(clientes, 8);
+  } = useClientesFilters(clientes, ITEMS_POR_PAGINA);
 
   // Estados del modal
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -160,6 +163,8 @@ const AdminClientes = () => {
           setBusqueda={setBusqueda}
           filtroEstado={filtroEstado}
           setFiltroEstado={setFiltroEstado}
+          totalFiltrados={clientesFiltrados.length}
+          totalClientes={clientes.length}
         />
 
         {/* Contenido Principal */}
@@ -169,9 +174,9 @@ const AdminClientes = () => {
           ) : clientesActuales.length === 0 ? (
             <EmptyState onCrearCliente={handleCrearCliente} />
           ) : (
-            <>
+            <div className="flex min-h-0 flex-1 flex-col">
               {/* Vista Móvil - Cards */}
-              <div className="lg:hidden p-4">
+              <div className="lg:hidden overflow-y-auto p-4">
                 {clientesActuales.map((cliente) => (
                   <ClienteCard
                     key={cliente.idCliente}
@@ -183,19 +188,42 @@ const AdminClientes = () => {
               </div>
 
               {/* Vista Desktop - Tabla */}
-              <ClienteTable
-                clientes={clientesActuales}
-                onEditar={handleEditarCliente}
-                onCambiarEstado={handleCambiarEstado}
-              />
+              <div className="hidden min-h-0 flex-1 overflow-y-auto lg:block">
+                <ClienteTable
+                  clientes={clientesActuales}
+                  onEditar={handleEditarCliente}
+                  onCambiarEstado={handleCambiarEstado}
+                />
+              </div>
 
-              {/* Paginación */}
-              <ClientesPagination
-                paginaActual={paginaActual}
-                totalPaginas={totalPaginas}
-                onCambiarPagina={setPaginaActual}
-              />
-            </>
+              <div className="border-t border-gray-100 bg-white/95 px-3 py-3 sm:px-4 sm:py-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <p
+                    className="text-xs font-medium text-gray-600"
+                    aria-live="polite"
+                  >
+                    Mostrando{" "}
+                    {Math.min(
+                      (paginaActual - 1) * ITEMS_POR_PAGINA + 1,
+                      clientesFiltrados.length,
+                    )}
+                    -
+                    {Math.min(
+                      paginaActual * ITEMS_POR_PAGINA,
+                      clientesFiltrados.length,
+                    )}{" "}
+                    de {clientesFiltrados.length} clientes
+                  </p>
+                  <div className="pt-1 sm:pt-0">
+                    <ClientesPagination
+                      paginaActual={paginaActual}
+                      totalPaginas={totalPaginas}
+                      onCambiarPagina={setPaginaActual}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 

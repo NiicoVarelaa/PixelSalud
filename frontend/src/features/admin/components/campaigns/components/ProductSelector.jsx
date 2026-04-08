@@ -1,4 +1,4 @@
-import { Search, Filter, X, Package, CheckSquare, Square } from "lucide-react";
+import { Search, X, CheckSquare2, Square } from "lucide-react";
 import Default from "@assets/default.webp";
 import { getProductoImageUrl } from "../utils/formatters";
 import { useProductFilters } from "../hooks/useProductFilters";
@@ -6,6 +6,7 @@ import { useProductFilters } from "../hooks/useProductFilters";
 export const ProductSelector = ({
   productos,
   categorias,
+  idsProductosBloqueados = [],
   productosSeleccionados,
   onToggleProducto,
   onSeleccionarTodos,
@@ -18,6 +19,7 @@ export const ProductSelector = ({
     productos,
     busquedaProducto: busqueda,
     categoriaFiltro: categoria,
+    idsProductosBloqueados,
   });
 
   const todosSeleccionados =
@@ -25,134 +27,142 @@ export const ProductSelector = ({
     productosSeleccionados.length === productosDisponibles.length;
 
   return (
-    <div className="border-2 border-gray-200 rounded-xl p-5">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <Package className="w-5 h-5" />
-          Productos de la Campaña ({productosSeleccionados.length}{" "}
-          seleccionados)
-        </h3>
+    <div className="space-y-3">
+      {/* Header de sección */}
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Productos
+          </p>
+          <p className="text-sm font-medium text-gray-900">
+            {productosSeleccionados.length} seleccionados
+          </p>
+        </div>
         <button
-          onClick={onSeleccionarTodos}
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-all"
+          type="button"
+          onClick={() =>
+            onSeleccionarTodos(
+              productosDisponibles.map((producto) => producto.idProducto),
+            )
+          }
+          className="h-8 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 hover:bg-gray-50 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
-          {todosSeleccionados ? "Desmarcar Todos" : "Seleccionar Todos"}
+          {todosSeleccionados ? "Desmarcar todos" : "Seleccionar todos"}
         </button>
       </div>
 
       {/* Filtros */}
-      <div className="flex flex-wrap gap-3 mb-4">
-        <div className="flex-1 min-w-[200px]">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              value={busqueda}
-              onChange={(e) => onBusquedaChange(e.target.value)}
-              placeholder="Buscar producto..."
-              className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-            {busqueda && (
-              <button
-                onClick={() => onBusquedaChange("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="min-w-[200px]">
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <select
-              value={categoria}
-              onChange={(e) => onCategoriaChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 appearance-none"
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search
+            size={14}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            aria-hidden="true"
+          />
+          <input
+            type="search"
+            value={busqueda}
+            onChange={(e) => onBusquedaChange(e.target.value)}
+            placeholder="Buscar producto..."
+            className="w-full h-9 pl-8 pr-8 rounded-lg border border-gray-200 bg-gray-50 text-sm placeholder-gray-400 focus:outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-colors"
+            aria-label="Buscar producto en la lista"
+          />
+          {busqueda && (
+            <button
+              type="button"
+              onClick={() => onBusquedaChange("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+              aria-label="Limpiar búsqueda"
             >
-              <option value="">Todas las categorías</option>
-              {categorias.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </div>
+              <X size={14} />
+            </button>
+          )}
         </div>
-
-        {(busqueda || categoria) && (
-          <button
-            onClick={() => {
-              onBusquedaChange("");
-              onCategoriaChange("");
-            }}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-all"
-          >
-            Limpiar filtros
-          </button>
-        )}
+        <select
+          value={categoria}
+          onChange={(e) => onCategoriaChange(e.target.value)}
+          className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-2.5 text-sm text-gray-700 cursor-pointer focus:outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-colors"
+          aria-label="Filtrar por categoría"
+        >
+          <option value="">Todas las categorías</option>
+          {categorias.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Grid de Productos */}
-      <div className="bg-gray-50 rounded-lg p-4 max-h-[400px] overflow-y-auto">
+      {/* Lista */}
+      <div
+        className="max-h-72 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-2"
+        role="listbox"
+        aria-label="Productos disponibles"
+        aria-multiselectable="true"
+      >
         {productosDisponibles.length === 0 ? (
-          <p className="text-center text-gray-500 py-8">
+          <p className="py-8 text-center text-sm text-gray-400">
             No se encontraron productos
           </p>
         ) : (
-          <>
-            <p className="text-sm text-gray-600 mb-3">
-              {productosDisponibles.length} productos encontrados
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {productosDisponibles.map((producto) => {
-                const isSelected = productosSeleccionados.includes(
-                  producto.idProducto,
-                );
-                return (
-                  <div
-                    key={producto.idProducto}
-                    onClick={() => onToggleProducto(producto.idProducto)}
-                    className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border-2 ${
-                      isSelected
-                        ? "bg-purple-50 border-purple-500"
-                        : "bg-white border-gray-200 hover:border-purple-300"
-                    }`}
-                  >
-                    <div className="shrink-0">
-                      {isSelected ? (
-                        <CheckSquare className="w-5 h-5 text-purple-600" />
-                      ) : (
-                        <Square className="w-5 h-5 text-gray-400" />
-                      )}
-                    </div>
-                    <div className="w-12 h-12 shrink-0 bg-gray-100 rounded-md overflow-hidden">
-                      <img
-                        src={getProductoImageUrl(producto)}
-                        alt={producto.nombreProducto}
-                        className="w-full h-full object-contain"
-                        onError={(e) => (e.target.src = Default)}
-                      />
-                    </div>
-                    <div className="flex-1 text-left min-w-0">
-                      <p className="text-sm font-semibold text-gray-800 truncate">
-                        {producto.nombreProducto}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {producto.categoria}
-                      </p>
-                      <p className="text-sm font-bold text-purple-600">
-                        ${producto.precio}
-                      </p>
-                    </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            {productosDisponibles.map((producto) => {
+              const isSelected = productosSeleccionados.includes(
+                producto.idProducto,
+              );
+              return (
+                <button
+                  key={producto.idProducto}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => onToggleProducto(producto.idProducto)}
+                  className={`flex items-center gap-2.5 rounded-lg border p-2.5 text-left transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 ${
+                    isSelected
+                      ? "border-green-400 bg-green-50"
+                      : "border-gray-200 bg-white hover:border-gray-300"
+                  }`}
+                >
+                  {isSelected ? (
+                    <CheckSquare2
+                      size={16}
+                      className="shrink-0 text-green-600"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Square
+                      size={16}
+                      className="shrink-0 text-gray-300"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <div className="h-9 w-9 shrink-0 overflow-hidden rounded-md bg-gray-100">
+                    <img
+                      src={getProductoImageUrl(producto)}
+                      alt=""
+                      aria-hidden="true"
+                      className="h-full w-full object-contain"
+                      onError={(e) => (e.target.src = Default)}
+                    />
                   </div>
-                );
-              })}
-            </div>
-          </>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold text-gray-800">
+                      {producto.nombreProducto}
+                    </p>
+                    <p className="truncate text-xs text-gray-500">
+                      {producto.categoria}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
+
+      <p className="text-right text-xs text-gray-400">
+        {productosDisponibles.length} productos encontrados
+      </p>
     </div>
   );
 };

@@ -102,7 +102,7 @@ export const VentasModal = ({
         <header className="px-4 sm:px-6 py-4 bg-green-700 text-white flex justify-between items-center shadow-md shrink-0 z-10">
           <div className="flex items-center gap-3">
             <div
-              className="p-2 bg-white/10 rounded-lg shrink-0"
+              className="p-2 bg-white rounded-lg shrink-0 text-primary-700"
               aria-hidden="true"
             >
               {isEditing ? <Edit size={20} /> : <ShoppingBag size={20} />}
@@ -118,7 +118,7 @@ export const VentasModal = ({
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:bg-green-600 focus-visible:ring-2 focus-visible:ring-white p-2 rounded-xl transition-colors outline-none cursor-pointer"
+            className="text-slate-200 hover:text-slate-100 focus-visible:ring-2 focus-visible:ring-white p-2 rounded-xl transition-colors outline-none cursor-pointer"
             aria-label="Cerrar modal de ventas"
           >
             <X size={24} />

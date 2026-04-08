@@ -45,31 +45,34 @@ export const EmpleadosPagination = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full rounded-2xl border border-gray-200/80 bg-white px-4 py-4 shadow-sm"
+      className="flex justify-center py-2"
     >
       <nav
         className="flex justify-center"
         role="navigation"
         aria-label="Paginación de empleados"
       >
-        <div className="flex w-full max-w-md items-center justify-between px-1 sm:px-4">
-          <motion.button
-            whileHover={{ scale: paginaActual === 1 ? 1 : 1.05 }}
-            whileTap={{ scale: paginaActual === 1 ? 1 : 0.95 }}
+        <div className="flex w-full max-w-md items-center justify-between px-2 sm:px-4">
+          <button
             onClick={() => onCambiarPagina(Math.max(1, paginaActual - 1))}
             disabled={paginaActual === 1}
-            className={`flex h-10 w-10 items-center justify-center rounded-full bg-slate-200/50 transition-all duration-200 ${
-              paginaActual === 1
-                ? "cursor-not-allowed opacity-40"
-                : "cursor-pointer hover:bg-slate-300/50"
-            }`}
+            className={`
+              h-10 w-10 flex items-center justify-center rounded-full
+              transition-all duration-200 bg-slate-200/50
+              focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2
+              ${
+                paginaActual === 1
+                  ? "opacity-40 cursor-not-allowed"
+                  : "hover:bg-slate-300/50 cursor-pointer"
+              }
+            `}
             aria-label="Página anterior"
             aria-disabled={paginaActual === 1}
           >
             <ChevronLeft className="h-5 w-5 text-slate-600" />
-          </motion.button>
+          </button>
 
-          <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 sm:flex">
             {getPaginationNumbers().map((number, index) => {
               if (number === "...") {
                 return (
@@ -86,16 +89,19 @@ export const EmpleadosPagination = ({
               const isActive = number === paginaActual;
 
               return (
-                <motion.button
+                <button
                   key={number}
-                  whileHover={isActive ? { scale: 1 } : { scale: 1.05 }}
-                  whileTap={isActive ? { scale: 1 } : { scale: 0.95 }}
                   onClick={() => onCambiarPagina(number)}
-                  className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? "border border-green-600 text-green-600"
-                      : "cursor-pointer text-green-600 hover:bg-green-100"
-                  }`}
+                  className={`
+                    h-10 w-10 flex items-center justify-center rounded-full
+                    text-sm font-medium transition-all duration-200
+                    focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2
+                    ${
+                      isActive
+                        ? "text-green-600 border border-green-600"
+                        : "text-green-600 hover:bg-green-100 cursor-pointer"
+                    }
+                  `}
                   aria-label={
                     isActive
                       ? `Página ${number} (actual)`
@@ -104,28 +110,35 @@ export const EmpleadosPagination = ({
                   aria-current={isActive ? "page" : undefined}
                 >
                   {number}
-                </motion.button>
+                </button>
               );
             })}
           </div>
 
-          <motion.button
-            whileHover={{ scale: paginaActual === totalPaginas ? 1 : 1.05 }}
-            whileTap={{ scale: paginaActual === totalPaginas ? 1 : 0.95 }}
+          <div className="sm:hidden rounded-md border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600">
+            {paginaActual}/{totalPaginas}
+          </div>
+
+          <button
             onClick={() =>
               onCambiarPagina(Math.min(totalPaginas, paginaActual + 1))
             }
             disabled={paginaActual === totalPaginas}
-            className={`flex h-10 w-10 items-center justify-center rounded-full bg-slate-200/50 transition-all duration-200 ${
-              paginaActual === totalPaginas
-                ? "cursor-not-allowed opacity-40"
-                : "cursor-pointer hover:bg-slate-300/50"
-            }`}
+            className={`
+              h-10 w-10 flex items-center justify-center rounded-full
+              transition-all duration-200 bg-slate-200/50
+              focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2
+              ${
+                paginaActual === totalPaginas
+                  ? "opacity-40 cursor-not-allowed"
+                  : "hover:bg-slate-300/50 cursor-pointer"
+              }
+            `}
             aria-label="Página siguiente"
             aria-disabled={paginaActual === totalPaginas}
           >
             <ChevronRight className="h-5 w-5 text-slate-600" />
-          </motion.button>
+          </button>
         </div>
       </nav>
     </motion.div>

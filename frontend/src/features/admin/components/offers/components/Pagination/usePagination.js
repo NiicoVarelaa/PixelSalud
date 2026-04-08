@@ -6,6 +6,7 @@ export const usePagination = ({
   busqueda,
   filtroCategoria,
   filtroDescuento,
+  idsProductosEnCampanas,
   paginaActual,
   itemsPorPagina,
 }) => {
@@ -15,6 +16,7 @@ export const usePagination = ({
       busqueda,
       filtroCategoria,
       filtroDescuento,
+      idsProductosEnCampanas,
     });
 
     const total = Math.ceil(filtrados.length / itemsPorPagina);
@@ -33,6 +35,7 @@ export const usePagination = ({
     busqueda,
     filtroCategoria,
     filtroDescuento,
+    idsProductosEnCampanas,
     paginaActual,
     itemsPorPagina,
   ]);

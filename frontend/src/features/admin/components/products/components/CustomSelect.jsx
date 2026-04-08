@@ -102,10 +102,10 @@ const CustomSelect = ({
         onKeyDown={handleKeyDown}
         className={`
           flex items-center justify-between w-full px-4 py-2.5 
-          bg-gray-50 border rounded-xl text-sm text-gray-800 
+          bg-gray-50 border rounded-lg text-sm text-gray-800 
           cursor-pointer transition-all duration-200 ease-in-out outline-none
           hover:border-gray-300
-          ${isOpen ? "border-green-500 bg-white ring-4 ring-green-500/10" : "border-gray-200 focus:border-green-500 focus:bg-white focus:ring-4 focus:ring-green-500/10"}
+          ${isOpen ? "border-green-500 hover:border-green-500 bg-white ring ring-green-500" : "border-slate-200 hover:border-slate-200 focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-500/15"}
         `}
       >
         <span className="truncate font-medium">{selectedOption.label}</span>

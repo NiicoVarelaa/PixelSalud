@@ -7,13 +7,32 @@ export const hasActiveOffer = (product) =>
   Boolean(product.enOferta) &&
   normalizeDiscount(product.porcentajeDescuento) > 0;
 
+const normalizeDiscountFilter = (value) => {
+  const normalized = String(value ?? "todos")
+    .trim()
+    .toLowerCase();
+
+  if (normalized === "todos") {
+    return { isAll: true, value: null };
+  }
+
+  // Permite formatos como "15", "15%" o "15% off".
+  const numeric = Number(normalized.replace("%", "").replace("off", "").trim());
+  return { isAll: false, value: Number.isFinite(numeric) ? numeric : null };
+};
+
 export const filterOfferProducts = ({
   productos,
   busqueda,
   filtroCategoria,
   filtroDescuento,
+  idsProductosEnCampanas = [],
 }) => {
-  const productosConOferta = productos.filter((p) => hasActiveOffer(p));
+  const idsEnCampana = new Set(idsProductosEnCampanas);
+  const descuentoFilter = normalizeDiscountFilter(filtroDescuento);
+  const productosConOferta = productos.filter(
+    (p) => hasActiveOffer(p) && !idsEnCampana.has(p.idProducto),
+  );
 
   return productosConOferta.filter((p) => {
     const cumpleBusqueda =
@@ -24,8 +43,9 @@ export const filterOfferProducts = ({
       filtroCategoria === "todas" || p.categoria === filtroCategoria;
 
     const cumpleDescuento =
-      filtroDescuento === "todos" ||
-      normalizeDiscount(p.porcentajeDescuento) === Number(filtroDescuento);
+      descuentoFilter.isAll ||
+      (descuentoFilter.value !== null &&
+        normalizeDiscount(p.porcentajeDescuento) === descuentoFilter.value);
 
     return cumpleBusqueda && cumpleCategoria && cumpleDescuento;
   });

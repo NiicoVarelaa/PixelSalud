@@ -34,6 +34,66 @@ export const useCampanasData = () => {
     }
   }, [backendUrl, getConfig, fetchProducts]);
 
+  const cargarIdsProductosEnCampanas = useCallback(
+    async ({ excluirCampanaId = null } = {}) => {
+      try {
+        const responseCampanas = await axios.get(
+          `${backendUrl}/campanas`,
+          getConfig(),
+        );
+        const campanasData = responseCampanas.data || [];
+
+        const campanasFiltradas = campanasData.filter(
+          (campana) => campana.idCampana !== excluirCampanaId,
+        );
+
+        if (campanasFiltradas.length === 0) return [];
+
+        const productosPorCampana = await Promise.all(
+          campanasFiltradas.map((campana) =>
+            axios.get(
+              `${backendUrl}/campanas/${campana.idCampana}/productos`,
+              getConfig(),
+            ),
+          ),
+        );
+
+        const ids = new Set();
+        productosPorCampana.forEach((res) => {
+          res.data?.productos?.forEach((producto) =>
+            ids.add(producto.idProducto),
+          );
+        });
+
+        return Array.from(ids);
+      } catch (error) {
+        console.error("Error al cargar productos en campañas:", error);
+        toast.error(
+          "No se pudieron cargar los productos ya asignados a campañas.",
+        );
+        return [];
+      }
+    },
+    [backendUrl, getConfig],
+  );
+
+  const limpiarOfertasIndividuales = useCallback(
+    async (productosIds) => {
+      if (!Array.isArray(productosIds) || productosIds.length === 0) return;
+
+      await Promise.all(
+        productosIds.map((idProducto) =>
+          axios.put(
+            `${backendUrl}/productos/actualizar/${idProducto}`,
+            { enOferta: false, porcentajeDescuento: 0 },
+            getConfig(),
+          ),
+        ),
+      );
+    },
+    [backendUrl, getConfig],
+  );
+
   const crearCampana = useCallback(
     async (nuevaCampana, productosSeleccionados) => {
       try {
@@ -71,7 +131,10 @@ export const useCampanasData = () => {
 
         const idCampana = responseCampana.data.idCampana;
 
-        // 2. Agregar productos a la campaña
+        // 2. Al pasar a campaña, la oferta individual debe quedar desactivada.
+        await limpiarOfertasIndividuales(productosSeleccionados);
+
+        // 3. Agregar productos a la campaña
         await axios.post(
           `${backendUrl}/campanas/${idCampana}/productos`,
           { productosIds: productosSeleccionados },
@@ -94,7 +157,7 @@ export const useCampanasData = () => {
         return false;
       }
     },
-    [backendUrl, getConfig, fetchCampanas],
+    [backendUrl, getConfig, fetchCampanas, limpiarOfertasIndividuales],
   );
 
   const actualizarCampana = useCallback(
@@ -135,7 +198,12 @@ export const useCampanasData = () => {
           (id) => !productosSeleccionados.includes(id),
         );
 
-        // 4. Agregar nuevos
+        // 4. Si un producto entra a campaña, se desactiva su oferta individual.
+        if (productosParaAgregar.length > 0) {
+          await limpiarOfertasIndividuales(productosParaAgregar);
+        }
+
+        // 5. Agregar nuevos
         if (productosParaAgregar.length > 0) {
           await axios.post(
             `${backendUrl}/campanas/${campanaEditando.idCampana}/productos`,
@@ -144,7 +212,7 @@ export const useCampanasData = () => {
           );
         }
 
-        // 5. Eliminar removidos
+        // 6. Eliminar removidos
         if (productosParaEliminar.length > 0) {
           await axios.delete(
             `${backendUrl}/campanas/${campanaEditando.idCampana}/productos`,
@@ -164,7 +232,7 @@ export const useCampanasData = () => {
         return false;
       }
     },
-    [backendUrl, getConfig, fetchCampanas],
+    [backendUrl, getConfig, fetchCampanas, limpiarOfertasIndividuales],
   );
 
   const toggleActiva = useCallback(
@@ -233,5 +301,6 @@ export const useCampanasData = () => {
     toggleActiva,
     eliminarCampana,
     cargarProductosCampana,
+    cargarIdsProductosEnCampanas,
   };
 };

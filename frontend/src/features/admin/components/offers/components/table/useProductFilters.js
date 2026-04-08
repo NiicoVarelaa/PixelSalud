@@ -6,6 +6,7 @@ export const useProductFilters = ({
   busqueda,
   filtroCategoria,
   filtroDescuento,
+  idsProductosEnCampanas,
   paginaActual,
   itemsPorPagina,
 }) => {
@@ -15,6 +16,7 @@ export const useProductFilters = ({
       busqueda,
       filtroCategoria,
       filtroDescuento,
+      idsProductosEnCampanas,
     });
 
     const indiceInicio = (paginaActual - 1) * itemsPorPagina;
@@ -25,6 +27,7 @@ export const useProductFilters = ({
     busqueda,
     filtroCategoria,
     filtroDescuento,
+    idsProductosEnCampanas,
     paginaActual,
     itemsPorPagina,
   ]);

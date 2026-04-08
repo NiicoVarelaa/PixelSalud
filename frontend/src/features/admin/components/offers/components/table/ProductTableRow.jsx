@@ -19,49 +19,58 @@ export const ProductTableRow = ({
 
   return (
     <motion.tr
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.2, delay: index * 0.03 }}
-      className="group transition-colors hover:bg-gray-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.15, delay: index * 0.025 }}
+      className={`transition-colors odd:bg-white even:bg-gray-50/40 hover:bg-green-50/35 ${
+        tieneOferta ? "border-l-2 border-l-orange-300" : ""
+      }`}
     >
-      <td className="px-3 py-1.5">
+      {/* Producto */}
+      <td className="px-4 py-3">
         <div className="flex items-center gap-3">
           <ProductImage
             src={getProductoImageUrl(producto)}
             alt={producto.nombreProducto}
             tieneOferta={tieneOferta}
-            className="h-9 w-9"
+            className="h-9 w-9 shrink-0"
           />
           <div className="min-w-0">
-            <p className="truncate max-w-[230px] text-sm font-semibold text-gray-900 transition-colors group-hover:text-primary-700 xl:max-w-[320px]">
+            <p className="truncate max-w-[200px] text-sm font-medium text-gray-900 xl:max-w-[300px]">
               {producto.nombreProducto}
             </p>
-            <p className="mt-0.5 text-xs text-gray-500">
-              Stock: <span className="font-medium">{producto.stock}</span>
-            </p>
+            <p className="text-xs text-gray-400">Stock: {producto.stock}</p>
           </div>
         </div>
       </td>
-      <td className="px-3 py-1.5">
-        <span className="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium whitespace-nowrap">
+
+      {/* Categoría */}
+      <td className="px-4 py-3">
+        <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs text-gray-600 font-medium whitespace-nowrap">
           {producto.categoria}
         </span>
       </td>
-      <td className="px-3 py-1.5">
+
+      {/* Precio */}
+      <td className="px-4 py-3">
         <ProductPrice
           precioRegular={producto.precioRegular}
           precioConDescuento={precioConDescuento}
           tieneOferta={tieneOferta}
         />
       </td>
-      <td className="px-3 py-1.5 text-center">
+
+      {/* Estado */}
+      <td className="px-4 py-3 text-center">
         <ProductStatus
           tieneOferta={tieneOferta}
           porcentajeDescuento={producto.porcentajeDescuento}
           enCampana={enCampana}
         />
       </td>
-      <td className="px-3 py-1.5">
+
+      {/* Acciones */}
+      <td className="px-4 py-3">
         <div className="flex items-center justify-center gap-1.5">
           <ProductActions
             producto={producto}

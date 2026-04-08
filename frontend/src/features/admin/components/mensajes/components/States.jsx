@@ -1,39 +1,55 @@
 import { motion } from "framer-motion";
+import { Inbox, AlertCircle } from "lucide-react";
 
 export const LoadingState = () => (
-  <div className="flex flex-col items-center justify-center py-12">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-    <p className="mt-4 text-gray-500">Cargando mensajes...</p>
+  <div
+    className="flex flex-col items-center justify-center py-16"
+    role="status"
+    aria-live="polite"
+    aria-label="Cargando mensajes"
+  >
+    <motion.div
+      animate={{ rotate: 360 }}
+      transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+      className="h-8 w-8 rounded-full border-2 border-gray-200 border-t-green-600"
+      aria-hidden="true"
+    />
+    <p className="mt-3 text-sm text-gray-500">Cargando mensajes...</p>
   </div>
 );
 
 export const EmptyState = () => (
-  <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-    <svg
-      className="w-16 h-16 mb-4"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
+  <motion.div
+    initial={{ opacity: 0, scale: 0.97 }}
+    animate={{ opacity: 1, scale: 1 }}
+    className="flex flex-col items-center justify-center py-16 text-center"
+    role="status"
+  >
+    <div
+      className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100"
+      aria-hidden="true"
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-      />
-    </svg>
-    <p className="text-lg font-medium">No hay mensajes</p>
-    <p className="text-sm mt-1">Los mensajes recibidos aparecerán aquí</p>
-  </div>
+      <Inbox size={22} className="text-gray-400" />
+    </div>
+    <p className="text-sm font-semibold text-gray-700">No hay mensajes</p>
+    <p className="mt-1 text-xs text-gray-400">
+      Los mensajes de tus clientes aparecerán aquí
+    </p>
+  </motion.div>
 );
 
 export const ErrorBanner = ({ error }) => (
   <motion.div
-    initial={{ opacity: 0, y: -10 }}
+    initial={{ opacity: 0, y: -8 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
+    role="alert"
+    aria-live="assertive"
+    className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3"
   >
-    <p className="font-medium">Error</p>
-    <p className="text-sm">{error}</p>
+    <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-500" aria-hidden="true" />
+    <div>
+      <p className="text-xs font-semibold text-red-700">Error al cargar mensajes</p>
+      <p className="mt-0.5 text-xs text-red-600">{error}</p>
+    </div>
   </motion.div>
 );

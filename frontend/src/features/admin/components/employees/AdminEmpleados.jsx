@@ -27,6 +27,8 @@ import {
  * Orquesta todos los sub-componentes y gestiona el estado global del módulo
  */
 const AdminEmpleados = () => {
+  const ITEMS_POR_PAGINA = 6;
+
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
@@ -48,8 +50,9 @@ const AdminEmpleados = () => {
     paginaActual,
     setPaginaActual,
     totalPaginas,
+    empleadosFiltrados,
     empleadosActuales,
-  } = useEmpleadosFilters(empleados, 8);
+  } = useEmpleadosFilters(empleados, ITEMS_POR_PAGINA);
 
   // Estados del modal
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -135,16 +138,16 @@ const AdminEmpleados = () => {
         description="Gestiona usuarios internos, accesos y permisos de manera centralizada"
         contentClassName="flex h-full min-h-0 flex-col gap-4"
         headerAction={
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <div className="flex gap-3">
             <button
               onClick={handleCrearEmpleado}
-              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-white shadow-sm transition-colors hover:bg-green-700"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white shadow-md transition-colors hover:bg-green-700"
             >
-              <UserPlus size={20} /> Agregar Empleado
+              <UserPlus size={20} /> Nuevo Empleado
             </button>
             <Link
               to="/admin"
-              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-200 px-4 py-2 font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-300"
             >
               <ArrowLeft size={18} /> Volver
             </Link>
@@ -160,34 +163,32 @@ const AdminEmpleados = () => {
           setBusqueda={setBusqueda}
           filtroEstado={filtroEstado}
           setFiltroEstado={setFiltroEstado}
+          totalFiltrados={empleadosFiltrados.length}
+          totalEmpleados={empleados.length}
         />
 
         {/* Contenido Principal */}
-        <div className="flex min-h-0 flex-1 flex-col">
+        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           {cargando ? (
-            <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm">
-              <LoadingState />
-            </div>
+            <LoadingState />
           ) : empleadosActuales.length === 0 ? (
-            <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm">
-              <EmptyState onCrearEmpleado={handleCrearEmpleado} />
-            </div>
+            <EmptyState onCrearEmpleado={handleCrearEmpleado} />
           ) : (
-            <>
-              <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-                {/* Vista Móvil - Cards */}
-                <div className="p-4 lg:hidden">
-                  {empleadosActuales.map((empleado) => (
-                    <EmpleadoCard
-                      key={empleado.idEmpleado}
-                      empleado={empleado}
-                      onEditar={handleEditarEmpleado}
-                      onCambiarEstado={handleCambiarEstado}
-                    />
-                  ))}
-                </div>
+            <div className="flex min-h-0 flex-1 flex-col">
+              {/* Vista Móvil - Cards */}
+              <div className="min-h-0 flex-1 overflow-y-auto p-4 lg:hidden">
+                {empleadosActuales.map((empleado) => (
+                  <EmpleadoCard
+                    key={empleado.idEmpleado}
+                    empleado={empleado}
+                    onEditar={handleEditarEmpleado}
+                    onCambiarEstado={handleCambiarEstado}
+                  />
+                ))}
+              </div>
 
-                {/* Vista Desktop - Tabla */}
+              {/* Vista Desktop - Tabla */}
+              <div className="hidden min-h-0 flex-1 overflow-auto lg:block">
                 <EmpleadoTable
                   empleados={empleadosActuales}
                   onEditar={handleEditarEmpleado}
@@ -195,15 +196,36 @@ const AdminEmpleados = () => {
                 />
               </div>
 
-              {/* Paginación */}
-              <div className="mt-4 lg:mt-auto">
-                <EmpleadosPagination
-                  paginaActual={paginaActual}
-                  totalPaginas={totalPaginas}
-                  onCambiarPagina={setPaginaActual}
-                />
-              </div>
-            </>
+              {empleadosFiltrados.length > 0 && (
+                <div className="shrink-0 border-t border-gray-100 bg-white/95 px-3 py-3 sm:px-4 sm:py-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <p
+                      className="text-xs font-medium text-gray-600"
+                      aria-live="polite"
+                    >
+                      Mostrando{" "}
+                      {Math.min(
+                        (paginaActual - 1) * ITEMS_POR_PAGINA + 1,
+                        empleadosFiltrados.length,
+                      )}
+                      -
+                      {Math.min(
+                        paginaActual * ITEMS_POR_PAGINA,
+                        empleadosFiltrados.length,
+                      )}{" "}
+                      de {empleadosFiltrados.length} empleados
+                    </p>
+                    <div className="pt-1 sm:pt-0">
+                      <EmpleadosPagination
+                        paginaActual={paginaActual}
+                        totalPaginas={totalPaginas}
+                        onCambiarPagina={setPaginaActual}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
 

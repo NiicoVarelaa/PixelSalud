@@ -46,7 +46,7 @@ const VentasSwitch = ({ activeOption, onOptionChange }) => {
               onKeyDown={(e) => handleKeyDown(e, option.value)}
               className={`
                 group relative flex-1 sm:flex-none flex items-center justify-center gap-2 
-                px-4 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base font-bold rounded-lg
+                px-4 sm:px-4 py-2 text-sm sm:text-base font-bold rounded-lg
                 transition-colors duration-200 outline-none cursor-pointer
                 focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-100
                 ${

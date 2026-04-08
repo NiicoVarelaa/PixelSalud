@@ -1,75 +1,61 @@
 import { motion } from "framer-motion";
-import { Tag, Sparkles, Power, Package } from "lucide-react";
+import { Tag, Zap, PowerOff, Package } from "lucide-react";
+
+const STATS = (campanas, productos) => [
+  {
+    label: "Campañas",
+    value: campanas.length,
+    icon: Tag,
+    accent: "text-gray-700",
+    iconBg: "bg-gray-100",
+  },
+  {
+    label: "Activas",
+    value: campanas.filter((c) => c.esActiva).length,
+    icon: Zap,
+    accent: "text-green-700",
+    iconBg: "bg-green-100",
+  },
+  {
+    label: "Inactivas",
+    value: campanas.filter((c) => !c.esActiva).length,
+    icon: PowerOff,
+    accent: "text-gray-500",
+    iconBg: "bg-gray-100",
+  },
+  {
+    label: "Productos",
+    value: productos.length,
+    icon: Package,
+    accent: "text-gray-700",
+    iconBg: "bg-gray-100",
+  },
+];
 
 export const StatsCards = ({ campanas, productos }) => {
-  const stats = [
-    {
-      label: "Total Campañas",
-      value: campanas.length,
-      icon: Tag,
-      gradient: "from-blue-50 to-blue-100",
-      border: "border-blue-200",
-      textColor: "text-blue-600",
-      valueColor: "text-blue-700",
-      iconColor: "text-blue-400",
-    },
-    {
-      label: "Activas",
-      value: campanas.filter((c) => c.esActiva).length,
-      icon: Sparkles,
-      gradient: "from-green-50 to-green-100",
-      border: "border-green-200",
-      textColor: "text-green-600",
-      valueColor: "text-green-700",
-      iconColor: "text-green-400",
-    },
-    {
-      label: "Inactivas",
-      value: campanas.filter((c) => !c.esActiva).length,
-      icon: Power,
-      gradient: "from-red-50 to-red-100",
-      border: "border-red-200",
-      textColor: "text-red-600",
-      valueColor: "text-red-700",
-      iconColor: "text-red-400",
-    },
-    {
-      label: "Productos Total",
-      value: productos.length,
-      icon: Package,
-      gradient: "from-purple-50 to-purple-100",
-      border: "border-purple-200",
-      textColor: "text-purple-600",
-      valueColor: "text-purple-700",
-      iconColor: "text-purple-400",
-    },
-  ];
+  const stats = STATS(campanas, productos);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-4 mb-4">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className={`bg-gradient-to-br ${stat.gradient} p-4 rounded-xl border ${stat.border}`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`${stat.textColor} text-sm font-medium`}>
-                  {stat.label}
-                </p>
-                <p className={`text-3xl font-bold ${stat.valueColor} mt-1`}>
-                  {stat.value}
-                </p>
-              </div>
-              <stat.icon className={`w-12 h-12 ${stat.iconColor}`} />
-            </div>
-          </motion.div>
-        ))}
-      </div>
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {stats.map((stat, i) => (
+        <motion.div
+          key={stat.label}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.06 }}
+          className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3.5 shadow-xs"
+        >
+          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${stat.iconBg}`}>
+            <stat.icon size={17} className={stat.accent} aria-hidden="true" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-gray-500 truncate">{stat.label}</p>
+            <p className={`text-xl font-bold leading-none mt-0.5 ${stat.accent}`}>
+              {stat.value}
+            </p>
+          </div>
+        </motion.div>
+      ))}
     </div>
   );
 };
