@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { FiPlus } from "react-icons/fi";
+import { Plus } from "lucide-react";
 import { AdminLayout } from "@features/admin/components/shared";
 import { useCuponesData } from "./hooks/useCuponesData";
 import { useCuponesFilters } from "./hooks/useCuponesFilters";
@@ -67,7 +66,7 @@ const AdminCupones = () => {
     setConfirmDialog({
       isOpen: true,
       title: "¿Cambiar estado del cupón?",
-      message: `El cupón será ${nuevoEstado === "activo" ? "activado" : "desactivado"}`,
+      message: `El cupón será ${nuevoEstado === "activo" ? "activado" : "desactivado"}.`,
       onConfirm: () => cambiarEstado(id, estadoActual),
     });
   };
@@ -76,34 +75,28 @@ const AdminCupones = () => {
     setConfirmDialog({
       isOpen: true,
       title: "¿Eliminar cupón?",
-      message: "Esta acción no se puede deshacer",
+      message: "Esta acción no se puede deshacer.",
       onConfirm: () => eliminarCupon(id),
     });
   };
 
   const closeConfirmDialog = () =>
-    setConfirmDialog({
-      isOpen: false,
-      title: "",
-      message: "",
-      onConfirm: null,
-    });
+    setConfirmDialog({ isOpen: false, title: "", message: "", onConfirm: null });
 
   return (
     <AdminLayout
-      title="Gestión de Cupones"
-      description="Administra cupones de descuento y visualiza su historial de uso"
+      title="Cupones"
+      description="Administrá cupones de descuento y su historial de uso"
       contentClassName="flex h-full min-h-0 flex-col gap-3"
       headerAction={
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        <button
+          type="button"
           onClick={() => setModalAbierto(true)}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700 sm:w-auto"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-green-700 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
         >
-          <FiPlus className="h-5 w-5" />
-          Crear Cupón
-        </motion.button>
+          <Plus size={15} aria-hidden="true" />
+          Crear cupón
+        </button>
       }
     >
       <StatsCards estadisticas={estadisticas} />
@@ -115,7 +108,12 @@ const AdminCupones = () => {
       />
 
       {vistaActual === "cupones" ? (
-        <div className="flex min-h-0 flex-1 flex-col gap-3">
+        <div
+          className="flex min-h-0 flex-1 flex-col gap-3"
+          role="tabpanel"
+          id="panel-cupones"
+          aria-labelledby="tab-cupones"
+        >
           <CuponesFilters
             busqueda={busqueda}
             setBusqueda={setBusqueda}
@@ -126,20 +124,21 @@ const AdminCupones = () => {
             onResetPaginacion={resetPaginacion}
           />
 
-          <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs">
             {cargando ? (
               <LoadingState />
             ) : cuponesPaginados.length === 0 ? (
               <EmptyState mensaje="No se encontraron cupones" />
             ) : (
               <div className="flex min-h-0 flex-1 flex-col">
-                {/* Vista Mobile */}
-                <div className="block min-h-0 flex-1 overflow-y-auto p-4 md:hidden">
-                  <div className="grid gap-3">
-                    {cuponesPaginados.map((cupon) => (
+                {/* Mobile: cards */}
+                <div className="block min-h-0 flex-1 overflow-y-auto p-3 md:hidden">
+                  <div className="grid gap-2.5">
+                    {cuponesPaginados.map((cupon, i) => (
                       <CuponCard
                         key={cupon.idCupon}
                         cupon={cupon}
+                        index={i}
                         onCambiarEstado={handleCambiarEstado}
                         onEliminar={handleEliminar}
                       />
@@ -147,7 +146,7 @@ const AdminCupones = () => {
                   </div>
                 </div>
 
-                {/* Vista Desktop */}
+                {/* Desktop: tabla */}
                 <div className="hidden min-h-0 flex-1 overflow-y-auto md:block">
                   <CuponTable
                     cupones={cuponesPaginados}
@@ -156,21 +155,15 @@ const AdminCupones = () => {
                   />
                 </div>
 
-                <div className="shrink-0 border-t border-gray-100 bg-white/95 px-3 py-3 sm:px-4">
+                <div className="shrink-0 border-t border-gray-100 bg-white/95 px-4 py-3">
                   <CuponesPagination
                     paginaActual={paginaActual}
                     totalPaginas={totalPaginas}
                     indicePrimero={indicePrimero}
                     indiceUltimo={indiceUltimo}
                     totalItems={cuponesFiltrados.length}
-                    onPaginaAnterior={() =>
-                      setPaginaActual((prev) => Math.max(prev - 1, 1))
-                    }
-                    onPaginaSiguiente={() =>
-                      setPaginaActual((prev) =>
-                        Math.min(prev + 1, totalPaginas),
-                      )
-                    }
+                    onPaginaAnterior={() => setPaginaActual((p) => Math.max(p - 1, 1))}
+                    onPaginaSiguiente={() => setPaginaActual((p) => Math.min(p + 1, totalPaginas))}
                   />
                 </div>
               </div>
@@ -178,13 +171,16 @@ const AdminCupones = () => {
           </div>
         </div>
       ) : (
-        /* Vista Historial */
-        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div
+          className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs"
+          role="tabpanel"
+          id="panel-historial"
+          aria-labelledby="tab-historial"
+        >
           <HistorialTable historial={historial} />
         </div>
       )}
 
-      {/* Modal Crear Cupón */}
       <CuponModal
         isOpen={modalAbierto}
         onClose={() => setModalAbierto(false)}
@@ -193,7 +189,6 @@ const AdminCupones = () => {
         cargandoClientes={cargandoClientes}
       />
 
-      {/* Diálogo de Confirmación */}
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}
         onClose={closeConfirmDialog}

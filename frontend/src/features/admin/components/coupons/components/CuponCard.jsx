@@ -1,108 +1,117 @@
 import { motion } from "framer-motion";
-import { FiEdit2, FiTrash2, FiTag, FiClock, FiUsers } from "react-icons/fi";
+import { Tag, Clock, Users, Power, Trash2 } from "lucide-react";
 import {
   formatearFecha,
   getBadgeColor,
   getTipoUsuarioBadge,
 } from "../utils/formatters";
 
-export const CuponCard = ({ cupon, onCambiarEstado, onEliminar }) => {
+const TIPO_USUARIO_LABEL = { todos: "Todos", nuevo: "Nuevos", vip: "VIP" };
+
+export const CuponCard = ({ cupon, onCambiarEstado, onEliminar, index = 0 }) => {
+  const esActivo = cupon.estado === "activo";
+  const pctUso = cupon.usoMaximo
+    ? Math.min(((cupon.vecesUsado || 0) / cupon.usoMaximo) * 100, 100)
+    : null;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
+    <motion.article
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow"
+      transition={{ delay: index * 0.04, duration: 0.2 }}
+      className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-sm"
+      aria-label={`Cupón ${cupon.codigo}`}
     >
-      {/* Header */}
-      <div className="flex justify-between items-start mb-3">
-        <div className="flex items-center gap-2">
-          <FiTag className="text-green-600" />
-          <span className="font-bold text-gray-900">{cupon.codigo}</span>
+      {/* Fila 1: código + estado */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <Tag size={14} className="shrink-0 text-green-600" aria-hidden="true" />
+          <span className="truncate font-bold text-gray-900 tracking-wide">
+            {cupon.codigo}
+          </span>
         </div>
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${getBadgeColor(cupon.estado)}`}
-        >
+        <span className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getBadgeColor(cupon.estado)}`}>
           {cupon.estado}
         </span>
       </div>
 
       {/* Descripción */}
       {cupon.descripcion && (
-        <p className="text-sm text-gray-600 mb-3">{cupon.descripcion}</p>
+        <p className="text-xs text-gray-500 line-clamp-2">{cupon.descripcion}</p>
       )}
 
-      {/* Descuento */}
-      <div className="flex items-center justify-between mb-3 pb-3 border-b">
-        <span className="text-sm text-gray-600">Descuento</span>
-        <span className="font-bold text-green-600">
-          {cupon.tipoCupon === "porcentaje"
-            ? `${cupon.valorDescuento}%`
-            : `$${cupon.valorDescuento}`}
-        </span>
-      </div>
-
-      {/* Tipo Usuario */}
-      <div className="flex items-center gap-2 mb-3">
-        <FiUsers className="text-gray-400 text-sm" />
-        <span
-          className={`px-2 py-0.5 rounded text-xs font-medium ${getTipoUsuarioBadge(cupon.tipoUsuario)}`}
-        >
-          {cupon.tipoUsuario === "todos" && "Todos"}
-          {cupon.tipoUsuario === "nuevo" && "Nuevos"}
-          {cupon.tipoUsuario === "vip" && "VIP"}
-        </span>
+      {/* Descuento + tipo usuario */}
+      <div className="flex items-center justify-between border-t border-gray-100 pt-2.5">
+        <div>
+          <p className="text-[11px] text-gray-400">Descuento</p>
+          <p className="text-base font-bold text-orange-600">
+            {cupon.tipoCupon === "porcentaje"
+              ? `${cupon.valorDescuento}%`
+              : `$${cupon.valorDescuento}`}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[11px] text-gray-400">Audiencia</p>
+          <span className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-semibold ${getTipoUsuarioBadge(cupon.tipoUsuario)}`}>
+            {TIPO_USUARIO_LABEL[cupon.tipoUsuario] ?? cupon.tipoUsuario}
+          </span>
+        </div>
       </div>
 
       {/* Vigencia */}
-      <div className="flex items-center gap-2 mb-3">
-        <FiClock className="text-gray-400 text-sm" />
-        <span className="text-xs text-gray-600">
-          {formatearFecha(cupon.fechaInicio)} -{" "}
-          {formatearFecha(cupon.fechaVencimiento)}
+      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+        <Clock size={12} aria-hidden="true" />
+        <span>
+          {formatearFecha(cupon.fechaInicio)} → {formatearFecha(cupon.fechaVencimiento)}
         </span>
       </div>
 
       {/* Usos */}
-      <div className="mb-4">
-        <div className="flex justify-between text-xs text-gray-600 mb-1">
-          <span>Usos</span>
-          <span>
+      <div>
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span className="inline-flex items-center gap-1">
+            <Users size={12} aria-hidden="true" /> Usos
+          </span>
+          <span className="font-medium text-gray-700">
             {cupon.vecesUsado || 0} / {cupon.usoMaximo || "∞"}
           </span>
         </div>
-        {cupon.usoMaximo && (
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-green-600 h-2 rounded-full transition-all"
-              style={{
-                width: `${Math.min((cupon.vecesUsado / cupon.usoMaximo) * 100, 100)}%`,
-              }}
+        {pctUso !== null && (
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100" aria-hidden="true">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${pctUso}%` }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="h-full rounded-full bg-green-500"
             />
           </div>
         )}
       </div>
 
       {/* Acciones */}
-      <div className="flex gap-2">
+      <div className="flex items-center gap-1.5 border-t border-gray-100 pt-2.5">
         <button
+          type="button"
           onClick={() => onCambiarEstado(cupon.idCupon, cupon.estado)}
-          className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-            cupon.estado === "activo"
-              ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              : "bg-green-100 text-green-700 hover:bg-green-200"
+          className={`flex flex-1 items-center justify-center gap-1.5 h-8 rounded-lg border text-xs font-semibold active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${
+            esActivo
+              ? "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 focus-visible:ring-gray-400"
+              : "border-green-200 bg-green-50 text-green-700 hover:bg-green-100 focus-visible:ring-green-500"
           }`}
+          aria-label={`${esActivo ? "Desactivar" : "Activar"} cupón ${cupon.codigo}`}
         >
-          <FiEdit2 className="inline mr-1" />
-          {cupon.estado === "activo" ? "Desactivar" : "Activar"}
+          <Power size={13} aria-hidden="true" />
+          {esActivo ? "Desactivar" : "Activar"}
         </button>
         <button
+          type="button"
           onClick={() => onEliminar(cupon.idCupon)}
-          className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
+          aria-label={`Eliminar cupón ${cupon.codigo}`}
         >
-          <FiTrash2 />
+          <Trash2 size={13} aria-hidden="true" />
         </button>
       </div>
-    </motion.div>
+    </motion.article>
   );
 };

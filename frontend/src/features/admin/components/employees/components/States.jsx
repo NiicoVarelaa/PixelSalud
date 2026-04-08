@@ -1,51 +1,49 @@
 import { motion } from "framer-motion";
-import { Loader2, UserX } from "lucide-react";
+import { Users, UserPlus } from "lucide-react";
 
-/**
- * Estado de carga con spinner animado
- */
-export const LoadingState = () => {
-  return (
-    <div className="flex flex-col items-center justify-center py-16">
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-      >
-        <Loader2 className="w-12 h-12 text-green-600" />
-      </motion.div>
-      <p className="text-gray-500 mt-4 font-medium">Cargando personal...</p>
-    </div>
-  );
-};
-
-/**
- * Estado vacío cuando no hay resultados
- */
-export const EmptyState = ({ onCrearEmpleado }) => {
-  return (
+export const LoadingState = () => (
+  <div
+    className="flex flex-col items-center justify-center py-16"
+    role="status"
+    aria-live="polite"
+    aria-label="Cargando empleados"
+  >
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col items-center justify-center py-16"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+      className="h-8 w-8 rounded-full border-2 border-gray-200 border-t-green-600"
+      aria-hidden="true"
+    />
+    <p className="mt-3 text-sm text-gray-500">Cargando personal...</p>
+  </div>
+);
+
+export const EmptyState = ({ onCrearEmpleado }) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.97 }}
+    animate={{ opacity: 1, scale: 1 }}
+    className="flex flex-col items-center justify-center py-16 text-center px-6"
+    role="status"
+  >
+    <div
+      className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100"
+      aria-hidden="true"
     >
-      <div className="bg-gray-100 p-6 rounded-full mb-4">
-        <UserX className="w-16 h-16 text-gray-400" />
-      </div>
-      <h3 className="text-xl font-semibold text-gray-700 mb-2">
-        No se encontraron empleados
-      </h3>
-      <p className="text-gray-500 mb-6 text-center max-w-md">
-        No hay empleados que coincidan con los filtros seleccionados. Intenta
-        ajustar tu búsqueda o registra un nuevo empleado.
-      </p>
-      {onCrearEmpleado && (
-        <button
-          onClick={onCrearEmpleado}
-          className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
-        >
-          + Registrar Primer Empleado
-        </button>
-      )}
-    </motion.div>
-  );
-};
+      <Users size={22} className="text-gray-400" />
+    </div>
+    <p className="text-sm font-semibold text-gray-700">Sin empleados</p>
+    <p className="mt-1 text-xs text-gray-400 max-w-xs">
+      No hay empleados que coincidan con los filtros. Ajustá la búsqueda o registrá uno nuevo.
+    </p>
+    {onCrearEmpleado && (
+      <button
+        type="button"
+        onClick={onCrearEmpleado}
+        className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+      >
+        <UserPlus size={15} aria-hidden="true" />
+        Registrar empleado
+      </button>
+    )}
+  </motion.div>
+);

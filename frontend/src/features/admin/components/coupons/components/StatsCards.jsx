@@ -1,64 +1,34 @@
 import { motion } from "framer-motion";
-import { FiTag, FiCheck, FiX, FiClock, FiTrendingUp } from "react-icons/fi";
+import { Tag, CheckCircle2, XCircle, Clock, TrendingUp } from "lucide-react";
 
-export const StatsCards = ({ estadisticas }) => {
-  const stats = [
-    {
-      titulo: "Total Cupones",
-      valor: estadisticas.total,
-      icono: FiTag,
-      color: "blue",
-      colorClasses: "bg-blue-100 text-blue-600",
-    },
-    {
-      titulo: "Activos",
-      valor: estadisticas.activos,
-      icono: FiCheck,
-      color: "green",
-      colorClasses: "bg-green-100 text-green-600",
-    },
-    {
-      titulo: "Inactivos",
-      valor: estadisticas.inactivos,
-      icono: FiX,
-      color: "red",
-      colorClasses: "bg-red-100 text-red-600",
-    },
-    {
-      titulo: "Expirados",
-      valor: estadisticas.expirados,
-      icono: FiClock,
-      color: "gray",
-      colorClasses: "bg-gray-100 text-gray-600",
-    },
-    {
-      titulo: "Usos Totales",
-      valor: estadisticas.vecesUsadoTotal,
-      icono: FiTrendingUp,
-      color: "purple",
-      colorClasses: "bg-purple-100 text-purple-600",
-    },
-  ];
+const STATS = (e) => [
+  { label: "Total",     value: e.total,          icon: Tag,           accent: "text-gray-700",   iconBg: "bg-gray-100"  },
+  { label: "Activos",   value: e.activos,         icon: CheckCircle2,  accent: "text-green-700",  iconBg: "bg-green-100" },
+  { label: "Inactivos", value: e.inactivos,       icon: XCircle,       accent: "text-gray-500",   iconBg: "bg-gray-100"  },
+  { label: "Expirados", value: e.expirados,       icon: Clock,         accent: "text-orange-600", iconBg: "bg-orange-50" },
+  { label: "Usos",      value: e.vecesUsadoTotal, icon: TrendingUp,    accent: "text-gray-700",   iconBg: "bg-gray-100"  },
+];
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-      {stats.map((stat, index) => (
-        <motion.div
-          key={stat.titulo}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 }}
-          className="bg-white rounded-lg shadow-sm p-6"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <div className={`p-2 rounded-lg ${stat.colorClasses}`}>
-              <stat.icono className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-gray-800">{stat.valor}</p>
-          <p className="text-sm text-gray-600">{stat.titulo}</p>
-        </motion.div>
-      ))}
-    </div>
-  );
-};
+export const StatsCards = ({ estadisticas }) => (
+  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
+    {STATS(estadisticas).map((stat, i) => (
+      <motion.div
+        key={stat.label}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: i * 0.05 }}
+        className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs"
+      >
+        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${stat.iconBg}`}>
+          <stat.icon size={15} className={stat.accent} aria-hidden="true" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs text-gray-500 truncate">{stat.label}</p>
+          <p className={`text-lg font-bold leading-none mt-0.5 ${stat.accent}`}>
+            {stat.value ?? 0}
+          </p>
+        </div>
+      </motion.div>
+    ))}
+  </div>
+);
