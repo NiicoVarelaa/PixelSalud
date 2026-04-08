@@ -1,20 +1,63 @@
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  X,
-  User,
-  Mail,
-  CreditCard,
-  Lock,
-  AlertCircle,
-  Shield,
-} from "lucide-react";
-import { useState, useEffect } from "react";
+import { X, User, Mail, CreditCard, Lock, AlertCircle, UserPlus, UserCog } from "lucide-react";
 import { PermisosSection } from "./PermisosSection";
 
-/**
- * Modal para crear o editar un empleado
- * Maneja validación de formulario, permisos y envío de datos
- */
+/* ── Campo reutilizable con error inline ── */
+const Field = ({ label, required, htmlFor, error, icon: Icon, children }) => (
+  <div>
+    <label
+      htmlFor={htmlFor}
+      className="mb-1.5 block text-xs font-semibold text-gray-600"
+    >
+      {label}
+      {required && <span className="ml-0.5 text-red-400" aria-hidden="true">*</span>}
+    </label>
+    <div className="relative">
+      {Icon && (
+        <Icon
+          size={14}
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          aria-hidden="true"
+        />
+      )}
+      {children}
+    </div>
+    {error && (
+      <p
+        role="alert"
+        className="mt-1 flex items-center gap-1 text-[11px] text-red-600"
+      >
+        <AlertCircle size={11} aria-hidden="true" />
+        {error}
+      </p>
+    )}
+  </div>
+);
+
+const inputCls = (hasIcon, hasError) =>
+  `w-full h-10 rounded-lg border bg-gray-50 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:bg-white focus:outline-none focus:ring-2 ${
+    hasIcon ? "pl-8.5 pr-3" : "px-3"
+  } ${
+    hasError
+      ? "border-red-300 focus:border-red-400 focus:ring-red-100"
+      : "border-gray-200 focus:border-green-500 focus:ring-green-100"
+  }`;
+
+const FORM_INIT = {
+  nombreEmpleado: "",
+  apellidoEmpleado: "",
+  dniEmpleado: "",
+  emailEmpleado: "",
+  contraEmpleado: "",
+  permisos: {
+    crear_productos:    false,
+    modificar_productos:false,
+    modificar_ventasE:  false,
+    ver_ventasTotalesE: false,
+  },
+};
+
 export const EmpleadoModal = ({
   isOpen,
   onClose,
@@ -22,62 +65,44 @@ export const EmpleadoModal = ({
   empleadoEditar = null,
 }) => {
   const esEdicion = !!empleadoEditar;
+  const closeRef  = useRef(null);
 
-  const [formData, setFormData] = useState({
-    nombreEmpleado: "",
-    apellidoEmpleado: "",
-    dniEmpleado: "",
-    emailEmpleado: "",
-    contraEmpleado: "",
-    permisos: {
-      crear_productos: false,
-      modificar_productos: false,
-      modificar_ventasE: false,
-      ver_ventasTotalesE: false,
-    },
-  });
-
-  const [errores, setErrores] = useState({});
+  const [formData, setFormData] = useState(FORM_INIT);
+  const [errores,  setErrores]  = useState({});
   const [enviando, setEnviando] = useState(false);
 
-  // Cargar datos del empleado al editar
+  /* Foco + overflow + Escape */
+  useEffect(() => {
+    if (!isOpen) return;
+    closeRef.current?.focus();
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen, onClose]);
+
+  /* Cargar datos al editar */
   useEffect(() => {
     if (empleadoEditar) {
       setFormData({
-        nombreEmpleado: empleadoEditar.nombreEmpleado || "",
-        apellidoEmpleado: empleadoEditar.apellidoEmpleado || "",
-        dniEmpleado: empleadoEditar.dniEmpleado || "",
-        emailEmpleado: empleadoEditar.emailEmpleado || "",
-        contraEmpleado: "", // No prellenamos la contraseña en edición
+        nombreEmpleado:    empleadoEditar.nombreEmpleado    || "",
+        apellidoEmpleado:  empleadoEditar.apellidoEmpleado  || "",
+        dniEmpleado:       empleadoEditar.dniEmpleado       || "",
+        emailEmpleado:     empleadoEditar.emailEmpleado     || "",
+        contraEmpleado:    "",
         permisos: {
-          crear_productos:
-            empleadoEditar.crear_productos === 1 ||
-            empleadoEditar.crear_productos === true,
-          modificar_productos:
-            empleadoEditar.modificar_productos === 1 ||
-            empleadoEditar.modificar_productos === true,
-          modificar_ventasE:
-            empleadoEditar.modificar_ventasE === 1 ||
-            empleadoEditar.modificar_ventasE === true,
-          ver_ventasTotalesE:
-            empleadoEditar.ver_ventasTotalesE === 1 ||
-            empleadoEditar.ver_ventasTotalesE === true,
+          crear_productos:    empleadoEditar.crear_productos    === 1 || empleadoEditar.crear_productos    === true,
+          modificar_productos:empleadoEditar.modificar_productos=== 1 || empleadoEditar.modificar_productos=== true,
+          modificar_ventasE:  empleadoEditar.modificar_ventasE  === 1 || empleadoEditar.modificar_ventasE  === true,
+          ver_ventasTotalesE: empleadoEditar.ver_ventasTotalesE === 1 || empleadoEditar.ver_ventasTotalesE === true,
         },
       });
     } else {
-      setFormData({
-        nombreEmpleado: "",
-        apellidoEmpleado: "",
-        dniEmpleado: "",
-        emailEmpleado: "",
-        contraEmpleado: "",
-        permisos: {
-          crear_productos: false,
-          modificar_productos: false,
-          modificar_ventasE: false,
-          ver_ventasTotalesE: false,
-        },
-      });
+      setFormData(FORM_INIT);
     }
     setErrores({});
   }, [empleadoEditar, isOpen]);
@@ -85,309 +110,252 @@ export const EmpleadoModal = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Limpiar error del campo al escribir
-    if (errores[name]) {
-      setErrores((prev) => ({ ...prev, [name]: "" }));
-    }
+    if (errores[name]) setErrores((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handlePermisoChange = (permiso, checked) => {
+  const handlePermisoChange = (permiso, checked) =>
     setFormData((prev) => ({
       ...prev,
-      permisos: {
-        ...prev.permisos,
-        [permiso]: checked,
-      },
+      permisos: { ...prev.permisos, [permiso]: checked },
     }));
-  };
 
-  const validarFormulario = () => {
-    const nuevosErrores = {};
-
-    if (!formData.nombreEmpleado.trim()) {
-      nuevosErrores.nombreEmpleado = "El nombre es obligatorio";
-    }
-    if (!formData.apellidoEmpleado.trim()) {
-      nuevosErrores.apellidoEmpleado = "El apellido es obligatorio";
-    }
-    if (!formData.dniEmpleado.trim()) {
-      nuevosErrores.dniEmpleado = "El DNI es obligatorio";
-    }
-    if (!formData.emailEmpleado.trim()) {
-      nuevosErrores.emailEmpleado = "El email es obligatorio";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailEmpleado)) {
-      nuevosErrores.emailEmpleado = "Email inválido";
-    }
-    if (!esEdicion && !formData.contraEmpleado.trim()) {
-      nuevosErrores.contraEmpleado = "La contraseña es obligatoria";
-    }
-
-    setErrores(nuevosErrores);
-    return Object.keys(nuevosErrores).length === 0;
+  const validar = () => {
+    const e = {};
+    if (!formData.nombreEmpleado.trim())    e.nombreEmpleado   = "El nombre es obligatorio";
+    if (!formData.apellidoEmpleado.trim())  e.apellidoEmpleado = "El apellido es obligatorio";
+    if (!formData.dniEmpleado.trim())       e.dniEmpleado      = "El DNI es obligatorio";
+    if (!formData.emailEmpleado.trim())     e.emailEmpleado    = "El email es obligatorio";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailEmpleado))
+                                            e.emailEmpleado    = "Email inválido";
+    if (!esEdicion && !formData.contraEmpleado.trim())
+                                            e.contraEmpleado   = "La contraseña es obligatoria";
+    setErrores(e);
+    return Object.keys(e).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validarFormulario()) return;
-
+    if (!validar()) return;
     setEnviando(true);
-    const exito = await onGuardar(formData, empleadoEditar?.idEmpleado);
+    const ok = await onGuardar(formData, empleadoEditar?.idEmpleado);
     setEnviando(false);
-
-    if (exito) {
-      onClose();
-    }
+    if (ok) onClose();
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="empleado-modal-title"
+          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+        >
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            aria-hidden="true"
           />
 
-          {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden border border-gray-200"
-            >
-              {/* Header */}
-              <div className="bg-linear-to-r from-green-600 to-green-700 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
-                    <User className="text-white" size={24} />
-                  </div>
-                  <h2 className="text-2xl font-bold text-white">
-                    {esEdicion ? "Editar Empleado" : "Nuevo Empleado"}
+          {/* Panel */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 24 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="relative flex w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl max-h-[92vh]"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 flex-shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-green-100">
+                  {esEdicion
+                    ? <UserCog size={17} className="text-green-700" aria-hidden="true" />
+                    : <UserPlus size={17} className="text-green-700" aria-hidden="true" />
+                  }
+                </div>
+                <div>
+                  <h2 id="empleado-modal-title" className="text-sm font-semibold text-gray-900 leading-none">
+                    {esEdicion ? "Editar empleado" : "Nuevo empleado"}
                   </h2>
+                  <p className="mt-0.5 text-xs text-gray-500">
+                    {esEdicion ? "Modificá los datos del empleado" : "Completá los datos para registrar"}
+                  </p>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <X className="text-white" size={24} />
-                </button>
               </div>
+              <button
+                ref={closeRef}
+                type="button"
+                onClick={onClose}
+                disabled={enviando}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 cursor-pointer transition-colors disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                aria-label="Cerrar modal"
+              >
+                <X size={17} />
+              </button>
+            </div>
 
-              {/* Formulario */}
-              <form onSubmit={handleSubmit} className="p-6">
-                <div className="space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto pr-2">
-                  {/* Nombre y Apellido */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                        Nombre *
-                      </label>
-                      <div className="relative">
-                        <User
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                          size={18}
-                        />
-                        <input
-                          type="text"
-                          name="nombreEmpleado"
-                          value={formData.nombreEmpleado}
-                          onChange={handleChange}
-                          placeholder="Ej: Juan"
-                          className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                            errores.nombreEmpleado
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-green-500"
-                          }`}
-                        />
-                      </div>
-                      {errores.nombreEmpleado && (
-                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                          <AlertCircle size={12} />
-                          {errores.nombreEmpleado}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                        Apellido *
-                      </label>
-                      <div className="relative">
-                        <User
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                          size={18}
-                        />
-                        <input
-                          type="text"
-                          name="apellidoEmpleado"
-                          value={formData.apellidoEmpleado}
-                          onChange={handleChange}
-                          placeholder="Ej: Pérez"
-                          className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                            errores.apellidoEmpleado
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-green-500"
-                          }`}
-                        />
-                      </div>
-                      {errores.apellidoEmpleado && (
-                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                          <AlertCircle size={12} />
-                          {errores.apellidoEmpleado}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* DNI y Email */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                        DNI *
-                      </label>
-                      <div className="relative">
-                        <CreditCard
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                          size={18}
-                        />
-                        <input
-                          type="number"
-                          name="dniEmpleado"
-                          value={formData.dniEmpleado}
-                          onChange={handleChange}
-                          placeholder="30123456"
-                          className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                            errores.dniEmpleado
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-green-500"
-                          }`}
-                        />
-                      </div>
-                      {errores.dniEmpleado && (
-                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                          <AlertCircle size={12} />
-                          {errores.dniEmpleado}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                        Email *
-                      </label>
-                      <div className="relative">
-                        <Mail
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                          size={18}
-                        />
-                        <input
-                          type="email"
-                          name="emailEmpleado"
-                          value={formData.emailEmpleado}
-                          onChange={handleChange}
-                          autoComplete="off"
-                          placeholder="juan@farmacia.com"
-                          className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                            errores.emailEmpleado
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-green-500"
-                          }`}
-                        />
-                      </div>
-                      {errores.emailEmpleado && (
-                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                          <AlertCircle size={12} />
-                          {errores.emailEmpleado}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Contraseña */}
-                  <div
-                    className={
-                      esEdicion
-                        ? "bg-orange-50 p-4 rounded-lg border border-orange-200"
-                        : ""
-                    }
+            {/* Body */}
+            <form
+              id="form-empleado"
+              onSubmit={handleSubmit}
+              noValidate
+              className="flex-1 overflow-y-auto px-5 py-4 space-y-5"
+            >
+              {/* ── Datos personales ── */}
+              <section aria-label="Datos personales">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Datos personales
+                </p>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <Field
+                    label="Nombre" required htmlFor="nombre"
+                    error={errores.nombreEmpleado} icon={User}
                   >
-                    <label
-                      className={`block text-sm font-bold mb-2 uppercase ${esEdicion ? "text-orange-700" : "text-gray-700"}`}
-                    >
-                      {esEdicion
-                        ? "Nueva Contraseña (Opcional)"
-                        : "Contraseña *"}
-                    </label>
-                    <div className="relative">
-                      <Lock
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                        size={18}
-                      />
-                      <input
-                        type="password"
-                        name="contraEmpleado"
-                        value={formData.contraEmpleado}
-                        onChange={handleChange}
-                        autoComplete="new-password"
-                        placeholder={
-                          esEdicion ? "Dejar vacío para no cambiar" : "*******"
-                        }
-                        className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                          errores.contraEmpleado
-                            ? "border-red-500 focus:ring-red-500"
-                            : esEdicion
-                              ? "border-orange-300 focus:ring-orange-500 bg-white"
-                              : "border-gray-300 focus:ring-green-500"
-                        }`}
-                      />
-                    </div>
-                    {errores.contraEmpleado && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                        <AlertCircle size={12} />
-                        {errores.contraEmpleado}
-                      </p>
-                    )}
-                  </div>
+                    <input
+                      id="nombre"
+                      type="text"
+                      name="nombreEmpleado"
+                      value={formData.nombreEmpleado}
+                      onChange={handleChange}
+                      placeholder="Ej: Juan"
+                      className={inputCls(true, !!errores.nombreEmpleado)}
+                      aria-required="true"
+                      aria-invalid={!!errores.nombreEmpleado}
+                      aria-describedby={errores.nombreEmpleado ? "err-nombre" : undefined}
+                    />
+                  </Field>
+                  <Field
+                    label="Apellido" required htmlFor="apellido"
+                    error={errores.apellidoEmpleado} icon={User}
+                  >
+                    <input
+                      id="apellido"
+                      type="text"
+                      name="apellidoEmpleado"
+                      value={formData.apellidoEmpleado}
+                      onChange={handleChange}
+                      placeholder="Ej: Pérez"
+                      className={inputCls(true, !!errores.apellidoEmpleado)}
+                      aria-required="true"
+                      aria-invalid={!!errores.apellidoEmpleado}
+                    />
+                  </Field>
+                  <Field
+                    label="DNI" required htmlFor="dni"
+                    error={errores.dniEmpleado} icon={CreditCard}
+                  >
+                    <input
+                      id="dni"
+                      type="number"
+                      name="dniEmpleado"
+                      value={formData.dniEmpleado}
+                      onChange={handleChange}
+                      placeholder="30123456"
+                      className={inputCls(true, !!errores.dniEmpleado)}
+                      aria-required="true"
+                      aria-invalid={!!errores.dniEmpleado}
+                    />
+                  </Field>
+                  <Field
+                    label="Email" required htmlFor="email"
+                    error={errores.emailEmpleado} icon={Mail}
+                  >
+                    <input
+                      id="email"
+                      type="email"
+                      name="emailEmpleado"
+                      value={formData.emailEmpleado}
+                      onChange={handleChange}
+                      autoComplete="off"
+                      placeholder="juan@farmacia.com"
+                      className={inputCls(true, !!errores.emailEmpleado)}
+                      aria-required="true"
+                      aria-invalid={!!errores.emailEmpleado}
+                    />
+                  </Field>
+                </div>
+              </section>
 
-                  {/* Sección de Permisos */}
-                  <PermisosSection
-                    permisos={formData.permisos}
-                    onChange={handlePermisoChange}
+              <div className="border-t border-gray-100" aria-hidden="true" />
+
+              {/* ── Contraseña ── */}
+              <section aria-label="Contraseña">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  {esEdicion ? "Cambiar contraseña" : "Contraseña"}
+                </p>
+
+                {esEdicion && (
+                  <div className="mb-3 flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-3 py-2.5">
+                    <AlertCircle size={14} className="shrink-0 text-orange-600" aria-hidden="true" />
+                    <p className="text-xs text-orange-700">
+                      Dejá vacío para no modificar la contraseña actual.
+                    </p>
+                  </div>
+                )}
+
+                <Field
+                  label={esEdicion ? "Nueva contraseña (opcional)" : "Contraseña"}
+                  required={!esEdicion}
+                  htmlFor="contra"
+                  error={errores.contraEmpleado}
+                  icon={Lock}
+                >
+                  <input
+                    id="contra"
+                    type="password"
+                    name="contraEmpleado"
+                    value={formData.contraEmpleado}
+                    onChange={handleChange}
+                    autoComplete="new-password"
+                    placeholder={esEdicion ? "Dejar vacío para no cambiar" : "Mínimo 6 caracteres"}
+                    className={inputCls(true, !!errores.contraEmpleado)}
+                    aria-required={!esEdicion}
+                    aria-invalid={!!errores.contraEmpleado}
                   />
-                </div>
+                </Field>
+              </section>
 
-                {/* Botones */}
-                <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    disabled={enviando}
-                    className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={enviando}
-                    className="flex-1 px-4 py-3 bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg transition-colors disabled:opacity-50 shadow-sm"
-                  >
-                    {enviando
-                      ? "Guardando..."
-                      : esEdicion
-                        ? "Actualizar Empleado"
-                        : "Crear Empleado"}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        </>
+              <div className="border-t border-gray-100" aria-hidden="true" />
+
+              {/* ── Permisos ── */}
+              <section aria-label="Permisos del empleado">
+                <PermisosSection
+                  permisos={formData.permisos}
+                  onChange={handlePermisoChange}
+                />
+              </section>
+            </form>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-2 border-t border-gray-100 px-5 py-3.5 flex-shrink-0 bg-gray-50/70">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={enviando}
+                className="h-9 px-4 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                form="form-empleado"
+                disabled={enviando}
+                className="h-9 px-5 rounded-lg bg-green-600 hover:bg-green-700 text-sm font-semibold text-white disabled:opacity-40 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+              >
+                {enviando
+                  ? "Guardando..."
+                  : esEdicion ? "Guardar cambios" : "Crear empleado"
+                }
+              </button>
+            </div>
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );

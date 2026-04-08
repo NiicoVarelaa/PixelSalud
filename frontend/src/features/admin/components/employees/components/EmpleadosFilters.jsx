@@ -1,10 +1,6 @@
-import { Search, Filter, RotateCcw } from "lucide-react";
-import { motion } from "framer-motion";
+import { Search, XCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-/**
- * Componente de filtros para empleados
- * Incluye búsqueda y filtro por estado
- */
 export const EmpleadosFilters = ({
   busqueda,
   setBusqueda,
@@ -13,69 +9,95 @@ export const EmpleadosFilters = ({
   totalFiltrados = 0,
   totalEmpleados = 0,
 }) => {
-  const hayFiltrosActivos = busqueda.trim() !== "" || filtroEstado !== "todos";
+  const hayFiltros = busqueda.trim() !== "" || filtroEstado !== "todos";
+
+  const limpiar = () => {
+    setBusqueda("");
+    setFiltroEstado("todos");
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
+    <motion.section
+      initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-5 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+      transition={{ duration: 0.2 }}
+      className="rounded-xl border border-gray-200 bg-white shadow-xs"
+      role="search"
+      aria-label="Filtros de empleados"
     >
-      <div className="flex flex-col md:flex-row gap-4">
-        {/* Input de Búsqueda */}
+      <div className="flex flex-col gap-2.5 p-3 sm:flex-row sm:items-center sm:p-3.5">
+        {/* Búsqueda */}
         <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="text-gray-400" size={20} />
-          </div>
+          <Search
+            size={15}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            aria-hidden="true"
+          />
           <input
-            type="text"
-            name="search_empleados_unique_id"
+            type="search"
+            name="search_empleados"
             autoComplete="off"
-            placeholder="Buscar por nombre, DNI, email o ID..."
+            placeholder="Nombre, DNI, email o ID..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-800 placeholder-gray-400 transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100"
+            className="w-full h-9 rounded-lg border border-gray-200 bg-gray-50 pl-8.5 pr-8 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100"
+            aria-label="Buscar empleado"
           />
+          <AnimatePresence>
+            {busqueda && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                type="button"
+                onClick={() => setBusqueda("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded"
+                aria-label="Limpiar búsqueda"
+              >
+                <XCircle size={15} />
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Filtro por Estado */}
-        <div className="relative w-full md:w-64">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Filter className="text-gray-400" size={20} />
-          </div>
-          <select
-            value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
-            className="w-full appearance-none rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-700 transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100"
-          >
-            <option value="todos">Todos los empleados</option>
-            <option value="activos">✓ Activos</option>
-            <option value="inactivos">✗ Inactivos</option>
-          </select>
-        </div>
+        {/* Estado */}
+        <select
+          value={filtroEstado}
+          onChange={(e) => setFiltroEstado(e.target.value)}
+          className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700 cursor-pointer transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100 sm:w-44"
+          aria-label="Filtrar por estado del empleado"
+        >
+          <option value="todos">Todos</option>
+          <option value="activos">Activos</option>
+          <option value="inactivos">Inactivos</option>
+        </select>
 
-        {hayFiltrosActivos && (
-          <button
-            type="button"
-            onClick={() => {
-              setBusqueda("");
-              setFiltroEstado("todos");
-            }}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
-          >
-            <RotateCcw size={14} />
-            Limpiar
-          </button>
-        )}
+        {/* Limpiar */}
+        <AnimatePresence>
+          {hayFiltros && (
+            <motion.button
+              initial={{ opacity: 0, x: 8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 8 }}
+              type="button"
+              onClick={limpiar}
+              className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-600 hover:bg-gray-50 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+              aria-label="Limpiar todos los filtros"
+            >
+              <XCircle size={13} aria-hidden="true" />
+              Limpiar
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="mt-3 text-xs font-medium text-gray-500"
-      >
-        {totalFiltrados} de {totalEmpleados} empleados visibles
-      </motion.p>
-    </motion.div>
+      {/* Contador */}
+      <div className="border-t border-gray-100 px-3.5 py-2 lg:px-4">
+        <p className="text-xs text-gray-500" aria-live="polite">
+          <span className="font-semibold text-gray-700">{totalFiltrados}</span> de{" "}
+          <span className="font-semibold text-gray-700">{totalEmpleados}</span> empleados
+        </p>
+      </div>
+    </motion.section>
   );
 };

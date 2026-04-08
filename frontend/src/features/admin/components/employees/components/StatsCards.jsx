@@ -1,94 +1,33 @@
 import { motion } from "framer-motion";
 import { Users, UserCheck, UserX, Shield } from "lucide-react";
 
-/**
- * Tarjetas de estadísticas animadas para empleados
- */
-export const StatsCards = ({ estadisticas }) => {
-  const stats = [
-    {
-      titulo: "Total Empleados",
-      valor: estadisticas.total,
-      icono: Users,
-      accent: "text-gray-700",
-      iconBg: "bg-gray-100",
-      iconColor: "text-gray-600",
-    },
-    {
-      titulo: "Activos",
-      valor: estadisticas.activos,
-      icono: UserCheck,
-      accent: "text-green-700",
-      iconBg: "bg-green-100",
-      iconColor: "text-green-700",
-    },
-    {
-      titulo: "Inactivos",
-      valor: estadisticas.inactivos,
-      icono: UserX,
-      accent: "text-orange-700",
-      iconBg: "bg-orange-100",
-      iconColor: "text-orange-700",
-    },
-    {
-      titulo: "Permisos de Gestión",
-      valor: estadisticas.conPermisoCrear,
-      icono: Shield,
-      accent: "text-green-700",
-      iconBg: "bg-green-100",
-      iconColor: "text-green-700",
-    },
-  ];
+const STATS = (e) => [
+  { label: "Total",      value: e.total,           icon: Users,      accent: "text-gray-700",   iconBg: "bg-gray-100"   },
+  { label: "Activos",    value: e.activos,          icon: UserCheck,  accent: "text-green-700",  iconBg: "bg-green-100"  },
+  { label: "Inactivos",  value: e.inactivos,        icon: UserX,      accent: "text-orange-600", iconBg: "bg-orange-50"  },
+  { label: "Con acceso", value: e.conPermisoCrear,  icon: Shield,     accent: "text-green-700",  iconBg: "bg-green-100"  },
+];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
-  };
-
-  return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-      className="grid grid-cols-2 gap-3 xl:grid-cols-4"
-    >
-      {stats.map((stat, index) => {
-        const Icon = stat.icono;
-        return (
-          <motion.div
-            key={index}
-            variants={itemVariants}
-            whileHover={{ y: -2 }}
-            className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs sm:text-sm font-semibold text-gray-500">
-                  {stat.titulo}
-                </p>
-                <p
-                  className={`text-2xl sm:text-3xl font-bold mt-1 ${stat.accent}`}
-                >
-                  {stat.valor}
-                </p>
-              </div>
-              <div className={`${stat.iconBg} p-2.5 rounded-lg`}>
-                <Icon className={stat.iconColor} size={20} strokeWidth={2.2} />
-              </div>
-            </div>
-          </motion.div>
-        );
-      })}
-    </motion.div>
-  );
-};
+export const StatsCards = ({ estadisticas }) => (
+  <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
+    {STATS(estadisticas).map((stat, i) => (
+      <motion.div
+        key={stat.label}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: i * 0.06 }}
+        className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs"
+      >
+        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${stat.iconBg}`}>
+          <stat.icon size={15} className={stat.accent} aria-hidden="true" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs text-gray-500 truncate">{stat.label}</p>
+          <p className={`text-xl font-bold leading-none mt-0.5 ${stat.accent}`}>
+            {stat.value ?? 0}
+          </p>
+        </div>
+      </motion.div>
+    ))}
+  </div>
+);

@@ -1,76 +1,84 @@
+import { motion } from "framer-motion";
+import { History } from "lucide-react";
 import { formatearFecha } from "../utils/formatters";
 
 export const HistorialTable = ({ historial }) => {
+  if (historial.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center py-16 text-center"
+        role="status"
+      >
+        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100" aria-hidden="true">
+          <History size={22} className="text-gray-400" />
+        </div>
+        <p className="text-sm font-semibold text-gray-700">Sin historial</p>
+        <p className="mt-1 text-xs text-gray-400">Aún no se han usado cupones</p>
+      </motion.div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Código
+    <div className="overflow-x-auto">
+      <table className="w-full" aria-label="Historial de uso de cupones">
+        <thead>
+          <tr className="border-b border-gray-200 bg-gray-50">
+            {["Código", "Cliente", "Descuento", "Fecha", "Venta"].map((col) => (
+              <th
+                key={col}
+                scope="col"
+                className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500"
+              >
+                {col}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Cliente
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Descuento
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Fecha
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Venta
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {historial.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="px-6 py-12 text-center">
-                  <p className="text-gray-500">
-                    No hay registros de uso de cupones
-                  </p>
-                </td>
-              </tr>
-            ) : (
-              historial.map((uso) => (
-                <tr key={uso.idUso} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-medium text-gray-900">
-                      {uso.codigo}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {uso.nombreCliente}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {uso.emailCliente}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm">
-                      <div className="font-medium text-green-600">
-                        ${uso.montoDescuento}
-                      </div>
-                      <div className="text-gray-500">
-                        ${uso.montoOriginal} → ${uso.montoFinal}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatearFecha(uso.fechaUso)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className="text-blue-600">#{uso.idVentaO}</span>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100">
+          {historial.map((uso, i) => (
+            <motion.tr
+              key={uso.idUso}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: i * 0.02 }}
+              className="transition-colors hover:bg-gray-50/80"
+            >
+              {/* Código */}
+              <td className="px-4 py-2.5 whitespace-nowrap">
+                <span className="text-sm font-bold text-gray-900 tracking-wide">{uso.codigo}</span>
+              </td>
+
+              {/* Cliente */}
+              <td className="px-4 py-2.5">
+                <p className="text-xs font-medium text-gray-800">{uso.nombreCliente}</p>
+                <p className="text-xs text-gray-400 truncate max-w-[180px]">{uso.emailCliente}</p>
+              </td>
+
+              {/* Descuento */}
+              <td className="px-4 py-2.5 whitespace-nowrap">
+                <p className="text-sm font-bold text-green-600">${uso.montoDescuento}</p>
+                <p className="text-xs text-gray-400">
+                  ${uso.montoOriginal} → ${uso.montoFinal}
+                </p>
+              </td>
+
+              {/* Fecha */}
+              <td className="px-4 py-2.5 whitespace-nowrap">
+                <span className="text-xs text-gray-500">{formatearFecha(uso.fechaUso)}</span>
+              </td>
+
+              {/* Venta */}
+              <td className="px-4 py-2.5 whitespace-nowrap">
+                <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                  #{uso.idVentaO}
+                </span>
+              </td>
+            </motion.tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
