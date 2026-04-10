@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import PaginationProductos from "@features/admin/components/products/components/Pagination";
 
 const LIMITE_OPCIONES = [5, 10, 15, 20, 25, 50];
 
@@ -6,12 +6,10 @@ export const AuditoriaPagination = ({
   totalRegistros,
   offset,
   limite,
-  onAnterior,
-  onSiguiente,
+  totalPaginas,
+  onCambiarPagina,
   onCambiarLimite,
 }) => {
-  const esPrimera  = offset === 0;
-  const puedeAvanzar = totalRegistros === limite;
   const paginaActual = Math.floor(offset / limite) + 1;
   const desde = offset + 1;
   const hasta = offset + totalRegistros;
@@ -24,7 +22,10 @@ export const AuditoriaPagination = ({
       {/* Info + por página */}
       <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
         <span aria-live="polite">
-          <span className="font-semibold text-gray-700">{desde}–{hasta}</span> registros · página{" "}
+          <span className="font-semibold text-gray-700">
+            {desde}–{hasta}
+          </span>{" "}
+          registros · página{" "}
           <span className="font-semibold text-gray-700">{paginaActual}</span>
         </span>
 
@@ -40,32 +41,20 @@ export const AuditoriaPagination = ({
             aria-label="Registros por página"
           >
             {LIMITE_OPCIONES.map((v) => (
-              <option key={v} value={v}>{v}</option>
+              <option key={v} value={v}>
+                {v}
+              </option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* Navegación */}
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={onAnterior}
-          disabled={esPrimera}
-          className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-all hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-          aria-label="Página anterior"
-        >
-          <ChevronLeft size={14} />
-        </button>
-        <button
-          type="button"
-          onClick={onSiguiente}
-          disabled={!puedeAvanzar}
-          className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-all hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-          aria-label="Página siguiente"
-        >
-          <ChevronRight size={14} />
-        </button>
+      <div className="w-full">
+        <PaginationProductos
+          currentPage={paginaActual}
+          totalPages={totalPaginas}
+          onPageChange={onCambiarPagina}
+        />
       </div>
     </nav>
   );

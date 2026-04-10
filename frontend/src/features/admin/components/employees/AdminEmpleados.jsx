@@ -197,32 +197,29 @@ const AdminEmpleados = () => {
               </div>
 
               {empleadosFiltrados.length > 0 && (
-                <div className="shrink-0 border-t border-gray-100 bg-white/95 px-3 py-3 sm:px-4 sm:py-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <p
-                      className="text-xs font-medium text-gray-600"
-                      aria-live="polite"
-                    >
-                      Mostrando{" "}
-                      {Math.min(
-                        (paginaActual - 1) * ITEMS_POR_PAGINA + 1,
-                        empleadosFiltrados.length,
-                      )}
-                      -
-                      {Math.min(
-                        paginaActual * ITEMS_POR_PAGINA,
-                        empleadosFiltrados.length,
-                      )}{" "}
-                      de {empleadosFiltrados.length} empleados
-                    </p>
-                    <div className="pt-1 sm:pt-0">
-                      <EmpleadosPagination
-                        paginaActual={paginaActual}
-                        totalPaginas={totalPaginas}
-                        onCambiarPagina={setPaginaActual}
-                      />
-                    </div>
-                  </div>
+                <div className="mt-3 shrink-0 space-y-2 px-3 pb-3 sm:px-4 sm:pb-4">
+                  <p
+                    className="text-xs font-medium text-gray-600"
+                    aria-live="polite"
+                  >
+                    Mostrando{" "}
+                    {Math.min(
+                      (paginaActual - 1) * ITEMS_POR_PAGINA + 1,
+                      empleadosFiltrados.length,
+                    )}
+                    -
+                    {Math.min(
+                      paginaActual * ITEMS_POR_PAGINA,
+                      empleadosFiltrados.length,
+                    )}{" "}
+                    de {empleadosFiltrados.length} empleados
+                  </p>
+
+                  <EmpleadosPagination
+                    paginaActual={paginaActual}
+                    totalPaginas={totalPaginas}
+                    onCambiarPagina={setPaginaActual}
+                  />
                 </div>
               )}
             </div>

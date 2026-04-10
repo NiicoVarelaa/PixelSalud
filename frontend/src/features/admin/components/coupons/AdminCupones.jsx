@@ -81,7 +81,12 @@ const AdminCupones = () => {
   };
 
   const closeConfirmDialog = () =>
-    setConfirmDialog({ isOpen: false, title: "", message: "", onConfirm: null });
+    setConfirmDialog({
+      isOpen: false,
+      title: "",
+      message: "",
+      onConfirm: null,
+    });
 
   return (
     <AdminLayout
@@ -162,8 +167,7 @@ const AdminCupones = () => {
                     indicePrimero={indicePrimero}
                     indiceUltimo={indiceUltimo}
                     totalItems={cuponesFiltrados.length}
-                    onPaginaAnterior={() => setPaginaActual((p) => Math.max(p - 1, 1))}
-                    onPaginaSiguiente={() => setPaginaActual((p) => Math.min(p + 1, totalPaginas))}
+                    onCambiarPagina={setPaginaActual}
                   />
                 </div>
               </div>

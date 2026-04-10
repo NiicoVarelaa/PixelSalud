@@ -37,11 +37,17 @@ export const useAuditoriaFilters = () => {
     handleFiltroChange("offset", filtros.offset + filtros.limite);
   };
 
+  const irAPagina = (pagina) => {
+    const paginaSegura = Math.max(1, Number(pagina) || 1);
+    handleFiltroChange("offset", (paginaSegura - 1) * filtros.limite);
+  };
+
   return {
     filtros,
     handleFiltroChange,
     limpiarFiltros,
     paginaAnterior,
     paginaSiguiente,
+    irAPagina,
   };
 };

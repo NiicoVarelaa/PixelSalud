@@ -17,16 +17,15 @@ const AdminAuditoria = () => {
   const [auditoriaSeleccionada, setAuditoriaSeleccionada] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
 
-  const {
-    filtros,
-    handleFiltroChange,
-    limpiarFiltros,
-    paginaAnterior,
-    paginaSiguiente,
-  } = useAuditoriaFilters();
+  const { filtros, handleFiltroChange, limpiarFiltros, irAPagina } =
+    useAuditoriaFilters();
 
   const { auditorias, loading, error, cargarAuditorias } =
     useAuditoriaData(filtros);
+
+  const paginaActual = Math.floor(filtros.offset / filtros.limite) + 1;
+  const totalPaginas =
+    auditorias.length === filtros.limite ? paginaActual + 1 : paginaActual;
 
   const verDetalles = (auditoria) => {
     setAuditoriaSeleccionada(auditoria);
@@ -42,8 +41,8 @@ const AdminAuditoria = () => {
     totalRegistros: auditorias.length,
     offset: filtros.offset,
     limite: filtros.limite,
-    onAnterior: paginaAnterior,
-    onSiguiente: paginaSiguiente,
+    totalPaginas,
+    onCambiarPagina: irAPagina,
     onCambiarLimite: (v) => handleFiltroChange("limite", v),
   };
 
@@ -113,7 +112,10 @@ const AdminAuditoria = () => {
               </tbody>
             </table>
           ) : (
-            <AuditoriaTable auditorias={auditorias} onVerDetalles={verDetalles} />
+            <AuditoriaTable
+              auditorias={auditorias}
+              onVerDetalles={verDetalles}
+            />
           )}
         </div>
 
