@@ -1,3 +1,4 @@
+import PaginationProductos from "@features/admin/components/products/components/Pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const CuponesPagination = ({
@@ -6,45 +7,59 @@ export const CuponesPagination = ({
   indicePrimero,
   indiceUltimo,
   totalItems,
-  onPaginaAnterior,
-  onPaginaSiguiente,
+  onCambiarPagina,
 }) => {
   if (totalItems === 0) return null;
 
   return (
-    <nav
-      className="flex flex-wrap items-center justify-between gap-3"
-      aria-label="Paginación de cupones"
-    >
+    <div className="space-y-2" aria-label="Paginación de cupones">
       <p className="text-xs text-gray-500" aria-live="polite">
-        <span className="font-semibold text-gray-700">{indicePrimero + 1}–{Math.min(indiceUltimo, totalItems)}</span>
-        {" "}de{" "}
-        <span className="font-semibold text-gray-700">{totalItems}</span> cupones
+        <span className="font-semibold text-gray-700">
+          {indicePrimero + 1}–{Math.min(indiceUltimo, totalItems)}
+        </span>{" "}
+        de <span className="font-semibold text-gray-700">{totalItems}</span>{" "}
+        cupones
       </p>
 
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={onPaginaAnterior}
-          disabled={paginaActual === 1}
-          className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-all hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-          aria-label="Página anterior"
+      {totalPaginas > 1 ? (
+        <PaginationProductos
+          currentPage={paginaActual}
+          totalPages={totalPaginas}
+          onPageChange={onCambiarPagina}
+        />
+      ) : (
+        <nav
+          className="flex justify-center py-3 bg-white rounded-xl border border-gray-200 shadow-sm"
+          role="navigation"
+          aria-label="Paginación de cupones"
         >
-          <ChevronLeft size={14} />
-        </button>
-        <span className="px-2 text-xs text-gray-500">
-          {paginaActual} / {totalPaginas}
-        </span>
-        <button
-          type="button"
-          onClick={onPaginaSiguiente}
-          disabled={paginaActual === totalPaginas}
-          className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-all hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-          aria-label="Página siguiente"
-        >
-          <ChevronRight size={14} />
-        </button>
-      </div>
-    </nav>
+          <div className="flex items-center justify-between w-full max-w-md px-4">
+            <button
+              type="button"
+              disabled
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-200/50 opacity-40 cursor-not-allowed"
+              aria-label="Página anterior"
+              aria-disabled="true"
+            >
+              <ChevronLeft className="w-5 h-5 text-slate-600" />
+            </button>
+
+            <span className="w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium text-green-600 border border-green-600">
+              1
+            </span>
+
+            <button
+              type="button"
+              disabled
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-200/50 opacity-40 cursor-not-allowed"
+              aria-label="Página siguiente"
+              aria-disabled="true"
+            >
+              <ChevronRight className="w-5 h-5 text-slate-600" />
+            </button>
+          </div>
+        </nav>
+      )}
+    </div>
   );
 };

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AdminLayout } from "@features/admin/components/shared";
+import PaginationProductos from "@features/admin/components/products/components/Pagination";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useMensajesData } from "./hooks/useMensajesData";
@@ -36,6 +37,12 @@ const AdminMensajes = () => {
     busqueda,
     setBusqueda,
     mensajesFiltrados,
+    mensajesPaginados,
+    paginaActual,
+    totalPaginas,
+    handleCambiarPagina,
+    indiceInicio,
+    itemsPorPagina,
     limpiarFiltros,
   } = useMensajesFilters(mensajes);
 
@@ -93,7 +100,7 @@ const AdminMensajes = () => {
              */
             <div className="h-full overflow-y-auto">
               <MensajesTable
-                mensajes={mensajesFiltrados}
+                mensajes={mensajesPaginados}
                 onVerDetalle={handleVerDetalle}
                 onResponder={handleResponder}
                 onArchivar={handleArchivar}
@@ -103,11 +110,33 @@ const AdminMensajes = () => {
           )}
         </div>
 
+        {!loading && mensajesFiltrados.length > 0 && totalPaginas > 1 && (
+          <div className="mt-3 shrink-0 space-y-2">
+            <p className="text-xs font-medium text-gray-600" aria-live="polite">
+              Mostrando {indiceInicio + 1}-
+              {Math.min(
+                indiceInicio + itemsPorPagina,
+                mensajesFiltrados.length,
+              )}{" "}
+              de {mensajesFiltrados.length} mensajes
+            </p>
+
+            <PaginationProductos
+              currentPage={paginaActual}
+              totalPages={totalPaginas}
+              onPageChange={handleCambiarPagina}
+            />
+          </div>
+        )}
+
         {/* Modales */}
         <MensajeDetalle
           mensaje={mensajeSeleccionado}
           isOpen={mostrarDetalle}
-          onClose={() => { setMostrarDetalle(false); setMensajeSeleccionado(null); }}
+          onClose={() => {
+            setMostrarDetalle(false);
+            setMensajeSeleccionado(null);
+          }}
           onMarcarLeido={marcarLeido}
           onResponder={handleResponder}
           onArchivar={handleArchivar}
@@ -117,7 +146,10 @@ const AdminMensajes = () => {
         <MensajeRespuesta
           mensaje={mensajeSeleccionado}
           isOpen={mostrarRespuesta}
-          onClose={() => { setMostrarRespuesta(false); setMensajeSeleccionado(null); }}
+          onClose={() => {
+            setMostrarRespuesta(false);
+            setMensajeSeleccionado(null);
+          }}
           onEnviar={enviarRespuesta}
         />
       </AdminLayout>
