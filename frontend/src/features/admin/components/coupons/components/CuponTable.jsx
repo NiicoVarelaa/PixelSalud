@@ -13,7 +13,15 @@ export const CuponTable = ({ cupones, onCambiarEstado, onEliminar }) => (
     <table className="w-full" aria-label="Lista de cupones">
       <thead>
         <tr className="border-b border-gray-200 bg-gray-50">
-          {["Código", "Descuento", "Audiencia", "Vigencia", "Usos", "Estado", ""].map((col) => (
+          {[
+            "Código",
+            "Descuento",
+            "Audiencia",
+            "Vigencia",
+            "Usos",
+            "Estado",
+            "",
+          ].map((col) => (
             <th
               key={col}
               scope="col"
@@ -41,9 +49,10 @@ export const CuponTable = ({ cupones, onCambiarEstado, onEliminar }) => (
               transition={{ delay: index * 0.02 }}
               className="group transition-colors hover:bg-gray-50/80"
             >
-              {/* Código */}
               <td className="px-4 py-2.5">
-                <p className="text-sm font-bold text-gray-900 tracking-wide">{cupon.codigo}</p>
+                <p className="text-sm font-bold text-gray-900 tracking-wide">
+                  {cupon.codigo}
+                </p>
                 {cupon.descripcion && (
                   <p className="truncate max-w-[180px] text-xs text-gray-400 mt-0.5">
                     {cupon.descripcion}
@@ -51,7 +60,6 @@ export const CuponTable = ({ cupones, onCambiarEstado, onEliminar }) => (
                 )}
               </td>
 
-              {/* Descuento */}
               <td className="px-4 py-2.5 whitespace-nowrap">
                 <span className="text-sm font-bold text-orange-600">
                   {cupon.tipoCupon === "porcentaje"
@@ -60,26 +68,32 @@ export const CuponTable = ({ cupones, onCambiarEstado, onEliminar }) => (
                 </span>
               </td>
 
-              {/* Audiencia */}
               <td className="px-4 py-2.5 whitespace-nowrap">
-                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getTipoUsuarioBadge(cupon.tipoUsuario)}`}>
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getTipoUsuarioBadge(cupon.tipoUsuario)}`}
+                >
                   {TIPO_USUARIO_LABEL[cupon.tipoUsuario] ?? cupon.tipoUsuario}
                 </span>
               </td>
 
-              {/* Vigencia */}
               <td className="px-4 py-2.5 whitespace-nowrap">
-                <p className="text-xs text-gray-600">{formatearFecha(cupon.fechaInicio)}</p>
-                <p className="text-xs text-gray-400">→ {formatearFecha(cupon.fechaVencimiento)}</p>
+                <p className="text-xs text-gray-600">
+                  {formatearFecha(cupon.fechaInicio)}
+                </p>
+                <p className="text-xs text-gray-400">
+                  → {formatearFecha(cupon.fechaVencimiento)}
+                </p>
               </td>
 
-              {/* Usos */}
               <td className="px-4 py-2.5 whitespace-nowrap">
                 <p className="text-xs font-medium text-gray-700">
                   {cupon.vecesUsado || 0} / {cupon.usoMaximo || "∞"}
                 </p>
                 {pctUso !== null && (
-                  <div className="mt-1 h-1 w-16 overflow-hidden rounded-full bg-gray-100" aria-hidden="true">
+                  <div
+                    className="mt-1 h-1 w-16 overflow-hidden rounded-full bg-gray-100"
+                    aria-hidden="true"
+                  >
                     <div
                       className="h-full rounded-full bg-green-500 transition-all"
                       style={{ width: `${pctUso}%` }}
@@ -88,14 +102,14 @@ export const CuponTable = ({ cupones, onCambiarEstado, onEliminar }) => (
                 )}
               </td>
 
-              {/* Estado */}
               <td className="px-4 py-2.5 whitespace-nowrap">
-                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getBadgeColor(cupon.estado)}`}>
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getBadgeColor(cupon.estado)}`}
+                >
                   {cupon.estado}
                 </span>
               </td>
 
-              {/* Acciones */}
               <td className="px-4 py-2.5">
                 <div className="flex items-center justify-center gap-1">
                   <button

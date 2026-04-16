@@ -35,7 +35,6 @@ export const useEmpleadosData = () => {
         }
       } catch {
         // Si no hay empleados bajados, no es un error crítico
-        console.log("No hay empleados inactivos o error al obtenerlos");
       }
 
       // Combinar ambos arrays

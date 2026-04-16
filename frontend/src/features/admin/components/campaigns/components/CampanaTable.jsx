@@ -20,7 +20,15 @@ export const CampanaTable = ({
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50">
-              {["Campaña", "Tipo", "Descuento", "Vigencia", "Productos", "Estado", ""].map((col) => (
+              {[
+                "Campaña",
+                "Tipo",
+                "Descuento",
+                "Vigencia",
+                "Productos",
+                "Estado",
+                "",
+              ].map((col) => (
                 <th
                   key={col}
                   scope="col"
@@ -35,7 +43,8 @@ export const CampanaTable = ({
           </thead>
           <tbody className="divide-y divide-gray-100">
             {campanasActuales.map((campana, index) => {
-              const esDosPorUno = String(campana.tipo || "").toUpperCase() === "2X1";
+              const esDosPorUno =
+                String(campana.tipo || "").toUpperCase() === "2X1";
               return (
                 <motion.tr
                   key={campana.idCampana}
@@ -44,7 +53,6 @@ export const CampanaTable = ({
                   transition={{ delay: index * 0.025 }}
                   className="group transition-colors hover:bg-gray-50/80"
                 >
-                  {/* Campaña */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div
@@ -64,17 +72,17 @@ export const CampanaTable = ({
                     </div>
                   </td>
 
-                  {/* Tipo */}
                   <td className="px-4 py-3 text-center">
                     <span className="inline-block rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 whitespace-nowrap">
                       {campana.tipo}
                     </span>
                   </td>
 
-                  {/* Descuento */}
                   <td className="px-4 py-3 text-center">
                     {esDosPorUno ? (
-                      <span className="text-sm font-bold text-gray-800">2x1</span>
+                      <span className="text-sm font-bold text-gray-800">
+                        2x1
+                      </span>
                     ) : (
                       <span className="inline-flex items-center gap-0.5 text-sm font-bold text-orange-600">
                         <Percent size={12} aria-hidden="true" />
@@ -83,7 +91,6 @@ export const CampanaTable = ({
                     )}
                   </td>
 
-                  {/* Vigencia */}
                   <td className="px-4 py-3 text-center">
                     <p className="text-xs text-gray-600 whitespace-nowrap">
                       {formatearFecha(campana.fechaInicio)}
@@ -94,7 +101,6 @@ export const CampanaTable = ({
                     </p>
                   </td>
 
-                  {/* Productos */}
                   <td className="px-4 py-3 text-center">
                     <span className="inline-flex items-center gap-1 rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-700">
                       <Package size={12} aria-hidden="true" />
@@ -102,7 +108,6 @@ export const CampanaTable = ({
                     </span>
                   </td>
 
-                  {/* Estado */}
                   <td className="px-4 py-3 text-center">
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -119,7 +124,6 @@ export const CampanaTable = ({
                     </span>
                   </td>
 
-                  {/* Acciones */}
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-1">
                       <button

@@ -63,7 +63,6 @@ const AdminMedicos = () => {
       // Tu backend devuelve 404 si no hay médicos (results.length === 0)
       if (error.response && error.response.status === 404) {
         setMedicos([]); // No es un error real, solo que está vacío
-        console.log("La base de datos de médicos está vacía.");
       } else {
         console.error("Error al obtener médicos", error);
         toast.error("Error al cargar la lista de médicos.");

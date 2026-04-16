@@ -18,7 +18,9 @@ export const ConfirmDialog = ({
     closeRef.current?.focus();
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
@@ -35,7 +37,9 @@ export const ConfirmDialog = ({
           aria-modal="true"
           aria-labelledby="confirm-title"
           aria-describedby="confirm-message"
-          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
         >
           <motion.div
             initial={{ opacity: 0 }}
@@ -52,13 +56,19 @@ export const ConfirmDialog = ({
             transition={{ duration: 0.18, ease: "easeOut" }}
             className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
           >
-            {/* Header */}
             <div className="flex items-start gap-3 p-5 pb-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-orange-200 bg-orange-50">
-                <AlertTriangle size={17} className="text-orange-600" aria-hidden="true" />
+                <AlertTriangle
+                  size={17}
+                  className="text-orange-600"
+                  aria-hidden="true"
+                />
               </div>
               <div className="flex-1 min-w-0 pt-1">
-                <h3 id="confirm-title" className="text-sm font-semibold text-gray-900">
+                <h3
+                  id="confirm-title"
+                  className="text-sm font-semibold text-gray-900"
+                >
                   {title}
                 </h3>
               </div>
@@ -73,7 +83,10 @@ export const ConfirmDialog = ({
               </button>
             </div>
 
-            <p id="confirm-message" className="px-5 pb-5 text-sm text-gray-600 leading-relaxed">
+            <p
+              id="confirm-message"
+              className="px-5 pb-5 text-sm text-gray-600 leading-relaxed"
+            >
               {message}
             </p>
 
@@ -87,7 +100,10 @@ export const ConfirmDialog = ({
               </button>
               <button
                 type="button"
-                onClick={() => { onConfirm(); onClose(); }}
+                onClick={() => {
+                  onConfirm();
+                  onClose();
+                }}
                 className="flex-1 h-9 rounded-lg bg-green-600 hover:bg-green-700 text-sm font-semibold text-white active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
               >
                 {confirmText}

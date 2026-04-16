@@ -1,8 +1,5 @@
 const medicosRepository = require("../repositories/MedicosRepository");
-const {
-  createNotFoundError,
-  createConflictError,
-} = require("../errors");
+const { createNotFoundError, createConflictError } = require("../errors");
 const bcryptjs = require("bcryptjs");
 
 const obtenerMedicos = async () => {

@@ -1,10 +1,6 @@
 const AuditoriaRepository = require("../repositories/AuditoriaRepository");
 const { createAppError } = require("../errors");
 
-/**
- * Obtiene auditorías con filtros
- * @route GET /api/admin/auditoria
- */
 const obtenerAuditorias = async (req, res, next) => {
   try {
     const {
@@ -41,10 +37,6 @@ const obtenerAuditorias = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene auditorías de un usuario específico
- * @route GET /api/admin/auditoria/usuario/:tipoUsuario/:idUsuario
- */
 const obtenerAuditoriasPorUsuario = async (req, res, next) => {
   try {
     const { tipoUsuario, idUsuario } = req.params;
@@ -65,10 +57,6 @@ const obtenerAuditoriasPorUsuario = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene historial de una entidad
- * @route GET /api/admin/auditoria/entidad/:entidadAfectada/:idEntidad
- */
 const obtenerHistorialEntidad = async (req, res, next) => {
   try {
     const { entidadAfectada, idEntidad } = req.params;
@@ -87,10 +75,6 @@ const obtenerHistorialEntidad = async (req, res, next) => {
   }
 };
 
-/**
- * Obtiene estadísticas de auditoría
- * @route GET /api/admin/auditoria/estadisticas
- */
 const obtenerEstadisticas = async (req, res, next) => {
   try {
     const { fechaDesde, fechaHasta } = req.query;

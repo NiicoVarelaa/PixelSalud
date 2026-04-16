@@ -1,4 +1,4 @@
-import { getCloudinaryUrl } from '../utils/cloudinary';
+import { getCloudinaryUrl } from "../utils/cloudinary";
 
 export const CATEGORIAS_DATA = [
   {
@@ -9,7 +9,7 @@ export const CATEGORIAS_DATA = [
   },
   {
     text: "Belleza",
-    image: getCloudinaryUrl("Belleza_vqqnpf.webp") ,
+    image: getCloudinaryUrl("Belleza_vqqnpf.webp"),
     link: "Belleza",
     isTrending: true,
   },

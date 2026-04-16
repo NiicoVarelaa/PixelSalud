@@ -17,11 +17,9 @@ const {
 
 const router = express.Router();
 
-// Rutas públicas - Consultar imágenes
 router.get("/productos/:idProducto/imagenes", getImagenesProducto);
 router.get("/productos/:idProducto/imagenes/principal", getImagenPrincipal);
 
-// Rutas protegidas - Administración de imágenes (solo admins)
 router.post(
   "/productos/:idProducto/imagenes",
   auth,

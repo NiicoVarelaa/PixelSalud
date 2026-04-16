@@ -144,7 +144,7 @@ const addMultiple = async (
     idCampana,
     idProducto,
     porcentajeDescuentoOverride,
-    1, 
+    1,
   ]);
 
   const [result] = await pool.query(

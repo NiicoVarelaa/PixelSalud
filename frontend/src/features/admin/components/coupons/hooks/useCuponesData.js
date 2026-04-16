@@ -49,7 +49,6 @@ export const useCuponesData = () => {
   };
 
   const crearCupon = async (nuevoCupon, onSuccess) => {
-    // Validación
     if (
       !nuevoCupon.codigo ||
       !nuevoCupon.tipoCupon ||
@@ -158,11 +157,11 @@ export const useCuponesData = () => {
     clientes,
     cargandoClientes,
     cargando,
+    estadisticas: getEstadisticas(),
     fetchCupones,
     fetchHistorial,
     crearCupon,
     cambiarEstado,
     eliminarCupon,
-    estadisticas: getEstadisticas(),
   };
 };

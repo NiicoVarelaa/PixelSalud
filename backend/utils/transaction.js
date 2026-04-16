@@ -17,7 +17,6 @@ const withTransaction = async (callback) => {
     throw error;
   } finally {
     connection.release();
-    console.log("🔓 Conexión liberada al pool");
   }
 };
 

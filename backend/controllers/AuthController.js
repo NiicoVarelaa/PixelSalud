@@ -4,10 +4,15 @@ const cuponesService = require("../services/CuponesService");
 const { enviarCuponBienvenida } = require("../helps/EnvioMail");
 const { Auditoria } = require("../helps");
 
-const buildFrontendRedirect = (params = {}) => {
-  const frontendUrl = (
-    process.env.FRONTEND_URL || "http://localhost:5173"
-  ).replace(/\/$/, "");
+const buildFrontendRedirect = (params = {}, options = {}) => {
+  const { useGoogleFrontend = false } = options;
+  const targetFrontendUrl = useGoogleFrontend
+    ? process.env.GOOGLE_FRONTEND_URL || process.env.FRONTEND_URL
+    : process.env.FRONTEND_URL;
+  const frontendUrl = (targetFrontendUrl || "http://localhost:5173").replace(
+    /\/$/,
+    "",
+  );
   const query = new URLSearchParams(params).toString();
   return `${frontendUrl}/login${query ? `?${query}` : ""}`;
 };
@@ -17,7 +22,6 @@ const login = async (req, res, next) => {
     const { email, contrasenia } = req.body;
     const resultado = await authService.login(email, contrasenia);
 
-    // Registrar login exitoso en auditoría
     await Auditoria.registrarLoginExitoso(
       {
         id: resultado.id,
@@ -31,7 +35,6 @@ const login = async (req, res, next) => {
 
     res.status(200).json(resultado);
   } catch (error) {
-    // Registrar login fallido
     await Auditoria.registrarLoginFallido(
       req.body.email || "email_no_proporcionado",
       error.message,
@@ -125,9 +128,12 @@ const googleCallback = async (req, res) => {
 
   if (!code) {
     return res.redirect(
-      buildFrontendRedirect({
-        oauth_error: "Google no devolvió código de autorización",
-      }),
+      buildFrontendRedirect(
+        {
+          oauth_error: "Google no devolvió código de autorización",
+        },
+        { useGoogleFrontend: true },
+      ),
     );
   }
 
@@ -138,9 +144,12 @@ const googleCallback = async (req, res) => {
 
     if (!clientId || !clientSecret || !redirectUri) {
       return res.redirect(
-        buildFrontendRedirect({
-          oauth_error: "Falta configuración OAuth de Google en backend",
-        }),
+        buildFrontendRedirect(
+          {
+            oauth_error: "Falta configuración OAuth de Google en backend",
+          },
+          { useGoogleFrontend: true },
+        ),
       );
     }
 
@@ -162,9 +171,12 @@ const googleCallback = async (req, res) => {
 
     if (!tokenResponse.ok || !tokenData.access_token) {
       return res.redirect(
-        buildFrontendRedirect({
-          oauth_error: "No se pudo obtener token de Google",
-        }),
+        buildFrontendRedirect(
+          {
+            oauth_error: "No se pudo obtener token de Google",
+          },
+          { useGoogleFrontend: true },
+        ),
       );
     }
 
@@ -181,17 +193,23 @@ const googleCallback = async (req, res) => {
 
     if (!profileResponse.ok || !profile.email) {
       return res.redirect(
-        buildFrontendRedirect({
-          oauth_error: "No se pudo obtener perfil de Google",
-        }),
+        buildFrontendRedirect(
+          {
+            oauth_error: "No se pudo obtener perfil de Google",
+          },
+          { useGoogleFrontend: true },
+        ),
       );
     }
 
     if (profile.email_verified === false) {
       return res.redirect(
-        buildFrontendRedirect({
-          oauth_error: "El email de Google no está verificado",
-        }),
+        buildFrontendRedirect(
+          {
+            oauth_error: "El email de Google no está verificado",
+          },
+          { useGoogleFrontend: true },
+        ),
       );
     }
 
@@ -217,14 +235,22 @@ const googleCallback = async (req, res) => {
       "utf8",
     ).toString("base64url");
 
-    return res.redirect(buildFrontendRedirect({ oauth: encodedPayload }));
+    return res.redirect(
+      buildFrontendRedirect(
+        { oauth: encodedPayload },
+        { useGoogleFrontend: true },
+      ),
+    );
   } catch (error) {
     await Auditoria.registrarLoginFallido("google_oauth", error.message, req);
 
     return res.redirect(
-      buildFrontendRedirect({
-        oauth_error: "No se pudo completar el acceso con Google",
-      }),
+      buildFrontendRedirect(
+        {
+          oauth_error: "No se pudo completar el acceso con Google",
+        },
+        { useGoogleFrontend: true },
+      ),
     );
   }
 };

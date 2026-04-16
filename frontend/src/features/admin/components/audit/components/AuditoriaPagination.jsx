@@ -19,7 +19,6 @@ export const AuditoriaPagination = ({
       className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
       aria-label="Paginación de auditorías"
     >
-      {/* Info + por página */}
       <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
         <span aria-live="polite">
           <span className="font-semibold text-gray-700">

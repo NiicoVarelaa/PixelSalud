@@ -298,7 +298,6 @@ const update = async (idProducto, data) => {
 };
 
 const upsertOfertaProducto = async (idProducto, porcentajeDescuento) => {
-  // Cerrar cualquier oferta activa previa para evitar duplicados vigentes.
   await pool.query(
     `UPDATE Ofertas
      SET esActiva = 0,
@@ -385,14 +384,6 @@ const findWithLowStock = async () => {
   return rows;
 };
 
-// ===============================================
-// FUNCIONES HELPERS PARA IMÁGENES
-// ===============================================
-
-/**
- * Enriquece un producto con sus imágenes desde la tabla ImagenesProductos
- * Mantiene compatibilidad con el campo 'img' legacy
- */
 const enrichProductWithImages = async (producto) => {
   if (!producto) return null;
 
@@ -407,7 +398,6 @@ const enrichProductWithImages = async (producto) => {
         imagenes.length > 0
           ? imagenes
           : [
-              // Si no hay imágenes en la nueva tabla pero existe img legacy, usarla
               ...(producto.img
                 ? [
                     {
@@ -423,7 +413,6 @@ const enrichProductWithImages = async (producto) => {
     };
   } catch (error) {
     console.error("Error al enriquecer producto con imágenes:", error);
-    // En caso de error, devolver el producto con img legacy
     return {
       ...producto,
       imagenes: producto.img
@@ -441,9 +430,6 @@ const enrichProductWithImages = async (producto) => {
   }
 };
 
-/**
- * Enriquece un array de productos con sus imágenes
- */
 const enrichProductsWithImages = async (productos) => {
   if (!productos || productos.length === 0) return [];
 
@@ -452,33 +438,21 @@ const enrichProductsWithImages = async (productos) => {
   );
 };
 
-/**
- * Obtiene todos los productos con ofertas e imágenes
- */
 const findAllWithOfertasAndImages = async () => {
   const productos = await findAllWithOfertas();
   return enrichProductsWithImages(productos);
 };
 
-/**
- * Obtiene un producto por ID con ofertas e imágenes
- */
 const findByIdWithOfertasAndImages = async (idProducto) => {
   const producto = await findByIdWithOfertas(idProducto);
   return enrichProductWithImages(producto);
 };
 
-/**
- * Busca productos por nombre con imágenes
- */
 const searchByNameWithImages = async (term) => {
   const productos = await searchByName(term);
   return enrichProductsWithImages(productos);
 };
 
-/**
- * Obtiene productos por categoría con ofertas e imágenes
- */
 const findByCategoriaWithOfertasAndImages = async (categoria) => {
   const productos = await findByCategoriaWithOfertas(categoria);
   return enrichProductsWithImages(productos);
@@ -502,7 +476,6 @@ module.exports = {
   decrementStock,
   hasStock,
   findWithLowStock,
-  // Nuevas funciones con imágenes
   enrichProductWithImages,
   enrichProductsWithImages,
   findAllWithOfertasAndImages,

@@ -35,8 +35,8 @@ const RelatedCategoryCta = ({ category, onCategoryClick, mobile = false }) => {
       className="
         inline-flex items-center justify-center gap-2
         px-7 py-3 rounded-full
-        bg-linear-to-r from-primary-600 to-primary-700 text-white font-semibold text-sm
-        hover:from-primary-700 hover:to-primary-800
+        bg-primary-600 text-white font-semibold text-sm
+        hover:bg-primary-700
         shadow-md hover:shadow-lg active:scale-[0.98]
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
         transition-all duration-200 cursor-pointer

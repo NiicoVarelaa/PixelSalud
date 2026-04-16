@@ -32,10 +32,10 @@ const ContactoInputField = ({
         onChange={onChange}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : undefined}
-        className={`h-11 w-full rounded-xl border bg-white pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-primary-500/60 active:scale-[0.998] ${
+        className={`h-11 w-full rounded-xl border bg-white pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-primary-700/50 active:scale-[0.998] ${
           error
             ? "border-red-400 focus-visible:border-red-500"
-            : "border-slate-300 focus-visible:border-primary-600"
+            : "border-slate-300 focus-visible:border-primary-700"
         }`}
         placeholder={placeholder}
         maxLength={maxLength}

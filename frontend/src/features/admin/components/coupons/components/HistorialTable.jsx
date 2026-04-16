@@ -11,11 +11,16 @@ export const HistorialTable = ({ historial }) => {
         className="flex flex-col items-center justify-center py-16 text-center"
         role="status"
       >
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100" aria-hidden="true">
+        <div
+          className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100"
+          aria-hidden="true"
+        >
           <History size={22} className="text-gray-400" />
         </div>
         <p className="text-sm font-semibold text-gray-700">Sin historial</p>
-        <p className="mt-1 text-xs text-gray-400">Aún no se han usado cupones</p>
+        <p className="mt-1 text-xs text-gray-400">
+          Aún no se han usado cupones
+        </p>
       </motion.div>
     );
   }
@@ -45,31 +50,36 @@ export const HistorialTable = ({ historial }) => {
               transition={{ delay: i * 0.02 }}
               className="transition-colors hover:bg-gray-50/80"
             >
-              {/* Código */}
               <td className="px-4 py-2.5 whitespace-nowrap">
-                <span className="text-sm font-bold text-gray-900 tracking-wide">{uso.codigo}</span>
+                <span className="text-sm font-bold text-gray-900 tracking-wide">
+                  {uso.codigo}
+                </span>
               </td>
 
-              {/* Cliente */}
               <td className="px-4 py-2.5">
-                <p className="text-xs font-medium text-gray-800">{uso.nombreCliente}</p>
-                <p className="text-xs text-gray-400 truncate max-w-[180px]">{uso.emailCliente}</p>
+                <p className="text-xs font-medium text-gray-800">
+                  {uso.nombreCliente}
+                </p>
+                <p className="text-xs text-gray-400 truncate max-w-[180px]">
+                  {uso.emailCliente}
+                </p>
               </td>
 
-              {/* Descuento */}
               <td className="px-4 py-2.5 whitespace-nowrap">
-                <p className="text-sm font-bold text-green-600">${uso.montoDescuento}</p>
+                <p className="text-sm font-bold text-green-600">
+                  ${uso.montoDescuento}
+                </p>
                 <p className="text-xs text-gray-400">
                   ${uso.montoOriginal} → ${uso.montoFinal}
                 </p>
               </td>
 
-              {/* Fecha */}
               <td className="px-4 py-2.5 whitespace-nowrap">
-                <span className="text-xs text-gray-500">{formatearFecha(uso.fechaUso)}</span>
+                <span className="text-xs text-gray-500">
+                  {formatearFecha(uso.fechaUso)}
+                </span>
               </td>
 
-              {/* Venta */}
               <td className="px-4 py-2.5 whitespace-nowrap">
                 <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
                   #{uso.idVentaO}

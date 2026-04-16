@@ -8,12 +8,6 @@ const createOrder = async (req, res, next) => {
     const { products, customer_info, checkout_data, codigoCupon } = req.body;
     const userId = req.user.id;
 
-    console.log("\n=== NUEVA ORDEN DE COMPRA ===");
-    console.log("Usuario ID:", userId);
-    console.log("Productos:", products?.length || 0);
-    console.log("Cliente:", customer_info?.email);
-    console.log("Cupón:", codigoCupon || "Sin cupón");
-
     let descuentoFinal = 0;
     let cuponAplicado = null;
 
@@ -55,8 +49,6 @@ const createOrder = async (req, res, next) => {
 
       descuentoFinal = validacion.descuento;
       cuponAplicado = validacion.cupon;
-
-      console.log(`✅ Cupón ${codigoCupon} aplicado: -$${descuentoFinal}`);
     }
 
     const result = await mercadoPagoService.createOrder({
@@ -68,7 +60,6 @@ const createOrder = async (req, res, next) => {
       cuponAplicado,
     });
 
-    // Registrar auditoría de creación de orden MercadoPago
     await Auditoria.registrarAuditoria(
       {
         evento: "ORDEN_MERCADOPAGO_CREADA",
@@ -89,10 +80,6 @@ const createOrder = async (req, res, next) => {
       },
       req,
     );
-
-    console.log("✅ Orden creada exitosamente");
-    console.log("Preference ID:", result.id);
-    console.log("Venta ID:", result.idVentaO);
 
     res.json({
       ...result,
@@ -128,7 +115,6 @@ const receiveWebhook = async (req, res, next) => {
       try {
         const webhookResult = await mercadoPagoService.processWebhook(req.body);
 
-        // Registrar auditoría de pago recibido si fue exitoso
         if (webhookResult && webhookResult.success && webhookResult.payment) {
           await Auditoria.registrarPagoRecibido(webhookResult.payment, req);
         }

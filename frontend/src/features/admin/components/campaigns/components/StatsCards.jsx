@@ -45,12 +45,16 @@ export const StatsCards = ({ campanas, productos }) => {
           transition={{ delay: i * 0.06 }}
           className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3.5 shadow-xs"
         >
-          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${stat.iconBg}`}>
+          <div
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${stat.iconBg}`}
+          >
             <stat.icon size={17} className={stat.accent} aria-hidden="true" />
           </div>
           <div className="min-w-0">
             <p className="text-xs text-gray-500 truncate">{stat.label}</p>
-            <p className={`text-xl font-bold leading-none mt-0.5 ${stat.accent}`}>
+            <p
+              className={`text-xl font-bold leading-none mt-0.5 ${stat.accent}`}
+            >
               {stat.value}
             </p>
           </div>

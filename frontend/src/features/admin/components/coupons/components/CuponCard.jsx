@@ -8,7 +8,12 @@ import {
 
 const TIPO_USUARIO_LABEL = { todos: "Todos", nuevo: "Nuevos", vip: "VIP" };
 
-export const CuponCard = ({ cupon, onCambiarEstado, onEliminar, index = 0 }) => {
+export const CuponCard = ({
+  cupon,
+  onCambiarEstado,
+  onEliminar,
+  index = 0,
+}) => {
   const esActivo = cupon.estado === "activo";
   const pctUso = cupon.usoMaximo
     ? Math.min(((cupon.vecesUsado || 0) / cupon.usoMaximo) * 100, 100)
@@ -22,25 +27,30 @@ export const CuponCard = ({ cupon, onCambiarEstado, onEliminar, index = 0 }) => 
       className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-sm"
       aria-label={`Cupón ${cupon.codigo}`}
     >
-      {/* Fila 1: código + estado */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <Tag size={14} className="shrink-0 text-green-600" aria-hidden="true" />
+          <Tag
+            size={14}
+            className="shrink-0 text-green-600"
+            aria-hidden="true"
+          />
           <span className="truncate font-bold text-gray-900 tracking-wide">
             {cupon.codigo}
           </span>
         </div>
-        <span className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getBadgeColor(cupon.estado)}`}>
+        <span
+          className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getBadgeColor(cupon.estado)}`}
+        >
           {cupon.estado}
         </span>
       </div>
 
-      {/* Descripción */}
       {cupon.descripcion && (
-        <p className="text-xs text-gray-500 line-clamp-2">{cupon.descripcion}</p>
+        <p className="text-xs text-gray-500 line-clamp-2">
+          {cupon.descripcion}
+        </p>
       )}
 
-      {/* Descuento + tipo usuario */}
       <div className="flex items-center justify-between border-t border-gray-100 pt-2.5">
         <div>
           <p className="text-[11px] text-gray-400">Descuento</p>
@@ -52,21 +62,22 @@ export const CuponCard = ({ cupon, onCambiarEstado, onEliminar, index = 0 }) => 
         </div>
         <div className="text-right">
           <p className="text-[11px] text-gray-400">Audiencia</p>
-          <span className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-semibold ${getTipoUsuarioBadge(cupon.tipoUsuario)}`}>
+          <span
+            className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-semibold ${getTipoUsuarioBadge(cupon.tipoUsuario)}`}
+          >
             {TIPO_USUARIO_LABEL[cupon.tipoUsuario] ?? cupon.tipoUsuario}
           </span>
         </div>
       </div>
 
-      {/* Vigencia */}
       <div className="flex items-center gap-1.5 text-xs text-gray-500">
         <Clock size={12} aria-hidden="true" />
         <span>
-          {formatearFecha(cupon.fechaInicio)} → {formatearFecha(cupon.fechaVencimiento)}
+          {formatearFecha(cupon.fechaInicio)} →{" "}
+          {formatearFecha(cupon.fechaVencimiento)}
         </span>
       </div>
 
-      {/* Usos */}
       <div>
         <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
           <span className="inline-flex items-center gap-1">
@@ -77,7 +88,10 @@ export const CuponCard = ({ cupon, onCambiarEstado, onEliminar, index = 0 }) => 
           </span>
         </div>
         {pctUso !== null && (
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100" aria-hidden="true">
+          <div
+            className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100"
+            aria-hidden="true"
+          >
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${pctUso}%` }}
@@ -88,7 +102,6 @@ export const CuponCard = ({ cupon, onCambiarEstado, onEliminar, index = 0 }) => 
         )}
       </div>
 
-      {/* Acciones */}
       <div className="flex items-center gap-1.5 border-t border-gray-100 pt-2.5">
         <button
           type="button"

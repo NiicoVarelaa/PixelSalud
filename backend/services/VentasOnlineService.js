@@ -201,7 +201,7 @@ const actualizarVentaOnline = async (idVentaO, { metodoPago, productos }) => {
 
     totalCalculado += precio * cant;
   }
-  
+
   await ventasOnlineRepository.update(idVentaO, totalCalculado, metodoPago);
 
   return {

@@ -7,7 +7,14 @@ import {
   getRolBadgeColor,
 } from "../utils/helpers";
 
-const COL_HEADERS = ["Fecha/Hora", "Evento", "Módulo", "Usuario", "Descripción", ""];
+const COL_HEADERS = [
+  "Fecha/Hora",
+  "Evento",
+  "Módulo",
+  "Usuario",
+  "Descripción",
+  "",
+];
 
 export const AuditoriaTable = ({ auditorias, onVerDetalles }) => {
   return (
@@ -37,15 +44,17 @@ export const AuditoriaTable = ({ auditorias, onVerDetalles }) => {
               transition={{ delay: index * 0.02 }}
               className="group transition-colors hover:bg-gray-50/80"
             >
-              {/* Fecha */}
               <td className="px-4 py-2.5 whitespace-nowrap">
                 <span className="inline-flex items-center gap-1 text-xs text-gray-500">
-                  <Clock size={11} className="text-gray-400" aria-hidden="true" />
+                  <Clock
+                    size={11}
+                    className="text-gray-400"
+                    aria-hidden="true"
+                  />
                   {formatearFecha(auditoria.fechaHora)}
                 </span>
               </td>
 
-              {/* Evento */}
               <td className="px-4 py-2.5 whitespace-nowrap">
                 <span
                   className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getEventoBadgeColor(auditoria.evento)}`}
@@ -54,14 +63,12 @@ export const AuditoriaTable = ({ auditorias, onVerDetalles }) => {
                 </span>
               </td>
 
-              {/* Módulo */}
               <td className="px-4 py-2.5 whitespace-nowrap">
                 <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 capitalize">
                   {auditoria.modulo}
                 </span>
               </td>
 
-              {/* Usuario */}
               <td className="px-4 py-2.5 whitespace-nowrap">
                 <p className="text-xs font-medium text-gray-900">
                   {auditoria.nombreUsuario || "N/A"}
@@ -73,14 +80,12 @@ export const AuditoriaTable = ({ auditorias, onVerDetalles }) => {
                 </span>
               </td>
 
-              {/* Descripción */}
-              <td className="px-4 py-2.5 max-w-[240px]">
+              <td className="px-4 py-2.5 max-w-60">
                 <p className="truncate text-xs text-gray-500">
                   {auditoria.descripcion || "—"}
                 </p>
               </td>
 
-              {/* Acción */}
               <td className="px-4 py-2.5 text-center">
                 <button
                   type="button"

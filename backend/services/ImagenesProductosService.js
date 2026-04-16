@@ -2,12 +2,7 @@ const imagenesRepository = require("../repositories/ImagenesProductosRepository"
 const productosRepository = require("../repositories/ProductosRepository");
 const { createNotFoundError, createValidationError } = require("../errors");
 
-/**
- * Servicio para gestionar las imágenes de productos
- */
-
 const obtenerImagenesProducto = async (idProducto) => {
-  // Verificar que el producto existe
   const producto = await productosRepository.findById(idProducto);
   if (!producto) {
     throw createNotFoundError("Producto no encontrado");
@@ -15,7 +10,6 @@ const obtenerImagenesProducto = async (idProducto) => {
 
   const imagenes = await imagenesRepository.findByProductoId(idProducto);
 
-  // Si no hay imágenes en la nueva tabla pero existe img legacy, devolverla
   if (imagenes.length === 0 && producto.img) {
     return [
       {
@@ -41,7 +35,6 @@ const obtenerImagenPrincipal = async (idProducto) => {
   const imagenPrincipal =
     await imagenesRepository.findPrincipalByProductoId(idProducto);
 
-  // Si no hay imagen principal pero existe img legacy, devolverla
   if (!imagenPrincipal && producto.img) {
     return {
       idImagen: null,
@@ -57,7 +50,6 @@ const obtenerImagenPrincipal = async (idProducto) => {
 };
 
 const agregarImagen = async (idProducto, data) => {
-  // Asegurarse de que idProducto sea solo el id
   if (typeof idProducto === "object" && idProducto.idProducto) {
     idProducto = idProducto.idProducto;
   }
@@ -91,7 +83,6 @@ const agregarImagenes = async (idProducto, imagenes) => {
     throw createValidationError("Debe proporcionar al menos una imagen");
   }
 
-  // Validar que todas las imágenes tengan URL
   for (const imagen of imagenes) {
     if (!imagen.urlImagen || imagen.urlImagen.trim() === "") {
       throw createValidationError(
@@ -102,7 +93,6 @@ const agregarImagenes = async (idProducto, imagenes) => {
 
   const ids = await imagenesRepository.createMany(idProducto, imagenes);
 
-  // Devolver las imágenes creadas
   return Promise.all(ids.map((id) => imagenesRepository.findById(id)));
 };
 
@@ -137,7 +127,6 @@ const eliminarImagen = async (idImagen) => {
     throw createNotFoundError("Imagen no encontrada");
   }
 
-  // Verificar que no sea la única imagen
   const imagenes = await imagenesRepository.findByProductoId(imagen.idProducto);
   if (imagenes.length === 1) {
     throw createValidationError(
@@ -147,7 +136,6 @@ const eliminarImagen = async (idImagen) => {
 
   const eliminada = await imagenesRepository.deleteById(idImagen);
 
-  // Si era la imagen principal, establecer otra como principal
   if (imagen.esPrincipal) {
     const imagenesRestantes = await imagenesRepository.findByProductoId(
       imagen.idProducto,
@@ -189,7 +177,6 @@ const reordenarImagenes = async (idProducto, reordenamientos) => {
     );
   }
 
-  // Validar que todas las imágenes pertenezcan al producto
   for (const item of reordenamientos) {
     const imagen = await imagenesRepository.findById(item.idImagen);
     if (!imagen || imagen.idProducto !== idProducto) {

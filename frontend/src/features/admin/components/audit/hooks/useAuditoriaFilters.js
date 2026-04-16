@@ -14,7 +14,7 @@ export const useAuditoriaFilters = () => {
     setFiltros((prev) => ({
       ...prev,
       [campo]: valor,
-      offset: campo !== "offset" ? 0 : valor, // Reset offset cuando cambian filtros
+      offset: campo !== "offset" ? 0 : valor,
     }));
   };
 

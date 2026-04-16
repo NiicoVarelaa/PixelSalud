@@ -14,6 +14,7 @@ const optionalVars = {
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "GOOGLE_REDIRECT_URI",
+    "GOOGLE_FRONTEND_URL",
   ],
   birthdayCoupon: [
     "BIRTHDAY_COUPON_ENABLED",
@@ -62,17 +63,10 @@ function validateEnv() {
       console.error("");
     });
 
-    console.error("💡 Solución:");
-    console.error("   1. Copia el archivo .env.example como .env");
-    console.error("   2. Completa las variables faltantes en .env");
-    console.error("   3. Reinicia el servidor\n");
-
     process.exit(1);
   }
 
   if (warnings.length > 0) {
-    console.warn("\n⚠️  Variables opcionales no configuradas:\n");
-
     const grouped = warnings.reduce((acc, { category, varName }) => {
       if (!acc[category]) acc[category] = [];
       acc[category].push(varName);
@@ -91,8 +85,6 @@ function validateEnv() {
   validateEmailPort();
   validateJWTSecret();
   validateURLs();
-
-  console.log("✅ Variables de entorno validadas correctamente\n");
 }
 
 function validateEmailPort() {
@@ -119,6 +111,7 @@ function validateJWTSecret() {
 function validateURLs() {
   const frontendUrl = process.env.FRONTEND_URL;
   const backendUrl = process.env.BACKEND_URL;
+  const googleFrontendUrl = process.env.GOOGLE_FRONTEND_URL;
 
   if (frontendUrl && frontendUrl.endsWith("/")) {
     console.warn(
@@ -132,6 +125,12 @@ function validateURLs() {
     );
   }
 
+  if (googleFrontendUrl && googleFrontendUrl.endsWith("/")) {
+    console.warn(
+      '⚠️  GOOGLE_FRONTEND_URL no debe terminar en "/" (se eliminará automáticamente)',
+    );
+  }
+
   if (process.env.NODE_ENV === "production") {
     if (frontendUrl && frontendUrl.includes("localhost")) {
       console.warn(
@@ -141,6 +140,11 @@ function validateURLs() {
     if (backendUrl && backendUrl.includes("localhost")) {
       console.warn(
         '⚠️  BACKEND_URL usa "localhost" en producción. ¿Es correcto?',
+      );
+    }
+    if (googleFrontendUrl && googleFrontendUrl.includes("localhost")) {
+      console.warn(
+        '⚠️  GOOGLE_FRONTEND_URL usa "localhost" en producción. ¿Es correcto?',
       );
     }
   }
@@ -164,6 +168,9 @@ function printEnvInfo() {
   );
   console.log(`📧 Email SMTP: ${process.env.SMTP_USER || "No configurado"}`);
   console.log(`🌍 Frontend URL: ${process.env.FRONTEND_URL || "No definida"}`);
+  console.log(
+    `🟢 Frontend URL Google OAuth: ${process.env.GOOGLE_FRONTEND_URL || "No definida"}`,
+  );
   console.log(`🔗 Backend URL: ${process.env.BACKEND_URL || "No definida"}`);
 
   console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");

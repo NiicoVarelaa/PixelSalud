@@ -1,17 +1,8 @@
-/**
- * MULTER MIDDLEWARE
- * =================
- * Middleware para manejo de uploads de archivos
- */
-
 const multer = require("multer");
 
-// Configuración de Multer para almacenamiento en memoria (buffer)
 const storage = multer.memoryStorage();
 
-// Filtro para validar tipos de archivo
 const fileFilter = (req, file, cb) => {
-  // Tipos de imagen permitidos
   const allowedMimeTypes = [
     "image/jpeg",
     "image/jpg",
@@ -32,27 +23,22 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Configuración de Multer
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // Límite de 5MB por archivo
-    files: 10, // Máximo 10 archivos por request
+    fileSize: 5 * 1024 * 1024,
+    files: 10,
   },
 });
 
-// Middleware para una sola imagen
 const uploadSingle = upload.single("imagen");
 
-// Middleware para múltiples imágenes
 const uploadMultiple = upload.array("imagenes", 10);
 
-// Middleware personalizado con manejo de errores
 const uploadSingleWithErrorHandler = (req, res, next) => {
   uploadSingle(req, res, (err) => {
     if (err instanceof multer.MulterError) {
-      // Error de Multer
       if (err.code === "LIMIT_FILE_SIZE") {
         return res.status(400).json({
           error: "El archivo es demasiado grande. Tamaño máximo: 5MB",
@@ -65,10 +51,8 @@ const uploadSingleWithErrorHandler = (req, res, next) => {
       }
       return res.status(400).json({ error: err.message });
     } else if (err) {
-      // Otro tipo de error (ej: tipo de archivo no permitido)
       return res.status(400).json({ error: err.message });
     }
-    // Todo OK, continuar
     next();
   });
 };

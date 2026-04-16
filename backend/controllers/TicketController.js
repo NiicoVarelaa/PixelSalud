@@ -1,9 +1,5 @@
 const ticketService = require("../services/TicketService");
 
-/**
- * Obtener ticket de venta de empleado
- * GET /api/ticket/empleado/:idVentaE
- */
 const obtenerTicketEmpleado = async (req, res, next) => {
   try {
     const { idVentaE } = req.params;
@@ -20,10 +16,6 @@ const obtenerTicketEmpleado = async (req, res, next) => {
   }
 };
 
-/**
- * Obtener ticket de venta online
- * GET /api/ticket/online/:idVentaO
- */
 const obtenerTicketOnline = async (req, res, next) => {
   try {
     const { idVentaO } = req.params;

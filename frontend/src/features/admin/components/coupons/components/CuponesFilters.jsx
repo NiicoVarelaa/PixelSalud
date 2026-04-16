@@ -13,11 +13,21 @@ export const CuponesFilters = ({
   setFiltroTipo,
   onResetPaginacion,
 }) => {
-  const hayFiltros = busqueda || filtroEstado !== "todos" || filtroTipo !== "todos";
+  const hayFiltros =
+    busqueda || filtroEstado !== "todos" || filtroTipo !== "todos";
 
-  const handleBusqueda    = (v) => { setBusqueda(v);     onResetPaginacion(); };
-  const handleEstado      = (v) => { setFiltroEstado(v); onResetPaginacion(); };
-  const handleTipo        = (v) => { setFiltroTipo(v);   onResetPaginacion(); };
+  const handleBusqueda = (v) => {
+    setBusqueda(v);
+    onResetPaginacion();
+  };
+  const handleEstado = (v) => {
+    setFiltroEstado(v);
+    onResetPaginacion();
+  };
+  const handleTipo = (v) => {
+    setFiltroTipo(v);
+    onResetPaginacion();
+  };
 
   const limpiar = () => {
     setBusqueda("");
@@ -36,13 +46,19 @@ export const CuponesFilters = ({
       aria-label="Filtros de cupones"
     >
       <div className="grid grid-cols-1 gap-2.5 p-3 sm:grid-cols-2 lg:grid-cols-4 lg:p-3.5">
-        {/* Búsqueda */}
         <div className="lg:col-span-2">
-          <label htmlFor="busqueda-cupon" className="mb-1.5 block text-xs font-medium text-gray-500">
+          <label
+            htmlFor="busqueda-cupon"
+            className="mb-1.5 block text-xs font-medium text-gray-500"
+          >
             Buscar
           </label>
           <div className="relative">
-            <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+            <Search
+              size={14}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              aria-hidden="true"
+            />
             <input
               id="busqueda-cupon"
               type="search"
@@ -69,9 +85,11 @@ export const CuponesFilters = ({
           </div>
         </div>
 
-        {/* Estado */}
         <div>
-          <label htmlFor="filtro-estado" className="mb-1.5 block text-xs font-medium text-gray-500">
+          <label
+            htmlFor="filtro-estado"
+            className="mb-1.5 block text-xs font-medium text-gray-500"
+          >
             Estado
           </label>
           <select
@@ -88,9 +106,11 @@ export const CuponesFilters = ({
           </select>
         </div>
 
-        {/* Tipo usuario */}
         <div>
-          <label htmlFor="filtro-tipo" className="mb-1.5 block text-xs font-medium text-gray-500">
+          <label
+            htmlFor="filtro-tipo"
+            className="mb-1.5 block text-xs font-medium text-gray-500"
+          >
             Tipo usuario
           </label>
           <select
@@ -107,7 +127,6 @@ export const CuponesFilters = ({
         </div>
       </div>
 
-      {/* Limpiar filtros */}
       <AnimatePresence>
         {hayFiltros && (
           <motion.div

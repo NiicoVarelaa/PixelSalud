@@ -43,7 +43,6 @@ const createProducto = async (req, res, next) => {
   try {
     const producto = await productosService.crearProducto(req.body);
 
-    // Registrar auditoría de creación de producto
     await Auditoria.registrarAuditoria(
       {
         evento: "PRODUCTO_CREADO",
@@ -73,7 +72,6 @@ const updateProducto = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
 
-    // Obtener producto antes de actualizar para auditoría
     const productoAnterior =
       await productosService.obtenerProductoPorId(idProducto);
 
@@ -82,7 +80,6 @@ const updateProducto = async (req, res, next) => {
       req.body,
     );
 
-    // Registrar auditoría de actualización de producto
     await Auditoria.registrarModificacionProducto(
       producto,
       req.user,
@@ -104,13 +101,11 @@ const updateProductoActivo = async (req, res, next) => {
     const { idProducto } = req.params;
     const { activo } = req.body;
 
-    // Obtener producto antes de cambiar estado para auditoría
     const productoAnterior =
       await productosService.obtenerProductoPorId(idProducto);
 
     await productosService.actualizarEstadoActivo(idProducto, activo);
 
-    // Registrar auditoría de cambio de estado
     await Auditoria.registrarAuditoria(
       {
         evento: activo ? "PRODUCTO_ACTIVADO" : "PRODUCTO_DESACTIVADO",
@@ -139,13 +134,11 @@ const deleteProducto = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
 
-    // Obtener producto antes de dar de baja para auditoría
     const productoAnterior =
       await productosService.obtenerProductoPorId(idProducto);
 
     await productosService.darBajaProducto(idProducto);
 
-    // Registrar auditoría de baja de producto
     await Auditoria.registrarAuditoria(
       {
         evento: "PRODUCTO_ELIMINADO",
@@ -174,13 +167,11 @@ const activarProducto = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
 
-    // Obtener producto antes de activar para auditoría
     const productoAnterior =
       await productosService.obtenerProductoPorId(idProducto);
 
     await productosService.activarProducto(idProducto);
 
-    // Registrar auditoría de activación de producto
     await Auditoria.registrarAuditoria(
       {
         evento: "PRODUCTO_ACTIVADO",

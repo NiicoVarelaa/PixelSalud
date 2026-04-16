@@ -30,14 +30,13 @@ const createPermisos = async (req, res, next) => {
       req.body,
     );
 
-    // Registrar auditoría de creación de permisos
     await Auditoria.registrarCambioPermiso(
       {
         idEmpleado: parseInt(id, 10),
         ...req.body,
       },
       req.user,
-      null, // No hay datos anteriores
+      null,
       req,
     );
 
@@ -51,7 +50,6 @@ const updatePermisos = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Obtener permisos anteriores para auditoría
     const permisosAnteriores = await permisosService.obtenerPermisosPorEmpleado(
       parseInt(id, 10),
     );
@@ -61,7 +59,6 @@ const updatePermisos = async (req, res, next) => {
       req.body,
     );
 
-    // Registrar auditoría de actualización de permisos
     await Auditoria.registrarCambioPermiso(
       {
         idEmpleado: parseInt(id, 10),
@@ -82,14 +79,12 @@ const deletePermisos = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Obtener permisos antes de eliminar para auditoría
     const permisosAnteriores = await permisosService.obtenerPermisosPorEmpleado(
       parseInt(id, 10),
     );
 
     const result = await permisosService.eliminarPermisos(parseInt(id, 10));
 
-    // Registrar auditoría de eliminación de permisos
     await Auditoria.registrarAuditoria(
       {
         evento: Auditoria.EVENTOS_AUDITORIA.PERMISO_REVOCADO,

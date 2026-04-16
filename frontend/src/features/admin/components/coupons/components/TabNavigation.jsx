@@ -1,10 +1,14 @@
 import { motion } from "framer-motion";
 import { Tag, History } from "lucide-react";
 
-export const TabNavigation = ({ vistaActual, setVistaActual, totalCupones }) => {
+export const TabNavigation = ({
+  vistaActual,
+  setVistaActual,
+  totalCupones,
+}) => {
   const tabs = [
-    { id: "cupones",   label: "Cupones",          badge: totalCupones, icon: Tag     },
-    { id: "historial", label: "Historial de uso",  badge: null,         icon: History },
+    { id: "cupones", label: "Cupones", badge: totalCupones, icon: Tag },
+    { id: "historial", label: "Historial de uso", badge: null, icon: History },
   ];
 
   return (
@@ -35,7 +39,9 @@ export const TabNavigation = ({ vistaActual, setVistaActual, totalCupones }) => 
             {tab.badge !== null && (
               <span
                 className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                  active ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-500"
+                  active
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-200 text-gray-500"
                 }`}
               >
                 {tab.badge}
