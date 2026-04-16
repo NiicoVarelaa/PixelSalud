@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Reply, Send, Mail } from "lucide-react";
 
@@ -12,31 +12,36 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
   const restantes = MAX_CHARS - respuesta.length;
   const puedeEnviar = respuesta.trim().length > 0 && restantes >= 0;
 
+  const handleClose = useCallback(() => {
+    setRespuesta("");
+    setEnviando(false);
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
     if (!isOpen) return;
     closeRef.current?.focus();
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e) => { if (e.key === "Escape") handleClose(); };
+    const onKey = (e) => {
+      if (e.key === "Escape") handleClose();
+    };
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
       document.removeEventListener("keydown", onKey);
     };
-  }, [isOpen]);
-
-  const handleClose = () => {
-    setRespuesta("");
-    setEnviando(false);
-    onClose();
-  };
+  }, [isOpen, handleClose]);
 
   const handleEnviar = async () => {
     if (!puedeEnviar || enviando) return;
     setEnviando(true);
     try {
       const ok = await onEnviar(mensaje.idMensaje, respuesta);
-      if (ok) { setRespuesta(""); onClose(); }
+      if (ok) {
+        setRespuesta("");
+        onClose();
+      }
     } finally {
       setEnviando(false);
     }
@@ -60,7 +65,9 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="respuesta-title"
-          onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleClose();
+          }}
         >
           {/* Backdrop */}
           <motion.div
@@ -84,13 +91,22 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
             <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 flex-shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100">
-                  <Reply size={17} className="text-blue-700" aria-hidden="true" />
+                  <Reply
+                    size={17}
+                    className="text-blue-700"
+                    aria-hidden="true"
+                  />
                 </div>
                 <div>
-                  <h2 id="respuesta-title" className="text-sm font-semibold text-gray-900 leading-none">
+                  <h2
+                    id="respuesta-title"
+                    className="text-sm font-semibold text-gray-900 leading-none"
+                  >
                     Responder mensaje
                   </h2>
-                  <p className="mt-0.5 text-xs text-gray-500">a {mensaje.nombre}</p>
+                  <p className="mt-0.5 text-xs text-gray-500">
+                    a {mensaje.nombre}
+                  </p>
                 </div>
               </div>
               <button
@@ -106,16 +122,19 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
 
             {/* Body */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-
               {/* Contexto del mensaje original */}
               <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 space-y-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-gray-500">
                   <Mail size={12} aria-hidden="true" />
-                  <span className="font-medium text-gray-700">{mensaje.nombre}</span>
+                  <span className="font-medium text-gray-700">
+                    {mensaje.nombre}
+                  </span>
                   <span>·</span>
                   <span>{mensaje.email}</span>
                 </div>
-                <p className="text-xs font-semibold text-gray-700">{mensaje.asunto}</p>
+                <p className="text-xs font-semibold text-gray-700">
+                  {mensaje.asunto}
+                </p>
                 <p className="text-xs text-gray-500 line-clamp-3 italic leading-relaxed">
                   {mensaje.mensaje}
                 </p>
@@ -128,7 +147,9 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
                   className="mb-1.5 block text-xs font-semibold text-gray-600"
                 >
                   Tu respuesta
-                  <span className="ml-1 font-normal text-gray-400">(Ctrl+Enter para enviar)</span>
+                  <span className="ml-1 font-normal text-gray-400">
+                    (Ctrl+Enter para enviar)
+                  </span>
                 </label>
                 <textarea
                   id="respuesta-textarea"
@@ -168,7 +189,9 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
                 onClick={handleEnviar}
                 disabled={!puedeEnviar || enviando}
                 className="inline-flex items-center gap-1.5 h-9 rounded-lg bg-blue-600 hover:bg-blue-700 px-4 text-sm font-semibold text-white disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                aria-label={enviando ? "Enviando respuesta..." : "Enviar respuesta"}
+                aria-label={
+                  enviando ? "Enviando respuesta..." : "Enviar respuesta"
+                }
               >
                 <Send size={14} aria-hidden="true" />
                 {enviando ? "Enviando..." : "Enviar respuesta"}

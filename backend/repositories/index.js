@@ -1,6 +1,5 @@
 module.exports = {
   ProductosRepository: require("./ProductosRepository"),
-  // REMOVED: OfertasRepository: require("./OfertasRepository"), // DEPRECATED - usar CampanasRepository
   CarritoRepository: require("./CarritoRepository"),
   ClientesRepository: require("./ClientesRepository"),
   CuponesRepository: require("./CuponesRepository"),
@@ -8,6 +7,7 @@ module.exports = {
   DashboardRepository: require("./DashboardRepository"),
   EmpleadosRepository: require("./EmpleadosRepository"),
   FavoritosRepository: require("./FavoritosRepository"),
+  ImagenesProductosRepository: require("./ImagenesProductosRepository"),
   CampanasRepository: require("./CampanasRepository"),
   ProductosCampanasRepository: require("./ProductosCampanasRepository"),
   AuthRepository: require("./AuthRepository"),

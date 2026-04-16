@@ -4,7 +4,6 @@ import apiClient from "@utils/apiClient";
 import { useAuthStore } from "@store/useAuthStore";
 import {
   Package,
-  Tag,
   Plus,
   Edit,
   Trash2,
@@ -228,10 +227,18 @@ const EmpleadoProductos = () => {
           confirmButtonColor: "#EAB308",
         });
         cargarInventario();
-      } catch (error) {
+      } catch {
         Swal.fire("Error", "No se pudo actualizar.", "error");
       }
     }
+  };
+
+  const handleEliminarOferta = () => {
+    Swal.fire(
+      "Migrado",
+      "La gestión de ofertas individuales fue reemplazada por Campañas en el panel de admin.",
+      "info",
+    );
   };
 
   // DEPRECATED: Sistema de ofertas individuales eliminado - usar Campañas

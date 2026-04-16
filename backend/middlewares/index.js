@@ -1,6 +1,7 @@
 module.exports = {
   Auth: require("./Auth"),
-  ErrorHandler: require("./errorHandler"),
-  Validate: require("./validate"),
+  ErrorHandler: require("./ErrorHandler"),
+  upload: require("./upload"),
+  Validate: require("./Validate"),
   VerificarPermisos: require("./VerificarPermisos"),
 };

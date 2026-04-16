@@ -1,6 +1,6 @@
 module.exports = {
-  dateUtils: require("./dateUtils"),
-  priceUtils: require("./priceUtils"),
+  DateUtils: require("./DateUtils"),
+  PriceUtils: require("./PriceUtils"),
   stringUtils: require("./stringUtils"),
   transaction: require("./transaction"),
 };

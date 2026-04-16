@@ -1,16 +1,21 @@
+import { createElement } from "react";
 import { MailOpen, Mail, Reply, Archive, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { MensajeEstadoBadge } from "./MensajeEstadoBadge";
 import { formatFecha } from "../utils/helpers";
 
 /* ── Botón de acción inline reutilizable ── */
-const ActionBtn = ({ onClick, label, icon: Icon, variant = "default" }) => {
+const ActionBtn = ({ onClick, label, Icon, variant = "default" }) => {
   const variants = {
-    default:  "border-gray-200 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:ring-gray-400",
-    primary:  "border-green-200 bg-green-50 text-green-700 hover:bg-green-100 focus-visible:ring-green-500",
-    info:     "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 focus-visible:ring-blue-400",
-    muted:    "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 focus-visible:ring-gray-400",
-    danger:   "border-red-200 bg-red-50 text-red-600 hover:bg-red-100 focus-visible:ring-red-400",
+    default:
+      "border-gray-200 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:ring-gray-400",
+    primary:
+      "border-green-200 bg-green-50 text-green-700 hover:bg-green-100 focus-visible:ring-green-500",
+    info: "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 focus-visible:ring-blue-400",
+    muted:
+      "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 focus-visible:ring-gray-400",
+    danger:
+      "border-red-200 bg-red-50 text-red-600 hover:bg-red-100 focus-visible:ring-red-400",
   };
   return (
     <button
@@ -20,13 +25,20 @@ const ActionBtn = ({ onClick, label, icon: Icon, variant = "default" }) => {
       title={label}
       className={`flex h-7 w-7 items-center justify-center rounded-lg border transition-all active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${variants[variant]}`}
     >
-      <Icon size={13} aria-hidden="true" />
+      {createElement(Icon, { size: 13, "aria-hidden": "true" })}
     </button>
   );
 };
 
 /* ── Fila de la tabla (desktop) ── */
-const TableRow = ({ mensaje, index, onVerDetalle, onResponder, onArchivar, onEliminar }) => (
+const TableRow = ({
+  mensaje,
+  index,
+  onVerDetalle,
+  onResponder,
+  onArchivar,
+  onEliminar,
+}) => (
   <motion.tr
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
@@ -38,25 +50,37 @@ const TableRow = ({ mensaje, index, onVerDetalle, onResponder, onArchivar, onEli
       <div className="flex flex-col gap-1.5">
         <MensajeEstadoBadge estado={mensaje.estado} />
         <span className="inline-flex items-center gap-1 text-[11px] text-gray-400">
-          {mensaje.leido
-            ? <><MailOpen size={11} aria-hidden="true" /> Leído</>
-            : <><Mail size={11} className="text-green-600" aria-hidden="true" /><span className="font-semibold text-green-700">Nuevo</span></>
-          }
+          {mensaje.leido ? (
+            <>
+              <MailOpen size={11} aria-hidden="true" /> Leído
+            </>
+          ) : (
+            <>
+              <Mail size={11} className="text-green-600" aria-hidden="true" />
+              <span className="font-semibold text-green-700">Nuevo</span>
+            </>
+          )}
         </span>
       </div>
     </td>
 
     {/* Remitente */}
     <td className="px-4 py-3">
-      <p className={`text-sm ${!mensaje.leido ? "font-semibold text-gray-900" : "font-medium text-gray-700"}`}>
+      <p
+        className={`text-sm ${!mensaje.leido ? "font-semibold text-gray-900" : "font-medium text-gray-700"}`}
+      >
         {mensaje.nombre}
       </p>
-      <p className="text-xs text-gray-400 truncate max-w-[160px]">{mensaje.email}</p>
+      <p className="text-xs text-gray-400 truncate max-w-[160px]">
+        {mensaje.email}
+      </p>
     </td>
 
     {/* Asunto */}
     <td className="px-4 py-3">
-      <p className="truncate max-w-[220px] text-sm text-gray-700">{mensaje.asunto}</p>
+      <p className="truncate max-w-[220px] text-sm text-gray-700">
+        {mensaje.asunto}
+      </p>
     </td>
 
     {/* Fecha */}
@@ -70,14 +94,14 @@ const TableRow = ({ mensaje, index, onVerDetalle, onResponder, onArchivar, onEli
         <ActionBtn
           onClick={() => onVerDetalle(mensaje)}
           label={`Ver mensaje de ${mensaje.nombre}`}
-          icon={MailOpen}
+          Icon={MailOpen}
           variant="primary"
         />
         {mensaje.estado !== "respondido" && mensaje.estado !== "cerrado" && (
           <ActionBtn
             onClick={() => onResponder(mensaje)}
             label={`Responder a ${mensaje.nombre}`}
-            icon={Reply}
+            Icon={Reply}
             variant="info"
           />
         )}
@@ -85,14 +109,14 @@ const TableRow = ({ mensaje, index, onVerDetalle, onResponder, onArchivar, onEli
           <ActionBtn
             onClick={() => onArchivar(mensaje.idMensaje)}
             label="Archivar mensaje"
-            icon={Archive}
+            Icon={Archive}
             variant="muted"
           />
         )}
         <ActionBtn
           onClick={() => onEliminar(mensaje.idMensaje)}
           label="Eliminar mensaje"
-          icon={Trash2}
+          Icon={Trash2}
           variant="danger"
         />
       </div>
@@ -101,7 +125,14 @@ const TableRow = ({ mensaje, index, onVerDetalle, onResponder, onArchivar, onEli
 );
 
 /* ── Card (mobile) ── */
-const MensajeCard = ({ mensaje, index, onVerDetalle, onResponder, onArchivar, onEliminar }) => (
+const MensajeCard = ({
+  mensaje,
+  index,
+  onVerDetalle,
+  onResponder,
+  onArchivar,
+  onEliminar,
+}) => (
   <motion.article
     initial={{ opacity: 0, y: 8 }}
     animate={{ opacity: 1, y: 0 }}
@@ -116,7 +147,9 @@ const MensajeCard = ({ mensaje, index, onVerDetalle, onResponder, onArchivar, on
     {/* Fila 1: nombre + badges */}
     <div className="flex items-start justify-between gap-2">
       <div className="min-w-0">
-        <p className={`text-sm truncate ${!mensaje.leido ? "font-semibold text-gray-900" : "font-medium text-gray-700"}`}>
+        <p
+          className={`text-sm truncate ${!mensaje.leido ? "font-semibold text-gray-900" : "font-medium text-gray-700"}`}
+        >
           {mensaje.nombre}
         </p>
         <p className="text-xs text-gray-400 truncate">{mensaje.email}</p>
@@ -133,8 +166,12 @@ const MensajeCard = ({ mensaje, index, onVerDetalle, onResponder, onArchivar, on
 
     {/* Fila 2: asunto + fecha */}
     <div>
-      <p className="text-xs font-medium text-gray-700 truncate">{mensaje.asunto}</p>
-      <p className="mt-0.5 text-[11px] text-gray-400">{formatFecha(mensaje.fechaEnvio)}</p>
+      <p className="text-xs font-medium text-gray-700 truncate">
+        {mensaje.asunto}
+      </p>
+      <p className="mt-0.5 text-[11px] text-gray-400">
+        {formatFecha(mensaje.fechaEnvio)}
+      </p>
     </div>
 
     {/* Fila 3: acciones */}
@@ -160,9 +197,19 @@ const MensajeCard = ({ mensaje, index, onVerDetalle, onResponder, onArchivar, on
       )}
 
       {mensaje.estado !== "cerrado" && (
-        <ActionBtn onClick={() => onArchivar(mensaje.idMensaje)} label="Archivar" icon={Archive} variant="muted" />
+        <ActionBtn
+          onClick={() => onArchivar(mensaje.idMensaje)}
+          label="Archivar"
+          Icon={Archive}
+          variant="muted"
+        />
       )}
-      <ActionBtn onClick={() => onEliminar(mensaje.idMensaje)} label="Eliminar" icon={Trash2} variant="danger" />
+      <ActionBtn
+        onClick={() => onEliminar(mensaje.idMensaje)}
+        label="Eliminar"
+        Icon={Trash2}
+        variant="danger"
+      />
     </div>
   </motion.article>
 );
@@ -180,7 +227,11 @@ export const MensajesTable = ({
   return (
     <>
       {/* Mobile: lista de cards */}
-      <div className="flex flex-col gap-2 p-3 md:hidden" role="list" aria-label="Lista de mensajes">
+      <div
+        className="flex flex-col gap-2 p-3 md:hidden"
+        role="list"
+        aria-label="Lista de mensajes"
+      >
         {mensajes.map((msg, i) => (
           <div key={msg.idMensaje} role="listitem">
             <MensajeCard mensaje={msg} index={i} {...props} />
@@ -193,20 +244,27 @@ export const MensajesTable = ({
         <table className="w-full" aria-label="Tabla de mensajes">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50">
-              {["Estado", "Remitente", "Asunto", "Fecha", "Acciones"].map((col) => (
-                <th
-                  key={col}
-                  scope="col"
-                  className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500"
-                >
-                  {col}
-                </th>
-              ))}
+              {["Estado", "Remitente", "Asunto", "Fecha", "Acciones"].map(
+                (col) => (
+                  <th
+                    key={col}
+                    scope="col"
+                    className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500"
+                  >
+                    {col}
+                  </th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {mensajes.map((msg, i) => (
-              <TableRow key={msg.idMensaje} mensaje={msg} index={i} {...props} />
+              <TableRow
+                key={msg.idMensaje}
+                mensaje={msg}
+                index={i}
+                {...props}
+              />
             ))}
           </tbody>
         </table>

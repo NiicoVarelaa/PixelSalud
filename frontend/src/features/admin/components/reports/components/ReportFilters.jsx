@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import CustomSelect from "../../products/components/CustomSelect";
 import { DATE_RANGES } from "../constants/reportData";
-import { buttonVariants, collapseVariants } from "../utils/animations";
+import { collapseVariants } from "../utils/animations";
 
 const DEFAULT_VALUES = {
   estado: "Todos",

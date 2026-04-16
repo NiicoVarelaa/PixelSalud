@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Swal from "sweetalert2";
 import apiClient from "@utils/apiClient";
 import { useAuthStore } from "@store/useAuthStore";
@@ -23,7 +23,7 @@ const MedicoMisRecetas = () => {
   const [paginaActual, setPaginaActual] = useState(1);
   const itemsPorPagina = 8;
 
-  const cargarRecetas = async () => {
+  const cargarRecetas = useCallback(async () => {
     setLoading(true);
     try {
       const response = await apiClient.get(`/recetas/medico/${user.id}`);
@@ -37,11 +37,11 @@ const MedicoMisRecetas = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     if (user?.id) cargarRecetas();
-  }, [user]);
+  }, [user?.id, cargarRecetas]);
   useEffect(() => {
     setPaginaActual(1);
   }, [busqueda]);
@@ -60,7 +60,7 @@ const MedicoMisRecetas = () => {
           await apiClient.put(`/recetas/baja/${idReceta}`);
           Swal.fire("Anulada", "La receta se dio de baja.", "success");
           cargarRecetas();
-        } catch (error) {
+        } catch {
           Swal.fire("Error", "No se pudo anular.", "error");
         }
       }

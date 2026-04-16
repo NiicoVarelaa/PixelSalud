@@ -9,6 +9,7 @@ module.exports = {
   MedicoSchemas: require("./MedicoSchemas"),
   MensajeSchemas: require("./MensajeSchemas"),
   MercadoPagoSchemas: require("./MercadoPagoSchemas"),
+  NewsletterSchemas: require("./NewsletterSchemas"),
   PermisoSchemas: require("./PermisoSchemas"),
   ProductoSchemas: require("./ProductoSchemas"),
   RecetaSchemas: require("./RecetaSchemas"),
