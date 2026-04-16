@@ -50,7 +50,7 @@ const MedicoNuevaReceta = () => {
       try {
         const response = await apiClient.get(`/clientes/buscar/${dniPaciente}`);
         setPacienteData(response.data);
-      } catch (error) {
+      } catch {
         setPacienteData(null);
       } finally {
         setBuscandoPaciente(false);

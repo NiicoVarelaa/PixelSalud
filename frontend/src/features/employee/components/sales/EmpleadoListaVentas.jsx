@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import apiClient from "@utils/apiClient";
 import { useAuthStore } from "@store/useAuthStore";
 import Swal from "sweetalert2";
@@ -37,7 +37,7 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
   });
 
   // --- Lógica de Carga ---
-  const cargarVentas = async () => {
+  const cargarVentas = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -64,11 +64,11 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [endpoint, user]);
 
   useEffect(() => {
     if (user) cargarVentas();
-  }, [endpoint, user]);
+  }, [user, cargarVentas]);
 
   useEffect(() => {
     setPaginaActual(1);

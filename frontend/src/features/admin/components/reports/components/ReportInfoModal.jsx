@@ -1,13 +1,23 @@
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, createElement } from "react";
 import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "framer-motion";
-import { Info, X, FileSpreadsheet, LayoutList, GitCompare, Layers } from "lucide-react";
+import {
+  Info,
+  X,
+  FileSpreadsheet,
+  LayoutList,
+  GitCompare,
+  Layers,
+} from "lucide-react";
 
 const FEATURES = [
-  { icon: FileSpreadsheet, text: "Formato condicional para mejor lectura" },
-  { icon: GitCompare,      text: "Rankings y comparativas por canal de venta" },
-  { icon: Layers,          text: "Múltiples hojas de datos en un mismo archivo" },
-  { icon: LayoutList,      text: "Compatibilidad con flujos administrativos existentes" },
+  { Icon: FileSpreadsheet, text: "Formato condicional para mejor lectura" },
+  { Icon: GitCompare, text: "Rankings y comparativas por canal de venta" },
+  { Icon: Layers, text: "Múltiples hojas de datos en un mismo archivo" },
+  {
+    Icon: LayoutList,
+    text: "Compatibilidad con flujos administrativos existentes",
+  },
 ];
 
 /**
@@ -24,7 +34,9 @@ const ReportInfoModal = memo(({ isOpen, onClose }) => {
     closeRef.current?.focus();
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
@@ -40,7 +52,9 @@ const ReportInfoModal = memo(({ isOpen, onClose }) => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="report-info-title"
-          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
         >
           {/* Backdrop */}
           <motion.div
@@ -61,7 +75,10 @@ const ReportInfoModal = memo(({ isOpen, onClose }) => {
             className="relative flex w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-w-lg sm:rounded-2xl max-h-[80dvh]"
           >
             {/* Handle (mobile) */}
-            <div className="flex justify-center pt-2.5 pb-1 sm:hidden" aria-hidden="true">
+            <div
+              className="flex justify-center pt-2.5 pb-1 sm:hidden"
+              aria-hidden="true"
+            >
               <span className="h-1.5 w-14 rounded-full bg-gray-300" />
             </div>
 
@@ -95,22 +112,30 @@ const ReportInfoModal = memo(({ isOpen, onClose }) => {
             {/* Body */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
               <p className="text-sm text-gray-600 leading-relaxed">
-                Los reportes se generan en formato Excel (.xlsx) con tablas formateadas
-                profesionalmente, estadísticas detalladas y análisis comparativos.
-                Aplicá filtros antes de descargar para personalizar los datos según tus necesidades.
+                Los reportes se generan en formato Excel (.xlsx) con tablas
+                formateadas profesionalmente, estadísticas detalladas y análisis
+                comparativos. Aplicá filtros antes de descargar para
+                personalizar los datos según tus necesidades.
               </p>
 
               <div>
                 <p className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
                   Características
                 </p>
-                <ul className="space-y-2" aria-label="Características de los reportes">
-                  {FEATURES.map(({ icon: Icon, text }, i) => (
+                <ul
+                  className="space-y-2"
+                  aria-label="Características de los reportes"
+                >
+                  {FEATURES.map(({ Icon, text }, i) => (
                     <li
                       key={i}
                       className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-2.5"
                     >
-                      <Icon size={14} className="shrink-0 text-green-600" aria-hidden="true" />
+                      {createElement(Icon, {
+                        size: 14,
+                        className: "shrink-0 text-green-600",
+                        "aria-hidden": "true",
+                      })}
                       <span className="text-sm text-gray-700">{text}</span>
                     </li>
                   ))}
@@ -138,7 +163,7 @@ const ReportInfoModal = memo(({ isOpen, onClose }) => {
 ReportInfoModal.displayName = "ReportInfoModal";
 
 ReportInfoModal.propTypes = {
-  isOpen:  PropTypes.bool.isRequired,
+  isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
 };
 

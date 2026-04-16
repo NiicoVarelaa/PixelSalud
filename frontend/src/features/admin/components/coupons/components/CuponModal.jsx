@@ -1,13 +1,28 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Tag, Mail, Users, CheckSquare2, Square, Loader2 } from "lucide-react";
+import {
+  X,
+  Tag,
+  Mail,
+  Users,
+  CheckSquare2,
+  Square,
+  Loader2,
+} from "lucide-react";
 
 /* ── Campo reutilizable ── */
 const Field = ({ label, required, htmlFor, children }) => (
   <div>
-    <label htmlFor={htmlFor} className="mb-1.5 block text-xs font-semibold text-gray-600">
+    <label
+      htmlFor={htmlFor}
+      className="mb-1.5 block text-xs font-semibold text-gray-600"
+    >
       {label}
-      {required && <span className="ml-0.5 text-red-400" aria-hidden="true">*</span>}
+      {required && (
+        <span className="ml-0.5 text-red-400" aria-hidden="true">
+          *
+        </span>
+      )}
     </label>
     {children}
   </div>
@@ -41,20 +56,7 @@ export const CuponModal = ({
     destinatarios: [],
   });
 
-  useEffect(() => {
-    if (!isOpen) return;
-    closeRef.current?.focus();
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e) => { if (e.key === "Escape") handleClose(); };
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [isOpen]);
-
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setSegmentoFiltro("todos");
     setFormData({
       codigo: "",
@@ -69,9 +71,27 @@ export const CuponModal = ({
       enviarPorMail: false,
       destinatarios: [],
     });
-  };
+  }, []);
 
-  const handleClose = () => { resetForm(); onClose(); };
+  const handleClose = useCallback(() => {
+    resetForm();
+    onClose();
+  }, [onClose, resetForm]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    closeRef.current?.focus();
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => {
+      if (e.key === "Escape") handleClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen, handleClose]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,7 +99,8 @@ export const CuponModal = ({
     if (ok) resetForm();
   };
 
-  const set = (key, value) => setFormData((prev) => ({ ...prev, [key]: value }));
+  const set = (key, value) =>
+    setFormData((prev) => ({ ...prev, [key]: value }));
 
   /* ── Lógica de destinatarios (igual que original) ── */
   const esReciente = (fecha, dias = 30) => {
@@ -89,13 +110,13 @@ export const CuponModal = ({
   };
 
   const obtenerSegmento = (c) => {
-    const total  = Number(c.totalCompras) || 0;
-    const gasto  = Number(c.totalGastado) || 0;
-    const vip    = total >= 5 || gasto >= 150000;
-    const nuevo  = total === 0 || esReciente(c.fecha_registro, 30);
+    const total = Number(c.totalCompras) || 0;
+    const gasto = Number(c.totalGastado) || 0;
+    const vip = total >= 5 || gasto >= 150000;
+    const nuevo = total === 0 || esReciente(c.fecha_registro, 30);
     const activo = esReciente(c.ultimaCompra, 30);
-    if (vip)    return "vip";
-    if (nuevo)  return "nuevos";
+    if (vip) return "vip";
+    if (nuevo) return "nuevos";
     if (activo) return "activos_recientes";
     return "general";
   };
@@ -106,15 +127,22 @@ export const CuponModal = ({
 
   const seleccionarSegmento = () => {
     const ids = clientesFiltrados.map((c) => c.idCliente);
-    const actuales = Array.isArray(formData.destinatarios) ? formData.destinatarios : [];
+    const actuales = Array.isArray(formData.destinatarios)
+      ? formData.destinatarios
+      : [];
     set("destinatarios", Array.from(new Set([...actuales, ...ids])));
   };
 
   const limpiarSeleccion = () => set("destinatarios", []);
 
   const toggleDestinatario = (id, checked) => {
-    const current = Array.isArray(formData.destinatarios) ? formData.destinatarios : [];
-    set("destinatarios", checked ? [...current, id] : current.filter((x) => x !== id));
+    const current = Array.isArray(formData.destinatarios)
+      ? formData.destinatarios
+      : [];
+    set(
+      "destinatarios",
+      checked ? [...current, id] : current.filter((x) => x !== id),
+    );
   };
 
   if (!isOpen) return null;
@@ -126,7 +154,9 @@ export const CuponModal = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="cupon-modal-title"
-        onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) handleClose();
+        }}
       >
         {/* Backdrop */}
         <motion.div
@@ -153,10 +183,15 @@ export const CuponModal = ({
                 <Tag size={17} className="text-green-700" aria-hidden="true" />
               </div>
               <div>
-                <h2 id="cupon-modal-title" className="text-sm font-semibold text-gray-900 leading-none">
+                <h2
+                  id="cupon-modal-title"
+                  className="text-sm font-semibold text-gray-900 leading-none"
+                >
                   Crear cupón
                 </h2>
-                <p className="mt-0.5 text-xs text-gray-500">Completá los datos del nuevo cupón</p>
+                <p className="mt-0.5 text-xs text-gray-500">
+                  Completá los datos del nuevo cupón
+                </p>
               </div>
             </div>
             <button
@@ -187,7 +222,9 @@ export const CuponModal = ({
                     id="codigo"
                     type="text"
                     value={formData.codigo}
-                    onChange={(e) => set("codigo", e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      set("codigo", e.target.value.toUpperCase())
+                    }
                     placeholder="Ej: VERANO2026"
                     className={`${inputCls} font-mono tracking-widest`}
                     required
@@ -228,7 +265,11 @@ export const CuponModal = ({
                   </select>
                 </Field>
                 <Field
-                  label={formData.tipoCupon === "porcentaje" ? "Valor (%)" : "Valor ($)"}
+                  label={
+                    formData.tipoCupon === "porcentaje"
+                      ? "Valor (%)"
+                      : "Valor ($)"
+                  }
                   required
                   htmlFor="valor-descuento"
                 >
@@ -237,7 +278,9 @@ export const CuponModal = ({
                     type="number"
                     value={formData.valorDescuento}
                     onChange={(e) => set("valorDescuento", e.target.value)}
-                    placeholder={formData.tipoCupon === "porcentaje" ? "10" : "500"}
+                    placeholder={
+                      formData.tipoCupon === "porcentaje" ? "10" : "500"
+                    }
                     min="0"
                     className={inputCls}
                     required
@@ -339,7 +382,11 @@ export const CuponModal = ({
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <Mail size={14} className="text-gray-400" aria-hidden="true" />
+                  <Mail
+                    size={14}
+                    className="text-gray-400"
+                    aria-hidden="true"
+                  />
                   <span className="text-sm font-medium text-gray-700">
                     Enviar este cupón por email
                   </span>
@@ -357,7 +404,9 @@ export const CuponModal = ({
                     <input
                       type="checkbox"
                       checked={formData.destinatarios === "todos"}
-                      onChange={(e) => set("destinatarios", e.target.checked ? "todos" : [])}
+                      onChange={(e) =>
+                        set("destinatarios", e.target.checked ? "todos" : [])
+                      }
                       className="h-4 w-4 cursor-pointer rounded border-gray-300 text-green-600 focus:ring-green-500"
                     />
                     <span className="text-xs font-medium text-gray-700">
@@ -369,7 +418,11 @@ export const CuponModal = ({
                     <div>
                       {/* Controles de segmento */}
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <Users size={13} className="text-gray-400 shrink-0" aria-hidden="true" />
+                        <Users
+                          size={13}
+                          className="text-gray-400 shrink-0"
+                          aria-hidden="true"
+                        />
                         <select
                           value={segmentoFiltro}
                           onChange={(e) => setSegmentoFiltro(e.target.value)}
@@ -379,7 +432,9 @@ export const CuponModal = ({
                           <option value="todos">Todos</option>
                           <option value="vip">VIP</option>
                           <option value="nuevos">Nuevos</option>
-                          <option value="activos_recientes">Activos recientes</option>
+                          <option value="activos_recientes">
+                            Activos recientes
+                          </option>
                         </select>
                         <button
                           type="button"
@@ -388,21 +443,24 @@ export const CuponModal = ({
                         >
                           Seleccionar segmento
                         </button>
-                        {Array.isArray(formData.destinatarios) && formData.destinatarios.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={limpiarSeleccion}
-                            className="h-8 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 hover:bg-gray-100 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
-                          >
-                            Limpiar
-                          </button>
-                        )}
+                        {Array.isArray(formData.destinatarios) &&
+                          formData.destinatarios.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={limpiarSeleccion}
+                              className="h-8 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 hover:bg-gray-100 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+                            >
+                              Limpiar
+                            </button>
+                          )}
                       </div>
 
                       <p className="mb-2 text-xs text-gray-400">
                         {clientesFiltrados.length} en el filtro ·{" "}
                         <span className="font-semibold text-gray-700">
-                          {Array.isArray(formData.destinatarios) ? formData.destinatarios.length : 0}
+                          {Array.isArray(formData.destinatarios)
+                            ? formData.destinatarios.length
+                            : 0}
                         </span>{" "}
                         seleccionados
                       </p>
@@ -416,7 +474,11 @@ export const CuponModal = ({
                       >
                         {cargandoClientes ? (
                           <div className="flex items-center gap-2 px-3 py-2 text-xs text-gray-500">
-                            <Loader2 size={13} className="animate-spin" aria-hidden="true" />
+                            <Loader2
+                              size={13}
+                              className="animate-spin"
+                              aria-hidden="true"
+                            />
                             Cargando clientes...
                           </div>
                         ) : clientesFiltrados.length === 0 ? (
@@ -425,8 +487,12 @@ export const CuponModal = ({
                           </p>
                         ) : (
                           clientesFiltrados.map((cliente) => {
-                            const selected = Array.isArray(formData.destinatarios)
-                              ? formData.destinatarios.includes(cliente.idCliente)
+                            const selected = Array.isArray(
+                              formData.destinatarios,
+                            )
+                              ? formData.destinatarios.includes(
+                                  cliente.idCliente,
+                                )
                               : false;
                             return (
                               <label
@@ -435,19 +501,36 @@ export const CuponModal = ({
                                 role="option"
                                 aria-selected={selected}
                               >
-                                {selected
-                                  ? <CheckSquare2 size={15} className="shrink-0 text-green-600" aria-hidden="true" />
-                                  : <Square size={15} className="shrink-0 text-gray-300" aria-hidden="true" />
-                                }
+                                {selected ? (
+                                  <CheckSquare2
+                                    size={15}
+                                    className="shrink-0 text-green-600"
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  <Square
+                                    size={15}
+                                    className="shrink-0 text-gray-300"
+                                    aria-hidden="true"
+                                  />
+                                )}
                                 <input
                                   type="checkbox"
                                   checked={selected}
-                                  onChange={(e) => toggleDestinatario(cliente.idCliente, e.target.checked)}
+                                  onChange={(e) =>
+                                    toggleDestinatario(
+                                      cliente.idCliente,
+                                      e.target.checked,
+                                    )
+                                  }
                                   className="sr-only"
                                 />
                                 <span className="text-xs text-gray-700 truncate">
-                                  {cliente.nombreCliente} {cliente.apellidoCliente}{" "}
-                                  <span className="text-gray-400">({cliente.emailCliente})</span>
+                                  {cliente.nombreCliente}{" "}
+                                  {cliente.apellidoCliente}{" "}
+                                  <span className="text-gray-400">
+                                    ({cliente.emailCliente})
+                                  </span>
                                 </span>
                               </label>
                             );

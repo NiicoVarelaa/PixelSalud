@@ -4,6 +4,7 @@ module.exports = {
   CampanasRoutes: require("./CampanasRoutes"),
   CarritoRoutes: require("./CarritoRoutes"),
   ClientesRoutes: require("./ClientesRoutes"),
+  CloudinaryRoutes: require("./CloudinaryRoutes"),
   CuponesRoutes: require("./CuponesRoutes"),
   DashboardRoutes: require("./DashboardRoutes"),
   EmpleadosRoutes: require("./EmpleadosRoutes"),
@@ -13,11 +14,11 @@ module.exports = {
   MensajesRoutes: require("./MensajesRoutes"),
   MercadoPagoRoutes: require("./MercadoPagoRoutes"),
   NewsletterRoutes: require("./NewsletterRoutes"),
-  // REMOVED: OfertasRoutes: require("./OfertasRoutes"), // DEPRECATED - usar CampanasRoutes
   PermisosRoutes: require("./PermisosRoutes"),
   ProductosRoutes: require("./ProductosRoutes"),
   RecetasRoutes: require("./RecetasRoutes"),
   ReportesRoutes: require("./ReportesRoutes"),
+  TicketRoutes: require("./TicketRoutes"),
   VentasEmpleadosRoutes: require("./VentasEmpleadosRoutes"),
   VentasOnlineRoutes: require("./VentasOnlineRoutes"),
 };
