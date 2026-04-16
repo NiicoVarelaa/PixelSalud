@@ -11,9 +11,9 @@ const ProductCardImage = ({
   isCyberMondayProduct,
 }) => {
   return (
-    <div className="w-full h-48 flex items-center justify-center p-4 relative overflow-hidden rounded-xl bg-gray-50">
+    <div className="w-full h-48 flex items-center justify-center p-4 relative overflow-hidden bg-white">
       {!imageLoaded && (
-        <div className="absolute inset-0 bg-gray-100 animate-pulse rounded-t-2xl flex items-center justify-center">
+        <div className="absolute inset-0 bg-white animate-pulse rounded-t-2xl flex items-center justify-center">
           <ShoppingCart className="w-10 h-10 text-gray-300" />
         </div>
       )}
@@ -49,7 +49,7 @@ const ProductCardImage = ({
         />
       )}
 
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300"></div>
+      <div className="absolute inset-0 bg-transparent transition-all duration-300"></div>
     </div>
   );
 };

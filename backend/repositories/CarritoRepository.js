@@ -1,14 +1,5 @@
 const { pool } = require("../config/database");
 
-/**
- * Repository para gestionar el acceso a la tabla Carrito
- */
-
-/**
- * Obtiene el carrito de un cliente con información de productos y ofertas
- * @param {number} idCliente - ID del cliente
- * @returns {Promise<Array>} Array de items del carrito con productos y ofertas
- */
 const findByClienteWithProducts = async (idCliente) => {
   const query = `
     SELECT 

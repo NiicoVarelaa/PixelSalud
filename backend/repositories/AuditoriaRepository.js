@@ -1,9 +1,5 @@
 const { pool } = require("../config/database");
 
-/**
- * Helper para parsear JSON de forma segura
- * MySQL puede devolver campos JSON como objetos o strings dependiendo de la configuración
- */
 const parseJsonSafe = (value) => {
   if (!value) return null;
   if (typeof value === "object") return value;
@@ -15,11 +11,6 @@ const parseJsonSafe = (value) => {
   }
 };
 
-/**
- * Registra una acción en el log de auditoría
- * @param {Object} datos - Datos de la auditoría
- * @returns {Promise<number>} ID del registro de auditoría creado
- */
 const registrarAuditoria = async (datos) => {
   const {
     evento,
@@ -66,11 +57,6 @@ const registrarAuditoria = async (datos) => {
   return resultado.insertId;
 };
 
-/**
- * Obtiene registros de auditoría con filtros
- * @param {Object} filtros - Filtros de búsqueda
- * @returns {Promise<Array>} Registros de auditoría
- */
 const obtenerAuditorias = async (filtros = {}) => {
   const {
     modulo,
@@ -127,7 +113,6 @@ const obtenerAuditorias = async (filtros = {}) => {
 
   const [registros] = await pool.query(query, params);
 
-  // Parsear JSON en los campos que lo requieran
   return registros.map((registro) => ({
     ...registro,
     datosAnteriores: parseJsonSafe(registro.datosAnteriores),
@@ -135,13 +120,6 @@ const obtenerAuditorias = async (filtros = {}) => {
   }));
 };
 
-/**
- * Obtiene auditorías de un usuario específico
- * @param {string} tipoUsuario - Tipo de usuario
- * @param {number} idUsuario - ID del usuario
- * @param {number} limite - Límite de registros
- * @returns {Promise<Array>} Registros de auditoría del usuario
- */
 const obtenerAuditoriasPorUsuario = async (
   tipoUsuario,
   idUsuario,
@@ -162,12 +140,6 @@ const obtenerAuditoriasPorUsuario = async (
   }));
 };
 
-/**
- * Obtiene auditorías de una entidad específica
- * @param {string} entidadAfectada - Nombre de la entidad
- * @param {number} idEntidad - ID de la entidad
- * @returns {Promise<Array>} Historial de cambios de la entidad
- */
 const obtenerHistorialEntidad = async (entidadAfectada, idEntidad) => {
   const [registros] = await pool.query(
     `SELECT * FROM auditoria
@@ -183,12 +155,6 @@ const obtenerHistorialEntidad = async (entidadAfectada, idEntidad) => {
   }));
 };
 
-/**
- * Obtiene estadísticas de auditoría
- * @param {string} fechaDesde - Fecha desde
- * @param {string} fechaHasta - Fecha hasta
- * @returns {Promise<Object>} Estadísticas de auditoría
- */
 const obtenerEstadisticasAuditoria = async (fechaDesde, fechaHasta) => {
   const [resultado] = await pool.query(
     `SELECT 
@@ -224,11 +190,6 @@ const obtenerEstadisticasAuditoria = async (fechaDesde, fechaHasta) => {
   };
 };
 
-/**
- * Elimina auditorías antiguas (limpieza)
- * @param {number} diasAntiguedad - Días de antigüedad para eliminar
- * @returns {Promise<number>} Cantidad de registros eliminados
- */
 const limpiarAuditoriasAntiguas = async (diasAntiguedad = 365) => {
   const [resultado] = await pool.query(
     `DELETE FROM auditoria

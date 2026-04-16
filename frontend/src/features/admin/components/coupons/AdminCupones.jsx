@@ -136,7 +136,6 @@ const AdminCupones = () => {
               <EmptyState mensaje="No se encontraron cupones" />
             ) : (
               <div className="flex min-h-0 flex-1 flex-col">
-                {/* Mobile: cards */}
                 <div className="block min-h-0 flex-1 overflow-y-auto p-3 md:hidden">
                   <div className="grid gap-2.5">
                     {cuponesPaginados.map((cupon, i) => (
@@ -151,7 +150,6 @@ const AdminCupones = () => {
                   </div>
                 </div>
 
-                {/* Desktop: tabla */}
                 <div className="hidden min-h-0 flex-1 overflow-y-auto md:block">
                   <CuponTable
                     cupones={cuponesPaginados}

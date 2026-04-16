@@ -35,9 +35,7 @@ const CheckoutSuccess = () => {
         },
       });
 
-      if (response.ok) {
-        console.log("Carrito limpiado en la base de datos (DELETE API).");
-      } else {
+      if (!response.ok) {
         const errorData = await response.json();
         console.error("Error al limpiar carrito en DB:", errorData.message);
       }

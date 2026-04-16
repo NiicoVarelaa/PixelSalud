@@ -35,7 +35,7 @@ const CardProductos = ({ product, producto }) => {
   if (!currentProduct) return null;
 
   return (
-    <div className="relative bg-white rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 w-full h-full flex flex-col group overflow-hidden">
+    <div className="relative bg-white rounded-2xl border border-gray-100 transition-all duration-300 hover:-translate-y-1 w-full h-full flex flex-col group overflow-hidden">
       {isOffert && (
         <div
           className={`absolute top-3 left-3 z-20 px-2.5 py-1 text-white font-bold rounded-lg text-xs shadow-lg flex items-center gap-1 ${

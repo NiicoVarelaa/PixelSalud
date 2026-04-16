@@ -2,13 +2,6 @@ const ventasEmpleadosRepository = require("../repositories/VentasEmpleadosReposi
 const ventasOnlineRepository = require("../repositories/VentasOnlineRepository");
 const { createNotFoundError } = require("../errors");
 
-/**
- * Formatea los datos de una venta para generar el ticket
- * @param {Object} venta - Datos de la venta
- * @param {Array} detalles - Detalles de productos de la venta
- * @param {string} tipo - 'empleado' o 'online'
- * @returns {Object} Ticket formateado
- */
 const formatearTicket = (venta, detalles, tipo) => {
   const fecha = new Date(venta.fechaPago || venta.fechaVenta || venta.fecha);
   const esOnline = tipo === "online";
@@ -61,13 +54,7 @@ const formatearTicket = (venta, detalles, tipo) => {
   return ticket;
 };
 
-/**
- * Obtiene el ticket de una venta de empleado
- * @param {number} idVentaE - ID de la venta de empleado
- * @returns {Object} Ticket formateado
- */
 const obtenerTicketVentaEmpleado = async (idVentaE) => {
-  // Obtener datos de la venta
   const venta = await ventasEmpleadosRepository.findById(idVentaE);
 
   if (!venta) {
@@ -76,7 +63,6 @@ const obtenerTicketVentaEmpleado = async (idVentaE) => {
     );
   }
 
-  // Obtener detalles de los productos
   const detalles =
     await ventasEmpleadosRepository.findDetallesByVentaId(idVentaE);
 
@@ -89,20 +75,13 @@ const obtenerTicketVentaEmpleado = async (idVentaE) => {
   return formatearTicket(venta, detalles, "empleado");
 };
 
-/**
- * Obtiene el ticket de una venta online
- * @param {number} idVentaO - ID de la venta online
- * @returns {Object} Ticket formateado
- */
 const obtenerTicketVentaOnline = async (idVentaO) => {
-  // Obtener datos de la venta
   const venta = await ventasOnlineRepository.findById(idVentaO);
 
   if (!venta) {
     throw createNotFoundError(`Venta online con ID ${idVentaO} no encontrada`);
   }
 
-  // Obtener detalles de los productos
   const detalles = await ventasOnlineRepository.findDetallesByVentaId(idVentaO);
 
   if (!detalles || detalles.length === 0) {

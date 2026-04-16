@@ -52,7 +52,6 @@ const AdminAuditoria = () => {
       description="Registro completo de acciones críticas del sistema"
       contentClassName="flex h-full min-h-0 flex-col gap-3"
     >
-      {/* Filtros */}
       <AuditoriaFilters
         filtros={filtros}
         onFiltroChange={handleFiltroChange}
@@ -60,10 +59,8 @@ const AdminAuditoria = () => {
         onBuscar={cargarAuditorias}
       />
 
-      {/* Error */}
       {error && <ErrorBanner error={error} />}
 
-      {/* ── Mobile: cards ── */}
       <div className="flex flex-col gap-2 md:hidden">
         {loading ? (
           <div className="rounded-xl border border-gray-200 bg-white">
@@ -90,16 +87,9 @@ const AdminAuditoria = () => {
         )}
       </div>
 
-      {/* ── Desktop: tabla ── */}
       <div className="hidden min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs md:flex">
         <div className="min-h-0 flex-1 overflow-y-auto">
           {loading ? (
-            /*
-             * LoadingState y EmptyState se usan dentro de la tabla en desktop
-             * pasando asTableRow=true, pero como el contenedor es un div
-             * con overflow, es más limpio usarlos como standalone aquí también.
-             * El prop asTableRow permite usar ambos dentro de <tbody> si fuera necesario.
-             */
             <table className="w-full">
               <tbody>
                 <LoadingState asTableRow />
@@ -126,7 +116,6 @@ const AdminAuditoria = () => {
         )}
       </div>
 
-      {/* Modal */}
       <AuditoriaModal
         auditoria={auditoriaSeleccionada}
         isOpen={mostrarModal}

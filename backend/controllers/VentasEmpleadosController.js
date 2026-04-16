@@ -98,7 +98,6 @@ const registrarVentaEmpleado = async (req, res, next) => {
       productos,
     });
 
-    // Registrar auditoría de creación de venta empleado
     await Auditoria.registrarVentaCreada(
       {
         id: resultado.idVentaE,
@@ -122,7 +121,6 @@ const updateVenta = async (req, res, next) => {
     const idVentaE = parseInt(req.params.idVentaE, 10);
     const { totalPago, metodoPago, productos, idEmpleado } = req.body;
 
-    // Obtener venta antes de actualizar para auditoría
     const ventaAnterior =
       await ventasEmpleadosService.obtenerVentaPorId(idVentaE);
 
@@ -133,7 +131,6 @@ const updateVenta = async (req, res, next) => {
       idEmpleado,
     });
 
-    // Registrar auditoría de actualización de venta
     await Auditoria.registrarAuditoria(
       {
         evento: Auditoria.EVENTOS_AUDITORIA.VENTA_MODIFICADA,
@@ -160,13 +157,11 @@ const anularVenta = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);
 
-    // Obtener venta antes de anular para auditoría
     const ventaAnterior =
       await ventasEmpleadosService.obtenerVentaPorId(idVentaE);
 
     const resultado = await ventasEmpleadosService.anularVenta(idVentaE);
 
-    // Registrar auditoría de anulación de venta
     await Auditoria.registrarAuditoria(
       {
         evento: Auditoria.EVENTOS_AUDITORIA.VENTA_ANULADA,
@@ -193,13 +188,11 @@ const reactivarVenta = async (req, res, next) => {
   try {
     const idVentaE = parseInt(req.params.idVentaE, 10);
 
-    // Obtener venta antes de reactivar para auditoría
     const ventaAnterior =
       await ventasEmpleadosService.obtenerVentaPorId(idVentaE);
 
     const resultado = await ventasEmpleadosService.reactivarVenta(idVentaE);
 
-    // Registrar auditoría de reactivación de venta
     await Auditoria.registrarAuditoria(
       {
         evento: "VENTA_REACTIVADA",

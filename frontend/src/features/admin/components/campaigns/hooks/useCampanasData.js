@@ -112,7 +112,6 @@ export const useCampanasData = () => {
           return false;
         }
 
-        // 1. Crear la campaña
         const responseCampana = await axios.post(
           `${backendUrl}/campanas`,
           {
@@ -131,10 +130,8 @@ export const useCampanasData = () => {
 
         const idCampana = responseCampana.data.idCampana;
 
-        // 2. Al pasar a campaña, la oferta individual debe quedar desactivada.
         await limpiarOfertasIndividuales(productosSeleccionados);
 
-        // 3. Agregar productos a la campaña
         await axios.post(
           `${backendUrl}/campanas/${idCampana}/productos`,
           { productosIds: productosSeleccionados },
@@ -165,7 +162,6 @@ export const useCampanasData = () => {
       try {
         const esDosPorUno = nuevaCampana.tipo === "2X1";
 
-        // 1. Actualizar datos de la campaña
         await axios.put(
           `${backendUrl}/campanas/${campanaEditando.idCampana}`,
           {
@@ -181,7 +177,6 @@ export const useCampanasData = () => {
           getConfig(),
         );
 
-        // 2. Obtener productos actuales
         const responseProductos = await axios.get(
           `${backendUrl}/campanas/${campanaEditando.idCampana}/productos`,
           getConfig(),
@@ -190,7 +185,6 @@ export const useCampanasData = () => {
           ? responseProductos.data.productos.map((p) => p.idProducto)
           : [];
 
-        // 3. Calcular cambios
         const productosParaAgregar = productosSeleccionados.filter(
           (id) => !productosActuales.includes(id),
         );
@@ -198,12 +192,10 @@ export const useCampanasData = () => {
           (id) => !productosSeleccionados.includes(id),
         );
 
-        // 4. Si un producto entra a campaña, se desactiva su oferta individual.
         if (productosParaAgregar.length > 0) {
           await limpiarOfertasIndividuales(productosParaAgregar);
         }
 
-        // 5. Agregar nuevos
         if (productosParaAgregar.length > 0) {
           await axios.post(
             `${backendUrl}/campanas/${campanaEditando.idCampana}/productos`,
@@ -212,7 +204,6 @@ export const useCampanasData = () => {
           );
         }
 
-        // 6. Eliminar removidos
         if (productosParaEliminar.length > 0) {
           await axios.delete(
             `${backendUrl}/campanas/${campanaEditando.idCampana}/productos`,

@@ -37,7 +37,6 @@ const createEmpleado = async (req, res, next) => {
       permisos,
     );
 
-    // Registrar auditoría de creación de empleado
     await Auditoria.registrarAuditoria(
       {
         evento: "EMPLEADO_CREADO",
@@ -70,12 +69,10 @@ const updateEmpleado = async (req, res, next) => {
     const { id } = req.params;
     const { permisos, ...empleadoData } = req.body;
 
-    // Obtener empleado antes de actualizar para auditoría
     const empleadoAnterior = await empleadosService.obtenerEmpleadoPorId(id);
 
     await empleadosService.actualizarEmpleado(id, empleadoData, permisos);
 
-    // Registrar auditoría de actualización de empleado
     await Auditoria.registrarAuditoria(
       {
         evento: "EMPLEADO_MODIFICADO",
@@ -102,12 +99,10 @@ const darBajaEmpleado = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Obtener empleado antes de dar de baja para auditoría
     const empleadoAnterior = await empleadosService.obtenerEmpleadoPorId(id);
 
     await empleadosService.darBajaEmpleado(id);
 
-    // Registrar auditoría de baja de empleado
     await Auditoria.registrarAuditoria(
       {
         evento: "EMPLEADO_DESACTIVADO",
@@ -134,12 +129,10 @@ const reactivarEmpleado = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Obtener empleado antes de reactivar para auditoría
     const empleadoAnterior = await empleadosService.obtenerEmpleadoPorId(id);
 
     await empleadosService.reactivarEmpleado(id);
 
-    // Registrar auditoría de reactivación de empleado
     await Auditoria.registrarAuditoria(
       {
         evento: "EMPLEADO_REACTIVADO",

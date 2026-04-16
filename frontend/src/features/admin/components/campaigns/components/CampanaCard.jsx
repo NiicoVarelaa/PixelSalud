@@ -2,14 +2,12 @@ import { motion } from "framer-motion";
 import { Calendar, Package, Edit2, Power, Trash2, Percent } from "lucide-react";
 import { formatearFecha } from "../utils/formatters";
 
-/* Badge de tipo de campaña */
 const TipoBadge = ({ tipo }) => (
   <span className="inline-block rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
     {tipo}
   </span>
 );
 
-/* Badge de estado activo/inactivo */
 const EstadoBadge = ({ esActiva }) => (
   <span
     className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -43,13 +41,11 @@ export const CampanaCard = ({
       className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs transition-shadow hover:shadow-md"
       aria-label={`Campaña: ${campana.nombreCampana}`}
     >
-      {/* Acento superior — solo verde si activa */}
       <div
         className={`h-1 w-full ${campana.esActiva ? "bg-green-500" : "bg-gray-200"}`}
         aria-hidden="true"
       />
 
-      {/* Header */}
       <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3">
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-sm font-semibold text-gray-900">
@@ -61,7 +57,6 @@ export const CampanaCard = ({
           </div>
         </div>
 
-        {/* Valor del descuento */}
         <div className="shrink-0 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center min-w-[52px]">
           {esDosPorUno ? (
             <span className="text-base font-bold text-gray-800">2x1</span>
@@ -74,7 +69,6 @@ export const CampanaCard = ({
         </div>
       </div>
 
-      {/* Body */}
       <div className="flex-1 space-y-2 px-4 pb-3">
         {campana.descripcion && (
           <p className="line-clamp-2 text-xs text-gray-500">
@@ -85,7 +79,8 @@ export const CampanaCard = ({
         <div className="flex items-center gap-1.5 text-xs text-gray-500">
           <Calendar size={13} aria-hidden="true" />
           <span>
-            {formatearFecha(campana.fechaInicio)} → {formatearFecha(campana.fechaFin)}
+            {formatearFecha(campana.fechaInicio)} →{" "}
+            {formatearFecha(campana.fechaFin)}
           </span>
         </div>
 
@@ -95,7 +90,6 @@ export const CampanaCard = ({
         </div>
       </div>
 
-      {/* Footer: acciones */}
       <div className="flex items-center gap-1.5 border-t border-gray-100 bg-gray-50 px-4 py-2.5">
         <button
           type="button"

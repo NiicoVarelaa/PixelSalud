@@ -28,7 +28,6 @@ export const ProductSelector = ({
 
   return (
     <div className="space-y-3">
-      {/* Header de sección */}
       <div className="flex items-center justify-between gap-2">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -51,7 +50,6 @@ export const ProductSelector = ({
         </button>
       </div>
 
-      {/* Filtros */}
       <div className="flex gap-2">
         <div className="relative flex-1">
           <Search
@@ -93,7 +91,6 @@ export const ProductSelector = ({
         </select>
       </div>
 
-      {/* Lista */}
       <div
         className="max-h-72 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-2"
         role="listbox"

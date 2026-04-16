@@ -142,7 +142,6 @@ const useCardProductos = ({ product }) => {
 
   return {
     imageLoaded,
-    setImageLoaded,
     isLoading,
     principalImage,
     hoverImage,
@@ -155,6 +154,7 @@ const useCardProductos = ({ product }) => {
     priceToDisplay,
     precioSinImpuestos,
     stockStatus,
+    setImageLoaded,
     handleLoadingAgregar,
     handleDisminuir,
     handleAumentar,

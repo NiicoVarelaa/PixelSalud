@@ -76,10 +76,6 @@ const startBirthdayCouponScheduler = () => {
       24 * 60 * 60 * 1000,
     );
   }, delay);
-
-  console.log(
-    `[Cumpleanos] Scheduler iniciado. Primera ejecucion en ${Math.round(delay / 60000)} min`,
-  );
 };
 
 const stopBirthdayCouponScheduler = () => {

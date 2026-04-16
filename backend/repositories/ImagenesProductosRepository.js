@@ -1,11 +1,5 @@
 const { pool } = require("../config/database");
 
-/**
- * Repository para gestionar las imágenes de productos
- * Maneja la tabla ImagenesProductos
- */
-
-// Obtener todas las imágenes de un producto
 const findByProductoId = async (idProducto) => {
   const sql = `
     SELECT 
@@ -24,7 +18,6 @@ const findByProductoId = async (idProducto) => {
   return rows;
 };
 
-// Obtener la imagen principal de un producto
 const findPrincipalByProductoId = async (idProducto) => {
   const sql = `
     SELECT 
@@ -43,7 +36,6 @@ const findPrincipalByProductoId = async (idProducto) => {
   return rows[0] || null;
 };
 
-// Obtener una imagen específica por ID
 const findById = async (idImagen) => {
   const sql = `
     SELECT 
@@ -61,7 +53,6 @@ const findById = async (idImagen) => {
   return rows[0] || null;
 };
 
-// Crear una nueva imagen para un producto
 const create = async (data) => {
   const {
     idProducto,
@@ -71,7 +62,6 @@ const create = async (data) => {
     altText,
   } = data;
 
-  // Si es principal, desmarcar las demás como principales
   if (esPrincipal) {
     await pool.query(
       "UPDATE ImagenesProductos SET esPrincipal = FALSE WHERE idProducto = ?",
@@ -88,7 +78,6 @@ const create = async (data) => {
   return result.insertId;
 };
 
-// Crear múltiples imágenes en batch
 const createMany = async (idProducto, imagenes) => {
   if (!imagenes || imagenes.length === 0) return [];
 
@@ -103,7 +92,6 @@ const createMany = async (idProducto, imagenes) => {
       const imagen = imagenes[i];
       const esPrincipal = i === 0 || imagen.esPrincipal === true;
 
-      // Si es la primera imagen o está marcada como principal, desmarcar las demás
       if (esPrincipal) {
         await connection.query(
           "UPDATE ImagenesProductos SET esPrincipal = FALSE WHERE idProducto = ?",
@@ -136,11 +124,9 @@ const createMany = async (idProducto, imagenes) => {
   }
 };
 
-// Actualizar una imagen
 const update = async (idImagen, data) => {
   const { urlImagen, orden, esPrincipal, altText } = data;
 
-  // Si se marca como principal, desmarcar las demás del mismo producto
   if (esPrincipal) {
     const imagen = await findById(idImagen);
     if (imagen) {
@@ -164,7 +150,6 @@ const update = async (idImagen, data) => {
   return result.affectedRows > 0;
 };
 
-// Establecer una imagen como principal
 const setPrincipal = async (idImagen) => {
   const imagen = await findById(idImagen);
   if (!imagen) return false;
@@ -174,13 +159,11 @@ const setPrincipal = async (idImagen) => {
   try {
     await connection.beginTransaction();
 
-    // Desmarcar todas las imágenes del producto
     await connection.query(
       "UPDATE ImagenesProductos SET esPrincipal = FALSE WHERE idProducto = ?",
       [imagen.idProducto],
     );
 
-    // Marcar la seleccionada como principal
     await connection.query(
       "UPDATE ImagenesProductos SET esPrincipal = TRUE WHERE idImagen = ?",
       [idImagen],
@@ -196,7 +179,6 @@ const setPrincipal = async (idImagen) => {
   }
 };
 
-// Eliminar una imagen
 const deleteById = async (idImagen) => {
   const [result] = await pool.query(
     "DELETE FROM ImagenesProductos WHERE idImagen = ?",
@@ -205,7 +187,6 @@ const deleteById = async (idImagen) => {
   return result.affectedRows > 0;
 };
 
-// Eliminar todas las imágenes de un producto
 const deleteByProductoId = async (idProducto) => {
   const [result] = await pool.query(
     "DELETE FROM ImagenesProductos WHERE idProducto = ?",
@@ -214,7 +195,6 @@ const deleteByProductoId = async (idProducto) => {
   return result.affectedRows;
 };
 
-// Actualizar el orden de las imágenes
 const updateOrden = async (reordenamientos) => {
   const connection = await pool.getConnection();
 

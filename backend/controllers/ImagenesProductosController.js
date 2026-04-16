@@ -1,10 +1,5 @@
 const imagenesService = require("../services/ImagenesProductosService");
 
-/**
- * Controlador para gestionar las imágenes de productos
- */
-
-// Obtener todas las imágenes de un producto
 const getImagenesProducto = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
@@ -17,7 +12,6 @@ const getImagenesProducto = async (req, res, next) => {
   }
 };
 
-// Obtener la imagen principal de un producto
 const getImagenPrincipal = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
@@ -30,7 +24,6 @@ const getImagenPrincipal = async (req, res, next) => {
   }
 };
 
-// Agregar una imagen a un producto
 const addImagen = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
@@ -47,7 +40,6 @@ const addImagen = async (req, res, next) => {
   }
 };
 
-// Agregar múltiples imágenes a un producto
 const addImagenes = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
@@ -65,7 +57,6 @@ const addImagenes = async (req, res, next) => {
   }
 };
 
-// Actualizar una imagen
 const updateImagen = async (req, res, next) => {
   try {
     const { idImagen } = req.params;
@@ -82,7 +73,6 @@ const updateImagen = async (req, res, next) => {
   }
 };
 
-// Establecer una imagen como principal
 const setPrincipal = async (req, res, next) => {
   try {
     const { idImagen } = req.params;
@@ -98,7 +88,6 @@ const setPrincipal = async (req, res, next) => {
   }
 };
 
-// Eliminar una imagen
 const deleteImagen = async (req, res, next) => {
   try {
     const { idImagen } = req.params;
@@ -111,7 +100,6 @@ const deleteImagen = async (req, res, next) => {
   }
 };
 
-// Eliminar todas las imágenes de un producto
 const deleteImagenesProducto = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
@@ -126,7 +114,6 @@ const deleteImagenesProducto = async (req, res, next) => {
   }
 };
 
-// Reordenar imágenes de un producto
 const reordenarImagenes = async (req, res, next) => {
   try {
     const { idProducto } = req.params;

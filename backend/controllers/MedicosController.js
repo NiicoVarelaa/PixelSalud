@@ -33,7 +33,6 @@ const createMedico = async (req, res, next) => {
   try {
     const resultado = await medicosService.crearMedico(req.body);
 
-    // Registrar auditoría de creación de médico
     await Auditoria.registrarAuditoria(
       {
         evento: "MEDICO_CREADO",
@@ -60,12 +59,10 @@ const updateMedico = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Obtener médico antes de actualizar para auditoría
     const medicoAnterior = await medicosService.obtenerMedicoPorId(id);
 
     const resultado = await medicosService.actualizarMedico(id, req.body);
 
-    // Registrar auditoría de actualización de médico
     await Auditoria.registrarAuditoria(
       {
         evento: "MEDICO_MODIFICADO",
@@ -95,12 +92,10 @@ const darBajaMedico = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Obtener médico antes de dar de baja para auditoría
     const medicoAnterior = await medicosService.obtenerMedicoPorId(id);
 
     const resultado = await medicosService.darBajaMedico(id);
 
-    // Registrar auditoría de baja de médico
     await Auditoria.registrarAuditoria(
       {
         evento: "MEDICO_DESACTIVADO",
@@ -127,12 +122,10 @@ const reactivarMedico = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Obtener médico antes de reactivar para auditoría
     const medicoAnterior = await medicosService.obtenerMedicoPorId(id);
 
     const resultado = await medicosService.reactivarMedico(id);
 
-    // Registrar auditoría de reactivación de médico
     await Auditoria.registrarAuditoria(
       {
         evento: "MEDICO_REACTIVADO",

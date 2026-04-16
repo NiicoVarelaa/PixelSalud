@@ -20,7 +20,6 @@ import {
 } from "./components";
 
 const AdminCampanas = () => {
-  // Hooks
   const { productos, categorias } = useProductStore();
   const {
     campanas,
@@ -34,12 +33,10 @@ const AdminCampanas = () => {
     cargarIdsProductosEnCampanas,
   } = useCampanasData();
 
-  // Estados de modal
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [campanaEditando, setCampanaEditando] = useState(null);
 
-  // Estados de formulario
   const [nuevaCampana, setNuevaCampana] = useState({
     nombreCampana: "",
     descripcion: "",
@@ -49,19 +46,16 @@ const AdminCampanas = () => {
     tipo: "DESCUENTO",
   });
 
-  // Estados de productos
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
   const [idsProductosBloqueados, setIdsProductosBloqueados] = useState([]);
   const [busquedaProducto, setBusquedaProducto] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("");
 
-  // Estados de vista
   const [vistaMode, setVistaMode] = useState("cards");
   const [paginaActual, setPaginaActual] = useState(1);
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("todos");
 
-  // Estado de confirmación
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: "",
@@ -80,18 +74,15 @@ const AdminCampanas = () => {
     itemsPorPagina: ITEMS_PER_PAGE,
   });
 
-  // Cargar datos iniciales
   useEffect(() => {
     fetchCampanas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Reset página al filtrar
   useEffect(() => {
     setPaginaActual(1);
   }, [busqueda, filtroEstado, vistaMode]);
 
-  // Handlers
   const limpiarFormulario = () => {
     setNuevaCampana({
       nombreCampana: "",

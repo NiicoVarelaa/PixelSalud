@@ -38,7 +38,7 @@ function getExportsFromIndex(indexPath) {
   let match;
 
   while ((match = regex.exec(content)) !== null) {
-    exportNames.push(match[2]); // match[2] es el nombre del archivo
+    exportNames.push(match[2]);
   }
 
   return exportNames;

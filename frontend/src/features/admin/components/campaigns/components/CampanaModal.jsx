@@ -1,27 +1,9 @@
 import { useEffect, useRef } from "react";
-import { X, Percent } from "lucide-react";
+import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProductSelector } from "./ProductSelector";
-
-const TIPOS = ["DESCUENTO", "2X1", "EVENTO", "LIQUIDACION", "TEMPORADA"];
-
-/* Input field reutilizable */
-const Field = ({ label, required, children }) => (
-  <div>
-    <label className="mb-1.5 block text-xs font-semibold text-gray-600">
-      {label}
-      {required && (
-        <span className="ml-0.5 text-red-400" aria-hidden="true">
-          *
-        </span>
-      )}
-    </label>
-    {children}
-  </div>
-);
-
-const inputCls =
-  "w-full h-10 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-100 disabled:opacity-50 disabled:cursor-not-allowed";
+import { CampanaModalFormSection } from "./CampanaModalFormSection";
+import { CampanaModalActions } from "./CampanaModalActions";
 
 export const CampanaModal = ({
   isOpen,
@@ -82,7 +64,6 @@ export const CampanaModal = ({
             if (e.target === e.currentTarget) onClose();
           }}
         >
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -92,7 +73,6 @@ export const CampanaModal = ({
             aria-hidden="true"
           />
 
-          {/* Panel */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -100,8 +80,7 @@ export const CampanaModal = ({
             transition={{ duration: 0.22, ease: "easeOut" }}
             className="relative w-full sm:max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 flex-shrink-0">
+            <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 shrink-0">
               <div>
                 <h2
                   id="modal-campana-title"
@@ -126,139 +105,19 @@ export const CampanaModal = ({
               </button>
             </div>
 
-            {/* Body scrolleable */}
             <form
               id="form-campana"
               onSubmit={handleSubmit}
               className="flex-1 overflow-y-auto px-5 py-4 space-y-5"
             >
-              {/* ── Datos básicos ── */}
-              <section aria-label="Datos de la campaña">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  Datos de la campaña
-                </p>
-                <div className="space-y-3">
-                  <Field label="Nombre" required>
-                    <input
-                      type="text"
-                      value={campana.nombreCampana}
-                      onChange={(e) =>
-                        onCampanaChange({
-                          ...campana,
-                          nombreCampana: e.target.value,
-                        })
-                      }
-                      placeholder="Ej: Cyber Monday 2026"
-                      className={inputCls}
-                      required
-                      aria-required="true"
-                    />
-                  </Field>
+              <CampanaModalFormSection
+                campana={campana}
+                esDosPorUno={esDosPorUno}
+                onCampanaChange={onCampanaChange}
+              />
 
-                  <Field label="Descripción">
-                    <textarea
-                      value={campana.descripcion}
-                      onChange={(e) =>
-                        onCampanaChange({
-                          ...campana,
-                          descripcion: e.target.value,
-                        })
-                      }
-                      placeholder="Descripción breve (opcional)..."
-                      rows={2}
-                      className={`${inputCls} h-auto py-2.5 resize-none`}
-                    />
-                  </Field>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Tipo">
-                      <select
-                        value={campana.tipo}
-                        onChange={(e) =>
-                          onCampanaChange({ ...campana, tipo: e.target.value })
-                        }
-                        className={`${inputCls} cursor-pointer`}
-                      >
-                        {TIPOS.map((t) => (
-                          <option key={t} value={t}>
-                            {t}
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
-
-                    <Field
-                      label={
-                        esDosPorUno ? "Descuento (no aplica)" : "Descuento (%)"
-                      }
-                      required={!esDosPorUno}
-                    >
-                      <div className="relative">
-                        <Percent
-                          size={14}
-                          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                          aria-hidden="true"
-                        />
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          step="0.01"
-                          value={esDosPorUno ? 0 : campana.porcentajeDescuento}
-                          onChange={(e) =>
-                            onCampanaChange({
-                              ...campana,
-                              porcentajeDescuento: e.target.value,
-                            })
-                          }
-                          placeholder={esDosPorUno ? "—" : "Ej: 20"}
-                          className={`${inputCls} pl-8`}
-                          required={!esDosPorUno}
-                          disabled={esDosPorUno}
-                        />
-                      </div>
-                    </Field>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Fecha de inicio" required>
-                      <input
-                        type="date"
-                        value={campana.fechaInicio}
-                        onChange={(e) =>
-                          onCampanaChange({
-                            ...campana,
-                            fechaInicio: e.target.value,
-                          })
-                        }
-                        className={`${inputCls} cursor-pointer`}
-                        required
-                        aria-required="true"
-                      />
-                    </Field>
-                    <Field label="Fecha de fin" required>
-                      <input
-                        type="date"
-                        value={campana.fechaFin}
-                        onChange={(e) =>
-                          onCampanaChange({
-                            ...campana,
-                            fechaFin: e.target.value,
-                          })
-                        }
-                        className={`${inputCls} cursor-pointer`}
-                        required
-                        aria-required="true"
-                      />
-                    </Field>
-                  </div>
-                </div>
-              </section>
-
-              {/* Divider */}
               <div className="border-t border-gray-100" aria-hidden="true" />
 
-              {/* ── Selector de productos ── */}
               <section aria-label="Selección de productos">
                 <ProductSelector
                   productos={productos}
@@ -275,35 +134,14 @@ export const CampanaModal = ({
               </section>
             </form>
 
-            {/* Footer */}
-            <div className="flex items-center justify-end gap-2 border-t border-gray-100 px-5 py-3.5 flex-shrink-0">
-              {!isFormValid && (
-                <p className="mr-auto text-xs text-gray-400">
-                  {!campana.nombreCampana?.trim()
-                    ? "Falta el nombre"
-                    : productosSeleccionados.length === 0
-                      ? "Seleccioná al menos un producto"
-                      : !esDosPorUno && !campana.porcentajeDescuento
-                        ? "Falta el descuento"
-                        : ""}
-                </p>
-              )}
-              <button
-                type="button"
-                onClick={onClose}
-                className="h-9 px-4 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                form="form-campana"
-                disabled={!isFormValid}
-                className="h-9 px-5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-              >
-                {modoEdicion ? "Guardar cambios" : "Crear campaña"}
-              </button>
-            </div>
+            <CampanaModalActions
+              isFormValid={isFormValid}
+              campana={campana}
+              productosSeleccionados={productosSeleccionados}
+              esDosPorUno={esDosPorUno}
+              onClose={onClose}
+              modoEdicion={modoEdicion}
+            />
           </motion.div>
         </div>
       )}

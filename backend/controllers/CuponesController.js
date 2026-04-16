@@ -48,7 +48,6 @@ const crearCupon = async (req, res, next) => {
 
     const cupon = await cuponesService.crearCupon(cuponData, adminId);
 
-    // Registrar auditoría de creación de cupón
     await Auditoria.registrarAuditoria(
       {
         evento: "CUPON_CREADO",
@@ -141,12 +140,10 @@ const actualizarEstado = async (req, res, next) => {
     const { id } = req.params;
     const { estado } = req.body;
 
-    // Obtener cupón antes de actualizar para auditoría
     const cuponAnterior = await cuponesService.obtenerCuponPorId(parseInt(id));
 
     await cuponesService.actualizarEstado(parseInt(id), estado);
 
-    // Registrar auditoría de cambio de estado de cupón
     await Auditoria.registrarAuditoria(
       {
         evento: estado ? "CUPON_ACTIVADO" : "CUPON_DESACTIVADO",
@@ -176,12 +173,10 @@ const eliminarCupon = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Obtener cupón antes de eliminar para auditoría
     const cuponAnterior = await cuponesService.obtenerCuponPorId(parseInt(id));
 
     await cuponesService.eliminarCupon(parseInt(id));
 
-    // Registrar auditoría de eliminación de cupón
     await Auditoria.registrarAuditoria(
       {
         evento: "CUPON_ELIMINADO",

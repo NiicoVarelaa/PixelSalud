@@ -1,20 +1,12 @@
-/**
- * CLOUDINARY CONFIGURATION
- * ========================
- * Configuración del servicio de almacenamiento de imágenes en la nube
- */
-
 const cloudinary = require("cloudinary").v2;
 
-// Configurar Cloudinary con variables de entorno
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true, // Siempre usar HTTPS
+  secure: true,
 });
 
-// Verificar configuración al iniciar
 const validateConfig = () => {
   const missingVars = [];
 
@@ -32,7 +24,6 @@ const validateConfig = () => {
     return false;
   }
 
-  console.log("✅ Cloudinary configurado correctamente");
   return true;
 };
 

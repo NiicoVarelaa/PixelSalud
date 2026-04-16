@@ -219,7 +219,7 @@ const CheckoutPersonalDataStep = ({ defaultValues, onContinue }) => {
             <input
               id="aceptaTyC"
               type="checkbox"
-              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-green-600 accent-green-600 focus:ring-green-500"
               {...register("aceptaTyC")}
             />
             <span>

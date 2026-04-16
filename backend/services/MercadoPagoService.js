@@ -408,7 +408,9 @@ const updatePaymentInDatabase = async (paymentDetails) => {
   } else if (
     ["rejected", "cancelled", "refunded", "charged_back"].includes(status)
   ) {
-    console.log(`[MP] Pago rechazado: ${payment_id} - ${status} - ${external_reference}`);
+    console.log(
+      `[MP] Pago rechazado: ${payment_id} - ${status} - ${external_reference}`,
+    );
     await mercadoPagoRepository.updateVentaEstadoCancelado(external_reference);
   } else {
     await mercadoPagoRepository.updateVentaEstadoPendiente(

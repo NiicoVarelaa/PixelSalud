@@ -36,7 +36,6 @@ const registrarVentaOnline = async (req, res, next) => {
   try {
     const result = await ventasOnlineService.registrarVentaOnline(req.body);
 
-    // Registrar auditoría de creación de venta online
     await Auditoria.registrarVentaCreada(
       {
         id: result.idVentaO,
@@ -64,7 +63,6 @@ const actualizarEstadoVenta = async (req, res, next) => {
   try {
     const { idVentaO, nuevoEstado } = req.body;
 
-    // Obtener venta antes de actualizar para auditoría
     const ventaAnterior = await ventasOnlineService.obtenerDetalleVenta(
       parseInt(idVentaO, 10),
     );
@@ -74,7 +72,6 @@ const actualizarEstadoVenta = async (req, res, next) => {
       nuevoEstado,
     );
 
-    // Registrar auditoría de cambio de estado
     await Auditoria.registrarAuditoria(
       {
         evento: Auditoria.EVENTOS_AUDITORIA.VENTA_ESTADO_CAMBIADO,
@@ -101,7 +98,6 @@ const actualizarVentaOnline = async (req, res, next) => {
   try {
     const { idVentaO } = req.params;
 
-    // Obtener venta antes de actualizar para auditoría
     const ventaAnterior = await ventasOnlineService.obtenerDetalleVenta(
       parseInt(idVentaO, 10),
     );
@@ -111,7 +107,6 @@ const actualizarVentaOnline = async (req, res, next) => {
       req.body,
     );
 
-    // Registrar auditoría de actualización de venta
     await Auditoria.registrarAuditoria(
       {
         evento: Auditoria.EVENTOS_AUDITORIA.VENTA_MODIFICADA,

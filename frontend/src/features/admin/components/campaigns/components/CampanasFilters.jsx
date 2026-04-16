@@ -11,8 +11,6 @@ export const CampanasFilters = ({
 }) => {
   return (
     <div className="flex flex-wrap items-center gap-2">
-
-      {/* Búsqueda */}
       <div className="relative flex-1 min-w-[200px]">
         <Search
           size={15}
@@ -44,16 +42,15 @@ export const CampanasFilters = ({
         </AnimatePresence>
       </div>
 
-      {/* Filtro estado */}
       <div
         className="flex rounded-lg border border-gray-200 bg-white p-0.5"
         role="group"
         aria-label="Filtrar por estado"
       >
         {[
-          { key: "todos",    label: "Todos"    },
-          { key: "activas",  label: "Activas"  },
-          { key: "inactivas",label: "Inactivas"},
+          { key: "todos", label: "Todos" },
+          { key: "activas", label: "Activas" },
+          { key: "inactivas", label: "Inactivas" },
         ].map((opt) => {
           const active = filtroEstado === opt.key;
           return (
@@ -74,7 +71,6 @@ export const CampanasFilters = ({
         })}
       </div>
 
-      {/* Toggle vista */}
       <div
         className="flex rounded-lg border border-gray-200 bg-white p-0.5"
         role="group"

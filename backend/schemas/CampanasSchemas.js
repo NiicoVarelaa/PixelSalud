@@ -1,13 +1,10 @@
 const { z } = require("zod");
 
-// Helper para normalizar fechas de diferentes formatos
 const normalizarFecha = (fecha) => {
   if (!fecha) return fecha;
-  // Si es solo fecha (YYYY-MM-DD), agregar hora 00:00:00
   if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
     return `${fecha} 00:00:00`;
   }
-  // Si es ISO datetime (YYYY-MM-DDTHH:mm:ss), convertir a formato MySQL
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(fecha)) {
     return fecha.replace("T", " ").substring(0, 19);
   }

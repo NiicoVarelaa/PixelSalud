@@ -30,10 +30,10 @@ const CartItemCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -100 }}
-      className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+      className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
     >
-      <div className="flex gap-4">
-        <div className="w-20 h-20 shrink-0 rounded-lg overflow-hidden border border-gray-200">
+      <div className="flex gap-3 sm:gap-4">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg overflow-hidden border border-gray-200">
           <img
             src={imageUrl || product.img || Default}
             alt={product.nombreProducto}
@@ -49,13 +49,13 @@ const CartItemCard = ({
           <Link
             to={`/productos/${product.idProducto}`}
             onClick={onProductClick}
-            className="inline-block font-medium text-gray-900 text-sm line-clamp-2 mb-1 cursor-pointer hover:text-primary-700 transition-colors"
+            className="inline-block font-medium text-gray-900 text-[13px] sm:text-sm leading-snug line-clamp-2 mb-1 cursor-pointer hover:text-primary-700 transition-colors"
           >
             {product.nombreProducto}
           </Link>
 
-          <div className="flex items-center gap-2 mb-2">
-            <span className="font-semibold text-primary-600">
+          <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+            <span className="font-semibold text-primary-600 text-base leading-none">
               ${formatPrice(unitPrice)}
             </span>
 
@@ -70,7 +70,7 @@ const CartItemCard = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <button
-                className={`w-7 h-7 flex items-center justify-center rounded-md border ${
+                className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md border ${
                   product.cantidad > 1
                     ? "border-red-300 hover:bg-red-50 text-red-600 cursor-pointer"
                     : "border-gray-300 text-gray-400 cursor-not-allowed"
@@ -81,12 +81,12 @@ const CartItemCard = ({
                 <Minus className="w-3 h-3" />
               </button>
 
-              <span className="min-w-8 text-center font-medium text-sm">
+              <span className="min-w-7 sm:min-w-8 text-center font-medium text-sm">
                 {product.cantidad}
               </span>
 
               <button
-                className={`w-7 h-7 flex items-center justify-center rounded-md border ${
+                className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md border ${
                   product.stock > product.cantidad
                     ? "border-green-300 hover:bg-green-50 text-green-600 cursor-pointer"
                     : "border-gray-300 text-gray-400 cursor-not-allowed"
@@ -100,7 +100,7 @@ const CartItemCard = ({
 
             <button
               onClick={onDelete}
-              className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
+              className="p-1.5 sm:p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
               aria-label="Eliminar producto"
             >
               <Trash2 className="w-4 h-4" />
@@ -115,9 +115,9 @@ const CartItemCard = ({
         </div>
       </div>
 
-      <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
-        <span className="text-sm text-gray-600">Subtotal:</span>
-        <span className="font-semibold text-gray-900">
+      <div className="mt-2.5 pt-2.5 sm:mt-3 sm:pt-3 border-t border-gray-100 flex justify-between items-center">
+        <span className="text-[13px] sm:text-sm text-gray-600">Subtotal:</span>
+        <span className="font-semibold text-gray-900 text-base sm:text-lg">
           ${formatPrice(subtotal)}
         </span>
       </div>

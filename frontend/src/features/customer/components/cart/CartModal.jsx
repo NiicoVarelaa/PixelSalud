@@ -55,7 +55,7 @@ const CartModal = () => {
               {carrito.length === 0 ? (
                 <CartEmptyState onExploreProducts={goToProducts} />
               ) : (
-                <div className="p-4 space-y-4">
+                <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
                   {carrito.map((product) => (
                     <CartItemCard
                       key={product.idProducto}

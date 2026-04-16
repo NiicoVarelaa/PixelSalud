@@ -28,7 +28,6 @@ const MedicoMisRecetas = () => {
     try {
       const response = await apiClient.get(`/recetas/medico/${user.id}`);
       if (Array.isArray(response.data)) {
-        console.log("Recetas cargadas:", response.data);
         setRecetas(response.data);
       }
     } catch (error) {

@@ -16,7 +16,6 @@ export const AuditoriaCard = ({ auditoria, onVerDetalles, index = 0 }) => {
       className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-xs transition-shadow hover:shadow-sm"
       aria-label={`Registro de auditoría: ${formatearEvento(auditoria.evento)} en ${auditoria.modulo}`}
     >
-      {/* Fila 1: evento + fecha */}
       <div className="flex items-start justify-between gap-2">
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getEventoBadgeColor(auditoria.evento)}`}
@@ -29,7 +28,6 @@ export const AuditoriaCard = ({ auditoria, onVerDetalles, index = 0 }) => {
         </span>
       </div>
 
-      {/* Fila 2: módulo + acción */}
       <div>
         <p className="text-sm font-semibold text-gray-900 capitalize">
           {auditoria.modulo}
@@ -39,7 +37,6 @@ export const AuditoriaCard = ({ auditoria, onVerDetalles, index = 0 }) => {
         )}
       </div>
 
-      {/* Fila 3: usuario */}
       <div className="flex items-center gap-2 border-t border-gray-100 pt-2.5">
         <User size={13} className="shrink-0 text-gray-400" aria-hidden="true" />
         <div className="min-w-0 flex-1">
@@ -54,14 +51,12 @@ export const AuditoriaCard = ({ auditoria, onVerDetalles, index = 0 }) => {
         </span>
       </div>
 
-      {/* Descripción */}
       {auditoria.descripcion && (
         <p className="line-clamp-2 text-xs text-gray-500 leading-relaxed">
           {auditoria.descripcion}
         </p>
       )}
 
-      {/* Acción */}
       <button
         type="button"
         onClick={() => onVerDetalles(auditoria)}

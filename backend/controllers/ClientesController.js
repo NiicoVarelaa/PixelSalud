@@ -49,7 +49,6 @@ const crearCliente = async (req, res, next) => {
 
     const resultado = await clientesService.crearCliente(clienteData);
 
-    // Registrar auditoría de creación de cliente
     await Auditoria.registrarAuditoria(
       {
         evento: "CLIENTE_CREADO",
@@ -86,7 +85,6 @@ const updateCliente = async (req, res, next) => {
     delete updateData.telefonoCliente;
     delete updateData.direccionCliente;
 
-    // Obtener cliente antes de actualizar para auditoría
     const clienteAnterior =
       await clientesService.obtenerClientePorId(idCliente);
 
@@ -95,7 +93,6 @@ const updateCliente = async (req, res, next) => {
       updateData,
     );
 
-    // Registrar auditoría de actualización de cliente
     await Auditoria.registrarAuditoria(
       {
         evento: "CLIENTE_MODIFICADO",
@@ -125,12 +122,10 @@ const darBajaCliente = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Obtener cliente antes de dar de baja para auditoría
     const clienteAnterior = await clientesService.obtenerClientePorId(id);
 
     const resultado = await clientesService.darBajaCliente(id);
 
-    // Registrar auditoría de baja de cliente
     await Auditoria.registrarAuditoria(
       {
         evento: "CLIENTE_DESACTIVADO",
@@ -157,12 +152,10 @@ const activarCliente = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Obtener cliente antes de activar para auditoría
     const clienteAnterior = await clientesService.obtenerClientePorId(id);
 
     const resultado = await clientesService.activarCliente(id);
 
-    // Registrar auditoría de activación de cliente
     await Auditoria.registrarAuditoria(
       {
         evento: "CLIENTE_REACTIVADO",
@@ -213,7 +206,6 @@ const nuevoPassword = async (req, res, next) => {
       nuevaPassword,
     );
 
-    // Registrar auditoría de cambio de contraseña
     await Auditoria.registrarAuditoria(
       {
         evento: "PASSWORD_CAMBIADO",

@@ -16,17 +16,15 @@ import {
   formatearEvento,
 } from "../utils/helpers";
 
-/* ── Fila de dato ── */
 const DataRow = ({ label, children }) => (
   <div className="flex items-start gap-2 py-1.5">
     <span className="w-28 shrink-0 text-xs text-gray-400">{label}</span>
-    <span className="flex-1 text-xs font-medium text-gray-800 break-words">
+    <span className="flex-1 text-xs font-medium text-gray-800 wrap-break-word">
       {children}
     </span>
   </div>
 );
 
-/* ── Bloque de JSON ── */
 const JsonBlock = ({ title, data, Icon, accentClass }) => {
   if (!data) return null;
   return (
@@ -76,7 +74,6 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
             if (e.target === e.currentTarget) onClose();
           }}
         >
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -86,7 +83,6 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
             aria-hidden="true"
           />
 
-          {/* Panel */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -94,8 +90,7 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
             transition={{ duration: 0.22, ease: "easeOut" }}
             className="relative flex w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl max-h-[92vh]"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 flex-shrink-0">
+            <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-100">
                   <Shield
@@ -127,9 +122,7 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
               </button>
             </div>
 
-            {/* Body */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-              {/* ── Evento + Módulo ── */}
               <div className="flex flex-wrap items-center gap-2">
                 <span
                   className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getEventoBadgeColor(auditoria.evento)}`}
@@ -146,7 +139,6 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
                 )}
               </div>
 
-              {/* ── Info general ── */}
               <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 divide-y divide-gray-100">
                 <DataRow
                   label={
@@ -168,7 +160,6 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
                 )}
               </div>
 
-              {/* ── Usuario ── */}
               <div>
                 <p className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
                   <User size={12} aria-hidden="true" /> Usuario
@@ -191,7 +182,6 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
                 </div>
               </div>
 
-              {/* ── JSON diffs ── */}
               {(auditoria.datosAnteriores || auditoria.datosNuevos) && (
                 <div className="space-y-3">
                   <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
@@ -212,7 +202,6 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
                 </div>
               )}
 
-              {/* ── Metadata técnica ── */}
               <div>
                 <p className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
                   <Monitor size={12} aria-hidden="true" /> Metadata
@@ -228,8 +217,7 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="flex justify-end border-t border-gray-100 px-5 py-3.5 flex-shrink-0 bg-gray-50/70">
+            <div className="flex justify-end border-t border-gray-100 px-5 py-3.5 shrink-0 bg-gray-50/70">
               <button
                 type="button"
                 onClick={onClose}
