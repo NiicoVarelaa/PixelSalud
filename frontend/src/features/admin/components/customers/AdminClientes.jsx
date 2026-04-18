@@ -5,11 +5,9 @@ import { ToastContainer } from "react-toastify";
 import { UserPlus } from "lucide-react";
 import { AdminLayout } from "@features/admin/components/shared";
 
-// Custom Hooks
 import { useClientesData } from "./hooks/useClientesData";
 import { useClientesFilters } from "./hooks/useClientesFilters";
 
-// Components
 import {
   StatsCards,
   ClientesFilters,
@@ -22,17 +20,12 @@ import {
   EmptyState,
 } from "./components";
 
-/**
- * Componente principal de administración de clientes
- * Orquesta todos los sub-componentes y gestiona el estado global del módulo
- */
 const AdminClientes = () => {
   const ITEMS_POR_PAGINA = 5;
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
-  // Custom hooks
   const {
     clientes,
     cargando,
@@ -54,11 +47,9 @@ const AdminClientes = () => {
     clientesActuales,
   } = useClientesFilters(clientes, ITEMS_POR_PAGINA);
 
-  // Estados del modal
   const [modalAbierto, setModalAbierto] = useState(false);
   const [clienteEditando, setClienteEditando] = useState(null);
 
-  // Estados del diálogo de confirmación
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: "",
@@ -67,45 +58,30 @@ const AdminClientes = () => {
     action: null,
   });
 
-  // Protección de ruta - solo admin
   useEffect(() => {
     if (!user || user.rol !== "admin") {
       navigate("/");
     }
   }, [user, navigate]);
 
-  /**
-   * Abre el modal para crear un nuevo cliente
-   */
   const handleCrearCliente = () => {
     setClienteEditando(null);
     setModalAbierto(true);
   };
 
-  /**
-   * Abre el modal para editar un cliente existente
-   */
   const handleEditarCliente = (cliente) => {
     setClienteEditando(cliente);
     setModalAbierto(true);
   };
 
-  /**
-   * Guarda un cliente (creación o edición)
-   */
   const handleGuardarCliente = async (datosCliente, idCliente) => {
     if (idCliente) {
-      // Edición
       return await actualizarCliente(idCliente, datosCliente);
     } else {
-      // Creación
       return await crearCliente(datosCliente);
     }
   };
 
-  /**
-   * Solicita confirmación para cambiar el estado de un cliente
-   */
   const handleCambiarEstado = (cliente) => {
     const esActivo = cliente.activo !== 0 && cliente.activo !== false;
 
@@ -121,9 +97,6 @@ const AdminClientes = () => {
     });
   };
 
-  /**
-   * Ejecuta la acción del diálogo de confirmación
-   */
   const handleConfirmarAccion = async () => {
     if (confirmDialog.action) {
       await confirmDialog.action();
@@ -154,10 +127,8 @@ const AdminClientes = () => {
           </div>
         }
       >
-        {/* Tarjetas de Estadísticas */}
         <StatsCards estadisticas={estadisticas} />
 
-        {/* Filtros de Búsqueda */}
         <ClientesFilters
           busqueda={busqueda}
           setBusqueda={setBusqueda}
@@ -167,7 +138,6 @@ const AdminClientes = () => {
           totalClientes={clientes.length}
         />
 
-        {/* Contenido Principal */}
         <div className="min-h-0 flex-1 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
           {cargando ? (
             <LoadingState />
@@ -175,7 +145,6 @@ const AdminClientes = () => {
             <EmptyState onCrearCliente={handleCrearCliente} />
           ) : (
             <div className="flex min-h-0 flex-1 flex-col">
-              {/* Vista Móvil - Cards */}
               <div className="lg:hidden overflow-y-auto p-4">
                 {clientesActuales.map((cliente) => (
                   <ClienteCard
@@ -187,7 +156,6 @@ const AdminClientes = () => {
                 ))}
               </div>
 
-              {/* Vista Desktop - Tabla */}
               <div className="hidden min-h-0 flex-1 overflow-y-auto lg:block">
                 <ClienteTable
                   clientes={clientesActuales}
@@ -224,7 +192,6 @@ const AdminClientes = () => {
           )}
         </div>
 
-        {/* Modal de Crear/Editar Cliente */}
         <ClienteModal
           isOpen={modalAbierto}
           onClose={() => setModalAbierto(false)}
@@ -232,7 +199,6 @@ const AdminClientes = () => {
           clienteEditar={clienteEditando}
         />
 
-        {/* Diálogo de Confirmación */}
         <ConfirmDialog
           isOpen={confirmDialog.isOpen}
           onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}

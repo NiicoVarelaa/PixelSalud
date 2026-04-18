@@ -1,23 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createElement } from "react";
 import apiClient from "@utils/apiClient";
 import { toast } from "react-toastify";
+import { CircleX, CircleCheck, UserPlus, UserX, UserCheck } from "lucide-react";
 
-/**
- * Hook personalizado para gestionar todos los datos y operaciones de empleados
- * Centraliza la lógica de API, permisos y manejo de estado
- */
+const toastError = (message) =>
+  toast.error(message, {
+    icon: createElement(CircleX, { size: 16 }),
+  });
+
+const toastSuccess = (message, icon) =>
+  toast.success(message, {
+    icon,
+  });
+
 export const useEmpleadosData = () => {
   const [empleados, setEmpleados] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  /**
-   * Obtiene todos los empleados (activos + inactivos) del backend
-   * Combina dos endpoints para tener una vista unificada
-   */
   const fetchEmpleados = async () => {
     setCargando(true);
     try {
-      // Obtener empleados activos
       const resActivos = await apiClient.get("/empleados");
       let activos = [];
       if (resActivos.data.results && Array.isArray(resActivos.data.results)) {
@@ -26,83 +28,67 @@ export const useEmpleadosData = () => {
         activos = resActivos.data;
       }
 
-      // Obtener empleados inactivos
       let inactivos = [];
       try {
         const resBajados = await apiClient.get("/Empleados/Bajados");
         if (Array.isArray(resBajados.data)) {
           inactivos = resBajados.data;
         }
-      } catch {
-        // Si no hay empleados bajados, no es un error crítico
+      } catch (error) {
+        console.warn("No se pudieron cargar empleados inactivos:", error);
       }
 
-      // Combinar ambos arrays
       setEmpleados([...activos, ...inactivos]);
     } catch (error) {
       console.error("Error al obtener empleados", error);
-      toast.error("❌ No se pudieron cargar los empleados");
+      toastError("No se pudieron cargar los empleados");
       setEmpleados([]);
     } finally {
       setCargando(false);
     }
   };
 
-  /**
-   * Carga inicial de empleados
-   */
   useEffect(() => {
     fetchEmpleados();
   }, []);
 
-  /**
-   * Crea un nuevo empleado con sus permisos
-   * @param {Object} datosEmpleado - Datos del empleado y permisos
-   * @returns {Promise<boolean>} - true si se creó correctamente
-   */
   const crearEmpleado = async (datosEmpleado) => {
     try {
       await apiClient.post("/empleados/crear", datosEmpleado);
-      toast.success("🎉 Empleado y permisos registrados correctamente");
+      toastSuccess(
+        "Empleado y permisos registrados correctamente",
+        createElement(UserPlus, { size: 16 }),
+      );
       await fetchEmpleados();
       return true;
     } catch (error) {
       console.error("Error al crear empleado:", error);
       const mensaje =
         error.response?.data?.error || "No se pudo crear el empleado";
-      toast.error(`❌ ${mensaje}`);
+      toastError(mensaje);
       return false;
     }
   };
 
-  /**
-   * Actualiza los datos y permisos de un empleado existente
-   * @param {number} idEmpleado - ID del empleado a actualizar
-   * @param {Object} datosActualizados - Nuevos datos del empleado y permisos
-   * @returns {Promise<boolean>} - true si se actualizó correctamente
-   */
   const actualizarEmpleado = async (idEmpleado, datosActualizados) => {
     try {
       await apiClient.put(
         `/empleados/actualizar/${idEmpleado}`,
         datosActualizados,
       );
-      toast.success("✅ Datos y permisos actualizados correctamente");
+      toastSuccess(
+        "Datos y permisos actualizados correctamente",
+        createElement(CircleCheck, { size: 16 }),
+      );
       await fetchEmpleados();
       return true;
     } catch (error) {
       console.error("Error al actualizar empleado:", error);
-      toast.error("❌ No se pudo actualizar el empleado");
+      toastError("No se pudo actualizar el empleado");
       return false;
     }
   };
 
-  /**
-   * Cambia el estado de un empleado (activar/desactivar)
-   * @param {number} idEmpleado - ID del empleado
-   * @param {boolean} esActivo - Estado actual del empleado
-   * @returns {Promise<boolean>} - true si cambió correctamente
-   */
   const cambiarEstadoEmpleado = async (idEmpleado, esActivo) => {
     try {
       const endpoint = esActivo
@@ -111,23 +97,27 @@ export const useEmpleadosData = () => {
 
       await apiClient.put(endpoint);
 
-      const mensaje = esActivo
-        ? "🔴 Empleado dado de baja correctamente"
-        : "🟢 Empleado reactivado correctamente";
+      if (esActivo) {
+        toastSuccess(
+          "Empleado dado de baja correctamente",
+          createElement(UserX, { size: 16 }),
+        );
+      } else {
+        toastSuccess(
+          "Empleado reactivado correctamente",
+          createElement(UserCheck, { size: 16 }),
+        );
+      }
 
-      toast.success(mensaje);
       await fetchEmpleados();
       return true;
     } catch (error) {
       console.error("Error al cambiar estado:", error);
-      toast.error("❌ No se pudo cambiar el estado del empleado");
+      toastError("No se pudo cambiar el estado del empleado");
       return false;
     }
   };
 
-  /**
-   * Calcula estadísticas de empleados y permisos
-   */
   const estadisticas = {
     total: empleados.length,
     activos: empleados.filter((e) => e.activo !== 0 && e.activo !== false)
@@ -143,12 +133,12 @@ export const useEmpleadosData = () => {
   };
 
   return {
-    empleados,
     cargando,
+    empleados,
     estadisticas,
-    fetchEmpleados,
-    crearEmpleado,
     actualizarEmpleado,
     cambiarEstadoEmpleado,
+    crearEmpleado,
+    fetchEmpleados,
   };
 };

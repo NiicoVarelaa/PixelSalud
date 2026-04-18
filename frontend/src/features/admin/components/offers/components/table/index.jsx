@@ -52,7 +52,6 @@ export const OfertasTable = ({
         {productosPaginados.length} productos visibles en esta página.
       </p>
 
-      {/* Mobile: cards */}
       <div
         className="lg:hidden space-y-2"
         role="list"
@@ -71,7 +70,6 @@ export const OfertasTable = ({
         ))}
       </div>
 
-      {/* Desktop: tabla */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

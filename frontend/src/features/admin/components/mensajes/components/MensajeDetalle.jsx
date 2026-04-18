@@ -1,16 +1,24 @@
 import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  X, Mail, Reply, Archive, Trash2, CheckCheck, MailOpen, Clock,
+  X,
+  Mail,
+  Reply,
+  Archive,
+  Trash2,
+  CheckCheck,
+  MailOpen,
+  Clock,
 } from "lucide-react";
 import { MensajeEstadoBadge } from "./MensajeEstadoBadge";
 import { formatFecha } from "../utils/helpers";
 
-/* Fila de metadato */
 const MetaRow = ({ label, children }) => (
   <div className="flex items-start gap-2">
     <span className="w-14 shrink-0 text-xs text-gray-400">{label}</span>
-    <span className="flex-1 text-xs font-medium text-gray-800 break-words">{children}</span>
+    <span className="flex-1 text-xs font-medium text-gray-800 wrap-break-word">
+      {children}
+    </span>
   </div>
 );
 
@@ -30,7 +38,9 @@ export const MensajeDetalle = ({
     closeRef.current?.focus();
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
@@ -48,9 +58,10 @@ export const MensajeDetalle = ({
           role="dialog"
           aria-modal="true"
           aria-labelledby="detalle-title"
-          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
         >
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -60,7 +71,6 @@ export const MensajeDetalle = ({
             aria-hidden="true"
           />
 
-          {/* Panel */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -68,14 +78,20 @@ export const MensajeDetalle = ({
             transition={{ duration: 0.22, ease: "easeOut" }}
             className="relative flex w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-w-xl sm:rounded-2xl max-h-[92vh]"
           >
-            {/* Header */}
-            <div className="flex items-start justify-between gap-3 border-b border-gray-100 px-5 py-4 flex-shrink-0">
+            <div className="flex items-start justify-between gap-3 border-b border-gray-100 px-5 py-4 shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-green-100">
-                  <Mail size={17} className="text-green-700" aria-hidden="true" />
+                  <Mail
+                    size={17}
+                    className="text-green-700"
+                    aria-hidden="true"
+                  />
                 </div>
                 <div className="min-w-0">
-                  <h2 id="detalle-title" className="truncate text-sm font-semibold text-gray-900">
+                  <h2
+                    id="detalle-title"
+                    className="truncate text-sm font-semibold text-gray-900"
+                  >
                     {mensaje.asunto}
                   </h2>
                   <p className="text-xs text-gray-500">de {mensaje.nombre}</p>
@@ -92,10 +108,7 @@ export const MensajeDetalle = ({
               </button>
             </div>
 
-            {/* Contenido scrolleable */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-
-              {/* Metadatos */}
               <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 space-y-2">
                 <MetaRow label="De">{mensaje.nombre}</MetaRow>
                 <MetaRow label="Email">
@@ -108,20 +121,30 @@ export const MensajeDetalle = ({
                 </MetaRow>
                 <MetaRow label="Fecha">
                   <span className="inline-flex items-center gap-1">
-                    <Clock size={11} aria-hidden="true" className="text-gray-400" />
+                    <Clock
+                      size={11}
+                      aria-hidden="true"
+                      className="text-gray-400"
+                    />
                     {formatFecha(mensaje.fechaEnvio)}
                   </span>
                 </MetaRow>
-                <MetaRow label="Estado"><MensajeEstadoBadge estado={mensaje.estado} /></MetaRow>
+                <MetaRow label="Estado">
+                  <MensajeEstadoBadge estado={mensaje.estado} />
+                </MetaRow>
                 <MetaRow label="Leído">
-                  {mensaje.leido
-                    ? <span className="inline-flex items-center gap-1 text-green-600"><MailOpen size={12} aria-hidden="true" /> Sí</span>
-                    : <span className="inline-flex items-center gap-1 text-gray-500"><Mail size={12} aria-hidden="true" /> No</span>
-                  }
+                  {mensaje.leido ? (
+                    <span className="inline-flex items-center gap-1 text-green-600">
+                      <MailOpen size={12} aria-hidden="true" /> Sí
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-gray-500">
+                      <Mail size={12} aria-hidden="true" /> No
+                    </span>
+                  )}
                 </MetaRow>
               </div>
 
-              {/* Cuerpo del mensaje */}
               <div>
                 <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
                   Mensaje
@@ -131,7 +154,6 @@ export const MensajeDetalle = ({
                 </div>
               </div>
 
-              {/* Respuesta existente */}
               {mensaje.respuesta && (
                 <div>
                   <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-blue-500">
@@ -141,18 +163,21 @@ export const MensajeDetalle = ({
                     {mensaje.respuesta}
                   </div>
                   <p className="mt-1.5 text-[11px] text-gray-400">
-                    Por {mensaje.respondidoPor || "Admin"} · {formatFecha(mensaje.fechaRespuesta)}
+                    Por {mensaje.respondidoPor || "Admin"} ·{" "}
+                    {formatFecha(mensaje.fechaRespuesta)}
                   </p>
                 </div>
               )}
             </div>
 
-            {/* Footer: acciones */}
-            <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 px-5 py-3.5 flex-shrink-0 bg-gray-50/70">
+            <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 px-5 py-3.5 shrink-0 bg-gray-50/70">
               {!mensaje.leido && (
                 <button
                   type="button"
-                  onClick={() => { onMarcarLeido(mensaje.idMensaje); onClose(); }}
+                  onClick={() => {
+                    onMarcarLeido(mensaje.idMensaje);
+                    onClose();
+                  }}
                   className="inline-flex items-center gap-1.5 h-8 rounded-lg border border-green-200 bg-green-50 px-3 text-xs font-semibold text-green-700 hover:bg-green-100 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
                   aria-label="Marcar como leído"
                 >
@@ -160,21 +185,28 @@ export const MensajeDetalle = ({
                 </button>
               )}
 
-              {mensaje.estado !== "respondido" && mensaje.estado !== "cerrado" && (
-                <button
-                  type="button"
-                  onClick={() => { onClose(); onResponder(mensaje); }}
-                  className="inline-flex items-center gap-1.5 h-8 rounded-lg border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 hover:bg-blue-100 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-                  aria-label="Responder mensaje"
-                >
-                  <Reply size={13} aria-hidden="true" /> Responder
-                </button>
-              )}
+              {mensaje.estado !== "respondido" &&
+                mensaje.estado !== "cerrado" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onResponder(mensaje);
+                    }}
+                    className="inline-flex items-center gap-1.5 h-8 rounded-lg border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 hover:bg-blue-100 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                    aria-label="Responder mensaje"
+                  >
+                    <Reply size={13} aria-hidden="true" /> Responder
+                  </button>
+                )}
 
               {mensaje.estado !== "cerrado" && (
                 <button
                   type="button"
-                  onClick={() => { onArchivar(mensaje.idMensaje); onClose(); }}
+                  onClick={() => {
+                    onArchivar(mensaje.idMensaje);
+                    onClose();
+                  }}
                   className="inline-flex items-center gap-1.5 h-8 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-600 hover:bg-gray-100 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                   aria-label="Archivar mensaje"
                 >
@@ -184,7 +216,10 @@ export const MensajeDetalle = ({
 
               <button
                 type="button"
-                onClick={async () => { const ok = await onEliminar(mensaje.idMensaje); if (ok) onClose(); }}
+                onClick={async () => {
+                  const ok = await onEliminar(mensaje.idMensaje);
+                  if (ok) onClose();
+                }}
                 className="inline-flex items-center gap-1.5 h-8 rounded-lg border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-600 hover:bg-red-100 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
                 aria-label="Eliminar mensaje"
               >

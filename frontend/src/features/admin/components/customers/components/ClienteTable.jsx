@@ -1,10 +1,6 @@
 import { motion } from "framer-motion";
 import { Edit, Power } from "lucide-react";
 
-/**
- * Tabla de clientes para vista de escritorio
- * Muestra todos los clientes en formato tabla
- */
 export const ClienteTable = ({ clientes, onEditar, onCambiarEstado }) => {
   return (
     <div className="hidden overflow-hidden rounded-xl bg-white lg:block">
@@ -43,28 +39,24 @@ export const ClienteTable = ({ clientes, onEditar, onCambiarEstado }) => {
                   transition={{ delay: index * 0.05 }}
                   className="transition-colors hover:bg-green-50/40"
                 >
-                  {/* ID */}
                   <td className="px-4 py-4 whitespace-nowrap">
                     <span className="font-mono text-xs text-gray-400">
                       #{cliente.idCliente}
                     </span>
                   </td>
 
-                  {/* Nombre completo */}
                   <td className="px-4 py-4">
                     <div className="text-sm font-semibold text-gray-900">
                       {cliente.nombreCliente} {cliente.apellidoCliente}
                     </div>
                   </td>
 
-                  {/* DNI */}
                   <td className="px-4 py-4 whitespace-nowrap">
                     <span className="text-sm text-gray-600">
                       {cliente.dni || "---"}
                     </span>
                   </td>
 
-                  {/* Email */}
                   <td className="px-4 py-4">
                     <div
                       className="text-sm text-gray-600 truncate max-w-[200px]"
@@ -74,7 +66,6 @@ export const ClienteTable = ({ clientes, onEditar, onCambiarEstado }) => {
                     </div>
                   </td>
 
-                  {/* Estado */}
                   <td className="px-4 py-4 whitespace-nowrap text-center">
                     <span
                       className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
@@ -87,7 +78,6 @@ export const ClienteTable = ({ clientes, onEditar, onCambiarEstado }) => {
                     </span>
                   </td>
 
-                  {/* Acciones */}
                   <td className="px-4 py-4 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-2">
                       <motion.button

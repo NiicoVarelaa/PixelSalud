@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { MensajeEstadoBadge } from "./MensajeEstadoBadge";
 import { formatFecha } from "../utils/helpers";
 
-/* ── Botón de acción inline reutilizable ── */
 const ActionBtn = ({ onClick, label, Icon, variant = "default" }) => {
   const variants = {
     default:
@@ -30,7 +29,6 @@ const ActionBtn = ({ onClick, label, Icon, variant = "default" }) => {
   );
 };
 
-/* ── Fila de la tabla (desktop) ── */
 const TableRow = ({
   mensaje,
   index,
@@ -45,7 +43,6 @@ const TableRow = ({
     transition={{ delay: index * 0.025 }}
     className={`group transition-colors hover:bg-gray-50/80 ${!mensaje.leido ? "bg-green-50/40" : "bg-white"}`}
   >
-    {/* Estado + leído */}
     <td className="px-4 py-3">
       <div className="flex flex-col gap-1.5">
         <MensajeEstadoBadge estado={mensaje.estado} />
@@ -64,31 +61,25 @@ const TableRow = ({
       </div>
     </td>
 
-    {/* Remitente */}
     <td className="px-4 py-3">
       <p
         className={`text-sm ${!mensaje.leido ? "font-semibold text-gray-900" : "font-medium text-gray-700"}`}
       >
         {mensaje.nombre}
       </p>
-      <p className="text-xs text-gray-400 truncate max-w-[160px]">
-        {mensaje.email}
-      </p>
+      <p className="text-xs text-gray-400 truncate max-w-40">{mensaje.email}</p>
     </td>
 
-    {/* Asunto */}
     <td className="px-4 py-3">
       <p className="truncate max-w-[220px] text-sm text-gray-700">
         {mensaje.asunto}
       </p>
     </td>
 
-    {/* Fecha */}
     <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-400">
       {formatFecha(mensaje.fechaEnvio)}
     </td>
 
-    {/* Acciones */}
     <td className="px-4 py-3">
       <div className="flex items-center gap-1">
         <ActionBtn
@@ -124,7 +115,6 @@ const TableRow = ({
   </motion.tr>
 );
 
-/* ── Card (mobile) ── */
 const MensajeCard = ({
   mensaje,
   index,
@@ -144,7 +134,6 @@ const MensajeCard = ({
     }`}
     aria-label={`Mensaje de ${mensaje.nombre}: ${mensaje.asunto}`}
   >
-    {/* Fila 1: nombre + badges */}
     <div className="flex items-start justify-between gap-2">
       <div className="min-w-0">
         <p
@@ -164,7 +153,6 @@ const MensajeCard = ({
       </div>
     </div>
 
-    {/* Fila 2: asunto + fecha */}
     <div>
       <p className="text-xs font-medium text-gray-700 truncate">
         {mensaje.asunto}
@@ -174,7 +162,6 @@ const MensajeCard = ({
       </p>
     </div>
 
-    {/* Fila 3: acciones */}
     <div className="flex items-center gap-1.5 pt-1 border-t border-gray-100">
       <button
         type="button"
@@ -214,7 +201,6 @@ const MensajeCard = ({
   </motion.article>
 );
 
-/* ── Componente principal ── */
 export const MensajesTable = ({
   mensajes,
   onVerDetalle,
@@ -226,7 +212,6 @@ export const MensajesTable = ({
 
   return (
     <>
-      {/* Mobile: lista de cards */}
       <div
         className="flex flex-col gap-2 p-3 md:hidden"
         role="list"
@@ -239,7 +224,6 @@ export const MensajesTable = ({
         ))}
       </div>
 
-      {/* Desktop: tabla */}
       <div className="hidden md:block">
         <table className="w-full" aria-label="Tabla de mensajes">
           <thead>

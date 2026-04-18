@@ -1,9 +1,20 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, createElement } from "react";
 import { useOfertasStore } from "../store/useOfertasStore";
 import { useProductStore } from "@store/useProductStore";
 import { useAuthStore } from "@store/useAuthStore";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { AlertTriangle, PartyPopper, CircleCheck, CircleX } from "lucide-react";
+
+const toastError = (message, icon = createElement(CircleX, { size: 16 })) =>
+  toast.error(message, {
+    icon,
+  });
+
+const toastSuccess = (message, icon) =>
+  toast.success(message, {
+    icon,
+  });
 
 export const useOfertasData = () => {
   const { productos: productosGlobal, fetchProducts } = useProductStore();
@@ -26,7 +37,6 @@ export const useOfertasData = () => {
     [token],
   );
 
-  // Fetch productos en campañas activas
   const fetchProductosEnCampanas = useCallback(async () => {
     try {
       const response = await axios.get(`${backendUrl}/campanas/activas`);
@@ -45,11 +55,10 @@ export const useOfertasData = () => {
       setIdsProductosEnCampanas(Array.from(ids));
     } catch (error) {
       console.error("Error al obtener productos en campañas:", error);
-      toast.error("Error al cargar productos de campañas");
+      toastError("Error al cargar productos de campañas");
     }
   }, [backendUrl, setIdsProductosEnCampanas]);
 
-  // Cargar datos iniciales
   useEffect(() => {
     const cargarDatos = async () => {
       setCargando(true);
@@ -67,14 +76,12 @@ export const useOfertasData = () => {
 
     cargarDatos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Solo al montar - dependencias manejadas intencionalmente
+  }, []);
 
-  // Sincronizar productos del store global
   useEffect(() => {
     setProductos(productosGlobal);
   }, [productosGlobal, setProductos]);
 
-  // Verificar si producto está en campaña
   const estaEnCampana = useCallback(
     (idProducto) => {
       return idsProductosEnCampanas.includes(idProducto);
@@ -82,13 +89,12 @@ export const useOfertasData = () => {
     [idsProductosEnCampanas],
   );
 
-  // Cambiar oferta de un producto
   const handleCambiarOferta = useCallback(
     async (producto, activar, porcentaje = null) => {
       if (estaEnCampana(producto.idProducto)) {
-        toast.error(
+        toastError(
           "Este producto está en una campaña activa. No se pueden aplicar ofertas individuales.",
-          { icon: "⚠️" },
+          createElement(AlertTriangle, { size: 16 }),
         );
         return;
       }
@@ -107,19 +113,20 @@ export const useOfertasData = () => {
           getConfig(),
         );
 
-        toast.success(
+        toastSuccess(
           activar
             ? `¡Oferta ${porcentaje}% aplicada a ${producto.nombreProducto}!`
             : `Oferta desactivada de ${producto.nombreProducto}`,
-          { icon: activar ? "🎉" : "✅" },
+          activar
+            ? createElement(PartyPopper, { size: 16 })
+            : createElement(CircleCheck, { size: 16 }),
         );
 
         await fetchProducts();
       } catch (error) {
         console.error("Error al actualizar oferta:", error);
-        toast.error(
+        toastError(
           error.response?.data?.message || "Error al actualizar la oferta",
-          { icon: "❌" },
         );
       } finally {
         setCargando(false);

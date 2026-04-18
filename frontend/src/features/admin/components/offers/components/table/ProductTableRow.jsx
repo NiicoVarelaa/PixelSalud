@@ -26,7 +26,6 @@ export const ProductTableRow = ({
         tieneOferta ? "border-l-2 border-l-orange-300" : ""
       }`}
     >
-      {/* Producto */}
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
           <ProductImage
@@ -44,14 +43,12 @@ export const ProductTableRow = ({
         </div>
       </td>
 
-      {/* Categoría */}
       <td className="px-4 py-3">
         <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs text-gray-600 font-medium whitespace-nowrap">
           {producto.categoria}
         </span>
       </td>
 
-      {/* Precio */}
       <td className="px-4 py-3">
         <ProductPrice
           precioRegular={producto.precioRegular}
@@ -60,7 +57,6 @@ export const ProductTableRow = ({
         />
       </td>
 
-      {/* Estado */}
       <td className="px-4 py-3 text-center">
         <ProductStatus
           tieneOferta={tieneOferta}
@@ -69,7 +65,6 @@ export const ProductTableRow = ({
         />
       </td>
 
-      {/* Acciones */}
       <td className="px-4 py-3">
         <div className="flex items-center justify-center gap-1.5">
           <ProductActions

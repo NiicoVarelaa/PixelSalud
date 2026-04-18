@@ -7,10 +7,8 @@ export const useMensajesFilters = (mensajes, itemsPorPagina = 8) => {
 
   const mensajesFiltrados = useMemo(() => {
     return mensajes.filter((m) => {
-      // Filtro por estado
       if (filtroEstado !== "todos" && m.estado !== filtroEstado) return false;
 
-      // Filtro por búsqueda
       if (busqueda) {
         const searchLower = busqueda.toLowerCase();
         return (
@@ -57,17 +55,17 @@ export const useMensajesFilters = (mensajes, itemsPorPagina = 8) => {
   };
 
   return {
-    filtroEstado,
-    setFiltroEstado: handleFiltroEstadoChange,
     busqueda,
-    setBusqueda: handleBusquedaChange,
+    filtroEstado,
+    indiceInicio,
+    itemsPorPagina,
     mensajesFiltrados,
     mensajesPaginados,
     paginaActual,
     totalPaginas,
+    setBusqueda: handleBusquedaChange,
+    setFiltroEstado: handleFiltroEstadoChange,
     handleCambiarPagina,
-    indiceInicio,
-    itemsPorPagina,
     limpiarFiltros,
   };
 };

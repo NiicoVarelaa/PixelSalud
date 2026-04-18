@@ -1,14 +1,28 @@
 import { motion } from "framer-motion";
-import { Mail, CreditCard, Edit, Power, Shield, Package, Edit2, Eye } from "lucide-react";
+import {
+  Mail,
+  CreditCard,
+  Edit,
+  Power,
+  Shield,
+  Package,
+  Edit2,
+  Eye,
+} from "lucide-react";
 
 const PERMISOS_DEF = [
-  { key: "crear_productos",    label: "Crear",       icon: Package },
-  { key: "modificar_productos",label: "Modificar",   icon: Edit2   },
-  { key: "modificar_ventasE",  label: "Ed. Ventas",  icon: Edit    },
-  { key: "ver_ventasTotalesE", label: "Ver Ventas",  icon: Eye     },
+  { key: "crear_productos", label: "Crear", icon: Package },
+  { key: "modificar_productos", label: "Modificar", icon: Edit2 },
+  { key: "modificar_ventasE", label: "Ed. Ventas", icon: Edit },
+  { key: "ver_ventasTotalesE", label: "Ver Ventas", icon: Eye },
 ];
 
-export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado, index = 0 }) => {
+export const EmpleadoCard = ({
+  empleado,
+  onEditar,
+  onCambiarEstado,
+  index = 0,
+}) => {
   const esActivo = empleado.activo !== 0 && empleado.activo !== false;
 
   const permisos = PERMISOS_DEF.map((p) => ({
@@ -26,13 +40,11 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado, index = 0 })
       className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs transition-shadow hover:shadow-sm"
       aria-label={`Empleado ${empleado.nombreEmpleado} ${empleado.apellidoEmpleado}`}
     >
-      {/* Acento de estado */}
       <div
         className={`h-1 ${esActivo ? "bg-green-500" : "bg-orange-400"}`}
         aria-hidden="true"
       />
 
-      {/* Header: nombre + estado */}
       <div className="flex items-start justify-between gap-2 px-4 pt-3.5 pb-2">
         <div className="min-w-0">
           <h3 className="truncate text-sm font-semibold text-gray-900">
@@ -55,19 +67,25 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado, index = 0 })
         </span>
       </div>
 
-      {/* Datos */}
       <div className="space-y-1.5 px-4 pb-3">
         <div className="flex items-center gap-2 text-xs text-gray-500">
-          <Mail size={12} className="shrink-0 text-gray-400" aria-hidden="true" />
+          <Mail
+            size={12}
+            className="shrink-0 text-gray-400"
+            aria-hidden="true"
+          />
           <span className="truncate">{empleado.emailEmpleado}</span>
         </div>
         <div className="flex items-center gap-2 text-xs text-gray-500">
-          <CreditCard size={12} className="shrink-0 text-gray-400" aria-hidden="true" />
+          <CreditCard
+            size={12}
+            className="shrink-0 text-gray-400"
+            aria-hidden="true"
+          />
           <span>{empleado.dniEmpleado || "Sin DNI"}</span>
         </div>
       </div>
 
-      {/* Permisos */}
       <div className="border-t border-gray-100 px-4 py-3">
         <div className="flex items-center gap-1.5 mb-2">
           <Shield size={13} className="text-green-600" aria-hidden="true" />
@@ -95,7 +113,6 @@ export const EmpleadoCard = ({ empleado, onEditar, onCambiarEstado, index = 0 })
         </div>
       </div>
 
-      {/* Acciones */}
       <div className="flex items-center gap-1.5 border-t border-gray-100 bg-gray-50/70 px-4 py-2.5">
         <button
           type="button"

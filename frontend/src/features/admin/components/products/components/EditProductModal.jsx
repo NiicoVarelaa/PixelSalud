@@ -22,7 +22,6 @@ const EditProductModal = ({
     descripcion: product?.descripcion || "",
   });
 
-  // Actualizar formData cuando cambia el producto
   useEffect(() => {
     if (product) {
       setFormData({
@@ -32,7 +31,7 @@ const EditProductModal = ({
         stock: product.stock || "",
         descripcion: product.descripcion || "",
       });
-      setActiveTab("datos"); // Resetear a tab datos al abrir
+      setActiveTab("datos");
     }
   }, [product]);
 
@@ -58,7 +57,6 @@ const EditProductModal = ({
     });
   };
 
-  // Convertir categorías a formato para CustomSelect
   const categoriasOptions = [
     { value: "", label: "Seleccionar categoría" },
     ...categorias.map((c) => ({ value: c, label: c })),
@@ -69,7 +67,6 @@ const EditProductModal = ({
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-        {/* Header */}
         <div className="border-b border-gray-100 px-8 py-6">
           <div className="flex justify-between items-start">
             <div>
@@ -89,7 +86,6 @@ const EditProductModal = ({
             </button>
           </div>
 
-          {/* Tabs */}
           <div className="flex gap-2 mt-6">
             <button
               onClick={() => setActiveTab("datos")}
@@ -116,11 +112,9 @@ const EditProductModal = ({
           </div>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto px-8 py-6">
           {activeTab === "datos" ? (
             <div className="space-y-5">
-              {/* Nombre del Producto */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Nombre del producto
@@ -135,7 +129,6 @@ const EditProductModal = ({
                 />
               </div>
 
-              {/* Categoría */}
               <CustomSelect
                 id="categoria-editar"
                 label="Categoría"
@@ -144,7 +137,6 @@ const EditProductModal = ({
                 options={categoriasOptions}
               />
 
-              {/* Precio y Stock */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -174,7 +166,6 @@ const EditProductModal = ({
                 </div>
               </div>
 
-              {/* Descripción */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Descripción
@@ -201,7 +192,6 @@ const EditProductModal = ({
           )}
         </div>
 
-        {/* Footer */}
         <div className="border-t border-gray-100 px-8 py-5 flex justify-end gap-3 bg-gray-50">
           <button
             onClick={onClose}

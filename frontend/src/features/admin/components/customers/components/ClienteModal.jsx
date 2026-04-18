@@ -2,10 +2,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, User, Mail, CreditCard, Lock, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 
-/**
- * Modal para crear o editar un cliente
- * Maneja validación de formulario y envío de datos
- */
 export const ClienteModal = ({
   isOpen,
   onClose,
@@ -25,7 +21,6 @@ export const ClienteModal = ({
   const [errores, setErrores] = useState({});
   const [enviando, setEnviando] = useState(false);
 
-  // Cargar datos del cliente al editar
   useEffect(() => {
     if (clienteEditar) {
       setFormData({
@@ -33,7 +28,7 @@ export const ClienteModal = ({
         apellidoCliente: clienteEditar.apellidoCliente || "",
         dniCliente: clienteEditar.dni || "",
         emailCliente: clienteEditar.emailCliente || "",
-        contraCliente: "", // No prellenamos la contraseña en edición
+        contraCliente: "",
       });
     } else {
       setFormData({
@@ -50,7 +45,6 @@ export const ClienteModal = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Limpiar error del campo al escribir
     if (errores[name]) {
       setErrores((prev) => ({ ...prev, [name]: "" }));
     }
@@ -101,7 +95,6 @@ export const ClienteModal = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -110,7 +103,6 @@ export const ClienteModal = ({
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
           />
 
-          {/* Modal */}
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -118,8 +110,7 @@ export const ClienteModal = ({
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
             >
-              {/* Header */}
-              <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+              <div className="bg-linear-to-r from-green-500 to-green-600 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
                 <div className="flex items-center gap-3">
                   <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
                     <User className="text-white" size={24} />
@@ -136,10 +127,8 @@ export const ClienteModal = ({
                 </button>
               </div>
 
-              {/* Formulario */}
               <form onSubmit={handleSubmit} className="p-6">
                 <div className="space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto">
-                  {/* Nombre y Apellido */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
@@ -202,7 +191,6 @@ export const ClienteModal = ({
                     </div>
                   </div>
 
-                  {/* DNI */}
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
                       DNI *
@@ -234,7 +222,6 @@ export const ClienteModal = ({
                     )}
                   </div>
 
-                  {/* Email */}
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
                       Email *
@@ -265,7 +252,6 @@ export const ClienteModal = ({
                     )}
                   </div>
 
-                  {/* Contraseña (solo en creación) */}
                   {!esEdicion && (
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
@@ -299,7 +285,6 @@ export const ClienteModal = ({
                   )}
                 </div>
 
-                {/* Botones */}
                 <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
                   <button
                     type="button"
@@ -312,7 +297,7 @@ export const ClienteModal = ({
                   <button
                     type="submit"
                     disabled={enviando}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 shadow-lg"
+                    className="flex-1 px-4 py-3 bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 shadow-lg"
                   >
                     {enviando
                       ? "Guardando..."

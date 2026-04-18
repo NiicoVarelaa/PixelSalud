@@ -41,7 +41,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       aria-label="Paginación de productos"
     >
       <div className="flex items-center justify-between w-full max-w-md px-4">
-        {/* Botón Anterior */}
         <button
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
@@ -61,7 +60,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           <ChevronLeft className="w-5 h-5 text-slate-600" />
         </button>
 
-        {/* Números de página */}
         <div className="flex items-center gap-2">
           {paginationNumbers.map((number, index) => {
             if (number === "...") {
@@ -105,7 +103,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           })}
         </div>
 
-        {/* Botón Siguiente */}
         <button
           onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}

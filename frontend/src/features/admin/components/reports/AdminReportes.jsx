@@ -14,19 +14,10 @@ import { useReportDownload, useReportFilters } from "./hooks";
 import { REPORTS_CONFIG } from "./constants/reportData";
 import { staggerContainer, fadeInUp } from "./utils/animations";
 
-/**
- * Componente principal de administración de reportes
- * ✅ Mobile-first design (320px → 1440px+)
- * ✅ Layout sin scroll (flex-1 h-full min-h-0)
- * ✅ Animaciones con Framer Motion
- * ✅ Accesibilidad (a11y) completa
- * ✅ Hooks personalizados memoizados
- */
 const AdminReportes = () => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
-  // Hooks personalizados para gestión de estado y lógica
   const filterHook = useReportFilters();
   const {
     filters,
@@ -41,13 +32,8 @@ const AdminReportes = () => {
 
   const { downloading, downloadReport } = useReportDownload(filters);
 
-  // Memoizar la configuración de reportes (no cambia)
   const reports = useMemo(() => REPORTS_CONFIG, []);
 
-  /**
-   * Callback memoizado para descargar un reporte específico
-   * Se recrea solo si cambia downloadReport
-   */
   const handleDownloadReport = useCallback(
     (reportId) => () => {
       downloadReport(reportId);
@@ -80,7 +66,6 @@ const AdminReportes = () => {
       description="Exporta reportes de ventas y productos en formato Excel con análisis detallados"
       contentClassName="flex h-full min-h-0 flex-col gap-2.5 sm:gap-3"
     >
-      {/* Toast notifications */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -94,7 +79,6 @@ const AdminReportes = () => {
         theme="light"
       />
 
-      {/* Sección de Filtros */}
       <motion.div variants={fadeInUp} initial="initial" animate="animate">
         <ReportFilters
           filters={filters}
@@ -113,7 +97,6 @@ const AdminReportes = () => {
       </motion.div>
 
       <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
-        {/* Grid de Reportes */}
         <motion.section
           aria-labelledby="reportes-heading"
           className="space-y-2 sm:space-y-2.5 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 xl:grid-cols-4 xl:gap-3"
@@ -144,7 +127,6 @@ const AdminReportes = () => {
           </AnimatePresence>
         </motion.section>
 
-        {/* Información adicional */}
         <motion.div
           variants={fadeInUp}
           initial="initial"

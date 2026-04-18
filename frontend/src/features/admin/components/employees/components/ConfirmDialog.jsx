@@ -7,19 +7,22 @@ const TYPE_CONFIG = {
     Icon: AlertTriangle,
     iconBg: "bg-orange-50 border border-orange-200",
     iconColor: "text-orange-600",
-    confirmCls: "bg-orange-500 hover:bg-orange-600 text-white focus-visible:ring-orange-500",
+    confirmCls:
+      "bg-orange-500 hover:bg-orange-600 text-white focus-visible:ring-orange-500",
   },
   danger: {
     Icon: AlertTriangle,
     iconBg: "bg-red-50 border border-red-200",
     iconColor: "text-red-600",
-    confirmCls: "bg-red-600 hover:bg-red-700 text-white focus-visible:ring-red-500",
+    confirmCls:
+      "bg-red-600 hover:bg-red-700 text-white focus-visible:ring-red-500",
   },
   info: {
     Icon: Info,
     iconBg: "bg-green-50 border border-green-200",
     iconColor: "text-green-600",
-    confirmCls: "bg-green-600 hover:bg-green-700 text-white focus-visible:ring-green-500",
+    confirmCls:
+      "bg-green-600 hover:bg-green-700 text-white focus-visible:ring-green-500",
   },
 };
 
@@ -40,7 +43,9 @@ export const ConfirmDialog = ({
     closeRef.current?.focus();
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
@@ -48,7 +53,8 @@ export const ConfirmDialog = ({
     };
   }, [isOpen, onClose]);
 
-  const { Icon, iconBg, iconColor, confirmCls } = TYPE_CONFIG[type] ?? TYPE_CONFIG.warning;
+  const { Icon, iconBg, iconColor, confirmCls } =
+    TYPE_CONFIG[type] ?? TYPE_CONFIG.warning;
 
   const handleConfirm = async () => {
     const result = await onConfirm();
@@ -64,7 +70,9 @@ export const ConfirmDialog = ({
           aria-modal="true"
           aria-labelledby="confirm-emp-title"
           aria-describedby="confirm-emp-message"
-          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
         >
           <motion.div
             initial={{ opacity: 0 }}
@@ -82,11 +90,16 @@ export const ConfirmDialog = ({
             className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
           >
             <div className="flex items-start gap-3 p-5 pb-3">
-              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconBg}`}>
+              <div
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconBg}`}
+              >
                 <Icon size={17} className={iconColor} aria-hidden="true" />
               </div>
               <div className="flex-1 pt-1 min-w-0">
-                <h3 id="confirm-emp-title" className="text-sm font-semibold text-gray-900">
+                <h3
+                  id="confirm-emp-title"
+                  className="text-sm font-semibold text-gray-900"
+                >
                   {title}
                 </h3>
               </div>
@@ -101,7 +114,10 @@ export const ConfirmDialog = ({
               </button>
             </div>
 
-            <p id="confirm-emp-message" className="px-5 pb-5 text-sm text-gray-600 leading-relaxed">
+            <p
+              id="confirm-emp-message"
+              className="px-5 pb-5 text-sm text-gray-600 leading-relaxed"
+            >
               {message}
             </p>
 

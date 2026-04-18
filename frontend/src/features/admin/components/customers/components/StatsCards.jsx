@@ -1,9 +1,6 @@
 import { motion } from "framer-motion";
 import { Users, UserCheck, UserX, TrendingUp } from "lucide-react";
 
-/**
- * Tarjetas de estadísticas animadas para clientes
- */
 export const StatsCards = ({ estadisticas }) => {
   const stats = [
     {
@@ -74,7 +71,7 @@ export const StatsCards = ({ estadisticas }) => {
             whileHover={{ scale: 1.02, y: -4 }}
             className="bg-white rounded-xl shadow-lg overflow-hidden"
           >
-            <div className={`bg-gradient-to-r ${stat.color} p-4`}>
+            <div className={`bg-linear-to-r ${stat.color} p-4`}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-white text-sm font-medium opacity-90">

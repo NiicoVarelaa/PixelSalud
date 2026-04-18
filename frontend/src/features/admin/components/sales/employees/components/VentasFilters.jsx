@@ -65,7 +65,6 @@ export const VentasFilters = () => {
             aria-describedby="search-hint"
           />
 
-          {/* Indicador de búsqueda activa */}
           {filtro && (
             <button
               type="button"

@@ -45,9 +45,7 @@ const ProductFilters = ({
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4">
       <div className="flex flex-col gap-2.5">
-        {/* Fila Superior: Búsqueda y Botones */}
         <div className="flex gap-2">
-          {/* Búsqueda */}
           <div className="flex-1 min-w-0 relative group">
             <label htmlFor="search" className="sr-only">
               Buscar productos
@@ -72,9 +70,7 @@ const ProductFilters = ({
             />
           </div>
 
-          {/* Botones de Acción (Reordenados) */}
           <div className="flex gap-2 shrink-0">
-            {/* 1. Botón Agregar Producto (Principal) */}
             <button
               onClick={onAddProduct}
               className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm shadow-green-600/20 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer"
@@ -87,7 +83,6 @@ const ProductFilters = ({
               </span>
             </button>
 
-            {/* 2. Botón Volver (Secundario) */}
             <Link
               to="/admin"
               className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm border border-gray-200 focus-visible:ring-4 focus-visible:ring-gray-200 outline-none"
@@ -102,7 +97,6 @@ const ProductFilters = ({
           </div>
         </div>
 
-        {/* Fila Inferior: Filtros Custom */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <CustomSelect
             id="filter-category"

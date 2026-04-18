@@ -33,7 +33,8 @@ export const EmptyState = ({ onCrearEmpleado }) => (
     </div>
     <p className="text-sm font-semibold text-gray-700">Sin empleados</p>
     <p className="mt-1 text-xs text-gray-400 max-w-xs">
-      No hay empleados que coincidan con los filtros. Ajustá la búsqueda o registrá uno nuevo.
+      No hay empleados que coincidan con los filtros. Ajustá la búsqueda o
+      registrá uno nuevo.
     </p>
     {onCrearEmpleado && (
       <button

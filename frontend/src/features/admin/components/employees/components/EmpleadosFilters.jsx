@@ -26,7 +26,6 @@ export const EmpleadosFilters = ({
       aria-label="Filtros de empleados"
     >
       <div className="flex flex-col gap-2.5 p-3 sm:flex-row sm:items-center sm:p-3.5">
-        {/* Búsqueda */}
         <div className="relative flex-1">
           <Search
             size={15}
@@ -60,7 +59,6 @@ export const EmpleadosFilters = ({
           </AnimatePresence>
         </div>
 
-        {/* Estado */}
         <select
           value={filtroEstado}
           onChange={(e) => setFiltroEstado(e.target.value)}
@@ -72,7 +70,6 @@ export const EmpleadosFilters = ({
           <option value="inactivos">Inactivos</option>
         </select>
 
-        {/* Limpiar */}
         <AnimatePresence>
           {hayFiltros && (
             <motion.button
@@ -91,11 +88,12 @@ export const EmpleadosFilters = ({
         </AnimatePresence>
       </div>
 
-      {/* Contador */}
       <div className="border-t border-gray-100 px-3.5 py-2 lg:px-4">
         <p className="text-xs text-gray-500" aria-live="polite">
-          <span className="font-semibold text-gray-700">{totalFiltrados}</span> de{" "}
-          <span className="font-semibold text-gray-700">{totalEmpleados}</span> empleados
+          <span className="font-semibold text-gray-700">{totalFiltrados}</span>{" "}
+          de{" "}
+          <span className="font-semibold text-gray-700">{totalEmpleados}</span>{" "}
+          empleados
         </p>
       </div>
     </motion.section>

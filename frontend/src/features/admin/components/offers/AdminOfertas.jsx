@@ -15,15 +15,12 @@ import {
 const AdminOfertas = () => {
   const { productos, setItemsPorPagina } = useOfertasStore();
 
-  // Estado para el modal de descuento
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modalAgregarAbierto, setModalAgregarAbierto] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
-  // Hook con lógica de negocio
   const { estaEnCampana, handleCambiarOferta } = useOfertasData();
 
-  // Obtener categorías únicas con useMemo
   const categorias = useMemo(() => {
     return [...new Set(productos.map((p) => p.categoria))].sort();
   }, [productos]);
@@ -47,13 +44,11 @@ const AdminOfertas = () => {
     };
   }, [setItemsPorPagina]);
 
-  // Abrir modal para establecer descuento
   const abrirModalDescuento = (producto) => {
     setProductoSeleccionado(producto);
     setModalAbierto(true);
   };
 
-  // Confirmar descuento desde el modal
   const confirmarDescuento = (porcentaje) => {
     if (productoSeleccionado) {
       handleCambiarOferta(productoSeleccionado, true, porcentaje);
@@ -100,7 +95,6 @@ const AdminOfertas = () => {
         </section>
       </div>
 
-      {/* Modal de descuento (reemplaza SweetAlert2) */}
       <ModalDescuento
         isOpen={modalAbierto}
         onClose={() => {
@@ -123,7 +117,6 @@ const AdminOfertas = () => {
         onConfirm={confirmarAgregarOferta}
       />
 
-      {/* Toast global para notificaciones */}
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </AdminLayout>
   );

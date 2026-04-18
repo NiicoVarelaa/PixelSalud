@@ -5,11 +5,9 @@ import { ToastContainer } from "react-toastify";
 import { ArrowLeft, UserPlus } from "lucide-react";
 import { AdminLayout } from "@features/admin/components/shared";
 
-// Custom Hooks
 import { useEmpleadosData } from "./hooks/useEmpleadosData";
 import { useEmpleadosFilters } from "./hooks/useEmpleadosFilters";
 
-// Components
 import {
   StatsCards,
   EmpleadosFilters,
@@ -22,17 +20,12 @@ import {
   EmptyState,
 } from "./components";
 
-/**
- * Componente principal de administración de empleados
- * Orquesta todos los sub-componentes y gestiona el estado global del módulo
- */
 const AdminEmpleados = () => {
   const ITEMS_POR_PAGINA = 6;
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
-  // Custom hooks
   const {
     empleados,
     cargando,
@@ -54,11 +47,9 @@ const AdminEmpleados = () => {
     empleadosActuales,
   } = useEmpleadosFilters(empleados, ITEMS_POR_PAGINA);
 
-  // Estados del modal
   const [modalAbierto, setModalAbierto] = useState(false);
   const [empleadoEditando, setEmpleadoEditando] = useState(null);
 
-  // Estados del diálogo de confirmación
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: "",
@@ -67,45 +58,30 @@ const AdminEmpleados = () => {
     action: null,
   });
 
-  // Protección de ruta - solo admin
   useEffect(() => {
     if (!user || user.rol !== "admin") {
       navigate("/");
     }
   }, [user, navigate]);
 
-  /**
-   * Abre el modal para crear un nuevo empleado
-   */
   const handleCrearEmpleado = () => {
     setEmpleadoEditando(null);
     setModalAbierto(true);
   };
 
-  /**
-   * Abre el modal para editar un empleado existente
-   */
   const handleEditarEmpleado = (empleado) => {
     setEmpleadoEditando(empleado);
     setModalAbierto(true);
   };
 
-  /**
-   * Guarda un empleado (creación o edición)
-   */
   const handleGuardarEmpleado = async (datosEmpleado, idEmpleado) => {
     if (idEmpleado) {
-      // Edición
       return await actualizarEmpleado(idEmpleado, datosEmpleado);
     } else {
-      // Creación
       return await crearEmpleado(datosEmpleado);
     }
   };
 
-  /**
-   * Solicita confirmación para cambiar el estado de un empleado
-   */
   const handleCambiarEstado = (empleado) => {
     const esActivo = empleado.activo !== 0 && empleado.activo !== false;
 
@@ -121,9 +97,6 @@ const AdminEmpleados = () => {
     });
   };
 
-  /**
-   * Ejecuta la acción del diálogo de confirmación
-   */
   const handleConfirmarAccion = async () => {
     if (confirmDialog.action) {
       await confirmDialog.action();
@@ -154,10 +127,8 @@ const AdminEmpleados = () => {
           </div>
         }
       >
-        {/* Tarjetas de Estadísticas */}
         <StatsCards estadisticas={estadisticas} />
 
-        {/* Filtros de Búsqueda */}
         <EmpleadosFilters
           busqueda={busqueda}
           setBusqueda={setBusqueda}
@@ -167,7 +138,6 @@ const AdminEmpleados = () => {
           totalEmpleados={empleados.length}
         />
 
-        {/* Contenido Principal */}
         <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           {cargando ? (
             <LoadingState />
@@ -175,7 +145,6 @@ const AdminEmpleados = () => {
             <EmptyState onCrearEmpleado={handleCrearEmpleado} />
           ) : (
             <div className="flex min-h-0 flex-1 flex-col">
-              {/* Vista Móvil - Cards */}
               <div className="min-h-0 flex-1 overflow-y-auto p-4 lg:hidden">
                 {empleadosActuales.map((empleado) => (
                   <EmpleadoCard
@@ -187,7 +156,6 @@ const AdminEmpleados = () => {
                 ))}
               </div>
 
-              {/* Vista Desktop - Tabla */}
               <div className="hidden min-h-0 flex-1 overflow-auto lg:block">
                 <EmpleadoTable
                   empleados={empleadosActuales}
@@ -226,7 +194,6 @@ const AdminEmpleados = () => {
           )}
         </div>
 
-        {/* Modal de Crear/Editar Empleado */}
         <EmpleadoModal
           isOpen={modalAbierto}
           onClose={() => setModalAbierto(false)}
@@ -234,7 +201,6 @@ const AdminEmpleados = () => {
           empleadoEditar={empleadoEditando}
         />
 
-        {/* Diálogo de Confirmación */}
         <ConfirmDialog
           isOpen={confirmDialog.isOpen}
           onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}

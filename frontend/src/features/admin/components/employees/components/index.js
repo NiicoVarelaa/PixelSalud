@@ -1,8 +1,3 @@
-/**
- * Barrel export para componentes de empleados
- * Permite importaciones limpias desde otros archivos
- */
-
 export { StatsCards } from "./StatsCards";
 export { EmpleadosFilters } from "./EmpleadosFilters";
 export { EmpleadoCard } from "./EmpleadoCard";

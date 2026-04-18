@@ -1,8 +1,26 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, createElement } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import {
+  CircleX,
+  PartyPopper,
+  CircleCheck,
+  Circle,
+  CircleDashed,
+  Trash2,
+} from "lucide-react";
 import { useAuthStore } from "@store/useAuthStore";
 import { useProductStore } from "@store/useProductStore";
+
+const toastError = (message) =>
+  toast.error(message, {
+    icon: createElement(CircleX, { size: 16 }),
+  });
+
+const toastSuccess = (message, icon) =>
+  toast.success(message, {
+    icon,
+  });
 
 export const useCampanasData = () => {
   const [campanas, setCampanas] = useState([]);
@@ -28,7 +46,7 @@ export const useCampanasData = () => {
       setCampanas(response.data);
     } catch (error) {
       console.error("Error al cargar campañas:", error);
-      toast.error("Error al cargar las campañas.");
+      toastError("Error al cargar las campañas.");
     } finally {
       setCargando(false);
     }
@@ -68,7 +86,7 @@ export const useCampanasData = () => {
         return Array.from(ids);
       } catch (error) {
         console.error("Error al cargar productos en campañas:", error);
-        toast.error(
+        toastError(
           "No se pudieron cargar los productos ya asignados a campañas.",
         );
         return [];
@@ -103,12 +121,12 @@ export const useCampanasData = () => {
           !nuevaCampana.nombreCampana ||
           (!esDosPorUno && !nuevaCampana.porcentajeDescuento)
         ) {
-          toast.error("Complete los campos obligatorios");
+          toastError("Complete los campos obligatorios");
           return false;
         }
 
         if (productosSeleccionados.length === 0) {
-          toast.error("Seleccione al menos un producto");
+          toastError("Seleccione al menos un producto");
           return false;
         }
 
@@ -138,18 +156,17 @@ export const useCampanasData = () => {
           getConfig(),
         );
 
-        toast.success(
-          `¡Campaña "${nuevaCampana.nombreCampana}" creada con ${productosSeleccionados.length} productos!`,
-          { icon: "🎉" },
+        toastSuccess(
+          `Campaña "${nuevaCampana.nombreCampana}" creada con ${productosSeleccionados.length} productos!`,
+          createElement(PartyPopper, { size: 16 }),
         );
 
         await fetchCampanas();
         return true;
       } catch (error) {
         console.error("Error al crear campaña:", error);
-        toast.error(
+        toastError(
           error.response?.data?.message || "Error al crear la campaña",
-          { icon: "❌" },
         );
         return false;
       }
@@ -214,12 +231,15 @@ export const useCampanasData = () => {
           );
         }
 
-        toast.success("¡Campaña actualizada correctamente!", { icon: "✅" });
+        toastSuccess(
+          "Campaña actualizada correctamente!",
+          createElement(CircleCheck, { size: 16 }),
+        );
         await fetchCampanas();
         return true;
       } catch (error) {
         console.error("Error al actualizar campaña:", error);
-        toast.error("Error al actualizar la campaña", { icon: "❌" });
+        toastError("Error al actualizar la campaña");
         return false;
       }
     },
@@ -235,14 +255,16 @@ export const useCampanasData = () => {
           getConfig(),
         );
 
-        toast.success(
+        toastSuccess(
           `Campaña ${esActiva ? "desactivada" : "activada"} correctamente`,
-          { icon: esActiva ? "🔴" : "🟢" },
+          esActiva
+            ? createElement(Circle, { size: 16 })
+            : createElement(CircleDashed, { size: 16 }),
         );
         await fetchCampanas();
         return true;
       } catch {
-        toast.error("No se pudo cambiar el estado", { icon: "❌" });
+        toastError("No se pudo cambiar el estado");
         return false;
       }
     },
@@ -253,11 +275,14 @@ export const useCampanasData = () => {
     async (idCampana) => {
       try {
         await axios.delete(`${backendUrl}/campanas/${idCampana}`, getConfig());
-        toast.success("¡Campaña eliminada correctamente!", { icon: "🗑️" });
+        toastSuccess(
+          "Campaña eliminada correctamente!",
+          createElement(Trash2, { size: 16 }),
+        );
         await fetchCampanas();
         return true;
       } catch {
-        toast.error("No se pudo eliminar la campaña", { icon: "❌" });
+        toastError("No se pudo eliminar la campaña");
         return false;
       }
     },
@@ -276,7 +301,7 @@ export const useCampanasData = () => {
           : [];
       } catch (error) {
         console.error("Error al cargar productos:", error);
-        toast.error("Error al cargar los datos de la campaña", { icon: "❌" });
+        toastError("Error al cargar los datos de la campaña");
         return [];
       }
     },
@@ -286,12 +311,12 @@ export const useCampanasData = () => {
   return {
     campanas,
     cargando,
-    fetchCampanas,
-    crearCampana,
     actualizarCampana,
-    toggleActiva,
-    eliminarCampana,
-    cargarProductosCampana,
+    crearCampana,
     cargarIdsProductosEnCampanas,
+    cargarProductosCampana,
+    eliminarCampana,
+    fetchCampanas,
+    toggleActiva,
   };
 };

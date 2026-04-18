@@ -71,7 +71,6 @@ const AdminMensajes = () => {
         description="Mensajes recibidos de clientes"
         contentClassName="flex h-full min-h-0 flex-col gap-3"
       >
-        {/* Filtros */}
         <MensajesFilters
           filtroEstado={filtroEstado}
           onFiltroEstadoChange={setFiltroEstado}
@@ -80,24 +79,14 @@ const AdminMensajes = () => {
           onLimpiar={limpiarFiltros}
         />
 
-        {/* Banner de error */}
         {error && <ErrorBanner error={error} />}
 
-        {/* Contenido principal */}
         <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs">
           {loading ? (
             <LoadingState />
           ) : mensajesFiltrados.length === 0 ? (
             <EmptyState />
           ) : (
-            /*
-             * MensajesTable renderiza internamente:
-             *  - mobile: lista de <article> cards (no necesita <table> wrapper)
-             *  - desktop: <table> con thead/tbody
-             *
-             * Por eso el wrapper aquí es un <div> neutral,
-             * no un <table> como en la versión original.
-             */
             <div className="h-full overflow-y-auto">
               <MensajesTable
                 mensajes={mensajesPaginados}
@@ -129,7 +118,6 @@ const AdminMensajes = () => {
           </div>
         )}
 
-        {/* Modales */}
         <MensajeDetalle
           mensaje={mensajeSeleccionado}
           isOpen={mostrarDetalle}

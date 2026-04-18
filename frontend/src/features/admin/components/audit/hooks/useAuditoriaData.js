@@ -44,8 +44,8 @@ export const useAuditoriaData = (filtros) => {
 
   return {
     auditorias,
-    loading,
     error,
+    loading,
     cargarAuditorias,
   };
 };

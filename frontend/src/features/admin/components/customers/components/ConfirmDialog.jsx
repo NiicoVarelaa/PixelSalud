@@ -1,10 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, AlertCircle, Info, X } from "lucide-react";
 
-/**
- * Componente de diálogo de confirmación personalizado
- * Reemplaza SweetAlert2 con una solución nativa
- */
 export const ConfirmDialog = ({
   isOpen,
   onClose,
@@ -55,7 +51,6 @@ export const ConfirmDialog = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -64,7 +59,6 @@ export const ConfirmDialog = ({
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
           />
 
-          {/* Dialog */}
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -72,9 +66,8 @@ export const ConfirmDialog = ({
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
             >
-              {/* Header con gradiente */}
               <div
-                className={`bg-gradient-to-r ${config.gradient} px-6 py-4 flex items-center justify-between`}
+                className={`bg-linear-to-r ${config.gradient} px-6 py-4 flex items-center justify-between`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`${config.bgIcon} p-2 rounded-lg`}>
@@ -90,12 +83,10 @@ export const ConfirmDialog = ({
                 </button>
               </div>
 
-              {/* Contenido */}
               <div className="p-6">
                 <p className="text-gray-600 leading-relaxed">{message}</p>
               </div>
 
-              {/* Botones */}
               <div className="flex gap-3 px-6 pb-6">
                 <button
                   onClick={onClose}
@@ -105,7 +96,7 @@ export const ConfirmDialog = ({
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className={`flex-1 px-4 py-2.5 bg-gradient-to-r ${config.buttonBg} text-white font-medium rounded-lg transition-colors shadow-lg`}
+                  className={`flex-1 px-4 py-2.5 bg-linear-to-r ${config.buttonBg} text-white font-medium rounded-lg transition-colors shadow-lg`}
                 >
                   {confirmText}
                 </button>

@@ -1,10 +1,6 @@
 import { Search, Filter, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
 
-/**
- * Componente de filtros para clientes
- * Incluye búsqueda y filtro por estado
- */
 export const ClientesFilters = ({
   busqueda,
   setBusqueda,
@@ -22,7 +18,6 @@ export const ClientesFilters = ({
       className="mb-5 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
     >
       <div className="flex flex-col md:flex-row gap-4">
-        {/* Input de Búsqueda */}
         <div className="relative flex-1">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="text-gray-400" size={20} />
@@ -36,7 +31,6 @@ export const ClientesFilters = ({
           />
         </div>
 
-        {/* Filtro por Estado */}
         <div className="relative w-full md:w-64">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Filter className="text-gray-400" size={20} />

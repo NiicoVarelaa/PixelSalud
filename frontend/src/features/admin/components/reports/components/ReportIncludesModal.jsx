@@ -3,13 +3,6 @@ import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, X } from "lucide-react";
 
-/**
- * Modal de detalle de un reporte.
- * - Elimina el header con gradiente de color por cada reporte
- * - Header neutro gris + acento verde uniforme
- * - Mobile: drawer desde abajo; Desktop: modal centrado
- * - Foco automático al X, captura de Escape
- */
 const ReportIncludesModal = memo(({ isOpen, report, onClose }) => {
   const closeRef = useRef(null);
 
@@ -18,7 +11,9 @@ const ReportIncludesModal = memo(({ isOpen, report, onClose }) => {
     closeRef.current?.focus();
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
@@ -38,9 +33,10 @@ const ReportIncludesModal = memo(({ isOpen, report, onClose }) => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="report-detail-title"
-          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
         >
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -50,7 +46,6 @@ const ReportIncludesModal = memo(({ isOpen, report, onClose }) => {
             aria-hidden="true"
           />
 
-          {/* Panel */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -58,13 +53,14 @@ const ReportIncludesModal = memo(({ isOpen, report, onClose }) => {
             transition={{ duration: 0.22, ease: "easeOut" }}
             className="relative flex w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-w-xl sm:rounded-2xl max-h-[88dvh]"
           >
-            {/* Handle (mobile) */}
-            <div className="flex justify-center pt-2.5 pb-1 sm:hidden" aria-hidden="true">
+            <div
+              className="flex justify-center pt-2.5 pb-1 sm:hidden"
+              aria-hidden="true"
+            >
               <span className="h-1.5 w-14 rounded-full bg-gray-300" />
             </div>
 
-            {/* Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 flex-shrink-0">
+            <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-green-100"
@@ -95,7 +91,6 @@ const ReportIncludesModal = memo(({ isOpen, report, onClose }) => {
               </button>
             </div>
 
-            {/* Body */}
             <div className="flex-1 overflow-y-auto px-5 py-4">
               <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
                 Este reporte incluye
@@ -122,8 +117,7 @@ const ReportIncludesModal = memo(({ isOpen, report, onClose }) => {
               </ul>
             </div>
 
-            {/* Footer */}
-            <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50/70 px-5 py-3.5">
+            <div className="shrink-0 border-t border-gray-100 bg-gray-50/70 px-5 py-3.5">
               <button
                 type="button"
                 onClick={onClose}
@@ -142,14 +136,14 @@ const ReportIncludesModal = memo(({ isOpen, report, onClose }) => {
 ReportIncludesModal.displayName = "ReportIncludesModal";
 
 ReportIncludesModal.propTypes = {
-  isOpen:   PropTypes.bool.isRequired,
-  report:   PropTypes.shape({
-    titulo:      PropTypes.string,
+  isOpen: PropTypes.bool.isRequired,
+  report: PropTypes.shape({
+    titulo: PropTypes.string,
     descripcion: PropTypes.string,
-    icono:       PropTypes.elementType,
-    incluye:     PropTypes.arrayOf(PropTypes.string),
+    icono: PropTypes.elementType,
+    incluye: PropTypes.arrayOf(PropTypes.string),
   }),
-  onClose:  PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 ReportIncludesModal.defaultProps = { report: null };

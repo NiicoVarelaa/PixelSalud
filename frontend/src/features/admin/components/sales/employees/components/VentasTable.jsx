@@ -9,7 +9,6 @@ import {
   Calendar,
   Clock,
   CreditCard,
-  DollarSign,
   CheckCircle2,
   XCircle,
 } from "lucide-react";
@@ -42,7 +41,6 @@ export const VentasTable = ({
     itemsPorPagina,
   } = useVentasStore();
 
-  // Calcular ventas filtradas y paginadas con useMemo
   const itemsActuales = useMemo(() => {
     const parseHora = (horaRaw) => {
       if (!horaRaw) {

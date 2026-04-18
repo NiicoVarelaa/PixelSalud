@@ -26,8 +26,8 @@ export const useCampanasFilters = ({
   const campanasActuales = campanasFiltradas.slice(indiceInicio, indiceFin);
 
   return {
-    campanasFiltradas,
     campanasActuales,
+    campanasFiltradas,
     totalPaginas,
   };
 };

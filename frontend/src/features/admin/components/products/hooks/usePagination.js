@@ -21,12 +21,10 @@ export const usePagination = (items, itemsPerPage = 10) => {
     return items.slice(firstIndex, lastIndex);
   }, [items, currentPage, itemsPerPage]);
 
-  // Resetear a página 1 cuando cambian los items
   useEffect(() => {
     setCurrentPage(1);
   }, [items.length]);
 
-  // Handler para cambiar de página
   const goToPage = useCallback(
     (pageNumber) => {
       const validPage = Math.max(1, Math.min(pageNumber, totalPages));
@@ -49,8 +47,8 @@ export const usePagination = (items, itemsPerPage = 10) => {
 
   return {
     currentPage,
-    totalPages,
     paginatedItems,
+    totalPages,
     goToPage,
     nextPage,
     previousPage,

@@ -14,7 +14,9 @@ export const ProductPrice = ({
             {formatearPrecio(precioRegular)}
           </p>
         )}
-        <p className={`text-xl font-bold ${tieneOferta ? "text-orange-600" : "text-gray-900"}`}>
+        <p
+          className={`text-xl font-bold ${tieneOferta ? "text-orange-600" : "text-gray-900"}`}
+        >
           {formatearPrecio(precioConDescuento)}
         </p>
       </div>
@@ -28,7 +30,9 @@ export const ProductPrice = ({
           {formatearPrecio(precioRegular)}
         </span>
       )}
-      <span className={`font-semibold ${tieneOferta ? "text-orange-600 text-sm" : "text-gray-900 text-sm"}`}>
+      <span
+        className={`font-semibold ${tieneOferta ? "text-orange-600 text-sm" : "text-gray-900 text-sm"}`}
+      >
         {formatearPrecio(precioConDescuento)}
       </span>
     </div>

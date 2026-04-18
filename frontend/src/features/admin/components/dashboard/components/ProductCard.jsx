@@ -31,8 +31,8 @@ const ProductCard = ({ producto, index }) => {
 
       <div className="p-2.5 flex flex-col flex-1 gap-2 bg-white">
         <div className="flex flex-col gap-1.5">
-          <h3 
-            className="font-bold text-gray-800 text-xs sm:text-sm line-clamp-2 leading-snug wrap-break-word min-h-8" 
+          <h3
+            className="font-bold text-gray-800 text-xs sm:text-sm line-clamp-2 leading-snug wrap-break-word min-h-8"
             title={producto.nombre}
           >
             {producto.nombre}
@@ -45,7 +45,9 @@ const ProductCard = ({ producto, index }) => {
 
         <div className="mt-auto pt-2 border-t border-gray-50 flex items-end justify-between">
           <div className="w-full">
-            <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Ingreso</p>
+            <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">
+              Ingreso
+            </p>
             <p className="text-sm sm:text-base font-black text-green-600 leading-none truncate w-full">
               {formatCurrency(producto.ingresoTotal)}
             </p>
