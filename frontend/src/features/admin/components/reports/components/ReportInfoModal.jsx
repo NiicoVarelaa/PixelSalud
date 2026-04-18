@@ -20,12 +20,6 @@ const FEATURES = [
   },
 ];
 
-/**
- * Modal de información sobre los reportes.
- * - Elimina todo el azul/índigo
- * - Usa verde coherente con el sistema de diseño
- * - Foco automático, Escape para cerrar
- */
 const ReportInfoModal = memo(({ isOpen, onClose }) => {
   const closeRef = useRef(null);
 
@@ -56,7 +50,6 @@ const ReportInfoModal = memo(({ isOpen, onClose }) => {
             if (e.target === e.currentTarget) onClose();
           }}
         >
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -66,7 +59,6 @@ const ReportInfoModal = memo(({ isOpen, onClose }) => {
             aria-hidden="true"
           />
 
-          {/* Panel */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -74,7 +66,6 @@ const ReportInfoModal = memo(({ isOpen, onClose }) => {
             transition={{ duration: 0.22, ease: "easeOut" }}
             className="relative flex w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-w-lg sm:rounded-2xl max-h-[80dvh]"
           >
-            {/* Handle (mobile) */}
             <div
               className="flex justify-center pt-2.5 pb-1 sm:hidden"
               aria-hidden="true"
@@ -82,8 +73,7 @@ const ReportInfoModal = memo(({ isOpen, onClose }) => {
               <span className="h-1.5 w-14 rounded-full bg-gray-300" />
             </div>
 
-            {/* Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 flex-shrink-0">
+            <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-green-100"
@@ -109,7 +99,6 @@ const ReportInfoModal = memo(({ isOpen, onClose }) => {
               </button>
             </div>
 
-            {/* Body */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
               <p className="text-sm text-gray-600 leading-relaxed">
                 Los reportes se generan en formato Excel (.xlsx) con tablas
@@ -143,8 +132,7 @@ const ReportInfoModal = memo(({ isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50/70 px-5 py-3.5">
+            <div className="shrink-0 border-t border-gray-100 bg-gray-50/70 px-5 py-3.5">
               <button
                 type="button"
                 onClick={onClose}

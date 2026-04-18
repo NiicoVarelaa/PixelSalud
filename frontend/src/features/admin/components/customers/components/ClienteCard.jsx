@@ -8,10 +8,6 @@ import {
   XCircle,
 } from "lucide-react";
 
-/**
- * Tarjeta de cliente para vista móvil
- * Muestra toda la información del cliente en formato card
- */
 export const ClienteCard = ({ cliente, onEditar, onCambiarEstado }) => {
   const esActivo = cliente.activo !== 0 && cliente.activo !== false;
 
@@ -24,7 +20,6 @@ export const ClienteCard = ({ cliente, onEditar, onCambiarEstado }) => {
     >
       <div className={`h-1 ${esActivo ? "bg-green-500" : "bg-red-500"}`} />
 
-      {/* Header */}
       <div className="p-4">
         <div className="flex items-center justify-between">
           <div>
@@ -43,9 +38,7 @@ export const ClienteCard = ({ cliente, onEditar, onCambiarEstado }) => {
         </div>
       </div>
 
-      {/* Información del cliente */}
       <div className="space-y-3 px-4 pb-4">
-        {/* Email */}
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-sky-50 p-2">
             <Mail className="text-sky-600" size={16} />
@@ -63,7 +56,6 @@ export const ClienteCard = ({ cliente, onEditar, onCambiarEstado }) => {
           </div>
         </div>
 
-        {/* DNI */}
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-violet-50 p-2">
             <CreditCard className="text-violet-600" size={16} />
@@ -76,7 +68,6 @@ export const ClienteCard = ({ cliente, onEditar, onCambiarEstado }) => {
           </div>
         </div>
 
-        {/* Estado */}
         <div className="flex items-center gap-3">
           <div
             className={`${esActivo ? "bg-green-50" : "bg-red-50"} p-2 rounded-lg`}
@@ -100,7 +91,6 @@ export const ClienteCard = ({ cliente, onEditar, onCambiarEstado }) => {
         </div>
       </div>
 
-      {/* Botones de acción */}
       <div className="flex gap-2 border-t border-gray-100 bg-gray-50 p-4">
         <motion.button
           whileHover={{ scale: 1.02 }}

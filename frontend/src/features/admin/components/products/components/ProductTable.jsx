@@ -79,7 +79,6 @@ const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
                 key={product.idProducto}
                 className="hover:bg-gray-50 transition-colors duration-150"
               >
-                {/* Producto (imagen + nombre) */}
                 <td className="px-3 py-3">
                   <div className="flex items-center gap-2.5">
                     <div className="shrink-0">
@@ -101,21 +100,18 @@ const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
                   </div>
                 </td>
 
-                {/* Precio */}
                 <td className="px-3 py-3 whitespace-nowrap">
                   <span className="text-sm font-semibold text-gray-900">
                     {formatPrice(+product.precioFinal)}
                   </span>
                 </td>
 
-                {/* Categoría */}
                 <td className="px-3 py-3 whitespace-nowrap">
                   <span className="text-sm text-gray-600">
                     {product.categoria}
                   </span>
                 </td>
 
-                {/* Stock */}
                 <td className="px-3 py-3 whitespace-nowrap text-center">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -128,7 +124,6 @@ const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
                   </span>
                 </td>
 
-                {/* Estado */}
                 <td className="px-3 py-3 whitespace-nowrap text-center">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -141,7 +136,6 @@ const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
                   </span>
                 </td>
 
-                {/* Acciones */}
                 <td className="px-3 py-3 whitespace-nowrap text-right">
                   <div className="flex gap-2 justify-end">
                     <button

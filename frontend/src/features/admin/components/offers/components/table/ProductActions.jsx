@@ -1,6 +1,3 @@
-// ─────────────────────────────────────────────
-// ProductActions.jsx
-// ─────────────────────────────────────────────
 import { Edit2, XCircle, CheckCircle } from "lucide-react";
 
 export const ProductActions = ({

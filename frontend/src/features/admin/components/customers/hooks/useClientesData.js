@@ -1,18 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createElement } from "react";
 import apiClient from "@utils/apiClient";
 import { toast } from "react-toastify";
+import { CircleX, CircleCheck, UserPlus, UserX, UserCheck } from "lucide-react";
 
-/**
- * Hook personalizado para gestionar todos los datos y operaciones de clientes
- * Centraliza la lógica de API y manejo de estado
- */
+const toastError = (message) =>
+  toast.error(message, {
+    icon: createElement(CircleX, { size: 16 }),
+  });
+
+const toastSuccess = (message, icon) =>
+  toast.success(message, {
+    icon,
+  });
+
 export const useClientesData = () => {
   const [clientes, setClientes] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  /**
-   * Obtiene todos los clientes del backend
-   */
   const fetchClientes = async () => {
     setCargando(true);
     try {
@@ -25,7 +29,7 @@ export const useClientesData = () => {
     } catch (error) {
       console.error("Error al obtener clientes", error);
       if (error.response?.status !== 404) {
-        toast.error("❌ Error al cargar lista de clientes");
+        toastError("Error al cargar lista de clientes");
       }
       setClientes([]);
     } finally {
@@ -33,61 +37,47 @@ export const useClientesData = () => {
     }
   };
 
-  /**
-   * Carga inicial de clientes
-   */
   useEffect(() => {
     fetchClientes();
   }, []);
 
-  /**
-   * Crea un nuevo cliente
-   * @param {Object} datosCliente - Datos del cliente a crear
-   * @returns {Promise<boolean>} - true si se creó correctamente
-   */
   const crearCliente = async (datosCliente) => {
     try {
       await apiClient.post("/clientes/crear", datosCliente);
-      toast.success("🎉 Cliente registrado correctamente");
+      toastSuccess(
+        "Cliente registrado correctamente",
+        createElement(UserPlus, { size: 16 }),
+      );
       await fetchClientes();
       return true;
     } catch (error) {
       console.error("Error al crear cliente:", error);
       const mensaje =
         error.response?.data?.error || "No se pudo crear el cliente";
-      toast.error(`❌ ${mensaje}`);
+      toastError(mensaje);
       return false;
     }
   };
 
-  /**
-   * Actualiza los datos de un cliente existente
-   * @param {number} idCliente - ID del cliente a actualizar
-   * @param {Object} datosActualizados - Nuevos datos del cliente
-   * @returns {Promise<boolean>} - true si se actualizó correctamente
-   */
   const actualizarCliente = async (idCliente, datosActualizados) => {
     try {
       await apiClient.put(
         `/clientes/actualizar/${idCliente}`,
         datosActualizados,
       );
-      toast.success("✅ Cliente actualizado correctamente");
+      toastSuccess(
+        "Cliente actualizado correctamente",
+        createElement(CircleCheck, { size: 16 }),
+      );
       await fetchClientes();
       return true;
     } catch (error) {
       console.error("Error al actualizar cliente:", error);
-      toast.error("❌ No se pudo actualizar el cliente");
+      toastError("No se pudo actualizar el cliente");
       return false;
     }
   };
 
-  /**
-   * Cambia el estado de un cliente (activar/desactivar)
-   * @param {number} idCliente - ID del cliente
-   * @param {boolean} esActivo - Estado actual del cliente
-   * @returns {Promise<boolean>} - true si cambió correctamente
-   */
   const cambiarEstadoCliente = async (idCliente, esActivo) => {
     try {
       const endpoint = esActivo
@@ -96,23 +86,27 @@ export const useClientesData = () => {
 
       await apiClient.put(endpoint);
 
-      const mensaje = esActivo
-        ? "🔴 Cliente dado de baja correctamente"
-        : "🟢 Cliente reactivado correctamente";
+      if (esActivo) {
+        toastSuccess(
+          "Cliente dado de baja correctamente",
+          createElement(UserX, { size: 16 }),
+        );
+      } else {
+        toastSuccess(
+          "Cliente reactivado correctamente",
+          createElement(UserCheck, { size: 16 }),
+        );
+      }
 
-      toast.success(mensaje);
       await fetchClientes();
       return true;
     } catch (error) {
       console.error("Error al cambiar estado:", error);
-      toast.error("❌ No se pudo cambiar el estado del cliente");
+      toastError("No se pudo cambiar el estado del cliente");
       return false;
     }
   };
 
-  /**
-   * Calcula estadísticas de clientes
-   */
   const estadisticas = {
     total: clientes.length,
     activos: clientes.filter((c) => c.activo !== 0 && c.activo !== false)
@@ -125,9 +119,9 @@ export const useClientesData = () => {
     clientes,
     cargando,
     estadisticas,
-    fetchClientes,
-    crearCliente,
     actualizarCliente,
+    crearCliente,
     cambiarEstadoCliente,
+    fetchClientes,
   };
 };

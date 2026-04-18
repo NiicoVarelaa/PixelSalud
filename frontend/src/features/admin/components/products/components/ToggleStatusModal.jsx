@@ -10,7 +10,6 @@ const ToggleStatusModal = ({ isOpen, onClose, product, onConfirm }) => {
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-        {/* Header */}
         <div className="border-b border-gray-100 px-8 py-6">
           <div className="flex justify-between items-start">
             <div className="flex items-start gap-4">
@@ -44,9 +43,7 @@ const ToggleStatusModal = ({ isOpen, onClose, product, onConfirm }) => {
           </div>
         </div>
 
-        {/* Content */}
         <div className="px-8 py-6">
-          {/* Product Info */}
           <div className="bg-gray-50 rounded-xl p-4 mb-6">
             <div className="flex gap-4">
               <img
@@ -70,7 +67,6 @@ const ToggleStatusModal = ({ isOpen, onClose, product, onConfirm }) => {
             </div>
           </div>
 
-          {/* Warning Message */}
           <div
             className={`flex gap-3 p-4 rounded-xl mb-6 ${
               isActivating
@@ -104,7 +100,6 @@ const ToggleStatusModal = ({ isOpen, onClose, product, onConfirm }) => {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="border-t border-gray-100 px-8 py-6">
           <div className="flex gap-3 justify-end">
             <button

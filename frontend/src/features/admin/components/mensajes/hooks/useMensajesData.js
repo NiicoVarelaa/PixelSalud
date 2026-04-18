@@ -108,13 +108,13 @@ export const useMensajesData = () => {
   );
 
   return {
-    mensajes,
-    loading,
     error,
-    fetchMensajes,
-    marcarLeido,
+    loading,
+    mensajes,
     cambiarEstado,
     eliminarMensaje,
     enviarRespuesta,
+    fetchMensajes,
+    marcarLeido,
   };
 };

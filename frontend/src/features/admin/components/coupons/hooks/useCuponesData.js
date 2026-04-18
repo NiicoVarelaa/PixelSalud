@@ -153,15 +153,15 @@ export const useCuponesData = () => {
 
   return {
     cupones,
-    historial,
     clientes,
-    cargandoClientes,
     cargando,
+    cargandoClientes,
+    historial,
     estadisticas: getEstadisticas(),
+    cambiarEstado,
+    crearCupon,
+    eliminarCupon,
     fetchCupones,
     fetchHistorial,
-    crearCupon,
-    cambiarEstado,
-    eliminarCupon,
   };
 };

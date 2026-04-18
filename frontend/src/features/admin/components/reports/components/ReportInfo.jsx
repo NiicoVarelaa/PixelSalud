@@ -2,10 +2,6 @@ import { memo } from "react";
 import { motion } from "framer-motion";
 import { Info } from "lucide-react";
 
-/**
- * Panel de información sobre los reportes.
- * Eliminado el azul/índigo — usa verde coherente con el sistema de diseño.
- */
 const ReportInfo = memo(() => (
   <motion.aside
     aria-labelledby="info-reportes-heading"
@@ -29,9 +25,10 @@ const ReportInfo = memo(() => (
           Sobre los reportes
         </h4>
         <p className="text-xs text-gray-500 leading-relaxed">
-          Los reportes se generan en formato Excel (.xlsx) con tablas formateadas, estadísticas
-          detalladas y análisis comparativos. Aplicá filtros antes de descargar para personalizar
-          los datos. Incluyen formato condicional, rankings y múltiples hojas de datos.
+          Los reportes se generan en formato Excel (.xlsx) con tablas
+          formateadas, estadísticas detalladas y análisis comparativos. Aplicá
+          filtros antes de descargar para personalizar los datos. Incluyen
+          formato condicional, rankings y múltiples hojas de datos.
         </p>
       </div>
     </div>

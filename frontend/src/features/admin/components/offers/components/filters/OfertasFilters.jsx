@@ -66,7 +66,6 @@ export const OfertasFilters = ({
       role="search"
       aria-label="Filtros del gestor de ofertas"
     >
-      {/* ── Header ── */}
       <div className="border-b border-gray-100 px-4 py-3.5 sm:px-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
@@ -98,11 +97,8 @@ export const OfertasFilters = ({
         </div>
       </div>
 
-      {/* ── Filtros ── */}
       <div className="space-y-3 p-3 sm:p-4">
-        {/* Fila 1: búsqueda + selects */}
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Búsqueda */}
           <div className="sm:col-span-2 lg:col-span-1">
             <label htmlFor="search-ofertas" className="sr-only">
               Buscar producto por nombre
@@ -144,7 +140,6 @@ export const OfertasFilters = ({
             </div>
           </div>
 
-          {/* Categoría */}
           <CustomSelect
             id="filter-categoria"
             label="Categoría"
@@ -154,7 +149,6 @@ export const OfertasFilters = ({
             hideLabel
           />
 
-          {/* Descuento */}
           <CustomSelect
             id="filter-descuento"
             label="Descuento"
@@ -165,7 +159,6 @@ export const OfertasFilters = ({
           />
         </div>
 
-        {/* Fila 2: atajos de descuento + limpiar filtros */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div
             className="flex flex-wrap gap-1.5"
@@ -211,7 +204,6 @@ export const OfertasFilters = ({
           </AnimatePresence>
         </div>
 
-        {/* Fila 3: chips de filtros activos */}
         <AnimatePresence>
           {hayFiltrosActivos && (
             <motion.div
@@ -250,7 +242,6 @@ export const OfertasFilters = ({
   );
 };
 
-/* ── Chip de filtro activo ── */
 const Chip = ({ label, onRemove, removeLabel }) => (
   <button
     type="button"

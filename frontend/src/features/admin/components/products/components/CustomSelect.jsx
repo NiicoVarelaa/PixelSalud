@@ -8,24 +8,6 @@ import React, {
 import PropTypes from "prop-types";
 import { ChevronDown, Check } from "lucide-react";
 
-/**
- * CustomSelect - Componente de select personalizado con mejor UX
- *
- * @component
- * @example
- * const options = [
- *   { value: "1", label: "Opción 1" },
- *   { value: "2", label: "Opción 2" }
- * ];
- *
- * <CustomSelect
- *   id="my-select"
- *   label="Categoría"
- *   value={selectedValue}
- *   onChange={handleChange}
- *   options={options}
- * />
- */
 const CustomSelect = ({
   id,
   label,
@@ -37,12 +19,10 @@ const CustomSelect = ({
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef(null);
 
-  // ✅ Memoizamos la opción seleccionada para evitar búsquedas repetidas
   const selectedOption = useMemo(() => {
     return options.find((opt) => opt.value === value) || options[0];
   }, [options, value]);
 
-  // ✅ useCallback para evitar recrear el handler en cada render
   const handleSelect = useCallback(
     (selectedValue) => {
       onChange(selectedValue);
@@ -51,14 +31,12 @@ const CustomSelect = ({
     [onChange],
   );
 
-  // ✅ useCallback para handleClickOutside (evita remover/agregar listeners constantemente)
   const handleClickOutside = useCallback((event) => {
     if (selectRef.current && !selectRef.current.contains(event.target)) {
       setIsOpen(false);
     }
   }, []);
 
-  // ✅ useEffect con cleanup correcto y dependencias apropiadas
   useEffect(() => {
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
@@ -67,7 +45,6 @@ const CustomSelect = ({
     }
   }, [isOpen, handleClickOutside]);
 
-  // ✅ Handler de teclado optimizado
   const handleKeyDown = useCallback((e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -77,7 +54,6 @@ const CustomSelect = ({
     }
   }, []);
 
-  // ✅ Handler para toggle del select
   const toggleOpen = useCallback(() => {
     setIsOpen((prev) => !prev);
   }, []);

@@ -47,7 +47,6 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
     }
   };
 
-  // Ctrl+Enter envía
   const handleKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && puedeEnviar) {
       e.preventDefault();
@@ -69,7 +68,6 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
             if (e.target === e.currentTarget) handleClose();
           }}
         >
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -79,7 +77,6 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
             aria-hidden="true"
           />
 
-          {/* Panel */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -87,8 +84,7 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
             transition={{ duration: 0.22, ease: "easeOut" }}
             className="relative flex w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-w-xl sm:rounded-2xl max-h-[92vh]"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 flex-shrink-0">
+            <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100">
                   <Reply
@@ -120,9 +116,7 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
               </button>
             </div>
 
-            {/* Body */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-              {/* Contexto del mensaje original */}
               <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 space-y-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-gray-500">
                   <Mail size={12} aria-hidden="true" />
@@ -140,7 +134,6 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
                 </p>
               </div>
 
-              {/* Campo de respuesta */}
               <div>
                 <label
                   htmlFor="respuesta-textarea"
@@ -175,8 +168,7 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="flex items-center justify-end gap-2 border-t border-gray-100 px-5 py-3.5 flex-shrink-0 bg-gray-50/70">
+            <div className="flex items-center justify-end gap-2 border-t border-gray-100 px-5 py-3.5 shrink-0 bg-gray-50/70">
               <button
                 type="button"
                 onClick={handleClose}

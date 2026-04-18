@@ -1,13 +1,19 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, createElement } from "react";
 import { toast } from "react-toastify";
 import apiClient from "@utils/apiClient";
+import { CircleX, CircleCheck } from "lucide-react";
 import { REPORT_FILE_NAMES } from "../constants/reportData";
 
-/**
- * Hook personalizado para gestionar la descarga de reportes
- * @param {Object} filters - Filtros aplicados
- * @returns {Object} - Estado y función de descarga
- */
+const toastError = (message) =>
+  toast.error(message, {
+    icon: createElement(CircleX, { size: 16 }),
+  });
+
+const toastSuccess = (message) =>
+  toast.success(message, {
+    icon: createElement(CircleCheck, { size: 16 }),
+  });
+
 export const useReportDownload = (filters) => {
   const [downloading, setDownloading] = useState({
     "ventas-online": false,
@@ -16,9 +22,6 @@ export const useReportDownload = (filters) => {
     "productos-vendidos": false,
   });
 
-  /**
-   * Construye la URL con parámetros de filtros según el tipo de reporte
-   */
   const buildReportUrl = useCallback(
     (tipo) => {
       const params = new URLSearchParams();
@@ -40,13 +43,9 @@ export const useReportDownload = (filters) => {
     [filters],
   );
 
-  /**
-   * Maneja errores de descarga mostrando mensajes apropiados
-   */
   const handleDownloadError = useCallback(async (error) => {
     console.error("Error descargando reporte:", error);
 
-    // Leer el mensaje de error del Blob si existe
     if (error.response?.data instanceof Blob) {
       try {
         const text = await error.response.data.text();
@@ -57,7 +56,6 @@ export const useReportDownload = (filters) => {
       }
     }
 
-    // Mostrar mensaje según el tipo de error
     const errorMessages = {
       403: "No tienes permisos para generar reportes",
       401: "Sesión expirada, inicia sesión nuevamente",
@@ -67,14 +65,9 @@ export const useReportDownload = (filters) => {
     const message =
       errorMessages[error.response?.status] || "Error al descargar el reporte";
 
-    toast.error(message, {
-      icon: "❌",
-    });
+    toastError(message);
   }, []);
 
-  /**
-   * Descarga un archivo blob como Excel
-   */
   const downloadBlob = useCallback((blob, tipo) => {
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
@@ -84,13 +77,9 @@ export const useReportDownload = (filters) => {
     link.click();
     document.body.removeChild(link);
 
-    // Liberar el objeto URL
     window.URL.revokeObjectURL(link.href);
   }, []);
 
-  /**
-   * Descarga un reporte específico
-   */
   const downloadReport = useCallback(
     async (tipo) => {
       try {
@@ -107,9 +96,7 @@ export const useReportDownload = (filters) => {
 
         downloadBlob(blob, tipo);
 
-        toast.success("Reporte descargado exitosamente", {
-          icon: "✅",
-        });
+        toastSuccess("Reporte descargado exitosamente");
       } catch (error) {
         handleDownloadError(error);
       } finally {

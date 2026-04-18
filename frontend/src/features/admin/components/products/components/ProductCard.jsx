@@ -8,7 +8,6 @@ const ProductCard = ({ product, onEdit, onToggleActive, formatPrice }) => {
       aria-labelledby={`product-${product.idProducto}-name`}
     >
       <div className="flex gap-3">
-        {/* Imagen */}
         <div className="shrink-0">
           <img
             src={product.img}
@@ -21,9 +20,7 @@ const ProductCard = ({ product, onEdit, onToggleActive, formatPrice }) => {
           />
         </div>
 
-        {/* Información y Acciones */}
         <div className="flex-1 min-w-0 flex flex-col">
-          {/* Header: Nombre y Precio */}
           <div className="mb-2">
             <h3
               id={`product-${product.idProducto}-name`}
@@ -36,7 +33,6 @@ const ProductCard = ({ product, onEdit, onToggleActive, formatPrice }) => {
             </p>
           </div>
 
-          {/* Info compacta */}
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="text-xs text-gray-500">{product.categoria}</span>
             <span
@@ -59,7 +55,6 @@ const ProductCard = ({ product, onEdit, onToggleActive, formatPrice }) => {
             </span>
           </div>
 
-          {/* Botones de acción */}
           <div className="flex gap-2 mt-auto">
             <button
               onClick={() => onEdit(product)}

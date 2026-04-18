@@ -1,17 +1,15 @@
 import { create } from "zustand";
 
 export const useOfertasStore = create((set) => ({
-  // Estado
   productos: [],
   idsProductosEnCampanas: [],
   cargando: false,
   busqueda: "",
   filtroCategoria: "todas",
-  filtroDescuento: "todos", // todos, 10, 15, 20, sin-oferta
+  filtroDescuento: "todos",
   paginaActual: 1,
   itemsPorPagina: 6,
 
-  // Acciones
   setProductos: (productos) => set({ productos }),
   setIdsProductosEnCampanas: (ids) => set({ idsProductosEnCampanas: ids }),
   setCargando: (cargando) => set({ cargando }),
@@ -24,7 +22,6 @@ export const useOfertasStore = create((set) => ({
   setItemsPorPagina: (itemsPorPagina) =>
     set({ itemsPorPagina, paginaActual: 1 }),
 
-  // Reset
   resetFiltros: () =>
     set({
       busqueda: "",

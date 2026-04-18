@@ -8,7 +8,6 @@ const UploadImagesModal = ({ isOpen, onClose, productId, onUploadSuccess }) => {
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
-        {/* Header */}
         <div className="border-b border-gray-100 px-8 py-6">
           <div className="flex justify-between items-start">
             <div>
@@ -29,7 +28,6 @@ const UploadImagesModal = ({ isOpen, onClose, productId, onUploadSuccess }) => {
           </div>
         </div>
 
-        {/* Upload Component */}
         <div className="px-8 py-6">
           <UploadImagenes
             idProducto={productId}
@@ -38,7 +36,6 @@ const UploadImagesModal = ({ isOpen, onClose, productId, onUploadSuccess }) => {
           />
         </div>
 
-        {/* Footer */}
         <div className="border-t border-gray-100 px-8 py-5 flex justify-end gap-3 bg-gray-50">
           <button
             onClick={onClose}

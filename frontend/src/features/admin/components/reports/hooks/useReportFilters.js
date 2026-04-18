@@ -1,18 +1,11 @@
 import { useState, useCallback, useMemo } from "react";
 import { INITIAL_FILTERS } from "../constants/reportData";
 
-/**
- * Hook personalizado para gestionar filtros de reportes
- * @returns {Object} - Estado y funciones de filtros
- */
 export const useReportFilters = () => {
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [isOpen, setIsOpen] = useState(false);
   const [activeDateRange, setActiveDateRange] = useState(null);
 
-  /**
-   * Calcula si hay filtros activos
-   */
   const hasActiveFilters = useMemo(() => {
     return (
       filters.fechaDesde ||
@@ -23,9 +16,6 @@ export const useReportFilters = () => {
     );
   }, [filters]);
 
-  /**
-   * Cuenta cuántos filtros están activos
-   */
   const activeFiltersCount = useMemo(() => {
     return [
       filters.fechaDesde && "Fecha",
@@ -35,9 +25,6 @@ export const useReportFilters = () => {
     ].filter(Boolean).length;
   }, [filters]);
 
-  /**
-   * Establece un rango de fechas predefinido
-   */
   const setDateRange = useCallback((type) => {
     const today = new Date();
     const desde = new Date();
@@ -69,9 +56,6 @@ export const useReportFilters = () => {
     setActiveDateRange(type);
   }, []);
 
-  /**
-   * Actualiza un filtro específico
-   */
   const updateFilter = useCallback((key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
 
@@ -80,9 +64,6 @@ export const useReportFilters = () => {
     }
   }, []);
 
-  /**
-   * Limpia sólo el rango de fechas
-   */
   const clearDateRange = useCallback(() => {
     setFilters((prev) => ({
       ...prev,
@@ -92,31 +73,25 @@ export const useReportFilters = () => {
     setActiveDateRange(null);
   }, []);
 
-  /**
-   * Limpia todos los filtros
-   */
   const clearFilters = useCallback(() => {
     setFilters(INITIAL_FILTERS);
     setActiveDateRange(null);
   }, []);
 
-  /**
-   * Alterna el estado de apertura del panel de filtros
-   */
   const toggleFilters = useCallback(() => {
     setIsOpen((prev) => !prev);
   }, []);
 
   return {
-    filters,
-    isOpen,
-    hasActiveFilters,
-    activeFiltersCount,
     activeDateRange,
-    setDateRange,
-    updateFilter,
+    activeFiltersCount,
+    filters,
+    hasActiveFilters,
+    isOpen,
     clearDateRange,
     clearFilters,
+    setDateRange,
     toggleFilters,
+    updateFilter,
   };
 };

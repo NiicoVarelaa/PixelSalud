@@ -46,9 +46,15 @@ export const ErrorBanner = ({ error }) => (
     aria-live="assertive"
     className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3"
   >
-    <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-500" aria-hidden="true" />
+    <AlertCircle
+      size={16}
+      className="mt-0.5 shrink-0 text-red-500"
+      aria-hidden="true"
+    />
     <div>
-      <p className="text-xs font-semibold text-red-700">Error al cargar mensajes</p>
+      <p className="text-xs font-semibold text-red-700">
+        Error al cargar mensajes
+      </p>
       <p className="mt-0.5 text-xs text-red-600">{error}</p>
     </div>
   </motion.div>

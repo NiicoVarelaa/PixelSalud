@@ -79,7 +79,6 @@ export const ModalAgregarOferta = ({
           transition={{ duration: 0.22, ease: "easeOut" }}
           className="w-full sm:max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden"
         >
-          {/* Header */}
           <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-gray-100 shrink-0">
             <div className="flex items-center gap-2.5">
               <span
@@ -110,9 +109,7 @@ export const ModalAgregarOferta = ({
             </button>
           </div>
 
-          {/* Body */}
           <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-5">
-            {/* Selector de descuento */}
             <fieldset>
               <legend className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                 Descuento
@@ -139,7 +136,6 @@ export const ModalAgregarOferta = ({
               </div>
             </fieldset>
 
-            {/* Búsqueda + filtro categoría */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div className="relative">
                 <Search
@@ -171,7 +167,6 @@ export const ModalAgregarOferta = ({
               </select>
             </div>
 
-            {/* Lista de productos */}
             <div>
               <p className="mb-2 text-xs text-gray-500" aria-live="polite">
                 {productosDisponibles.length} productos disponibles
@@ -248,7 +243,6 @@ export const ModalAgregarOferta = ({
             </div>
           </div>
 
-          {/* Footer */}
           <div className="flex items-center justify-end gap-2 px-5 py-3.5 border-t border-gray-100 shrink-0">
             {productoSeleccionado && (
               <p className="mr-auto text-xs text-gray-500 truncate max-w-[200px]">

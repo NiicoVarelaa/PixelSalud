@@ -2,11 +2,11 @@ import { Search, SlidersHorizontal, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ESTADOS = [
-  { value: "todos",      label: "Todos"       },
-  { value: "nuevo",      label: "Nuevos"      },
-  { value: "en_proceso", label: "En proceso"  },
+  { value: "todos", label: "Todos" },
+  { value: "nuevo", label: "Nuevos" },
+  { value: "en_proceso", label: "En proceso" },
   { value: "respondido", label: "Respondidos" },
-  { value: "cerrado",    label: "Cerrados"    },
+  { value: "cerrado", label: "Cerrados" },
 ];
 
 export const MensajesFilters = ({
@@ -28,8 +28,6 @@ export const MensajesFilters = ({
       aria-label="Filtros de mensajes"
     >
       <div className="flex flex-col gap-2.5 p-3 sm:flex-row sm:items-center sm:p-3.5">
-
-        {/* Búsqueda */}
         <div className="relative flex-1">
           <Search
             size={15}
@@ -61,9 +59,12 @@ export const MensajesFilters = ({
           </AnimatePresence>
         </div>
 
-        {/* Selector de estado */}
         <div className="flex items-center gap-2 shrink-0">
-          <SlidersHorizontal size={14} className="shrink-0 text-gray-400" aria-hidden="true" />
+          <SlidersHorizontal
+            size={14}
+            className="shrink-0 text-gray-400"
+            aria-hidden="true"
+          />
           <select
             value={filtroEstado}
             onChange={(e) => onFiltroEstadoChange(e.target.value)}
@@ -71,12 +72,13 @@ export const MensajesFilters = ({
             aria-label="Filtrar por estado del mensaje"
           >
             {ESTADOS.map((e) => (
-              <option key={e.value} value={e.value}>{e.label}</option>
+              <option key={e.value} value={e.value}>
+                {e.label}
+              </option>
             ))}
           </select>
         </div>
 
-        {/* Limpiar filtros */}
         <AnimatePresence>
           {hayFiltros && (
             <motion.button

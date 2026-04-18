@@ -16,7 +16,6 @@ const normalizeDiscountFilter = (value) => {
     return { isAll: true, value: null };
   }
 
-  // Permite formatos como "15", "15%" o "15% off".
   const numeric = Number(normalized.replace("%", "").replace("off", "").trim());
   return { isAll: false, value: Number.isFinite(numeric) ? numeric : null };
 };

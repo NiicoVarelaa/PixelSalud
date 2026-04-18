@@ -1,11 +1,3 @@
-/**
- * Configuración de animaciones con Framer Motion
- * Archivo centralizado para mantener consistencia en todos los componentes
- */
-
-/**
- * Variantes de animación para fade in desde abajo (mobile-first)
- */
 export const fadeInUp = {
   initial: {
     opacity: 0,
@@ -16,7 +8,7 @@ export const fadeInUp = {
     y: 0,
     transition: {
       duration: 0.4,
-      ease: [0.25, 0.46, 0.45, 0.94], // easeOutQuad
+      ease: [0.25, 0.46, 0.45, 0.94],
     },
   },
   exit: {
@@ -26,9 +18,6 @@ export const fadeInUp = {
   },
 };
 
-/**
- * Variantes para lista de items (stagger children)
- */
 export const staggerContainer = {
   animate: {
     transition: {
@@ -38,9 +27,6 @@ export const staggerContainer = {
   },
 };
 
-/**
- * Variantes para items individuales en lista
- */
 export const staggerItem = {
   initial: { opacity: 0, y: 20 },
   animate: {
@@ -53,9 +39,6 @@ export const staggerItem = {
   },
 };
 
-/**
- * Animación de colapso/expansión (accordion)
- */
 export const collapseVariants = {
   open: {
     height: "auto",
@@ -86,9 +69,6 @@ export const collapseVariants = {
   },
 };
 
-/**
- * Animación para botones con hover/tap
- */
 export const buttonVariants = {
   rest: {
     scale: 1,
@@ -105,9 +85,6 @@ export const buttonVariants = {
   },
 };
 
-/**
- * Animación para el badge de filtros activos
- */
 export const badgePulse = {
   initial: { scale: 0.8, opacity: 0 },
   animate: {
@@ -125,26 +102,17 @@ export const badgePulse = {
   },
 };
 
-/**
- * Transiciones suaves para elementos interactivos
- */
 export const smoothTransition = {
   type: "spring",
   stiffness: 300,
   damping: 30,
 };
 
-/**
- * Animación para iconos que rotan (chevron, etc)
- */
 export const rotateIcon = (isOpen) => ({
   rotate: isOpen ? 180 : 0,
   transition: { duration: 0.3, ease: "easeInOut" },
 });
 
-/**
- * Animación de entrada para el header (mobile-first)
- */
 export const headerVariants = {
   initial: {
     opacity: 0,
@@ -160,9 +128,6 @@ export const headerVariants = {
   },
 };
 
-/**
- * Shimmer loading effect para estados de carga
- */
 export const shimmerVariants = {
   initial: {
     backgroundPosition: "-1000px 0",

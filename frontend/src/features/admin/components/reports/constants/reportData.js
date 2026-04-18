@@ -1,9 +1,5 @@
 import { Users, UserCheck, Activity, Box } from "lucide-react";
 
-/**
- * Configuración de reportes disponibles
- * @constant {Array<Object>}
- */
 export const REPORTS_CONFIG = [
   {
     id: "ventas-online",
@@ -71,10 +67,6 @@ export const REPORTS_CONFIG = [
   },
 ];
 
-/**
- * Rangos de fecha predefinidos
- * @constant {Array<Object>}
- */
 export const DATE_RANGES = [
   { key: "hoy", label: "Hoy" },
   { key: "semana", label: "Última Semana" },
@@ -83,10 +75,6 @@ export const DATE_RANGES = [
   { key: "año", label: "Último Año" },
 ];
 
-/**
- * Valores iniciales de filtros
- * @constant {Object}
- */
 export const INITIAL_FILTERS = {
   fechaDesde: "",
   fechaHasta: "",
@@ -95,10 +83,6 @@ export const INITIAL_FILTERS = {
   categoria: "Todas",
 };
 
-/**
- * Mapeo de tipos de reporte a nombres de archivo
- * @constant {Object}
- */
 export const REPORT_FILE_NAMES = {
   "ventas-online": "VentasOnline",
   "ventas-empleados": "VentasEmpleados",

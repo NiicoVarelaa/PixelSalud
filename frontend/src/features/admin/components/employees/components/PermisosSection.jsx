@@ -39,7 +39,6 @@ export const PermisosSection = ({ permisos, onChange }) => {
       role="group"
       aria-label="Permisos del empleado"
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-green-600">
@@ -47,7 +46,9 @@ export const PermisosSection = ({ permisos, onChange }) => {
           </div>
           <div>
             <p className="text-xs font-semibold text-gray-800">Permisos</p>
-            <p className="text-[11px] text-gray-500">Seleccioná los accesos del empleado</p>
+            <p className="text-[11px] text-gray-500">
+              Seleccioná los accesos del empleado
+            </p>
           </div>
         </div>
         <span className="rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-bold text-green-700">
@@ -55,7 +56,6 @@ export const PermisosSection = ({ permisos, onChange }) => {
         </span>
       </div>
 
-      {/* Lista de permisos */}
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {PERMISOS_DEF.map((p) => {
           const Icon = p.icon;
@@ -87,11 +87,16 @@ export const PermisosSection = ({ permisos, onChange }) => {
                     className={checked ? "text-green-600" : "text-gray-400"}
                     aria-hidden="true"
                   />
-                  <span className={`text-xs font-semibold ${checked ? "text-gray-900" : "text-gray-600"}`}>
+                  <span
+                    className={`text-xs font-semibold ${checked ? "text-gray-900" : "text-gray-600"}`}
+                  >
                     {p.label}
                   </span>
                 </div>
-                <p id={`${id}-desc`} className="text-[11px] text-gray-400 leading-relaxed">
+                <p
+                  id={`${id}-desc`}
+                  className="text-[11px] text-gray-400 leading-relaxed"
+                >
                   {p.desc}
                 </p>
               </div>

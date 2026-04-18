@@ -1,4 +1,3 @@
-// Formateador de fechas tipo dd/MM/yyyy HH:mm
 export const formatFecha = (fechaStr) => {
   if (!fechaStr) return "-";
   const fecha = new Date(fechaStr);
@@ -7,7 +6,6 @@ export const formatFecha = (fechaStr) => {
   return `${pad(fecha.getDate())}/${pad(fecha.getMonth() + 1)}/${fecha.getFullYear()} ${pad(fecha.getHours())}:${pad(fecha.getMinutes())}`;
 };
 
-// Labels de estado
 export const estadoLabels = {
   nuevo: "Nuevo",
   en_proceso: "En proceso",
@@ -15,7 +13,6 @@ export const estadoLabels = {
   cerrado: "Cerrado",
 };
 
-// Colores de badge por estado
 export const getEstadoColor = (estado) => {
   const colors = {
     nuevo: "bg-primary-100 text-primary-700",

@@ -1,16 +1,10 @@
 import { useState, useMemo, useCallback } from "react";
 
-/**
- * Custom hook para manejar el filtrado de productos
- * @param {Array} productos - Lista de productos a filtrar
- * @returns {Object} Estado y funciones de filtrado
- */
 export const useProductFilters = (productos) => {
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("todas");
   const [filtroEstado, setFiltroEstado] = useState("todos");
 
-  // Memoizar productos filtrados para evitar recálculos innecesarios
   const productosFiltrados = useMemo(() => {
     return productos.filter((producto) => {
       const coincideBusqueda = producto.nombreProducto
@@ -29,7 +23,6 @@ export const useProductFilters = (productos) => {
     });
   }, [productos, busqueda, filtroCategoria, filtroEstado]);
 
-  // Callbacks memoizados para evitar re-renders en componentes hijos
   const handleBusquedaChange = useCallback((value) => {
     setBusqueda(value);
   }, []);

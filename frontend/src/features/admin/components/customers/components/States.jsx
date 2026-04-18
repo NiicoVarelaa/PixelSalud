@@ -1,9 +1,6 @@
 import { motion } from "framer-motion";
 import { Loader2, UserX } from "lucide-react";
 
-/**
- * Estado de carga con spinner animado
- */
 export const LoadingState = () => {
   return (
     <div className="flex flex-col items-center justify-center py-16">
@@ -18,9 +15,6 @@ export const LoadingState = () => {
   );
 };
 
-/**
- * Estado vacío cuando no hay resultados
- */
 export const EmptyState = ({ onCrearCliente }) => {
   return (
     <motion.div

@@ -31,18 +31,18 @@ export const useCuponesFilters = (cupones, itemsPorPagina = 8) => {
 
   return {
     busqueda,
-    setBusqueda,
-    filtroEstado,
-    setFiltroEstado,
-    filtroTipo,
-    setFiltroTipo,
-    paginaActual,
-    setPaginaActual,
     cuponesFiltrados,
     cuponesPaginados,
-    totalPaginas,
+    filtroEstado,
+    filtroTipo,
     indicePrimero,
     indiceUltimo,
+    paginaActual,
+    totalPaginas,
     resetPaginacion,
+    setBusqueda,
+    setFiltroTipo,
+    setFiltroEstado,
+    setPaginaActual,
   };
 };

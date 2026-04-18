@@ -45,9 +45,9 @@ export const useAuditoriaFilters = () => {
   return {
     filtros,
     handleFiltroChange,
+    irAPagina,
     limpiarFiltros,
     paginaAnterior,
     paginaSiguiente,
-    irAPagina,
   };
 };

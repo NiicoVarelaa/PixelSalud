@@ -37,7 +37,6 @@ const CreateProductModal = ({
     nuevoProducto.categoria &&
     nuevoProducto.precio;
 
-  // Convertir categorías a formato para CustomSelect
   const categoriasOptions = [
     { value: "", label: "Seleccionar categoría" },
     ...categorias.map((c) => ({ value: c, label: c })),
@@ -46,7 +45,6 @@ const CreateProductModal = ({
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
-        {/* Header */}
         <div className="border-b border-gray-100 px-8 py-6">
           <div className="flex justify-between items-start">
             <div>
@@ -67,10 +65,8 @@ const CreateProductModal = ({
           </div>
         </div>
 
-        {/* Form */}
         <div className="px-8 py-6 overflow-y-auto max-h-[calc(90vh-200px)]">
           <div className="space-y-5">
-            {/* Nombre del Producto */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Nombre del producto
@@ -86,7 +82,6 @@ const CreateProductModal = ({
               />
             </div>
 
-            {/* Categoría */}
             <CustomSelect
               id="categoria-nuevo"
               label="Categoría"
@@ -95,7 +90,6 @@ const CreateProductModal = ({
               options={categoriasOptions}
             />
 
-            {/* Precio y Stock en grid */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -126,7 +120,6 @@ const CreateProductModal = ({
               </div>
             </div>
 
-            {/* Descripción */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Descripción
@@ -144,7 +137,6 @@ const CreateProductModal = ({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="border-t border-gray-100 px-8 py-5 flex justify-end gap-3 bg-gray-50">
           <button
             onClick={onClose}

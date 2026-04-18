@@ -15,7 +15,6 @@ import EditProductModal from "./components/EditProductModal";
 import ToggleStatusModal from "./components/ToggleStatusModal";
 import EmptyState from "./components/EmptyState";
 
-// Custom Hooks
 import {
   useProductFilters,
   usePagination,
@@ -23,7 +22,6 @@ import {
   useIsMobile,
 } from "./hooks";
 
-// Utils
 import {
   ENDPOINTS,
   ITEMS_PER_PAGE,
@@ -32,7 +30,6 @@ import {
 } from "./utils/productUtils";
 
 const AdminProductos = () => {
-  // ==================== STORES Y HOOKS ====================
   const productos = useProductStore((state) => state.productos);
   const fetchProducts = useProductStore((state) => state.fetchProducts);
   const categorias = useProductStore((state) => state.categorias);
@@ -91,7 +88,6 @@ const AdminProductos = () => {
     [categorias],
   );
 
-  // ==================== CALLBACKS ====================
   const handleEditarProducto = useCallback((prod) => {
     setEditingProduct(prod);
     setIsEditModalOpen(true);
@@ -217,8 +213,6 @@ const AdminProductos = () => {
     setToggleProduct(null);
   }, []);
 
-  // ==================== RENDER CON LAYOUT CORREGIDO ====================
-
   return (
     <AdminLayout
       title="Gestión de Productos"
@@ -226,7 +220,6 @@ const AdminProductos = () => {
     >
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
 
-      {/* FILTROS */}
       <div className="mb-2 shrink-0">
         <ProductFilters
           busqueda={busqueda}
@@ -240,7 +233,6 @@ const AdminProductos = () => {
         />
       </div>
 
-      {/* TABLA DE PRODUCTOS */}
       <div className="flex-1 overflow-y-auto min-h-0">
         {!isMobile ? (
           <ProductTable
@@ -268,7 +260,6 @@ const AdminProductos = () => {
         )}
       </div>
 
-      {/* PAGINACIÓN */}
       {productosFiltrados.length > 0 && (
         <div className="mt-3 shrink-0">
           <Pagination
@@ -279,7 +270,6 @@ const AdminProductos = () => {
         </div>
       )}
 
-      {/* Modales */}
       <CreateProductModal
         isOpen={isCreateModalOpen && createStep === 1}
         onClose={cerrarModalCreacion}

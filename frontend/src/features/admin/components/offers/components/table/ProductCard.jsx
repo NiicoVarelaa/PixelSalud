@@ -27,7 +27,6 @@ export const ProductCard = ({
       }`}
       aria-label={`${producto.nombreProducto}, ${producto.categoria}`}
     >
-      {/* Fila superior: imagen + info */}
       <div className="flex items-start gap-3 p-3.5">
         <ProductImageMobile
           src={getProductoImageUrl(producto)}
@@ -56,7 +55,6 @@ export const ProductCard = ({
         </div>
       </div>
 
-      {/* Fila inferior: precio + acciones */}
       <div className="flex items-center justify-between gap-3 border-t border-gray-100 px-3.5 py-3">
         <ProductPrice
           precioRegular={producto.precioRegular}
