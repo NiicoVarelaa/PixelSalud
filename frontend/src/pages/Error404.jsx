@@ -3,12 +3,17 @@ import { Link } from "react-router-dom";
 const Error404 = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center bg-gray-50 text-sm">
-      <h1 className="text-[6rem] sm:text-[8rem] font-bold text-primary-700">404</h1>
+      <h1 className="text-[6rem] sm:text-[8rem] font-bold text-primary-700">
+        404
+      </h1>
       <div className="h-1 w-20 rounded bg-primary-700 my-6"></div>
 
-      <p className="text-2xl sm:text-3xl font-semibold text-gray-800">Página no encontrada</p>
+      <p className="text-2xl sm:text-3xl font-semibold text-gray-800">
+        Página no encontrada
+      </p>
       <p className="text-base sm:text-lg mt-4 text-gray-600 max-w-md">
-        Lo sentimos, la página que buscas no existe, ha sido movida o está temporalmente fuera de servicio.
+        Lo sentimos, la página que buscas no existe, ha sido movida o está
+        temporalmente fuera de servicio.
       </p>
 
       <div className="flex flex-wrap justify-center gap-4 mt-8">

@@ -61,13 +61,13 @@ const useMisCompras = () => {
   }, []);
 
   return {
-    ventasAgrupadas,
     cargando,
     expandedOrder,
     ticketModal,
-    toggleOrder,
-    openTicket,
+    ventasAgrupadas,
     closeTicket,
+    openTicket,
+    toggleOrder,
   };
 };
 

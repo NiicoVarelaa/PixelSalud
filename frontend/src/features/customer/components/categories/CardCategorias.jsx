@@ -60,8 +60,6 @@ const CardCategorias = ({ categoria, onClick }) => {
       />
 
       <div className={INNER_CONTENT_CLASSES}>
-         
-
         <div className="relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center mb-2 z-10">
           {!imageLoaded && (
             <div className="absolute inset-0 bg-gray-200 rounded-xl animate-pulse" />

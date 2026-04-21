@@ -151,22 +151,22 @@ const useCartModal = () => {
 
   return {
     carrito,
-    isCartModalOpen,
-    subtotal,
-    totalItems,
     imagenesPrincipales,
+    isCartModalOpen,
     showDeleteModal,
     showEmptyCartModal,
+    subtotal,
+    totalItems,
     closeModal,
-    goToProducts,
-    handleCheckout,
-    openDeleteConfirm,
     closeDeleteConfirm,
     confirmDelete,
-    setShowEmptyCartModal,
     confirmEmptyCart,
     decreaseQuantity,
+    goToProducts,
+    handleCheckout,
     increaseQuantity,
+    openDeleteConfirm,
+    setShowEmptyCartModal,
   };
 };
 

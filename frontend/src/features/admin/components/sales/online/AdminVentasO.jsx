@@ -1,11 +1,9 @@
 import { useState } from "react";
 import TicketVenta from "@features/admin/components/sales/shared/TicketVenta";
 
-// Hooks customizados
 import { useVentasOnlineData } from "./hooks/useVentasOnlineData";
 import { useVentaOnlineForm } from "./hooks/useVentaOnlineForm";
 
-// Componentes
 import {
   VentasOnlineFilters,
   VentasOnlineTable,
@@ -14,14 +12,12 @@ import {
 import { VentasOnlineModal } from "./VentasOnlineModal";
 
 const AdminVentasO = () => {
-  // Estado local para modales
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ticketModal, setTicketModal] = useState({
     show: false,
     idVenta: null,
   });
 
-  // Hooks customizados
   const { obtenerDatos, handleVerDetalle, handleEstadoChange } =
     useVentasOnlineData();
   const {
@@ -34,7 +30,6 @@ const AdminVentasO = () => {
     resetForm,
   } = useVentaOnlineForm();
 
-  // Handlers
   const handleEditar = async (venta) => {
     const success = await loadVentaForEdit(venta);
     if (success) {

@@ -141,24 +141,24 @@ const useCardProductos = ({ product }) => {
   );
 
   return {
-    imageLoaded,
-    isLoading,
-    principalImage,
-    hoverImage,
     cantidadEnCarrito,
+    discountPercentage,
+    hoverImage,
+    imageLoaded,
+    isCyberMondayProduct,
+    isLoading,
     isOffert,
     isPromoDosPorUno,
-    isCyberMondayProduct,
-    regularPrice,
-    discountPercentage,
-    priceToDisplay,
     precioSinImpuestos,
+    priceToDisplay,
+    principalImage,
+    regularPrice,
     stockStatus,
-    setImageLoaded,
-    handleLoadingAgregar,
-    handleDisminuir,
     handleAumentar,
     handleEliminar,
+    handleDisminuir,
+    handleLoadingAgregar,
+    setImageLoaded,
   };
 };
 

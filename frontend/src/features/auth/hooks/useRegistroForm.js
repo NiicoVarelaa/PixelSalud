@@ -200,11 +200,11 @@ const useRegistroForm = () => {
     form,
     isSubmitting,
     showPassword,
-    handleChange,
-    togglePassword,
-    handleSubmit,
-    handleGoogleRegister,
     goToLogin,
+    handleChange,
+    handleGoogleRegister,
+    handleSubmit,
+    togglePassword,
   };
 };
 

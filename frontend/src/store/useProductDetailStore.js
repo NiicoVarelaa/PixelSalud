@@ -6,12 +6,10 @@ const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const API_URL = `${API_BASE_URL}/productos`;
 
-// Función de utilidad para parsear el precio de forma segura
 const cleanAndParsePrice = (price) => {
   if (typeof price === "number") return price;
   if (typeof price !== "string") return 0;
 
-  // Asume formato regional (ej: 1.000,00). Limpia símbolos y maneja la coma decimal.
   let cleaned = price.replace(/[^0-9,.]/g, "");
 
   if (cleaned.includes(",")) {
@@ -23,7 +21,6 @@ const cleanAndParsePrice = (price) => {
 };
 
 export const useProductDetailStore = create((set) => ({
-  // Estado inicial
   producto: null,
   relatedProducts: [],
   precioOriginal: null,

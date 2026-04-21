@@ -64,12 +64,14 @@ const VentasSwitch = ({ activeOption, onOptionChange }) => {
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              
+
               <span className="relative z-10 flex items-center gap-2">
-                <Icon 
+                <Icon
                   className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-200 ${
-                    isActive ? "text-green-600" : "text-gray-500 group-hover:text-gray-700"
-                  }`} 
+                    isActive
+                      ? "text-green-600"
+                      : "text-gray-500 group-hover:text-gray-700"
+                  }`}
                   strokeWidth={isActive ? 2.5 : 2}
                 />
                 {option.label}

@@ -89,7 +89,6 @@ export const VentasModal = ({
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      {/* Drawer en mobile, modal clásico en desktop */}
       <div className="bg-gray-50 w-full h-[92dvh] max-h-[92dvh] rounded-t-3xl sm:rounded-2xl sm:h-[90vh] sm:max-w-7xl flex flex-col shadow-2xl overflow-hidden animate-slideUp sm:animate-fadeIn">
         <div className="sm:hidden flex justify-center pt-2.5 pb-1 bg-gray-50/95">
           <span
@@ -98,7 +97,6 @@ export const VentasModal = ({
           />
         </div>
 
-        {/* Header Fijo */}
         <header className="px-4 sm:px-6 py-4 bg-green-700 text-white flex justify-between items-center shadow-md shrink-0 z-10">
           <div className="flex items-center gap-3">
             <div
@@ -125,7 +123,6 @@ export const VentasModal = ({
           </button>
         </header>
 
-        {/* Layout Responsive: Columna en mobile, Filas divididas en Desktop */}
         <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-y-auto lg:overflow-hidden overscroll-contain">
           <ProductSearch
             terminoBusqueda={terminoBusqueda}

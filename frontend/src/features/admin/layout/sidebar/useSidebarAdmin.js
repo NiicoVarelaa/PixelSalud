@@ -110,15 +110,15 @@ const useSidebarAdmin = () => {
   );
 
   return {
-    user,
-    menuItems,
     isMobileMenuOpen,
-    setIsMobileMenuOpen,
+    closeButtonRef,
+    menuItems,
+    sidebarRef,
+    user,
     isActive,
     handleLogout,
     handleNavigate,
-    sidebarRef,
-    closeButtonRef,
+    setIsMobileMenuOpen,
   };
 };
 

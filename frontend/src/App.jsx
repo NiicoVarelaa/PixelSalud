@@ -1,12 +1,10 @@
 import { Route, Routes } from "react-router-dom";
 
-// --- COMPONENTES GLOBALES ---
 import { ScrollToTop } from "@components/templates";
 import AppLayout from "@features/public/layout/AppLayout";
 import ProtectedRoute from "@features/auth/routing/ProtectedRoute";
 import Error404 from "./pages/Error404";
 
-// --- VISTAS PÚBLICAS / CLIENTE ---
 import {
   InicioPage as Inicio,
   ProductosPage as Productos,
@@ -27,7 +25,6 @@ import {
   RestablecerContrasenaPage as RestablecerContrasena,
 } from "@features/auth/pages";
 
-// --- PERFIL CLIENTE ---
 import {
   DashboardCliente,
   MenuClientes,
@@ -37,7 +34,6 @@ import {
   PerfilDireccionesPage as PerfilDirecciones,
 } from "@features/customer";
 
-// --- ADMINISTRADOR ---
 import {
   AdministradorPage as Administrador,
   AdminMensajesPage as AdminMensajes,
@@ -54,7 +50,6 @@ import {
   AdminAuditoria,
 } from "@features/admin";
 
-// --- PANEL EMPLEADO ---
 import {
   PanelEmpleadosPage as PanelEmpleados,
   MenuEmpleados,
@@ -65,7 +60,6 @@ import {
   EmpleadosProductos,
 } from "@features/employee";
 
-// --- PANEL MÉDICO ---
 import {
   PanelMedicoPage as PanelMedicos,
   VistaMenuMedico,
@@ -78,9 +72,6 @@ const App = () => {
     <>
       <ScrollToTop />
       <Routes>
-        {/* =========================================
-            RUTAS PÚBLICAS / CLIENTE
-           ========================================= */}
         <Route path="/" element={<AppLayout />}>
           <Route index element={<Inicio />} />
           <Route path="registro" element={<Registro />} />
@@ -115,9 +106,6 @@ const App = () => {
           </Route>
         </Route>
 
-        {/* =========================================
-            RUTAS ADMINISTRADOR
-           ========================================= */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin/*" element={<Administrador />}>
             <Route index element={<AdminMenu />} />
@@ -145,9 +133,6 @@ const App = () => {
           </Route>
         </Route>
 
-        {/* =========================================
-            RUTAS EMPLEADO
-           ========================================= */}
         <Route element={<ProtectedRoute allowedRoles={["empleado"]} />}>
           <Route path="/panelempleados" element={<PanelEmpleados />}>
             <Route index element={<VistiaInicialCardsEmpleado />} />

@@ -129,13 +129,13 @@ const useLoginForm = () => {
   );
 
   return {
-    user,
     isSubmitting,
     showPassword,
+    user,
     handleInputChange,
     handleSubmit,
-    togglePassword,
     goHome: () => navigate("/"),
+    togglePassword,
   };
 };
 

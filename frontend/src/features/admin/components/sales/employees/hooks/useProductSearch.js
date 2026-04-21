@@ -123,15 +123,15 @@ export const useProductSearch = () => {
   }, []);
 
   return {
-    terminoBusqueda,
-    setTerminoBusqueda,
-    filtroCategoria,
-    setFiltroCategoria,
     categoriasDisponibles,
-    resultadosBusqueda,
-    productosCategoria,
+    filtroCategoria,
     productoSeleccionado,
-    seleccionarProducto,
+    productosCategoria,
+    resultadosBusqueda,
+    terminoBusqueda,
     limpiarSeleccion,
+    seleccionarProducto,
+    setTerminoBusqueda,
+    setFiltroCategoria,
   };
 };

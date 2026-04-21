@@ -1,7 +1,6 @@
 import { create } from "zustand";
 
 export const useVentasStore = create((set) => ({
-  // Estado
   ventas: [],
   cargando: false,
   filtro: "",
@@ -10,7 +9,6 @@ export const useVentasStore = create((set) => ({
   paginaActual: 1,
   itemsPorPagina: 6,
 
-  // Acciones
   setVentas: (ventas) => set({ ventas }),
   setCargando: (cargando) => set({ cargando }),
   setFiltro: (filtro) => set({ filtro, paginaActual: 1 }),
