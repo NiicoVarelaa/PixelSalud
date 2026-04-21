@@ -23,11 +23,8 @@ const EmpleadoProductos = () => {
 
   const [subVista, setSubVista] = useState("menu");
   const [productos, setProductos] = useState([]);
-  // DEPRECATED: Sistema de ofertas individuales eliminado - usar Campañas desde admin
-  // const [ofertas, setOfertas] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // --- LÓGICA DE CARGA DE DATOS ---
   const cargarInventario = async () => {
     setLoading(true);
     try {

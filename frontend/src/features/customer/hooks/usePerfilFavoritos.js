@@ -24,11 +24,11 @@ const usePerfilFavoritos = () => {
   }, [user, getFavoritos, navigate]);
 
   return {
-    isLoading,
-    favoritos,
     currentPage,
-    totalPages,
+    favoritos,
+    isLoading,
     paginatedItems,
+    totalPages,
     goToPage,
   };
 };

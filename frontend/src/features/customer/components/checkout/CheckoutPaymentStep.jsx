@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { ArrowLeft, CheckCircle, CreditCard, Info, WalletCards } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle,
+  CreditCard,
+  Info,
+  WalletCards,
+} from "lucide-react";
 import mpLogo from "@/assets/mpLogo.webp";
 
 const CheckoutPaymentStep = ({ onBack, onPay, isProcessing }) => {

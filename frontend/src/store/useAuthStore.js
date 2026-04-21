@@ -14,7 +14,7 @@ export const useAuthStore = create(
             apellido: data.apellido,
             email: data.email,
             rol: data.rol,
-            permisos: data.permisos, 
+            permisos: data.permisos,
             tipo: data.tipo,
             dni: data.dni,
           },
@@ -28,6 +28,6 @@ export const useAuthStore = create(
     {
       name: "auth",
       getStorage: () => sessionStorage,
-    }
-  )
+    },
+  ),
 );

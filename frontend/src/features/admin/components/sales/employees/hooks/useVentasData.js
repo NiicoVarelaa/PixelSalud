@@ -197,9 +197,9 @@ export const useVentasData = () => {
   }, []);
 
   return {
-    obtenerVentas,
     handleAnular,
     handleReactivar,
     handleVerDetalle,
+    obtenerVentas,
   };
 };

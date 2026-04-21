@@ -1,7 +1,6 @@
 import { create } from "zustand";
 
 export const useVentasOnlineStore = create((set) => ({
-  // Estado
   ventas: [],
   productosDisponibles: [],
   cargando: false,
@@ -11,7 +10,6 @@ export const useVentasOnlineStore = create((set) => ({
   paginaActual: 1,
   itemsPorPagina: 5,
 
-  // Acciones
   setVentas: (ventas) => set({ ventas }),
   setProductosDisponibles: (productos) =>
     set({ productosDisponibles: productos }),
@@ -21,7 +19,6 @@ export const useVentasOnlineStore = create((set) => ({
   setFiltroOrden: (filtroOrden) => set({ filtroOrden, paginaActual: 1 }),
   setPaginaActual: (paginaActual) => set({ paginaActual }),
 
-  // Actualizar estado de una venta específica
   updateVentaEstado: (idVentaO, nuevoEstado) => {
     set((state) => ({
       ventas: state.ventas.map((v) =>

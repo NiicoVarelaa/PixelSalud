@@ -13,7 +13,6 @@ const AdminVentasE = () => {
     idVenta: null,
   });
 
-  // Custom hooks para lógica de negocio
   const { obtenerVentas, handleAnular, handleReactivar, handleVerDetalle } =
     useVentasData();
 
@@ -72,12 +71,10 @@ const AdminVentasE = () => {
           </div>
         </div>
 
-        {/* Filtros */}
         <VentasFilters />
 
         <div className="flex flex-col gap-4 lg:min-h-0 lg:flex-1">
           <div className="lg:min-h-0 lg:flex-1 lg:overflow-hidden">
-            {/* Tabla de ventas */}
             <VentasTable
               onVerDetalle={handleVerDetalle}
               onEditar={handleEditarVenta}
@@ -89,14 +86,12 @@ const AdminVentasE = () => {
             />
           </div>
 
-          {/* Paginación */}
           <div className="mt-auto shrink-0">
             <Pagination />
           </div>
         </div>
       </div>
 
-      {/* Modal de registro/edición */}
       <VentasModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -109,7 +104,6 @@ const AdminVentasE = () => {
         onSubmit={submitVenta}
       />
 
-      {/* Modal de Ticket para imprimir */}
       <TicketVenta
         idVenta={ticketModal.idVenta}
         tipo="empleado"

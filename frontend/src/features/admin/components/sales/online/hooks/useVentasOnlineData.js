@@ -17,7 +17,6 @@ export const useVentasOnlineData = () => {
         apiClient.get("/productos"),
       ]);
 
-      // Deduplicación de ventas
       const rawVentas = resVentas.data.results || resVentas.data || [];
       const ventasUnicas = [];
       const map = new Map();
@@ -30,7 +29,6 @@ export const useVentasOnlineData = () => {
 
       setVentas(ventasUnicas);
 
-      // Filtrar productos activos
       const prods = resProd.data.results || resProd.data || [];
       setProductosDisponibles(prods.filter((p) => p.activo));
     } catch (error) {
@@ -202,8 +200,8 @@ export const useVentasOnlineData = () => {
   }, []);
 
   return {
-    obtenerDatos,
     handleEstadoChange,
     handleVerDetalle,
+    obtenerDatos,
   };
 };

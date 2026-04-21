@@ -16,7 +16,6 @@ const CheckoutForm = ({
   onBackToPickup,
   onSubmit,
 }) => {
-  
   const renderStep = () => {
     if (currentStep === 1) {
       return (

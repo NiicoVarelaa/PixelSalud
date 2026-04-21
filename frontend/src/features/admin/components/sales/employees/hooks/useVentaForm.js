@@ -80,7 +80,6 @@ export const useVentaForm = (onSuccess) => {
     return user?.idEmpleado || user?.id || "";
   }, [user]);
 
-  // Auto-detectar usuario para nuevas ventas
   useEffect(() => {
     if (!isEditingState) {
       const idEmpleadoActual = getIdEmpleadoFromUser();
@@ -94,7 +93,6 @@ export const useVentaForm = (onSuccess) => {
     }
   }, [getIdEmpleadoFromUser, isEditingState]);
 
-  // Calcular total automático
   useEffect(() => {
     const nuevoTotal = ventaForm.productos.reduce((acc, prod) => {
       return acc + Number(prod.cantidad) * Number(prod.precioUnitario);
@@ -199,14 +197,14 @@ export const useVentaForm = (onSuccess) => {
   }, [ventaForm, getIdEmpleadoFromUser, isEditingState, editingId, onSuccess]);
 
   return {
-    ventaForm,
-    dispatch,
-    isEditing: isEditingState,
     editingId,
     nombreVendedorOriginal,
-    resetForm,
-    loadVentaForEdit,
-    submitVenta,
     user,
+    ventaForm,
+    isEditing: isEditingState,
+    dispatch,
+    loadVentaForEdit,
+    resetForm,
+    submitVenta,
   };
 };

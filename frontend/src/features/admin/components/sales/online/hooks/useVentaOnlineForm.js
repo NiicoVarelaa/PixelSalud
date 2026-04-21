@@ -47,7 +47,6 @@ export const useVentaOnlineForm = (onSuccess) => {
   const [editingId, setEditingId] = useState(null);
   const [clienteEditando, setClienteEditando] = useState("");
 
-  // Calcular total automático
   useEffect(() => {
     const nuevoTotal = ventaForm.productos.reduce((acc, prod) => {
       return (
@@ -127,12 +126,12 @@ export const useVentaOnlineForm = (onSuccess) => {
   }, [ventaForm, editingId, onSuccess]);
 
   return {
+    clienteEditando,
+    editingId,
     ventaForm,
     dispatch,
-    editingId,
-    clienteEditando,
-    resetForm,
     loadVentaForEdit,
+    resetForm,
     submitVenta,
   };
 };

@@ -60,10 +60,10 @@ const useProductsRelated = ({ category }) => {
 
   return {
     headingId,
-    prevId,
-    nextId,
     isBeginning,
     isEnd,
+    nextId,
+    prevId,
     swiperParams,
     handleCategoryClick,
   };

@@ -52,7 +52,9 @@ export const CheckoutSteps = ({ currentStep = 1 }) => {
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
                   {step.label}
                 </p>
-                <p className="text-sm font-semibold text-slate-900">{step.title}</p>
+                <p className="text-sm font-semibold text-slate-900">
+                  {step.title}
+                </p>
               </div>
             </div>
           );

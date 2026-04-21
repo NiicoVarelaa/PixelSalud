@@ -129,10 +129,9 @@ const Perfil = () => {
           <h2 className="text-2xl font-bold leading-tight text-gray-900 sm:text-3xl">
             Mi cuenta
           </h2>
-          <p  className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500">
             Gestiona tu informacion personal.
           </p>
-        
         </motion.header>
 
         <main

@@ -1,11 +1,11 @@
-import { Outlet } from "react-router-dom"
+import { Outlet } from "react-router-dom";
 
 const MenuClientes = () => {
   return (
     <div>
-        <Outlet></Outlet>
+      <Outlet></Outlet>
     </div>
-  )
-}
+  );
+};
 
-export default MenuClientes
+export default MenuClientes;

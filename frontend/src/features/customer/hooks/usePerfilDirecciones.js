@@ -256,23 +256,23 @@ const usePerfilDirecciones = () => {
   );
 
   return {
-    direcciones,
-    form,
-    error,
-    loading,
-    guardando,
+    contador,
     cupoCompleto,
+    direcciones,
+    error,
+    form,
+    guardando,
+    isFormVisible,
+    loading,
     modoEdicion,
     mostrarFormulario,
-    contador,
-    isFormVisible,
+    cancelarEdicion,
+    eliminarDireccion,
+    iniciarEdicion,
+    marcarPredeterminada,
     onChange,
     onSubmit,
-    iniciarEdicion,
-    cancelarEdicion,
     toggleFormularioNuevaDireccion,
-    marcarPredeterminada,
-    eliminarDireccion,
   };
 };
 

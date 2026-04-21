@@ -130,16 +130,16 @@ const useProductImageGallery = ({ product }) => {
   );
 
   return {
-    validThumbs,
-    selectedIndex,
-    selectedImage,
-    isZoomed,
     isLoading,
-    setIsZoomed,
+    isZoomed,
+    selectedImage,
+    selectedIndex,
+    validThumbs,
+    handleKeyDown,
+    handleNext,
     handleSelectByIndex,
     handlePrev,
-    handleNext,
-    handleKeyDown,
+    setIsZoomed,
   };
 };
 
