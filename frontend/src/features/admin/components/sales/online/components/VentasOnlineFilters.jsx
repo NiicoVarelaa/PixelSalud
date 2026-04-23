@@ -33,7 +33,7 @@ export const VentasOnlineFilters = () => {
 
   return (
     <div
-      className="mb-4 sm:mb-6 space-y-3 rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-sm p-3 sm:p-4 shadow-sm"
+      className="relative z-20 mb-4 sm:mb-6 space-y-3 rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-sm p-3 sm:p-4"
       role="search"
       aria-label="Filtros de búsqueda de ventas online"
     >
@@ -114,9 +114,8 @@ export const VentasOnlineFilters = () => {
               setFiltroOrden("mas_nuevo");
             }}
             className="
-              h-[42px] px-4 sm:px-5 rounded-xl border border-gray-200
-              bg-white text-gray-700 font-semibold text-sm sm:text-base
-              hover:border-primary-300 hover:text-primary-700 hover:bg-primary-50/60
+              block w-full sm:w-auto h-[42px] px-4 sm:px-5 rounded-xl border border-gray-200
+              bg-white text-gray-700 font-semibold text-sm sm:text-base hover:text-primary-700 hover:bg-primary-50/60
               transition-all duration-200 cursor-pointer shadow-xs
               focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:border-primary-500
             "

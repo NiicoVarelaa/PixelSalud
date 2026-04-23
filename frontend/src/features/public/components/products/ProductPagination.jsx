@@ -49,16 +49,12 @@ export const ProductPagination = ({
 
   return (
     <div className="mt-8 w-full flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-      
       <div className="text-sm text-gray-500 font-medium text-center sm:text-left">
         Mostrando {indiceInicio + 1} - {Math.min(indiceFin, totalProductos)} de{" "}
         {totalProductos} productos
       </div>
 
-      <nav
-        role="navigation"
-        aria-label="Paginación de productos"
-      >
+      <nav role="navigation" aria-label="Paginación de productos">
         <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => paginaActual > 1 && irAPagina(paginaActual - 1)}

@@ -13,85 +13,85 @@ export const VentasOnlineDesktopTable = ({
 }) => {
   return (
     <div
-      className="hidden overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-md lg:block"
+      className="hidden w-full min-w-0 overflow-hidden rounded-3xl border border-gray-200/80 bg-white shadow-sm ring-1 ring-gray-100/70 lg:block lg:h-full"
       role="region"
       aria-label="Tabla de ventas online"
     >
-      <div className="max-h-[410px] overflow-auto">
-        <table className="w-full">
+      <div className="h-full min-h-0 w-full overflow-auto overscroll-contain touch-pan-x touch-pan-y [-webkit-overflow-scrolling:touch]">
+        <table className="w-full min-w-[980px] text-sm">
           <thead>
-            <tr className="bg-linear-to-r from-primary-50 to-emerald-50/70 border-b border-primary-100/80">
-              <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+            <tr className="sticky top-0 z-10 border-b border-primary-100/80 bg-linear-to-r from-primary-50 to-emerald-50/70 backdrop-blur-sm">
+              <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                 ID
               </th>
-              <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                 Cliente
               </th>
-              <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                 DNI
               </th>
-              <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                 Fecha
               </th>
-              <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                 Hora
               </th>
-              <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                 Metodo
               </th>
-              <th className="px-4 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-right text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                 Total
               </th>
-              <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-center text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                 Estado
               </th>
-              <th className="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+              <th className="px-4 py-3.5 text-center text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                 Acciones
               </th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-100">
             {items.map((venta) => (
               <tr
                 key={venta.idVentaO}
-                className="transition-colors hover:bg-gray-50"
+                className="group transition-colors duration-150 hover:bg-primary-50/30"
               >
-                <td className="px-4 py-4 text-sm font-mono text-gray-600">
+                <td className="px-4 py-3.5 font-mono text-gray-600 whitespace-nowrap">
                   #{venta.idVentaO}
                 </td>
-                <td className="px-4 py-4">
-                  <div className="flex items-center gap-2">
+                <td className="px-4 py-3.5">
+                  <div className="flex min-w-0 items-center gap-2.5">
                     <div
-                      className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100"
                       aria-hidden="true"
                     >
                       <User size={16} className="text-primary-600" />
                     </div>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="truncate font-semibold text-gray-900">
                       {venta.nombreCliente} {venta.apellidoCliente}
                     </span>
                   </div>
                 </td>
-                <td className="px-4 py-4 text-sm font-mono text-gray-700">
+                <td className="px-4 py-3.5 font-mono text-gray-700 whitespace-nowrap">
                   {venta.dniCliente || "-"}
                 </td>
-                <td className="px-4 py-4 text-sm text-gray-700">
+                <td className="px-4 py-3.5 text-gray-700 whitespace-nowrap">
                   {formatearFecha(venta.fechaPago)}
                 </td>
-                <td className="px-4 py-4 text-sm font-mono text-gray-700">
+                <td className="px-4 py-3.5 font-mono text-gray-700 whitespace-nowrap">
                   {venta.horaPago ? venta.horaPago.slice(0, 5) : "-"}
                 </td>
-                <td className="px-4 py-4">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-medium capitalize">
+                <td className="px-4 py-3.5 whitespace-nowrap">
+                  <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-100 px-2.5 py-1 font-medium capitalize text-gray-700">
                     <CreditCard size={14} aria-hidden="true" />
                     {venta.metodoPago}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-right text-sm font-bold text-primary-700">
+                <td className="px-4 py-3.5 text-right text-base font-extrabold text-primary-700 whitespace-nowrap">
                   {formatearMoneda(venta.totalPago)}
                 </td>
-                <td className="px-4 py-4 text-center">
+                <td className="px-4 py-3.5 text-center whitespace-nowrap">
                   <EstadoInlineSelect
                     value={venta.estado}
                     compact
@@ -100,7 +100,7 @@ export const VentasOnlineDesktopTable = ({
                     }
                   />
                 </td>
-                <td className="px-4 py-4">
+                <td className="px-4 py-3.5">
                   <div className="flex items-center justify-center gap-1.5">
                     <VentasOnlineActions
                       className="

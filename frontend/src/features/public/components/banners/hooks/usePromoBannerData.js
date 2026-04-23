@@ -175,9 +175,9 @@ export const usePromoBannerData = () => {
   }, [offerProducts]);
 
   return {
-    heroSlides,
-    sideCards,
-    isLoading,
     error,
+    heroSlides,
+    isLoading,
+    sideCards,
   };
 };

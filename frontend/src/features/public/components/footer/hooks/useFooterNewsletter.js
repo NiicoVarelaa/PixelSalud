@@ -99,16 +99,16 @@ const useFooterNewsletter = ({ user }) => {
     isSubscribed || isSubmitting || !normalizedEmail || !aceptaMarketing;
 
   return {
-    email,
-    isSubscribed,
-    isSubmitting,
     aceptaMarketing,
-    inputDisabled,
     buttonDisabled,
     currentYear,
-    setEmail,
-    setAceptaMarketing,
+    email,
+    inputDisabled,
+    isSubscribed,
+    isSubmitting,
     handleSubscribe,
+    setAceptaMarketing,
+    setEmail,
   };
 };
 

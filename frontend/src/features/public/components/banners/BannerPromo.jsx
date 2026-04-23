@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { ASSETS } from "../../../../utils/images"; 
+import { ASSETS } from "../../../../utils/images";
 
 const banners = [
   {
@@ -12,7 +12,7 @@ const banners = [
   },
   {
     id: "cuidado-personal",
-    image: ASSETS.bannerCuidadoPersonal, 
+    image: ASSETS.bannerCuidadoPersonal,
     category: "Cuidado Personal",
     cta: "Explorar ahora",
   },

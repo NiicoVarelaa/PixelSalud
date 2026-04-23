@@ -259,7 +259,6 @@ const updateEstado = async (idCupon, estado) => {
 };
 
 const deleteCupon = async (idCupon) => {
-  // Verificar que no haya sido usado
   const query = `
     DELETE FROM Cupones
     WHERE idCupon = ? AND vecesUsado = 0

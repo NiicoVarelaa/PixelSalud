@@ -119,16 +119,16 @@ export const useProductosPage = () => {
   );
 
   return {
-    isLoading,
-    productosPaginados,
-    totalProductos: productosBase.length,
-    paginaActual,
-    totalPaginas,
-    updateParams,
-    filtroCategoria,
     busqueda,
-    ordenPrecio,
     campanaActiva,
     campanaDestacada,
+    filtroCategoria,
+    isLoading,
+    ordenPrecio,
+    paginaActual,
+    productosPaginados,
+    totalPaginas,
+    totalProductos: productosBase.length,
+    updateParams,
   };
 };

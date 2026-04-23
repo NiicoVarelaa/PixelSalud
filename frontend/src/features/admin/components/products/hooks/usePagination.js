@@ -1,20 +1,12 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 
-/**
- * Custom hook para manejar la paginación
- * @param {Array} items - Items a paginar
- * @param {number} itemsPerPage - Cantidad de items por página
- * @returns {Object} Estado y funciones de paginación
- */
 export const usePagination = (items, itemsPerPage = 10) => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Calcular total de páginas
   const totalPages = useMemo(() => {
     return Math.ceil(items.length / itemsPerPage);
   }, [items.length, itemsPerPage]);
 
-  // Calcular items de la página actual
   const paginatedItems = useMemo(() => {
     const lastIndex = currentPage * itemsPerPage;
     const firstIndex = lastIndex - itemsPerPage;

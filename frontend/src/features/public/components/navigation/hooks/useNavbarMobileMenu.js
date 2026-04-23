@@ -108,15 +108,15 @@ const useNavbarMobileMenu = ({
   );
 
   return {
-    isCategoriasOpen,
-    setIsCategoriasOpen,
     categoriasRef,
     closeButtonRef,
+    isCategoriasOpen,
     closeMenu,
     handleCategoriaClick,
     handleCartOpen,
-    handleLogoutClick,
     handleKeyDown,
+    handleLogoutClick,
+    setIsCategoriasOpen,
   };
 };
 

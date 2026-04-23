@@ -42,7 +42,8 @@ export const useContactoForm = ({
 
       const requiresLogin = TIPOS_REQUIEREN_LOGIN.has(formData.tipoConsulta);
       if (!userId && requiresLogin) {
-        const reason = LABELS_TIPO_CONSULTA[formData.tipoConsulta] || "esta consulta";
+        const reason =
+          LABELS_TIPO_CONSULTA[formData.tipoConsulta] || "esta consulta";
         onAuthRequired?.(reason);
         return;
       }
@@ -91,9 +92,9 @@ export const useContactoForm = ({
   return {
     errors,
     formData,
-    handleChange,
-    handleSubmit,
     isSubmitting,
     userId,
+    handleChange,
+    handleSubmit,
   };
 };

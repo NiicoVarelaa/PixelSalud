@@ -10,7 +10,10 @@ const ContactoBranchesSection = ({ cardEnter, sucursales, mapUrl }) => (
     className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:col-span-5 lg:h-full flex flex-col"
     aria-labelledby="info-contacto-title"
   >
-    <h2 id="info-contacto-title" className="text-lg font-semibold text-slate-900">
+    <h2
+      id="info-contacto-title"
+      className="text-lg font-semibold text-slate-900"
+    >
       Nuestras sucursales
     </h2>
     <p className="mt-1 text-sm text-slate-600">
@@ -31,7 +34,9 @@ const ContactoBranchesSection = ({ cardEnter, sucursales, mapUrl }) => (
               <Building2 className="h-4 w-4" />
             </span>
             <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-slate-800">{branch.name}</h3>
+              <h3 className="text-sm font-semibold text-slate-800">
+                {branch.name}
+              </h3>
 
               <p className="mt-1 flex items-start gap-1.5 text-sm text-slate-600">
                 <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
