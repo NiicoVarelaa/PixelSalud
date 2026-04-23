@@ -15,7 +15,7 @@ const AdminLayout = ({
 
   const scrollAreaClass = nested
     ? "flex w-full min-h-0 flex-1 flex-col"
-    : "mx-auto flex w-full min-h-0 max-w-7xl flex-1 flex-col overflow-y-auto overscroll-contain pb-4 sm:pb-5 lg:pb-0";
+    : "mx-auto flex w-full min-h-0 max-w-7xl flex-1 flex-col overflow-y-auto pb-4 sm:pb-5 lg:pb-0";
 
   return (
     <div className={rootClass}>

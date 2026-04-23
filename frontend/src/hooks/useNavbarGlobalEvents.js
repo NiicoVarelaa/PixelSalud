@@ -51,14 +51,14 @@ export function useNavbarGlobalEvents({
       document.removeEventListener("keydown", handleEscape);
     };
   }, [
+    categoriasRef,
     menuRef,
     profileRef,
-    categoriasRef,
     searchDesktopRef,
+    setIsCategoriasOpen,
     setIsMenuOpen,
     setIsProfileDropdownOpen,
-    setIsCategoriasOpen,
-    setShowSuggestions,
     setIsSearchOpen,
+    setShowSuggestions,
   ]);
 }

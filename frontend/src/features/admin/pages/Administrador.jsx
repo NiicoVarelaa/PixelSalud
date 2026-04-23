@@ -15,6 +15,14 @@ const Administrador = () => {
   }, [fetchProducts]);
 
   useEffect(() => {
+    document.body.style.overflow = "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  useEffect(() => {
     if (!user || user.rol !== "admin") {
       toast.error("Acceso no autorizado");
       navigate("/login");
@@ -25,11 +33,11 @@ const Administrador = () => {
 
   return (
     <>
-      <div className="flex h-dvh flex-col overflow-hidden bg-gray-50 lg:flex-row">
+      <div className="flex min-h-dvh flex-col bg-gray-50 lg:h-dvh lg:flex-row lg:overflow-hidden">
         <SiderbarAdmin user={user} />
 
-        <main className="flex h-full min-h-0 flex-1 overflow-hidden bg-gray-50 lg:p-6">
-          <div className="flex h-full min-h-0 w-full flex-col p-4 lg:p-0">
+        <main className="flex min-h-0 flex-1 overflow-visible bg-gray-50 lg:h-full lg:overflow-hidden lg:p-6">
+          <div className="flex w-full flex-1 flex-col p-4 lg:h-full lg:min-h-0 lg:p-0">
             <Outlet />
           </div>
         </main>

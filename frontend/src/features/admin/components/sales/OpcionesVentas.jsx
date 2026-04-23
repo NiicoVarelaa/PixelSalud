@@ -19,7 +19,7 @@ const OpcionesVentas = () => {
       <AdminLayout
         title="Gestión de Ventas"
         description="Alterna entre ventas del mostrador y pedidos online en una misma vista."
-        contentClassName="flex h-full min-h-0 flex-col"
+        contentClassName="flex min-h-0 flex-1 flex-col"
       >
         <nav
           className="mb-4 w-full shrink-0 sm:mb-5 sm:w-fit"

@@ -55,7 +55,9 @@ export function NavbarCategoriesDropdown({
                     className="w-full text-left px-4 py-2.5 flex items-center justify-between text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-all duration-200 group cursor-pointer"
                     role="menuitem"
                   >
-                    <span className="text-sm font-medium">{categoria.text}</span>
+                    <span className="text-sm font-medium">
+                      {categoria.text}
+                    </span>
                     <ChevronDown className="w-4 h-4 -rotate-90 text-gray-400 group-hover:text-primary-700 group-hover:translate-x-0.5 transition-all" />
                   </motion.button>
                   {index < CATEGORIAS_DATA.length - 1 && (
@@ -78,7 +80,7 @@ export function NavbarCategoriesDropdown({
         aria-expanded={isExpanded}
         aria-controls="categorias-submenu"
       >
-        <span className="uppercase">Categorías</span> 
+        <span className="uppercase">Categorías</span>
         <motion.span
           animate={{ rotate: isExpanded ? 90 : 0 }}
           transition={{ duration: 0.2 }}
@@ -96,7 +98,7 @@ export function NavbarCategoriesDropdown({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
             className={`overflow-hidden pl-4 ml-1 mt-1 border-l-2 ${
-              isExpanded ? "border-primary-600" : "border-primary-100" 
+              isExpanded ? "border-primary-600" : "border-primary-100"
             }`}
           >
             {CATEGORIAS_DATA.map((categoria) => (

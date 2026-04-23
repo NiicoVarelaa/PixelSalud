@@ -21,7 +21,8 @@ export const validarEmail = (email) => {
 
 export const validarAsunto = (asunto) => {
   const value = asunto.trim();
-  if (value.length > 200) return "El asunto no puede tener más de 200 caracteres";
+  if (value.length > 200)
+    return "El asunto no puede tener más de 200 caracteres";
   return "";
 };
 

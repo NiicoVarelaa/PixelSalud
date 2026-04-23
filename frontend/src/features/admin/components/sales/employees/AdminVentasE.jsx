@@ -73,8 +73,8 @@ const AdminVentasE = () => {
 
         <VentasFilters />
 
-        <div className="flex flex-col gap-4 lg:min-h-0 lg:flex-1">
-          <div className="lg:min-h-0 lg:flex-1 lg:overflow-hidden">
+        <div className="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1">
+          <div className="min-w-0 lg:min-h-0 lg:flex-1 lg:overflow-hidden">
             <VentasTable
               onVerDetalle={handleVerDetalle}
               onEditar={handleEditarVenta}
@@ -86,7 +86,7 @@ const AdminVentasE = () => {
             />
           </div>
 
-          <div className="mt-auto shrink-0">
+          <div className="mt-auto min-w-0 shrink-0">
             <Pagination />
           </div>
         </div>

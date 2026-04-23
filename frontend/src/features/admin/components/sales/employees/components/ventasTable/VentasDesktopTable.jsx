@@ -13,117 +13,121 @@ export const VentasDesktopTable = ({
 }) => {
   return (
     <div
-      className="hidden overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-md lg:block"
+      className="hidden w-full min-w-0 overflow-hidden rounded-3xl border border-gray-200/80 bg-white shadow-sm ring-1 ring-gray-100/70 lg:block lg:h-full"
       role="region"
       aria-label="Tabla de ventas"
     >
-      <div className="max-h-[410px] overflow-auto">
-        <table className="w-full">
+      <div className="h-full min-h-0 w-full overflow-auto overscroll-contain touch-pan-x touch-pan-y [-webkit-overflow-scrolling:touch]">
+        <table className="w-full min-w-[980px] text-sm">
           <thead>
-            <tr className="bg-linear-to-r from-primary-50 to-emerald-50/70 border-b border-primary-100/80">
+            <tr className="sticky top-0 z-10 border-b border-primary-100/80 bg-linear-to-r from-primary-50 to-emerald-50/70 backdrop-blur-sm">
               <th
                 scope="col"
-                className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap"
               >
                 ID
               </th>
               <th
                 scope="col"
-                className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap"
               >
                 Empleado
               </th>
               <th
                 scope="col"
-                className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap"
               >
                 DNI
               </th>
               <th
                 scope="col"
-                className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap"
               >
                 Fecha
               </th>
               <th
                 scope="col"
-                className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap"
               >
                 Hora
               </th>
               <th
                 scope="col"
-                className="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap"
               >
                 Método
               </th>
               <th
                 scope="col"
-                className="px-3 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider"
+                className="px-4 py-3.5 text-right text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap"
               >
                 Total
               </th>
               <th
                 scope="col"
-                className="px-3 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider"
+                className="px-4 py-3.5 text-center text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap"
               >
                 Estado
               </th>
               <th
                 scope="col"
-                className="px-3 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider"
+                className="px-4 py-3.5 text-center text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap"
               >
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-100">
             {items.map((venta) => {
               const esAnulada = venta.estado === "anulada";
 
               return (
                 <tr
                   key={venta.idVentaE}
-                  className={`transition-colors ${esAnulada ? "bg-red-50/40" : "hover:bg-gray-50"}`}
+                  className={`group transition-colors duration-150 ${
+                    esAnulada
+                      ? "bg-red-50/40 hover:bg-red-50"
+                      : "hover:bg-primary-50/30"
+                  }`}
                 >
-                  <td className="px-3 py-3 text-sm font-mono text-gray-600">
+                  <td className="px-4 py-3.5 font-mono text-gray-600 whitespace-nowrap">
                     #{venta.idVentaE}
                   </td>
-                  <td className="px-3 py-3">
-                    <div className="flex items-center gap-2">
+                  <td className="px-4 py-3.5">
+                    <div className="flex min-w-0 items-center gap-2.5">
                       <div
-                        className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100"
                         aria-hidden="true"
                       >
                         <User size={16} className="text-primary-600" />
                       </div>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="truncate font-semibold text-gray-900">
                         {venta.nombreEmpleado} {venta.apellidoEmpleado}
                       </span>
                     </div>
                   </td>
-                  <td className="px-3 py-3 text-sm font-mono text-gray-700">
+                  <td className="px-4 py-3.5 font-mono text-gray-700 whitespace-nowrap">
                     {venta.dniEmpleado || "-"}
                   </td>
-                  <td className="px-3 py-3 text-sm text-gray-700">
+                  <td className="px-4 py-3.5 text-gray-700 whitespace-nowrap">
                     {formatearFecha(venta.fechaPago)}
                   </td>
-                  <td className="px-3 py-3 text-sm font-mono text-gray-700">
+                  <td className="px-4 py-3.5 font-mono text-gray-700 whitespace-nowrap">
                     {venta.horaPago ? venta.horaPago.slice(0, 5) : "-"}
                   </td>
-                  <td className="px-3 py-3">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-medium capitalize">
+                  <td className="px-4 py-3.5 whitespace-nowrap">
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-100 px-2.5 py-1 font-medium capitalize text-gray-700">
                       <CreditCard size={14} aria-hidden="true" />
                       {venta.metodoPago}
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-right text-sm font-bold text-primary-700">
+                  <td className="px-4 py-3.5 text-right text-base font-extrabold text-primary-700 whitespace-nowrap">
                     {formatearMoneda(venta.totalPago)}
                   </td>
-                  <td className="px-3 py-3 text-center">
+                  <td className="px-4 py-3.5 text-center whitespace-nowrap">
                     <span
                       className={`
-                        inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
+                        inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold
                         ${esAnulada ? "bg-red-100 text-red-800" : "bg-primary-100 text-primary-800"}
                       `}
                       role="status"
@@ -136,7 +140,7 @@ export const VentasDesktopTable = ({
                       {venta.estado}
                     </span>
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-4 py-3.5">
                     <div className="flex items-center justify-center gap-1.5">
                       <VentaActions
                         className="p-2 rounded-lg"

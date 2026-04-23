@@ -95,7 +95,7 @@ const CustomSelect = ({
           id={`${id}-listbox`}
           role="listbox"
           aria-labelledby={`${id}-label`}
-          className="absolute z-1200 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1.5 focus:outline-none animate-in fade-in slide-in-from-top-2 duration-200"
+          className="absolute z-[1200] w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1.5 focus:outline-none animate-in fade-in slide-in-from-top-2 duration-200"
         >
           {options.map((opt) => {
             const isSelected = value === opt.value;

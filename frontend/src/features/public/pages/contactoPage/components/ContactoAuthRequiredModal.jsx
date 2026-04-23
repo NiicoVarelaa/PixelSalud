@@ -41,10 +41,16 @@ const ContactoAuthRequiredModal = ({
             <X className="h-4 w-4" />
           </button>
 
-          <h3 id="auth-modal-title" className="text-lg font-semibold text-slate-900">
+          <h3
+            id="auth-modal-title"
+            className="text-lg font-semibold text-slate-900"
+          >
             Inicia sesión para continuar
           </h3>
-          <p id="auth-modal-description" className="mt-2 text-sm text-slate-600">
+          <p
+            id="auth-modal-description"
+            className="mt-2 text-sm text-slate-600"
+          >
             Para enviar una consulta sobre {reason || "pedido o receta"}, debes
             iniciar sesión o registrarte.
           </p>
