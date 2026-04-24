@@ -2,35 +2,33 @@ import { Minus, Plus, ReceiptText, Trash2 } from "lucide-react";
 import { FALLBACK_IMAGE } from "./ticket.utils";
 
 export const TicketItemsList = ({
-  productos,
   dispatch,
-  getProductImage,
   formatearMoneda,
+  getProductImage,
+  productos,
 }) => {
   if (productos.length === 0) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-gray-200 rounded-2xl bg-white">
-        <ReceiptText
-          size={40}
-          className="text-gray-300 mb-3"
-          aria-hidden="true"
-        />
-        <p className="text-gray-500 font-semibold text-base">
-          El ticket esta vacio
+      <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white py-8 px-4 text-center sm:py-12">
+        <div className="mb-3 rounded-full bg-gray-50 p-4">
+          <ReceiptText size={32} className="text-gray-400" aria-hidden="true" />
+        </div>
+        <p className="text-base font-bold text-gray-700">
+          El ticket está vacío
         </p>
-        <p className="text-sm text-gray-400 mt-1 max-w-xs">
-          Agrega productos desde el buscador de la izquierda.
+        <p className="mt-1 max-w-[200px] text-xs text-gray-500">
+          Agrega productos desde el buscador.
         </p>
       </div>
     );
   }
 
   return (
-    <ul className="space-y-2" role="list">
+    <ul className="flex flex-col gap-3" role="list">
       {productos.map((item, index) => (
         <li
           key={index}
-          className="bg-white p-3 sm:p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-gray-300"
+          className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition-all hover:border-gray-300 sm:flex-row sm:items-center sm:justify-between sm:p-4"
         >
           <div className="flex-1 min-w-0 pr-2 flex items-start gap-3">
             <div className="h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">

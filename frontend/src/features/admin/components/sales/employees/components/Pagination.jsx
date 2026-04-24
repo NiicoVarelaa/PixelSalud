@@ -86,7 +86,7 @@ export const Pagination = () => {
   const paginationNumbers = getPaginationNumbers();
 
   return (
-    <div className="w-full bg-white border border-gray-200/80 rounded-2xl px-4 py-4 shadow-sm">
+    <div className="w-full bg-white border border-gray-200/80 rounded-2xl px-4 py-4">
       <nav
         className="flex justify-center"
         role="navigation"

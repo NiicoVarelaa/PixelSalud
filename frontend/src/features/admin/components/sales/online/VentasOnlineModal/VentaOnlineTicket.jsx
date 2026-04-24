@@ -22,7 +22,7 @@ export const VentaOnlineTicket = ({
   const resolverImagen = (item) => getProductImage(item, imagenesPorProducto);
 
   return (
-    <div className="w-full lg:w-[55%] shrink-0 lg:min-h-0 lg:flex lg:flex-col bg-gray-50/30">
+    <div className="w-full lg:w-[55%] shrink-0 flex flex-col lg:min-h-0 bg-gray-50/30">
       <TicketMobileToggle
         mobileCollapsed={mobileCollapsed}
         onToggleMobileCollapsed={onToggleMobileCollapsed}
@@ -32,7 +32,7 @@ export const VentaOnlineTicket = ({
       />
 
       <div
-        className={`${mobileCollapsed ? "hidden lg:flex" : "flex"} min-h-0 flex-1 flex-col ${mobileCollapsed ? "" : "max-h-[62vh] lg:max-h-none"}`}
+        className={`${mobileCollapsed ? "hidden lg:flex" : "flex"} min-h-0 flex-1 flex-col`}
       >
         <TicketDesktopHeader
           isEditing={isEditing}
@@ -40,7 +40,7 @@ export const VentaOnlineTicket = ({
           totalProductos={ventaForm.productos.length}
         />
 
-        <div className="overflow-y-auto p-2 sm:p-4 max-h-[28vh] lg:max-h-none lg:flex-1">
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4">
           <TicketItemsList
             productos={ventaForm.productos}
             dispatch={dispatch}

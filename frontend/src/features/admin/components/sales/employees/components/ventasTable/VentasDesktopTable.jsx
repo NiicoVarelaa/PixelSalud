@@ -13,11 +13,11 @@ export const VentasDesktopTable = ({
 }) => {
   return (
     <div
-      className="hidden w-full min-w-0 overflow-hidden rounded-3xl border border-gray-200/80 bg-white shadow-sm ring-1 ring-gray-100/70 lg:block lg:h-full"
+      className="hidden w-full min-w-0 overflow-hidden rounded-2xl border border-gray-200/80 bg-white ring-1 ring-gray-100/70 lg:block"
       role="region"
       aria-label="Tabla de ventas"
     >
-      <div className="h-full min-h-0 w-full overflow-auto overscroll-contain touch-pan-x touch-pan-y [-webkit-overflow-scrolling:touch]">
+      <div className="w-full overflow-x-auto">
         <table className="w-full min-w-[980px] text-sm">
           <thead>
             <tr className="sticky top-0 z-10 border-b border-primary-100/80 bg-linear-to-r from-primary-50 to-emerald-50/70 backdrop-blur-sm">

@@ -50,7 +50,7 @@ export const VentasOnlineFilters = () => {
           <input
             id="search-ventas-online"
             type="text"
-            placeholder="Buscar por ID, DNI o cliente..."
+            placeholder="Buscar por id, cliente"
             value={filtro}
             onChange={(e) => setFiltro(e.target.value)}
             className="

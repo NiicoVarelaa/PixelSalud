@@ -45,12 +45,12 @@ export const VentasFilters = () => {
           <div className="absolute inset-y-0 left-0 pl-3 sm:pl-3.5 flex items-center pointer-events-none">
             <Search className="text-gray-400" size={18} aria-hidden="true" />
           </div>
-
+          
           <input
             id="search-ventas"
             type="text"
             autoComplete="off"
-            placeholder="Buscar por ID, DNI o empleado..."
+            placeholder="Buscar por id, empleado"
             value={filtro}
             onChange={(e) => setFiltro(e.target.value)}
             className="
@@ -64,7 +64,6 @@ export const VentasFilters = () => {
             "
             aria-describedby="search-hint"
           />
-
           {filtro && (
             <button
               type="button"
