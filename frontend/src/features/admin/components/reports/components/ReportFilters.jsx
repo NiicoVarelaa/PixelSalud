@@ -44,9 +44,9 @@ const ReportFilters = memo(
     });
 
     const fixedFiltersBody = (
-      <div className="space-y-3 px-4 pb-4 sm:px-5 sm:pb-5">
+      <div className="space-y-3 pt-3 px-4 pb-4 sm:px-5 sm:pb-5">
         <ActiveFilterChips chips={activeChips} />
-        <div className="rounded-xl border border-gray-100 bg-white p-3 sm:p-4">
+        <div className="rounded-xl border border-gray-100 bg-white p-4 sm:p-4">
           <CriticalFiltersRow
             filters={filters}
             onFilterChange={onFilterChange}

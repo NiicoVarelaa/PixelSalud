@@ -133,6 +133,7 @@ export const VentasModal = ({
             resultadosBusqueda={resultadosBusqueda}
             productosCategoria={productosCategoria}
             productoSeleccionado={productoSeleccionado}
+            productosTicket={ventaForm.productos}
             productosEnTicketIds={productosEnTicketIds}
             onSeleccionarProducto={seleccionarProducto}
             onAgregarAlCarrito={handleAgregarAlCarrito}

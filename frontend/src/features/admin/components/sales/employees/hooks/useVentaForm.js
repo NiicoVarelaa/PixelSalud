@@ -4,6 +4,17 @@ import apiClient from "@utils/apiClient";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
+const clampCantidadPorStock = (cantidad, stockDisponible) => {
+  const cantidadNormalizada = Math.max(1, Number(cantidad) || 1);
+  const stock = Number(stockDisponible || 0);
+
+  if (stock > 0) {
+    return Math.min(cantidadNormalizada, stock);
+  }
+
+  return cantidadNormalizada;
+};
+
 const ventaReducer = (state, action) => {
   switch (action.type) {
     case "SET_FIELD":
@@ -15,20 +26,36 @@ const ventaReducer = (state, action) => {
         (prod) => prod.idProducto === action.product.idProducto,
       );
 
+      const cantidadIngresada = Number(action.product.cantidad || 1);
+
       if (indexExistente === -1) {
-        return { ...state, productos: [...state.productos, action.product] };
+        return {
+          ...state,
+          productos: [
+            ...state.productos,
+            {
+              ...action.product,
+              cantidad: clampCantidadPorStock(
+                cantidadIngresada,
+                action.product.stockDisponible,
+              ),
+            },
+          ],
+        };
       }
 
       const productosActualizados = state.productos.map((prod, index) => {
         if (index !== indexExistente) return prod;
 
-        const cantidadNueva =
-          Number(prod.cantidad || 0) + Number(action.product.cantidad || 0);
+        const cantidadNueva = Number(prod.cantidad || 0) + cantidadIngresada;
+        const stockDisponible =
+          action.product.stockDisponible ?? prod.stockDisponible;
 
         return {
           ...prod,
-          cantidad: cantidadNueva,
+          cantidad: clampCantidadPorStock(cantidadNueva, stockDisponible),
           precioUnitario: action.product.precioUnitario,
+          stockDisponible,
         };
       });
 
@@ -42,7 +69,13 @@ const ventaReducer = (state, action) => {
         ...state,
         productos: state.productos.map((prod, index) =>
           index === action.index
-            ? { ...prod, [action.field]: action.value }
+            ? {
+                ...prod,
+                [action.field]:
+                  action.field === "cantidad"
+                    ? clampCantidadPorStock(action.value, prod.stockDisponible)
+                    : action.value,
+              }
             : prod,
         ),
       };

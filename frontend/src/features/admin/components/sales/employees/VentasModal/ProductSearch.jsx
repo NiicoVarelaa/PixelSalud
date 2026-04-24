@@ -20,6 +20,7 @@ export const ProductSearch = ({
   resultadosBusqueda,
   productosCategoria = [],
   productoSeleccionado,
+  productosTicket = [],
   productosEnTicketIds = new Set(),
   onSeleccionarProducto,
   onAgregarAlCarrito,
@@ -40,7 +41,13 @@ export const ProductSearch = ({
     const parsed = Number(value);
     if (Number.isNaN(parsed)) return setCantidad(1);
     if (!productoSeleccionado) return setCantidad(Math.max(1, parsed));
-    const max = Number(productoSeleccionado.stock || 1);
+    const cantidadEnTicket = productosTicket
+      .filter((item) => item.idProducto === productoSeleccionado.idProducto)
+      .reduce((acc, item) => acc + Number(item.cantidad || 0), 0);
+    const max = Math.max(
+      1,
+      Number(productoSeleccionado.stock || 1) - cantidadEnTicket,
+    );
     setCantidad(Math.min(Math.max(1, parsed), max));
   };
 
@@ -51,9 +58,19 @@ export const ProductSearch = ({
     if (Number.isNaN(cantInt) || cantInt <= 0) {
       return toast.warning("Ingresa una cantidad mayor a cero.");
     }
-    if (cantInt > productoSeleccionado.stock) {
+
+    const cantidadEnTicket = productosTicket
+      .filter((item) => item.idProducto === productoSeleccionado.idProducto)
+      .reduce((acc, item) => acc + Number(item.cantidad || 0), 0);
+    const stockTotal = Number(productoSeleccionado.stock || 0);
+    const disponible = Math.max(0, stockTotal - cantidadEnTicket);
+
+    if (disponible <= 0) {
+      return toast.warning("Stock agotado para este producto en el ticket.");
+    }
+    if (cantInt > disponible) {
       return toast.warning(
-        `Stock insuficiente. Solo quedan ${productoSeleccionado.stock} unidades.`,
+        `Stock insuficiente. Solo quedan ${disponible} unidades disponibles.`,
       );
     }
     if (requiereReceta(productoSeleccionado) && !recetaPresentada) {

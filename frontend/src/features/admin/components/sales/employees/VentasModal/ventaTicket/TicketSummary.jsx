@@ -1,20 +1,20 @@
 import { Edit, ShoppingBag } from "lucide-react";
-import CustomSelect from "../../../employees/VentasModal/CustomSelect";
+import CustomSelect from "../CustomSelect";
 import { OPCIONES_METODO_PAGO } from "./ticket.utils";
 
 export const TicketSummary = ({
-  ventaForm,
   dispatch,
+  formatearMoneda,
   isEditing,
   onSubmit,
-  formatearMoneda,
+  ventaForm,
 }) => {
   return (
     <div className="shrink-0 border-t border-gray-200 bg-white p-3 shadow-[0_-4px_20px_-15px_rgba(0,0,0,0.1)] sm:p-5">
       <div className="mb-3 flex flex-row items-center justify-between gap-3 sm:mb-4">
         <div className="w-[140px] sm:w-52">
           <CustomSelect
-            id="metodo-pago-online"
+            id="metodo-pago"
             label="Método"
             value={ventaForm.metodoPago}
             menuPlacement="top"

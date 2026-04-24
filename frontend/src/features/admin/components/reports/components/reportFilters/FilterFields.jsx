@@ -3,7 +3,7 @@ import CustomSelect from "../../../products/components/CustomSelect";
 import { DateInput } from "./DateInput";
 
 const selectWrapperClass =
-  "[&>div]:!rounded-lg [&>div]:!min-h-9 [&>div]:!border [&>div]:!border-gray-200 [&>div]:!bg-gray-50 [&>div]:focus-within:!border-green-500 [&>div]:focus-within:!ring-2 [&>div]:focus-within:!ring-green-100";
+  "rounded-lg min-h-9 border border-gray-200 bg-gray-50 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-100";
 
 export function CriticalFiltersRow({
   filters,
@@ -26,19 +26,14 @@ export function CriticalFiltersRow({
         onChange={(value) => onFilterChange("fechaHasta", value)}
         descId="fecha-hasta-desc"
       />
-      <div className="[&>label]:hidden">
-        <label className="mb-1.5 block text-xs font-semibold text-gray-600">
-          Estado
-        </label>
-        <div className="[&>label]:hidden [&>div]:!rounded-lg [&>div]:!min-h-9 [&>div]:!border [&>div]:!border-gray-200 [&>div]:!bg-gray-50 [&>div]:focus-within:!border-green-500 [&>div]:focus-within:!ring-2 [&>div]:focus-within:!ring-green-100">
-          <CustomSelect
-            id="estado-filter"
-            label="Estado"
-            value={filters.estado}
-            onChange={(value) => onFilterChange("estado", value)}
-            options={opcionesEstado}
-          />
-        </div>
+      <div>
+        <CustomSelect
+          id="estado-filter"
+          label="Estado"
+          value={filters.estado}
+          onChange={(value) => onFilterChange("estado", value)}
+          options={opcionesEstado}
+        />
       </div>
     </div>
   );

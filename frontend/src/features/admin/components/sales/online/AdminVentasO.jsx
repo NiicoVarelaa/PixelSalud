@@ -67,8 +67,8 @@ const AdminVentasO = () => {
 
       <VentasOnlineFilters />
 
-      <div className="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1">
-        <div className="min-w-0 lg:min-h-0 lg:flex-1 lg:overflow-hidden">
+      <div className="flex min-w-0 flex-col gap-4">
+        <div className="min-w-0">
           <VentasOnlineTable
             onVerDetalle={handleVerDetalle}
             onEditar={handleEditar}

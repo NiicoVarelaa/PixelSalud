@@ -28,23 +28,15 @@ export const useVentasData = () => {
 
   const handleAnular = useCallback(
     async (idVentaE) => {
-      const result = await Swal.fire({
-        title: "¿Anular Venta?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        confirmButtonText: "Sí, anular",
-      });
-
-      if (result.isConfirmed) {
-        try {
-          await apiClient.put(`/ventasEmpleados/anular/${idVentaE}`);
-          Swal.fire("Anulada", "Venta anulada.", "success");
-          obtenerVentas();
-        } catch (error) {
-          console.error(error);
-          Swal.fire("Error", "No se pudo anular.", "error");
-        }
+      try {
+        await apiClient.put(`/ventasEmpleados/anular/${idVentaE}`);
+        toast.success("Venta anulada.");
+        obtenerVentas();
+        return true;
+      } catch (error) {
+        console.error(error);
+        toast.error("No se pudo anular.");
+        return false;
       }
     },
     [obtenerVentas],
@@ -52,23 +44,15 @@ export const useVentasData = () => {
 
   const handleReactivar = useCallback(
     async (idVentaE) => {
-      const result = await Swal.fire({
-        title: "¿Reactivar Venta?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#10B981",
-        confirmButtonText: "Sí, reactivar",
-      });
-
-      if (result.isConfirmed) {
-        try {
-          await apiClient.put(`/ventasEmpleados/reactivar/${idVentaE}`);
-          Swal.fire("Reactivada", "Venta activa de nuevo.", "success");
-          obtenerVentas();
-        } catch (error) {
-          console.error(error);
-          Swal.fire("Error", "No se pudo reactivar.", "error");
-        }
+      try {
+        await apiClient.put(`/ventasEmpleados/reactivar/${idVentaE}`);
+        toast.success("Venta reactivada exitosamente.");
+        obtenerVentas();
+        return true;
+      } catch (error) {
+        console.error(error);
+        toast.error("No se pudo reactivar la venta.");
+        return false;
       }
     },
     [obtenerVentas],
