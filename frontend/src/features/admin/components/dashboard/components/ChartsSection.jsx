@@ -23,12 +23,12 @@ const ChartsSection = ({
       aria-describedby="charts-description"
       className="flex w-full flex-col xl:min-h-0 xl:flex-1"
     >
-      <div className="relative flex flex-col rounded-2xl border border-gray-200 bg-white p-3 sm:p-4 xl:min-h-0 xl:flex-1">
+      <div className="relative flex flex-col rounded-2xl border border-gray-100 bg-white p-3 sm:p-4 xl:min-h-0 xl:flex-1">
         <header className="mb-4 flex shrink-0 flex-col gap-3 sm:mb-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
               <BarChart3 className="h-3.5 w-3.5" aria-hidden="true" />
-              Analytics
+              Métricas
             </div>
 
             <h2

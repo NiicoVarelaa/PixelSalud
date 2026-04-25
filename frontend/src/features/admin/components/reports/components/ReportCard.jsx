@@ -10,7 +10,7 @@ const ReportCard = memo(
 
     return (
       <motion.article
-        className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs transition-shadow hover:shadow-sm focus-within:ring-2 focus-within:ring-green-500 focus-within:ring-offset-2"
+        className="flex flex-1 w-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs transition-shadow hover:shadow-sm focus-within:ring-2 focus-within:ring-green-500 focus-within:ring-offset-2"
         aria-labelledby={`reporte-${report.id}-titulo`}
         variants={staggerItem}
         whileHover={{ y: -1 }}

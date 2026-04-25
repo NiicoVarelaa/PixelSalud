@@ -1,5 +1,26 @@
-import { CheckCircle2, CreditCard, User, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  CreditCard,
+  User,
+  XCircle,
+  Banknote,
+  ArrowRightLeft,
+} from "lucide-react";
 import { VentaActions } from "./VentaActions";
+
+const getMetodoPagoUI = (metodo) => {
+  const normalizado = metodo?.toLowerCase() || "";
+  if (normalizado === "efectivo") {
+    return { Icon: Banknote, iconColor: "text-emerald-500" };
+  }
+  if (normalizado === "tarjeta") {
+    return { Icon: CreditCard, iconColor: "text-blue-500" };
+  }
+  if (normalizado === "transferencia") {
+    return { Icon: ArrowRightLeft, iconColor: "text-violet-500" };
+  }
+  return { Icon: CreditCard, iconColor: "text-gray-400" };
+};
 
 export const VentasDesktopTable = ({
   items,
@@ -13,7 +34,7 @@ export const VentasDesktopTable = ({
 }) => {
   return (
     <div
-      className="hidden w-full min-w-0 overflow-hidden rounded-2xl border border-gray-200/80 bg-white ring-1 ring-gray-100/70 lg:block"
+      className="hidden w-full min-w-0 overflow-hidden rounded-2xl border border-gray-100 bg-white ring-1 ring-gray-100/70 lg:block mb-8 lg:mb-3"
       role="region"
       aria-label="Tabla de ventas"
     >
@@ -80,6 +101,9 @@ export const VentasDesktopTable = ({
           <tbody className="divide-y divide-gray-100">
             {items.map((venta) => {
               const esAnulada = venta.estado === "anulada";
+              const { Icon: MetodoIcon, iconColor } = getMetodoPagoUI(
+                venta.metodoPago,
+              );
 
               return (
                 <tr
@@ -91,7 +115,7 @@ export const VentasDesktopTable = ({
                   }`}
                 >
                   <td className="px-4 py-3.5 font-mono text-gray-600 whitespace-nowrap">
-                    #{venta.idVentaE}
+                    #{String(venta.idVentaE).padStart(3, "0")}
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="flex min-w-0 items-center gap-2.5">
@@ -116,10 +140,15 @@ export const VentasDesktopTable = ({
                     {venta.horaPago ? venta.horaPago.slice(0, 5) : "-"}
                   </td>
                   <td className="px-4 py-3.5 whitespace-nowrap">
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-100 px-2.5 py-1 font-medium capitalize text-gray-700">
-                      <CreditCard size={14} aria-hidden="true" />
-                      {venta.metodoPago}
-                    </span>
+                    <div className="flex items-center gap-2 text-gray-700 capitalize font-medium">
+                      <MetodoIcon
+                        size={18}
+                        className={iconColor}
+                        strokeWidth={2}
+                        aria-hidden="true"
+                      />
+                      <span>{venta.metodoPago}</span>
+                    </div>
                   </td>
                   <td className="px-4 py-3.5 text-right text-base font-extrabold text-primary-700 whitespace-nowrap">
                     {formatearMoneda(venta.totalPago)}

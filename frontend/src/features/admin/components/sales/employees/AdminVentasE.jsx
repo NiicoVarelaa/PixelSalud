@@ -114,7 +114,7 @@ const AdminVentasE = ({ openRequestToken = 0 }) => {
       <div className="flex min-h-0 flex-1 flex-col">
         <VentasFilters />
 
-        <div className="flex min-w-0 flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-2">
           <div className="min-w-0">
             <VentasTable
               onVerDetalle={handleVerDetalle}

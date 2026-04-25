@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import CustomSelect from "../../../products/components/CustomSelect";
 import { DateInput } from "./DateInput";
 
-const selectWrapperClass =
-  "rounded-lg min-h-9 border border-gray-200 bg-gray-50 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-100";
 
 export function CriticalFiltersRow({
   filters,
@@ -47,7 +45,7 @@ export function AdvancedFiltersRow({
 }) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <div className={selectWrapperClass}>
+      <div>
         <CustomSelect
           id="metodo-pago-filter"
           label="Método de pago"
@@ -56,7 +54,7 @@ export function AdvancedFiltersRow({
           options={opcionesMetodoPago}
         />
       </div>
-      <div className={selectWrapperClass}>
+      <div>
         <CustomSelect
           id="categoria-filter"
           label="Categoría"

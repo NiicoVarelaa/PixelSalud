@@ -54,7 +54,7 @@ const ReportFilters = memo(
           />
         </div>
 
-        <div className="rounded-xl border border-gray-100 bg-gray-50/60 px-3 py-3 sm:px-4">
+        <div className="rounded-xl border border-gray-100 px-3 py-3 sm:px-4">
           <button
             type="button"
             onClick={() => setAdvancedOpen((p) => !p)}
@@ -144,7 +144,7 @@ const ReportFilters = memo(
 
     return (
       <section aria-labelledby="filtros-heading">
-        <div className="rounded-xl border border-gray-200 bg-white shadow-xs">
+        <div className="rounded-xl border border-gray-100 bg-white">
           <ReportFiltersHeader
             activeFiltersCount={activeFiltersCount}
             fixed={fixed}

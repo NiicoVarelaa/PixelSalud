@@ -77,14 +77,14 @@ export const EstadoInlineSelect = ({ value, onChange, compact = false }) => {
   }, [isOpen, compact]);
 
   const triggerClassName = compact
-    ? "h-9 pl-3 pr-8 rounded-full text-xs"
-    : "h-10 px-3 rounded-xl text-sm";
+    ? "h-9 px-4 rounded-full text-xs"
+    : "h-10 px-4 rounded-xl text-sm";
 
   const menu = (
     <ul
       ref={menuRef}
       role="listbox"
-      className="fixed z-1200 bg-white border border-gray-100 rounded-xl shadow-xl py-1.5"
+      className="fixed z-1200 bg-white border border-gray-100 rounded-xl shadow-xl"
       style={{
         top: `${menuStyle.top}px`,
         left: `${menuStyle.left}px`,
@@ -101,7 +101,7 @@ export const EstadoInlineSelect = ({ value, onChange, compact = false }) => {
             aria-selected={isSelected}
             onClick={() => handleSelect(opt.value)}
             className={`
-              flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer transition-colors
+              flex items-center justify-between rounded-xl px-4 py-2.5 text-sm cursor-pointer transition-colors
               ${
                 isSelected
                   ? "bg-green-50 text-green-700 font-bold"
@@ -132,11 +132,11 @@ export const EstadoInlineSelect = ({ value, onChange, compact = false }) => {
         onClick={() => setIsOpen((prev) => !prev)}
         className={`
           w-full ${triggerClassName}
-          inline-flex items-center justify-between gap-2
+          inline-flex items-center justify-center gap-1.5
           border border-gray-200 bg-white text-gray-700 font-semibold
           cursor-pointer transition-all duration-200 ease-in-out outline-none
           hover:border-gray-300
-          focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500
+          focus:ring focus:ring-primary-600 focus:border-primary-600
         `}
       >
         <span className="truncate">{selectedOption.label}</span>

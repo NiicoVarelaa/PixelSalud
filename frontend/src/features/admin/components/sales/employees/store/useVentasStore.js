@@ -7,7 +7,7 @@ export const useVentasStore = create((set) => ({
   filtroEstado: "todas",
   filtroOrden: "mas_nuevo",
   paginaActual: 1,
-  itemsPorPagina: 6,
+  itemsPorPagina: 7,
 
   setVentas: (ventas) => set({ ventas }),
   setCargando: (cargando) => set({ cargando }),
