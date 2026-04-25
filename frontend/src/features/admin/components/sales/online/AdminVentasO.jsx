@@ -58,16 +58,9 @@ const AdminVentasO = () => {
 
   return (
     <>
-      <div className="mb-4 shrink-0 space-y-1 sm:mb-5">
-        <h2 className="text-2xl font-bold text-gray-900">Ventas Online</h2>
-        <p className="text-sm text-gray-600">
-          Gestiona pedidos web, estado de retiro y emisión de tickets
-        </p>
-      </div>
-
+      {" "}
       <VentasOnlineFilters />
-
-      <div className="flex min-w-0 flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-2">
         <div className="min-w-0">
           <VentasOnlineTable
             onVerDetalle={handleVerDetalle}
@@ -81,7 +74,6 @@ const AdminVentasO = () => {
           <Pagination />
         </div>
       </div>
-
       <VentasOnlineModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -92,7 +84,6 @@ const AdminVentasO = () => {
         clienteEditando={clienteEditando}
         onSubmit={handleSubmit}
       />
-
       <TicketVenta
         idVenta={ticketModal.idVenta}
         tipo="online"

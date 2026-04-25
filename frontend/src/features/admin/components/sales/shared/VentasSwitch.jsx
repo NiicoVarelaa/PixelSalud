@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-import { Store, Globe } from "lucide-react";
 import { motion } from "framer-motion";
 
 const VentasSwitch = ({ activeOption, onOptionChange }) => {
@@ -7,12 +6,10 @@ const VentasSwitch = ({ activeOption, onOptionChange }) => {
     {
       value: "empleados",
       label: "Ventas Empleados",
-      icon: Store,
     },
     {
       value: "online",
       label: "Ventas Online",
-      icon: Globe,
     },
   ];
 
@@ -32,7 +29,6 @@ const VentasSwitch = ({ activeOption, onOptionChange }) => {
       <div className="flex p-1.5 bg-gray-50 rounded-xl border border-gray-200 shadow-inner w-full sm:w-max gap-2">
         {options.map((option) => {
           const isActive = activeOption === option.value;
-          const Icon = option.icon;
 
           return (
             <button
@@ -66,14 +62,6 @@ const VentasSwitch = ({ activeOption, onOptionChange }) => {
               )}
 
               <span className="relative z-10 flex items-center gap-2">
-                <Icon
-                  className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-200 ${
-                    isActive
-                      ? "text-green-600"
-                      : "text-gray-500 group-hover:text-gray-700"
-                  }`}
-                  strokeWidth={isActive ? 2.5 : 2}
-                />
                 {option.label}
               </span>
             </button>

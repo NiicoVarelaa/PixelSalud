@@ -96,7 +96,7 @@ const AdminReportes = () => {
         />
       </motion.div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
+      <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-gray-100 bg-white p-3 sm:p-4">
         <motion.section
           aria-labelledby="reportes-heading"
           className="space-y-2 sm:space-y-2.5 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 xl:grid-cols-4 xl:gap-3"
@@ -115,6 +115,7 @@ const AdminReportes = () => {
                 variants={fadeInUp}
                 custom={index}
                 layout
+                className="flex flex-col h-full"
               >
                 <ReportCard
                   report={report}

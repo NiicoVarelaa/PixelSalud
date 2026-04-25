@@ -7,7 +7,7 @@ export function FilterActionsRow({ onClear, onOpenInfo }) {
       <button
         type="button"
         onClick={onClear}
-        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-600 hover:bg-gray-50 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-gray-600 hover:bg-gray-50 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
         aria-label="Limpiar todos los filtros aplicados"
       >
         <X size={13} aria-hidden="true" />
@@ -17,7 +17,7 @@ export function FilterActionsRow({ onClear, onOpenInfo }) {
       <button
         type="button"
         onClick={onOpenInfo}
-        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-600 hover:bg-gray-50 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-gray-600 hover:bg-gray-50 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
         aria-label="Ver información sobre los reportes"
       >
         <Info size={13} aria-hidden="true" />

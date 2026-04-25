@@ -33,7 +33,7 @@ export const VentasOnlineFilters = () => {
 
   return (
     <div
-      className="relative z-20 mb-4 sm:mb-6 space-y-3 rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-sm p-3 sm:p-4"
+      className="relative z-20 mb-5 space-y-3 rounded-2xl border border-gray-100 bg-white/90 backdrop-blur-sm p-3 sm:p-4"
       role="search"
       aria-label="Filtros de búsqueda de ventas online"
     >

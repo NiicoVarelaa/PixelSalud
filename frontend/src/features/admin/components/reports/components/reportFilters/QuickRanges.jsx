@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-import { Calendar } from "lucide-react";
 import { DATE_RANGES } from "../../constants/reportData";
 
 export function QuickRanges({ activeDateRange, onDateRangeChange }) {
@@ -7,9 +6,8 @@ export function QuickRanges({ activeDateRange, onDateRangeChange }) {
     <div>
       <p
         id="rangos-label"
-        className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-600"
+        className="mb-1 ml-1 flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider"
       >
-        <Calendar size={13} aria-hidden="true" />
         Rangos rápidos
       </p>
       <div
@@ -27,7 +25,7 @@ export function QuickRanges({ activeDateRange, onDateRangeChange }) {
               className={`h-8 rounded-lg px-3 text-xs font-semibold transition-all active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-1 ${
                 isSelected
                   ? "bg-green-600 text-white"
-                  : "bg-green-50 text-green-700 hover:bg-green-100"
+                  : "bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
               }`}
               aria-label={`Rango: ${range.label}`}
               aria-pressed={isSelected}
