@@ -37,9 +37,6 @@ export const VentasOnlineMobileList = ({
                 />
                 {venta.nombreCliente} {venta.apellidoCliente}
               </p>
-              <p className="text-xs text-gray-500 mt-1">
-                DNI: {venta.dniCliente || "-"}
-              </p>
             </div>
             <EstadoChip estado={venta.estado} />
           </div>

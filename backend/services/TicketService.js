@@ -26,9 +26,18 @@ const formatearTicket = (venta, detalles, tipo) => {
         ? `${venta.nombreEmpleado || ""} ${venta.apellidoEmpleado || ""}`.trim() ||
           "Empleado"
         : "Venta Online",
+    vendedorDni: tipo === "empleado" ? venta.dniEmpleado || null : null,
     cliente:
       tipo === "online" && venta.nombreCliente
         ? `${venta.nombreCliente || ""} ${venta.apellidoCliente || ""}`.trim()
+        : null,
+    clienteInfo:
+      tipo === "online"
+        ? {
+            dni: venta.dniCliente || null,
+            email: venta.emailCliente || null,
+            telefono: venta.telefonoCliente || null,
+          }
         : null,
     metodoPago: venta.metodoPago || "Efectivo",
     estado: venta.estado,

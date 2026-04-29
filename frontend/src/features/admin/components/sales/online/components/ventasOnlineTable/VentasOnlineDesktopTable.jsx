@@ -10,7 +10,7 @@ import { VentasOnlineActions } from "./VentasOnlineActions";
 
 const getMetodoPagoUI = (metodo) => {
   const normalizado = metodo?.toLowerCase() || "";
-  
+
   if (normalizado === "efectivo") {
     return { Icon: Banknote, iconColor: "text-emerald-500" };
   }
@@ -23,7 +23,7 @@ const getMetodoPagoUI = (metodo) => {
   if (normalizado === "mercado pago" || normalizado === "mercadopago") {
     return { Icon: Wallet, iconColor: "text-sky-500" };
   }
-  
+
   return { Icon: CreditCard, iconColor: "text-gray-400" };
 };
 
@@ -43,7 +43,7 @@ export const VentasOnlineDesktopTable = ({
       aria-label="Tabla de ventas online"
     >
       <div className="w-full overflow-x-auto">
-        <table className="w-full min-w-[980px] text-sm">
+        <table className="w-full min-w-[860px] text-sm">
           <thead>
             <tr className="sticky top-0 z-10 border-b border-primary-100/80 bg-linear-to-r from-primary-50 to-emerald-50/70 backdrop-blur-sm">
               <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
@@ -51,9 +51,6 @@ export const VentasOnlineDesktopTable = ({
               </th>
               <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                 Cliente
-              </th>
-              <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
-                DNI
               </th>
               <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                 Fecha
@@ -102,9 +99,6 @@ export const VentasOnlineDesktopTable = ({
                         {venta.nombreCliente} {venta.apellidoCliente}
                       </span>
                     </div>
-                  </td>
-                  <td className="px-4 py-3.5 font-mono text-gray-700 whitespace-nowrap">
-                    {venta.dniCliente || "-"}
                   </td>
                   <td className="px-4 py-3.5 text-gray-700 whitespace-nowrap">
                     {formatearFecha(venta.fechaPago)}

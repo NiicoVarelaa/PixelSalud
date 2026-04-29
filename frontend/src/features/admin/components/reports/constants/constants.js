@@ -34,7 +34,8 @@ export const OPCIONES_CATEGORIA = [
     label: "Medicamentos Venta Libre",
   },
   { value: "Cuidado Personal", label: "Cuidado Personal" },
-  { value: "Bebes y Niños", label: "Bebés y Niños" },
+  { value: "Bebés y Niños", label: "Bebés y Niños" },
+  { value: "Nutrición y Deportes", label: "Nutrición y Deportes" },
 ];
 
 export const RANGE_LABEL_BY_KEY = DATE_RANGES.reduce((acc, range) => {

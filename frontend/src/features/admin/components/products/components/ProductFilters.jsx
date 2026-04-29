@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Search, Plus, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, Plus } from "lucide-react";
 import CustomSelect from "./CustomSelect";
 
 const ProductFilters = ({
@@ -43,7 +42,7 @@ const ProductFilters = ({
   }, []);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4">
+    <div className="bg-white rounded-xl border border-gray-100 p-3 sm:p-4">
       <div className="flex flex-col gap-2.5">
         <div className="flex gap-2">
           <div className="flex-1 min-w-0 relative group">
@@ -77,23 +76,11 @@ const ProductFilters = ({
               title="Agregar Producto"
               aria-label="Agregar Producto"
             >
-              <Plus className="h-5 w-5" />
-              <span className="hidden sm:inline font-medium text-sm">
-                Agregar Producto
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-green-600 group-hover:bg-green-50">
+                <Plus size={16} />
               </span>
+              <span className="text-sm font-medium hidden sm:inline">Agregar producto</span>
             </button>
-
-            <Link
-              to="/admin"
-              className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm border border-gray-200 focus-visible:ring-4 focus-visible:ring-gray-200 outline-none"
-              title="Volver al panel"
-              aria-label="Volver al panel"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span className="hidden sm:inline font-medium text-sm">
-                Volver
-              </span>
-            </Link>
           </div>
         </div>
 

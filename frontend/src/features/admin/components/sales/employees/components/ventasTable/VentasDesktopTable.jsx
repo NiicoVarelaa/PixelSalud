@@ -39,7 +39,7 @@ export const VentasDesktopTable = ({
       aria-label="Tabla de ventas"
     >
       <div className="w-full overflow-x-auto">
-        <table className="w-full min-w-[980px] text-sm">
+        <table className="w-full min-w-[860px] text-sm">
           <thead>
             <tr className="sticky top-0 z-10 border-b border-primary-100/80 bg-linear-to-r from-primary-50 to-emerald-50/70 backdrop-blur-sm">
               <th
@@ -53,12 +53,6 @@ export const VentasDesktopTable = ({
                 className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap"
               >
                 Empleado
-              </th>
-              <th
-                scope="col"
-                className="px-4 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap"
-              >
-                DNI
               </th>
               <th
                 scope="col"
@@ -129,9 +123,6 @@ export const VentasDesktopTable = ({
                         {venta.nombreEmpleado} {venta.apellidoEmpleado}
                       </span>
                     </div>
-                  </td>
-                  <td className="px-4 py-3.5 font-mono text-gray-700 whitespace-nowrap">
-                    {venta.dniEmpleado || "-"}
                   </td>
                   <td className="px-4 py-3.5 text-gray-700 whitespace-nowrap">
                     {formatearFecha(venta.fechaPago)}

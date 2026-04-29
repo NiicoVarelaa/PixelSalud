@@ -1,4 +1,4 @@
-import { Edit, Printer, RotateCcw, Trash2 } from "lucide-react";
+import { Edit, Power, Printer, RotateCcw } from "lucide-react";
 
 const baseBtn =
   "transition-colors cursor-pointer focus:outline-none focus-visible:ring-2";
@@ -75,7 +75,7 @@ export const VentaActions = ({
                 aria-label={`Anular venta ${venta.idVentaE}`}
                 {...titleProps("Anular")}
               >
-                <Trash2 size={iconSize} aria-hidden="true" />
+                <Power size={iconSize} aria-hidden="true" />
               </button>
             </>
           )}

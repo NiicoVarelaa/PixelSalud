@@ -1,24 +1,15 @@
-import {
-  ArrowDown,
-  ArrowUp,
-  GripVertical,
-  Star,
-  Trash2,
-  Image as ImageIcon,
-} from "lucide-react";
+import { GripVertical, Star, Trash2, Image as ImageIcon } from "lucide-react";
 
 export const UploadImagenesGallery = ({
   dragOverKey,
   draggingKey,
   imagenes,
   isSaving,
-  moveItem,
   onDragEnd,
   onDragOver,
   onDragStart,
   onDrop,
   onRemove,
-  onSetPrincipal,
 }) => {
   if (imagenes.length === 0) {
     return (
@@ -49,77 +40,55 @@ export const UploadImagenesGallery = ({
             item.type === "new" ? item.previewUrl : item.urlImagen;
 
           return (
-            <div
+            <article
               key={item.key}
               draggable={!isSaving}
               onDragStart={(e) => onDragStart(e, item.key)}
               onDragOver={(e) => onDragOver(e, item.key)}
               onDrop={(e) => onDrop(e, item.key)}
               onDragEnd={onDragEnd}
-              className={`group relative rounded-2xl border bg-white p-2.5 shadow-sm transition-all ${
+              className={`group relative rounded-2xl border bg-white p-2.5 shadow-sm transition-colors ${
                 draggingKey === item.key ? "opacity-60" : "opacity-100"
               } ${
                 dragOverKey === item.key && draggingKey !== item.key
                   ? "border-primary-300 ring-2 ring-primary-400"
-                  : "border-gray-200"
+                  : "border-gray-200 hover:border-gray-300"
               }`}
             >
               <div className="absolute left-3 top-3 z-10 rounded-md border border-gray-200 bg-white/95 p-1 cursor-grab active:cursor-grabbing">
                 <GripVertical className="h-3.5 w-3.5 text-gray-500" />
               </div>
 
-              <img
-                src={preview}
-                alt={`Preview ${index + 1}`}
-                className="h-32 w-full rounded-lg border border-gray-200 object-cover"
-              />
-
-              <div className="absolute right-3 top-3 flex flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                <button
-                  type="button"
-                  onClick={() => moveItem(index, -1)}
-                  disabled={index === 0 || isSaving}
-                  className="rounded border bg-white/90 p-1 disabled:opacity-40"
-                  title="Mover arriba"
-                >
-                  <ArrowUp className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => moveItem(index, 1)}
-                  disabled={index === imagenes.length - 1 || isSaving}
-                  className="rounded border bg-white/90 p-1 disabled:opacity-40"
-                  title="Mover abajo"
-                >
-                  <ArrowDown className="h-4 w-4" />
-                </button>
+              <div className="absolute right-3 top-3 z-10 rounded-full bg-black/65 px-2 py-0.5 text-[10px] font-semibold text-white">
+                #{index + 1}
               </div>
 
-              <div className="mt-2 flex items-center justify-between gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => onSetPrincipal(item.key)}
-                  disabled={isSaving}
-                  className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs ${
-                    item.esPrincipal
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  <Star className="h-3 w-3" />
-                  {item.esPrincipal ? "Principal" : "Marcar"}
-                </button>
+              <div className="relative">
+                <img
+                  src={preview}
+                  alt={`Preview ${index + 1}`}
+                  className="h-32 w-full rounded-lg border border-gray-200 object-cover"
+                />
 
+                {item.esPrincipal && (
+                  <div className="absolute bottom-2 left-2 inline-flex items-center justify-center gap-1 rounded-full bg-yellow-100/95 px-2.5 py-1 text-xs font-semibold text-yellow-800 shadow-sm">
+                    <Star className="h-3.5 w-3.5" />
+                    Principal
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-2">
                 <button
                   type="button"
                   onClick={() => onRemove(item)}
                   disabled={isSaving || item.isLegacy}
-                  className="inline-flex items-center gap-1 rounded-md bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200 disabled:opacity-40"
+                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-40 cursor-pointer"
                   title={
                     item.isLegacy ? "No editable (imagen legacy)" : "Quitar"
                   }
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="h-4 w-4" />
                   Quitar
                 </button>
               </div>
@@ -128,7 +97,7 @@ export const UploadImagenesGallery = ({
                 Orden: {index + 1} ·{" "}
                 {item.type === "existing" ? "Existente" : "Nueva"}
               </p>
-            </div>
+            </article>
           );
         })}
       </div>

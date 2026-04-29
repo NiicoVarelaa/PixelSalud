@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-import { Edit2, Power } from "lucide-react";
 
 const ProductCard = ({ product, onEdit, onToggleActive, formatPrice }) => {
   return (
@@ -48,7 +47,7 @@ const ProductCard = ({ product, onEdit, onToggleActive, formatPrice }) => {
               className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                 product.activo
                   ? "bg-green-100 text-green-700"
-                  : "bg-gray-100 text-gray-700"
+                  : "bg-red-100 text-red-700"
               }`}
             >
               {product.activo ? "Activo" : "Inactivo"}
@@ -56,34 +55,14 @@ const ProductCard = ({ product, onEdit, onToggleActive, formatPrice }) => {
           </div>
 
           <div className="flex gap-2 mt-auto">
-            <button
-              onClick={() => onEdit(product)}
-              className="flex-1 px-3 py-2 text-white bg-yellow-500 hover:bg-yellow-600 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
-              title="Editar producto"
-              aria-label={`Editar ${product.nombreProducto}`}
-            >
-              <Edit2 className="h-4 w-4" />
-              <span className="text-xs font-medium">Editar</span>
-            </button>
-            <button
-              onClick={() => onToggleActive(product)}
-              className={`flex-1 px-3 py-2 text-white rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer ${
-                product.activo
-                  ? "bg-red-500 hover:bg-red-600"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-              title={product.activo ? "Desactivar" : "Activar"}
-              aria-label={
-                product.activo
-                  ? `Desactivar ${product.nombreProducto}`
-                  : `Activar ${product.nombreProducto}`
-              }
-            >
-              <Power className="h-4 w-4" />
-              <span className="text-xs font-medium">
-                {product.activo ? "Desactivar" : "Activar"}
-              </span>
-            </button>
+            <ProductActions
+              className="p-2 rounded-lg flex-1 flex items-center justify-center"
+              iconSize={16}
+              product={product}
+              onEdit={onEdit}
+              onToggleActive={onToggleActive}
+              showTitles
+            />
           </div>
         </div>
       </div>
