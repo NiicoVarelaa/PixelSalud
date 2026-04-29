@@ -10,11 +10,9 @@ const ReportCard = memo(
 
     return (
       <motion.article
-        className="flex flex-1 w-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs transition-shadow hover:shadow-sm focus-within:ring-2 focus-within:ring-green-500 focus-within:ring-offset-2"
+        className="h-full flex flex-1 w-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs transition-[box-shadow,border-color] duration-300 ease-out hover:border-gray-300 hover:shadow-md focus-within:ring-2 focus-within:ring-green-500 focus-within:ring-offset-2"
         aria-labelledby={`reporte-${report.id}-titulo`}
         variants={staggerItem}
-        whileHover={{ y: -1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
       >
         <div className="flex items-start gap-3 border-b border-gray-100 bg-gray-50 px-4 py-4">
           <div
@@ -36,11 +34,28 @@ const ReportCard = memo(
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 p-3.5 mt-auto">
+        <div className="hidden lg:flex lg:flex-1 lg:flex-col px-4 py-2.5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+            Incluye
+          </p>
+          <ul className="mt-2 space-y-1.5 text-xs text-gray-600">
+            {report.incluye.map((item) => (
+              <li key={item} className="flex items-start gap-2 leading-snug">
+                <span
+                  className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-green-500"
+                  aria-hidden="true"
+                />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="flex flex-col gap-2 p-3.5 pt-2 mt-auto lg:p-3 lg:pt-1.5">
           <button
             type="button"
             onClick={onViewDetails}
-            className="flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 hover:border-gray-300 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-1"
+            className="flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 hover:border-gray-300 active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-1 lg:hidden"
             aria-label={`Ver detalle del reporte ${report.titulo}`}
           >
             <Eye size={15} aria-hidden="true" />

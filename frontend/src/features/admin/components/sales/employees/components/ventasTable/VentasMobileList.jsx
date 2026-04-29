@@ -91,15 +91,7 @@ export const VentasMobileList = ({
             </div>
 
             <div className="space-y-2.5 p-4">
-              <div className="grid grid-cols-2 gap-2.5 text-sm">
-                <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-2.5">
-                  <p className="mb-0.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    DNI
-                  </p>
-                  <p className="font-mono text-[15px] text-gray-900">
-                    {venta.dniEmpleado || "-"}
-                  </p>
-                </div>
+              <div className="grid grid-cols-1 gap-2.5 text-sm">
                 <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-2.5">
                   <p className="mb-0.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Método

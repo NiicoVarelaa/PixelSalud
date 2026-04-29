@@ -32,6 +32,12 @@ const TicketPreview = React.forwardRef(({ ticket }, ref) => {
           <span className="text-gray-500">Vendedor:</span>
           <span className="font-medium">{ticket.vendedor}</span>
         </div>
+        {ticket.vendedorDni && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">DNI vendedor:</span>
+            <span className="font-medium">{ticket.vendedorDni}</span>
+          </div>
+        )}
         {ticket.cliente && (
           <div className="flex justify-between">
             <span className="text-gray-500">Cliente:</span>
@@ -41,6 +47,29 @@ const TicketPreview = React.forwardRef(({ ticket }, ref) => {
             >
               {ticket.cliente}
             </span>
+          </div>
+        )}
+        {ticket.clienteInfo?.dni && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">DNI cliente:</span>
+            <span className="font-medium">{ticket.clienteInfo.dni}</span>
+          </div>
+        )}
+        {ticket.clienteInfo?.email && (
+          <div className="flex justify-between gap-2">
+            <span className="text-gray-500">Email:</span>
+            <span
+              className="font-medium text-right max-w-[150px] truncate"
+              title={ticket.clienteInfo.email}
+            >
+              {ticket.clienteInfo.email}
+            </span>
+          </div>
+        )}
+        {ticket.clienteInfo?.telefono && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">Celular:</span>
+            <span className="font-medium">{ticket.clienteInfo.telefono}</span>
           </div>
         )}
         <div className="flex justify-between">

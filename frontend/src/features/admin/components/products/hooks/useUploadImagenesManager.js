@@ -35,7 +35,6 @@ const revokePreview = (item) => {
 
 const normalizePrincipal = (list) => {
   if (list.length === 0) return list;
-  if (list.some((img) => img.esPrincipal)) return list;
 
   return list.map((img, index) => ({
     ...img,
@@ -92,7 +91,7 @@ export const useUploadImagenesManager = ({
 
       existentes.sort(sortByPrincipalAndOrder);
 
-      setImagenes(existentes);
+      setImagenes(normalizePrincipal(existentes));
       setPendingDeleteIds([]);
     } catch (err) {
       console.error("Error cargando imágenes:", err);
@@ -147,31 +146,12 @@ export const useUploadImagenesManager = ({
         esPrincipal: false,
       }));
 
-      setImagenes((prev) => {
-        const sinPrincipal = prev.every((img) => !img.esPrincipal);
-        if (prev.length === 0 || sinPrincipal) {
-          nuevosItems[0].esPrincipal = true;
-        }
-
-        return [...prev, ...nuevosItems];
-      });
+      setImagenes((prev) => normalizePrincipal([...prev, ...nuevosItems]));
 
       event.target.value = "";
     },
     [maxFiles, totalImagenes],
   );
-
-  const moveItem = useCallback((index, direction) => {
-    const target = index + direction;
-    if (target < 0 || target >= imagenesRef.current.length) return;
-
-    setImagenes((prev) => {
-      const copy = [...prev];
-      const [item] = copy.splice(index, 1);
-      copy.splice(target, 0, item);
-      return copy;
-    });
-  }, []);
 
   const moveItemByKey = useCallback((sourceKey, targetKey) => {
     if (!sourceKey || !targetKey || sourceKey === targetKey) return;
@@ -185,7 +165,7 @@ export const useUploadImagenesManager = ({
       const copy = [...prev];
       const [moved] = copy.splice(sourceIndex, 1);
       copy.splice(targetIndex, 0, moved);
-      return copy;
+      return normalizePrincipal(copy);
     });
   }, []);
 
@@ -221,15 +201,6 @@ export const useUploadImagenesManager = ({
   const handleDragEnd = useCallback(() => {
     setDraggingKey(null);
     setDragOverKey(null);
-  }, []);
-
-  const setPrincipal = useCallback((key) => {
-    setImagenes((prev) =>
-      prev.map((img) => ({
-        ...img,
-        esPrincipal: img.key === key,
-      })),
-    );
   }, []);
 
   const removeItem = useCallback((item) => {
@@ -360,8 +331,6 @@ export const useUploadImagenesManager = ({
     handleDrop,
     handleFileSelect,
     handleGuardarCambios,
-    moveItem,
     removeItem,
-    setPrincipal,
   };
 };

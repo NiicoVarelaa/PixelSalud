@@ -35,94 +35,96 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const paginationNumbers = getPaginationNumbers();
 
   return (
-    <nav
-      className="flex justify-center py-3 bg-white rounded-xl border border-gray-200 shadow-sm"
-      role="navigation"
-      aria-label="Paginación de productos"
-    >
-      <div className="flex items-center justify-between w-full max-w-md px-4">
-        <button
-          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-          disabled={currentPage === 1}
-          className={`
-            w-10 h-10 flex items-center justify-center rounded-full
-            transition-all duration-200 bg-slate-200/50
-            focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2
-            ${
-              currentPage === 1
-                ? "opacity-40 cursor-not-allowed"
-                : "hover:bg-slate-300/50 cursor-pointer"
-            }
-          `}
-          aria-label="Página anterior"
-          aria-disabled={currentPage === 1}
-        >
-          <ChevronLeft className="w-5 h-5 text-slate-600" />
-        </button>
+    <div className="w-full bg-white border border-gray-100 rounded-xl px-4 py-3">
+      <nav
+        className="flex justify-center"
+        role="navigation"
+        aria-label="Paginación de productos"
+      >
+        <div className="flex items-center justify-between w-full max-w-md px-1 sm:px-4">
+          <button
+            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className={`
+              w-10 h-10 flex items-center justify-center rounded-full
+              transition-all duration-200 bg-slate-200/50
+              focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2
+              ${
+                currentPage === 1
+                  ? "opacity-40 cursor-not-allowed"
+                  : "hover:bg-slate-300/50 cursor-pointer"
+              }
+            `}
+            aria-label="Página anterior"
+            aria-disabled={currentPage === 1}
+          >
+            <ChevronLeft className="w-5 h-5 text-slate-600" />
+          </button>
 
-        <div className="flex items-center gap-2">
-          {paginationNumbers.map((number, index) => {
-            if (number === "...") {
+          <div className="flex items-center gap-2">
+            {paginationNumbers.map((number, index) => {
+              if (number === "...") {
+                return (
+                  <span
+                    key={`dots-${index}`}
+                    className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm font-medium"
+                    aria-hidden="true"
+                  >
+                    ...
+                  </span>
+                );
+              }
+
+              const isActive = number === currentPage;
+
               return (
-                <span
-                  key={`dots-${index}`}
-                  className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm font-medium"
-                  aria-hidden="true"
-                >
-                  ...
-                </span>
-              );
-            }
-
-            const isActive = number === currentPage;
-
-            return (
-              <button
-                key={number}
-                onClick={() => onPageChange(number)}
-                className={`
-                  w-10 h-10 flex items-center justify-center rounded-full
-                  text-sm font-medium transition-all duration-200
-                  focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2
-                  ${
+                <button
+                  key={number}
+                  onClick={() => onPageChange(number)}
+                  className={`
+                    w-10 h-10 flex items-center justify-center rounded-full
+                    text-sm font-medium transition-all duration-200
+                    focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2
+                    ${
+                      isActive
+                        ? "text-green-600 border border-green-600"
+                        : "text-green-600 hover:bg-green-100 cursor-pointer"
+                    }
+                  `}
+                  aria-label={
                     isActive
-                      ? "text-green-600 border border-green-600"
-                      : "text-green-600 hover:bg-green-100 cursor-pointer"
+                      ? `Página ${number} (actual)`
+                      : `Ir a página ${number}`
                   }
-                `}
-                aria-label={
-                  isActive
-                    ? `Página ${number} (actual)`
-                    : `Ir a página ${number}`
-                }
-                aria-current={isActive ? "page" : undefined}
-              >
-                {number}
-              </button>
-            );
-          })}
-        </div>
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {number}
+                </button>
+              );
+            })}
+          </div>
 
-        <button
-          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-          disabled={currentPage === totalPages}
-          className={`
-            w-10 h-10 flex items-center justify-center rounded-full
-            transition-all duration-200 bg-slate-200/50
-            focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2
-            ${
-              currentPage === totalPages
-                ? "opacity-40 cursor-not-allowed"
-                : "hover:bg-slate-300/50 cursor-pointer"
-            }
-          `}
-          aria-label="Página siguiente"
-          aria-disabled={currentPage === totalPages}
-        >
-          <ChevronRight className="w-5 h-5 text-slate-600" />
-        </button>
-      </div>
-    </nav>
+          <button
+            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
+            className={`
+              w-10 h-10 flex items-center justify-center rounded-full
+              transition-all duration-200 bg-slate-200/50
+              focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2
+              ${
+                currentPage === totalPages
+                  ? "opacity-40 cursor-not-allowed"
+                  : "hover:bg-slate-300/50 cursor-pointer"
+              }
+            `}
+            aria-label="Página siguiente"
+            aria-disabled={currentPage === totalPages}
+          >
+            <ChevronRight className="w-5 h-5 text-slate-600" />
+          </button>
+        </div>
+      </nav>
+    </div>
   );
 };
 

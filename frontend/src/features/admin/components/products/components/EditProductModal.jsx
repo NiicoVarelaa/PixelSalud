@@ -125,7 +125,7 @@ const EditProductModal = ({
                   onChange={(e) =>
                     handleInputChange("nombreProducto", e.target.value)
                   }
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-gray-900"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus-visible:outline-none focus:ring focus:ring-primary-600 focus:border-primary-700 transition-all text-gray-900"
                 />
               </div>
 
@@ -147,7 +147,7 @@ const EditProductModal = ({
                     value={formData.precio}
                     onChange={handlePrecioChange}
                     onBlur={handlePrecioBlur}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-gray-900"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus-visible:outline-none focus:ring focus:ring-primary-600 focus:border-primary-700 transition-all text-gray-900"
                     placeholder="0.00"
                   />
                 </div>
@@ -161,7 +161,7 @@ const EditProductModal = ({
                     min="0"
                     value={formData.stock}
                     onChange={(e) => handleInputChange("stock", e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-gray-900"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus-visible:outline-none focus:ring focus:ring-primary-600 focus:border-primary-700 transition-all text-gray-900"
                   />
                 </div>
               </div>
@@ -175,7 +175,7 @@ const EditProductModal = ({
                   onChange={(e) =>
                     handleInputChange("descripcion", e.target.value)
                   }
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-gray-900 resize-none"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus-visible:outline-none focus:ring focus:ring-primary-600 focus:border-primary-700 transition-all text-gray-900 resize-none"
                   rows="4"
                   placeholder="Descripción del producto (opcional)"
                 />

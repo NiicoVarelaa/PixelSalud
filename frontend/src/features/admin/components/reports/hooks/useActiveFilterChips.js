@@ -10,13 +10,7 @@ export const useActiveFilterChips = ({
   return useMemo(() => {
     const chips = [];
 
-    if (activeDateRange) {
-      chips.push({
-        key: "dateRange",
-        label: `Rango: ${RANGE_LABEL_BY_KEY[activeDateRange] || activeDateRange}`,
-        onRemove: onClearDateRange,
-      });
-    } else {
+    if (!activeDateRange) {
       if (filters.fechaDesde) {
         chips.push({
           key: "fechaDesde",
@@ -59,5 +53,5 @@ export const useActiveFilterChips = ({
     }
 
     return chips;
-  }, [activeDateRange, filters, onClearDateRange, onFilterChange]);
+  }, [activeDateRange, filters, onFilterChange]);
 };

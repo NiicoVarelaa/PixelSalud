@@ -63,7 +63,9 @@ const findById = async (idVentaO) => {
       v.*,
       c.nombreCliente,
       c.apellidoCliente,
-      c.dni as dniCliente
+      c.dni as dniCliente,
+      c.emailCliente,
+      c.telefono as telefonoCliente
     FROM VentasOnlines v
     JOIN Clientes c ON v.idCliente = c.idCliente
     WHERE v.idVentaO = ?

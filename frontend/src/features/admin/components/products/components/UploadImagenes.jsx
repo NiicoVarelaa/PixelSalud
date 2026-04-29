@@ -21,11 +21,9 @@ export default function UploadImagenes({
     imagenes,
     isLoading,
     isSaving,
-    moveItem,
     nuevasImagenes,
     pendingDeleteCount,
     removeItem,
-    setPrincipal,
     success,
     totalImagenes,
   } = useUploadImagenesManager({
@@ -109,18 +107,16 @@ export default function UploadImagenes({
           draggingKey={draggingKey}
           imagenes={imagenes}
           isSaving={isSaving}
-          moveItem={moveItem}
           onDragEnd={handleDragEnd}
           onDragOver={handleDragOver}
           onDragStart={handleDragStart}
           onDrop={handleDrop}
           onRemove={removeItem}
-          onSetPrincipal={setPrincipal}
         />
       </div>
 
       {totalImagenes > 0 && (
-        <div className="sticky bottom-0 mt-5 border-t border-gray-200 bg-white/95 pt-3 backdrop-blur">
+        <div className="mt-5 border-t border-gray-200 pt-3">
           <button
             type="button"
             onClick={handleGuardarCambios}
@@ -128,7 +124,7 @@ export default function UploadImagenes({
             className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 font-semibold transition-colors ${
               isSaving
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-primary-600 text-white hover:bg-primary-700"
+                : "bg-primary-600 text-white hover:bg-primary-700 cursor-pointer"
             }`}
           >
             {isSaving ? (

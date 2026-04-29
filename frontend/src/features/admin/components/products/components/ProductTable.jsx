@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { Edit2, Power } from "lucide-react";
+import ProductActions from "./ProductActions";
 
 const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
   if (products.length === 0) {
@@ -30,7 +30,7 @@ const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden mt-2">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-200">
@@ -79,7 +79,7 @@ const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
                 key={product.idProducto}
                 className="hover:bg-gray-50 transition-colors duration-150"
               >
-                <td className="px-3 py-3">
+                <td className="px-3 py-2.5">
                   <div className="flex items-center gap-2.5">
                     <div className="shrink-0">
                       <img
@@ -100,19 +100,19 @@ const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
                   </div>
                 </td>
 
-                <td className="px-3 py-3 whitespace-nowrap">
+                <td className="px-3 py-2.5 whitespace-nowrap">
                   <span className="text-sm font-semibold text-gray-900">
                     {formatPrice(+product.precioFinal)}
                   </span>
                 </td>
 
-                <td className="px-3 py-3 whitespace-nowrap">
+                <td className="px-3 py-2.5 whitespace-nowrap">
                   <span className="text-sm text-gray-600">
                     {product.categoria}
                   </span>
                 </td>
 
-                <td className="px-3 py-3 whitespace-nowrap text-center">
+                <td className="px-3 py-2.5 whitespace-nowrap text-center">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       product.stock > 0
@@ -124,12 +124,12 @@ const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
                   </span>
                 </td>
 
-                <td className="px-3 py-3 whitespace-nowrap text-center">
+                <td className="px-3 py-2.5 whitespace-nowrap text-center">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       product.activo
                         ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
+                        : "bg-red-100 text-red-800"
                     }`}
                   >
                     {product.activo ? "Activo" : "Inactivo"}
@@ -138,30 +138,14 @@ const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
 
                 <td className="px-3 py-3 whitespace-nowrap text-right">
                   <div className="flex gap-2 justify-end">
-                    <button
-                      onClick={() => onEdit(product)}
-                      className="p-2 text-white bg-yellow-500 hover:bg-yellow-600 rounded-lg transition-colors cursor-pointer"
-                      title="Editar producto"
-                      aria-label={`Editar ${product.nombreProducto}`}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => onToggleActive(product)}
-                      className={`p-2 text-white rounded-lg transition-colors cursor-pointer ${
-                        product.activo
-                          ? "bg-red-500 hover:bg-red-600"
-                          : "bg-green-600 hover:bg-green-700"
-                      }`}
-                      title={product.activo ? "Desactivar" : "Activar"}
-                      aria-label={
-                        product.activo
-                          ? `Desactivar ${product.nombreProducto}`
-                          : `Activar ${product.nombreProducto}`
-                      }
-                    >
-                      <Power className="h-4 w-4" />
-                    </button>
+                    <ProductActions
+                      className="p-2 rounded-lg"
+                      iconSize={16}
+                      product={product}
+                      onEdit={onEdit}
+                      onToggleActive={onToggleActive}
+                      showTitles
+                    />
                   </div>
                 </td>
               </tr>
