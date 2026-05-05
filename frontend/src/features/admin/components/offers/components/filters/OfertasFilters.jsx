@@ -62,7 +62,7 @@ export const OfertasFilters = ({
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="overflow-visible rounded-2xl border border-gray-200 bg-white shadow-sm"
+      className="overflow-visible rounded-2xl border border-gray-200 bg-white"
       role="search"
       aria-label="Filtros del gestor de ofertas"
     >
@@ -88,11 +88,14 @@ export const OfertasFilters = ({
           <button
             type="button"
             onClick={onOpenAgregarOferta}
-            className="inline-flex h-9 w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3.5 text-xs font-semibold text-white transition-all hover:bg-green-700 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 sm:w-auto"
-            aria-label="Agregar nuevo producto en oferta"
+            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm shadow-green-600/20 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer"
+            title="Agregar Producto"
+            aria-label="Agregar Producto"
           >
-            <Plus size={15} aria-hidden="true" />
-            Agregar producto
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-green-600 group-hover:bg-green-50">
+              <Plus size={16} aria-hidden="true" />
+            </span>
+            <span className="text-sm font-medium">Agregar producto</span>
           </button>
         </div>
       </div>
@@ -116,7 +119,7 @@ export const OfertasFilters = ({
                 placeholder="Buscar producto..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-9 text-sm text-gray-900 placeholder-gray-400 transition-colors hover:border-gray-300 hover:bg-white focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100"
+                className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-9 text-sm text-gray-900 placeholder-gray-400 transition-colors hover:border-gray-300 hover:bg-white focus:border-green-500 focus:bg-white focus:outline-none focus:ring focus:ring-primary-600"
                 aria-describedby="search-hint"
               />
               <span id="search-hint" className="sr-only">

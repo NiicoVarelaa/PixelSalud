@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, CircleCheck, Circle, Tag } from "lucide-react";
 import Default from "@assets/default.webp";
+import CustomSelect from "@features/admin/components/products/components/CustomSelect";
 import { getProductoImageUrl } from "../table/utils";
 
 const DESCUENTOS = [10, 15, 20];
@@ -34,6 +35,14 @@ export const ModalAgregarOferta = ({
       return coincideBusqueda && coincideCategoria;
     });
   }, [productos, busqueda, categoria, estaEnCampana]);
+
+  const opcionesCategoria = useMemo(
+    () => [
+      { value: "todas", label: "Todas las categorías" },
+      ...categorias.map((cat) => ({ value: cat, label: cat })),
+    ],
+    [categorias],
+  );
 
   const productoSeleccionado = useMemo(
     () =>
@@ -148,23 +157,18 @@ export const ModalAgregarOferta = ({
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="Buscar producto..."
-                  className="w-full h-10 pl-8.5 pr-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-colors"
+                  className="w-full h-10 pl-8.5 pr-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-green-500 focus:ring focus:ring-green-500 transition-colors"
                   aria-label="Buscar producto para agregar en oferta"
                 />
               </div>
-              <select
+              <CustomSelect
+                id="categoria-oferta"
+                label="Categoría"
                 value={categoria}
-                onChange={(e) => setCategoria(e.target.value)}
-                className="h-10 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700 cursor-pointer focus:outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-colors"
-                aria-label="Filtrar por categoría"
-              >
-                <option value="todas">Todas las categorías</option>
-                {categorias.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+                onChange={setCategoria}
+                options={opcionesCategoria}
+                hideLabel
+              />
             </div>
 
             <div>

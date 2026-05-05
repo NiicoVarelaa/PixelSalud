@@ -22,9 +22,7 @@ export const ProductTableRow = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.15, delay: index * 0.025 }}
-      className={`transition-colors odd:bg-white even:bg-gray-50/40 hover:bg-green-50/35 ${
-        tieneOferta ? "border-l-2 border-l-orange-300" : ""
-      }`}
+      className="transition-colors odd:bg-white even:bg-gray-50/40 hover:bg-green-50/35"
     >
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">

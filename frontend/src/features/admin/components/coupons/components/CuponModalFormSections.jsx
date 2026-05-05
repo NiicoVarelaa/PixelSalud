@@ -1,3 +1,4 @@
+import { DatePickerDay } from "@components/molecules";
 const Field = ({ label, required, htmlFor, children }) => (
   <div>
     <label
@@ -102,25 +103,23 @@ export const CuponModalFormSections = ({ formData, setField }) => {
         </p>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Fecha inicio" required htmlFor="fecha-inicio">
-            <input
+            <DatePickerDay
               id="fecha-inicio"
-              type="date"
               value={formData.fechaInicio}
-              onChange={(e) => setField("fechaInicio", e.target.value)}
-              className={selectCls}
+              onChange={(value) => setField("fechaInicio", value)}
               required
-              aria-required="true"
+              ariaLabel="Fecha inicio"
+              buttonClassName="cursor-pointer"
             />
           </Field>
           <Field label="Fecha vencimiento" required htmlFor="fecha-vto">
-            <input
+            <DatePickerDay
               id="fecha-vto"
-              type="date"
               value={formData.fechaVencimiento}
-              onChange={(e) => setField("fechaVencimiento", e.target.value)}
-              className={selectCls}
+              onChange={(value) => setField("fechaVencimiento", value)}
               required
-              aria-required="true"
+              ariaLabel="Fecha vencimiento"
+              buttonClassName="cursor-pointer"
             />
           </Field>
         </div>

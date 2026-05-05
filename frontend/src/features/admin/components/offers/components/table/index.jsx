@@ -30,6 +30,7 @@ export const OfertasTable = ({
     paginaActual,
     itemsPorPagina,
   });
+  const esPaginaCompleta = productosPaginados.length >= itemsPorPagina;
 
   if (cargando) return <LoadingState />;
 
@@ -74,7 +75,9 @@ export const OfertasTable = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.2 }}
-        className="hidden min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm lg:flex lg:flex-col"
+        className={`hidden min-h-0 overflow-hidden rounded-xl border border-gray-200 bg-white lg:flex lg:flex-col ${
+          esPaginaCompleta ? "lg:flex-1" : ""
+        }`}
         role="region"
         aria-label="Tabla de productos en oferta"
       >

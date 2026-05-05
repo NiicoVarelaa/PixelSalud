@@ -1,4 +1,14 @@
-import { Edit2, XCircle, CheckCircle } from "lucide-react";
+import { Edit2, Trash2, RotateCcw } from "lucide-react";
+
+const baseBtn =
+  "transition-colors cursor-pointer focus:outline-none focus-visible:ring-2";
+
+const palette = {
+  edit: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 focus-visible:ring-yellow-500",
+  remove: "bg-red-100 text-red-700 hover:bg-red-200 focus-visible:ring-red-500",
+  activate:
+    "bg-primary-100 text-primary-700 hover:bg-primary-200 focus-visible:ring-primary-500",
+};
 
 export const ProductActions = ({
   producto,
@@ -26,7 +36,7 @@ export const ProductActions = ({
         <button
           type="button"
           onClick={() => onEstablecerDescuento(producto)}
-          className="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-sm font-semibold transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
+          className={`flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl text-sm font-semibold active:scale-95 focus-visible:ring-offset-2 ${palette.edit} ${baseBtn}`}
           aria-label={`Editar descuento de ${producto.nombreProducto}`}
         >
           <Edit2 size={15} aria-hidden="true" />
@@ -35,10 +45,10 @@ export const ProductActions = ({
         <button
           type="button"
           onClick={() => onCambiarOferta(producto, false)}
-          className="flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 px-4 text-sm font-semibold text-orange-700 transition-all hover:bg-orange-100 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
+          className={`flex h-10 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold active:scale-95 focus-visible:ring-offset-2 ${palette.remove} ${baseBtn}`}
           aria-label={`Desactivar oferta de ${producto.nombreProducto}`}
         >
-          <XCircle size={15} aria-hidden="true" />
+          <Trash2 size={15} aria-hidden="true" />
           Quitar
         </button>
       </>
@@ -47,7 +57,7 @@ export const ProductActions = ({
         <button
           type="button"
           onClick={() => onEstablecerDescuento(producto)}
-          className="h-7 px-3 rounded-lg bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-xs font-semibold whitespace-nowrap cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1"
+          className={`h-7 px-3 rounded-lg text-xs font-semibold whitespace-nowrap active:scale-95 focus-visible:ring-offset-1 ${palette.edit} ${baseBtn}`}
           aria-label={`Editar descuento de ${producto.nombreProducto}`}
         >
           Editar
@@ -55,7 +65,7 @@ export const ProductActions = ({
         <button
           type="button"
           onClick={() => onCambiarOferta(producto, false)}
-          className="h-7 cursor-pointer whitespace-nowrap rounded-lg border border-orange-200 bg-orange-50 px-3 text-xs font-semibold text-orange-700 transition-all hover:bg-orange-100 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1"
+          className={`h-7 whitespace-nowrap rounded-lg px-3 text-xs font-semibold active:scale-95 focus-visible:ring-offset-1 ${palette.remove} ${baseBtn}`}
           aria-label={`Quitar oferta de ${producto.nombreProducto}`}
         >
           Quitar
@@ -68,12 +78,12 @@ export const ProductActions = ({
     <button
       type="button"
       onClick={() => onEstablecerDescuento(producto)}
-      className={`inline-flex items-center justify-center gap-1.5 rounded-xl bg-green-600 hover:bg-green-700 active:scale-95 text-white font-semibold text-xs transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 ${
+      className={`inline-flex items-center justify-center gap-1.5 rounded-xl font-semibold text-xs active:scale-95 focus-visible:ring-offset-2 ${palette.activate} ${baseBtn} ${
         isMobile ? "flex-1 h-10" : "h-7 px-3 whitespace-nowrap"
       }`}
       aria-label={`Activar oferta en ${producto.nombreProducto}`}
     >
-      <CheckCircle size={14} aria-hidden="true" />
+      <RotateCcw size={14} aria-hidden="true" />
       Activar oferta
     </button>
   );

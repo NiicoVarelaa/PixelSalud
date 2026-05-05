@@ -15,7 +15,7 @@ export const Pagination = () => {
     cargando,
   } = useOfertasStore();
 
-  const { totalPaginas, productosFiltrados, inicio, fin, totalItems } =
+  const { totalPaginas, productosFiltrados } =
     usePagination({
       productos,
       busqueda,
@@ -31,11 +31,7 @@ export const Pagination = () => {
   }
 
   return (
-    <div className="space-y-2">
-      <p className="text-xs font-medium text-gray-600" aria-live="polite">
-        Mostrando {inicio}-{fin} de {totalItems} productos con oferta
-      </p>
-
+    <div>
       <PaginationProductos
         currentPage={paginaActual}
         totalPages={totalPaginas}

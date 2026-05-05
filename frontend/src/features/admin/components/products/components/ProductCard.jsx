@@ -27,9 +27,16 @@ const ProductCard = ({ product, onEdit, onToggleActive, formatPrice }) => {
             >
               {product.nombreProducto}
             </h3>
-            <p className="text-base font-bold text-green-600">
-              {formatPrice(+product.precioFinal)}
-            </p>
+            <div className="space-y-1 w-full">
+              <p className="text-base font-bold text-green-600">
+                {formatPrice(+product.precioFinal)}
+              </p>
+              {+product.precioRegular !== +product.precioFinal && (
+                <p className="text-xs text-gray-500 line-through wrap-break-word">
+                  {formatPrice(+product.precioRegular)}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -75,6 +82,8 @@ ProductCard.propTypes = {
     idProducto: PropTypes.number.isRequired,
     nombreProducto: PropTypes.string.isRequired,
     img: PropTypes.string.isRequired,
+    precioRegular: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+      .isRequired,
     precioFinal: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
       .isRequired,
     categoria: PropTypes.string.isRequired,
