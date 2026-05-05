@@ -101,9 +101,16 @@ const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
                 </td>
 
                 <td className="px-3 py-2.5 whitespace-nowrap">
-                  <span className="text-sm font-semibold text-gray-900">
-                    {formatPrice(+product.precioFinal)}
-                  </span>
+                  <div className="space-y-1">
+                    <span className="text-sm font-semibold text-gray-900 block">
+                      {formatPrice(+product.precioFinal)}
+                    </span>
+                    {+product.precioRegular !== +product.precioFinal && (
+                      <span className="text-xs text-gray-500 line-through block">
+                        {formatPrice(+product.precioRegular)}
+                      </span>
+                    )}
+                  </div>
                 </td>
 
                 <td className="px-3 py-2.5 whitespace-nowrap">
@@ -163,6 +170,8 @@ ProductTable.propTypes = {
       idProducto: PropTypes.number.isRequired,
       nombreProducto: PropTypes.string.isRequired,
       img: PropTypes.string.isRequired,
+      precioRegular: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        .isRequired,
       precioFinal: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
         .isRequired,
       categoria: PropTypes.string.isRequired,

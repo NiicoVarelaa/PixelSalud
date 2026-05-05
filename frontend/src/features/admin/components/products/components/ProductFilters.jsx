@@ -59,12 +59,9 @@ const ProductFilters = ({
               onChange={(e) => onBusquedaChange(e.target.value)}
               className={`
                 w-full pl-11 pr-4 py-2.5 bg-gray-50 
-                border border-gray-200 rounded-xl text-sm text-gray-800 placeholder:text-gray-400
-                transition-all duration-200 ease-in-out outline-none
-                hover:border-gray-300
-                focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-500/10
+                border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 transition-colors hover:border-gray-300 hover:bg-white focus:border-green-500 focus:bg-white focus:outline-none focus:ring focus:ring-primary-600
               `}
-              placeholder="Buscar por nombre, marca o código..."
+              placeholder="Buscar por nombre del producto"
               aria-label="Buscar productos por nombre"
             />
           </div>

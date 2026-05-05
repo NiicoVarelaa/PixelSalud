@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "react-toastify";
 import { Calendar, CheckCircle, Mail, Phone, User } from "lucide-react";
+import { DatePickerDay } from "@components/molecules";
 
 const today = new Date();
 const isoToday = today.toISOString().split("T")[0];
@@ -44,6 +45,7 @@ const CheckoutPersonalDataStep = ({ defaultValues, onContinue }) => {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(personalDataSchema),
@@ -152,12 +154,19 @@ const CheckoutPersonalDataStep = ({ defaultValues, onContinue }) => {
               Fecha de nacimiento
               <span className="text-red-600">*</span>
             </label>
-            <input
-              id="fechaNacimiento"
-              type="date"
-              max={isoToday}
-              className={inputClassName}
-              {...register("fechaNacimiento")}
+            <Controller
+              name="fechaNacimiento"
+              control={control}
+              render={({ field }) => (
+                <DatePickerDay
+                  id="fechaNacimiento"
+                  value={field.value}
+                  onChange={field.onChange}
+                  maxDate={today}
+                  ariaLabel="Fecha de nacimiento"
+                  buttonClassName={inputClassName}
+                />
+              )}
             />
             {errors.fechaNacimiento && (
               <p className="mt-1 text-xs text-red-600">

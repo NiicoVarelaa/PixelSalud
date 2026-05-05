@@ -1,4 +1,5 @@
 import { Percent } from "lucide-react";
+import { DatePickerDay } from "@components/molecules";
 
 const TIPOS = ["DESCUENTO", "2X1", "EVENTO", "LIQUIDACION", "TEMPORADA"];
 
@@ -101,24 +102,24 @@ export const CampanaModalFormSection = ({
 
         <div className="grid grid-cols-2 gap-3">
           <Field label="Fecha de inicio" required>
-            <input
-              type="date"
+            <DatePickerDay
+              id="campana-fecha-inicio"
               value={campana.fechaInicio}
-              onChange={(e) => updateCampana({ fechaInicio: e.target.value })}
-              className={`${inputCls} cursor-pointer`}
+              onChange={(value) => updateCampana({ fechaInicio: value })}
               required
-              aria-required="true"
+              ariaLabel="Fecha de inicio"
+              buttonClassName="cursor-pointer"
             />
           </Field>
 
           <Field label="Fecha de fin" required>
-            <input
-              type="date"
+            <DatePickerDay
+              id="campana-fecha-fin"
               value={campana.fechaFin}
-              onChange={(e) => updateCampana({ fechaFin: e.target.value })}
-              className={`${inputCls} cursor-pointer`}
+              onChange={(value) => updateCampana({ fechaFin: value })}
               required
-              aria-required="true"
+              ariaLabel="Fecha de fin"
+              buttonClassName="cursor-pointer"
             />
           </Field>
         </div>

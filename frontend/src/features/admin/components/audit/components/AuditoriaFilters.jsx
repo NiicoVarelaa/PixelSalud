@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, SlidersHorizontal, X } from "lucide-react";
+import { DatePickerDay } from "@components/molecules";
 
 const MODULOS = [
   { value: "", label: "Todos los módulos" },
@@ -122,36 +123,24 @@ export const AuditoriaFilters = ({
         </div>
 
         <div>
-          <label
-            htmlFor="filtro-desde"
-            className="mb-1.5 block text-xs font-medium text-gray-500"
-          >
-            Desde
-          </label>
-          <input
+          <DatePickerDay
             id="filtro-desde"
-            type="date"
+            label="Desde"
             value={filtros.fechaDesde}
-            onChange={(e) => onFiltroChange("fechaDesde", e.target.value)}
-            className={inputCls}
-            aria-label="Fecha de inicio del filtro"
+            onChange={(value) => onFiltroChange("fechaDesde", value)}
+            ariaLabel="Fecha de inicio del filtro"
+            buttonClassName={inputCls}
           />
         </div>
 
         <div>
-          <label
-            htmlFor="filtro-hasta"
-            className="mb-1.5 block text-xs font-medium text-gray-500"
-          >
-            Hasta
-          </label>
-          <input
+          <DatePickerDay
             id="filtro-hasta"
-            type="date"
+            label="Hasta"
             value={filtros.fechaHasta}
-            onChange={(e) => onFiltroChange("fechaHasta", e.target.value)}
-            className={inputCls}
-            aria-label="Fecha de fin del filtro"
+            onChange={(value) => onFiltroChange("fechaHasta", value)}
+            ariaLabel="Fecha de fin del filtro"
+            buttonClassName={inputCls}
           />
         </div>
       </div>

@@ -3,3 +3,4 @@ export { OfertasTable } from "./table";
 export { Pagination } from "./Pagination/Pagination";
 export { ModalDescuento } from "./modals/ModalDescuento";
 export { ModalAgregarOferta } from "./modals/ModalAgregarOferta";
+export { ConfirmQuitarOfertaDialog } from "./modals/ConfirmQuitarOfertaDialog";

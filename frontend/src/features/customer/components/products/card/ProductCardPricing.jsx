@@ -31,7 +31,7 @@ const ProductCardPricing = ({
       </div>
 
       <div className="mt-4 space-y-2 min-h-15">
-        <div className="flex min-h-8 items-end gap-2">
+        <div className="space-y-1 min-h-8">
           <p
             className={`font-black whitespace-nowrap ${isOffert ? "text-xl text-red-600" : "text-xl text-gray-900"}`}
           >
@@ -39,7 +39,7 @@ const ProductCardPricing = ({
           </p>
 
           {isOffert && regularPrice && (
-            <p className="text-sm text-gray-500 line-through font-medium whitespace-nowrap truncate">
+            <p className="text-sm text-gray-500 line-through font-medium">
               {currencyFormatter.format(regularPrice)}
             </p>
           )}

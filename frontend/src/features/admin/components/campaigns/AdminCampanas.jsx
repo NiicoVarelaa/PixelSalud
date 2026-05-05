@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Link } from "react-router-dom";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus } from "lucide-react";
 import { AdminLayout } from "@features/admin/components/shared";
 import { useProductStore } from "@store/useProductStore";
 import { useCampanasData } from "./hooks/useCampanasData";
@@ -107,6 +106,10 @@ const AdminCampanas = () => {
     setModalAbierto(true);
   };
 
+  const handleCerrarModal = useCallback(() => {
+    setModalAbierto(false);
+  }, []);
+
   const toggleProductoSeleccion = (idProducto) => {
     setProductosSeleccionados((prev) =>
       prev.includes(idProducto)
@@ -201,26 +204,20 @@ const AdminCampanas = () => {
         title="Gestión de Campañas"
         description="Administra campañas de ofertas con múltiples productos"
         contentClassName="flex h-full min-h-0 flex-col gap-4"
-        headerAction={
-          <div className="flex shrink-0 gap-3">
-            <button
-              onClick={handleAbrirModal}
-              className="flex cursor-pointer items-center gap-2 rounded-xl border border-primary-700 bg-primary-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-primary-800"
-            >
-              <Plus className="h-5 w-5" />
-              Nueva Campaña
-            </button>
-            <Link
-              to="/admin"
-              className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 transition-colors hover:bg-gray-50"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              Volver
-            </Link>
-          </div>
-        }
       >
-        <StatsCards campanas={campanas} productos={productos} />
+        <div className="flex w-full shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <StatsCards campanas={campanas} productos={productos} />
+
+          <button
+            onClick={handleAbrirModal}
+            className="group flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-green-600 px-5 py-2.5 font-semibold text-white shadow-md shadow-green-600/20 transition-all hover:bg-green-700 hover:shadow-lg hover:shadow-green-600/25 sm:w-auto"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-green-600 group-hover:bg-green-50">
+              <Plus size={16} />
+            </span>
+            Nueva Campaña
+          </button>
+        </div>
 
         <CampanasFilters
           busqueda={busqueda}
@@ -280,7 +277,7 @@ const AdminCampanas = () => {
           onBusquedaProductoChange={setBusquedaProducto}
           categoriaFiltro={categoriaFiltro}
           onCategoriaFiltroChange={setCategoriaFiltro}
-          onClose={() => setModalAbierto(false)}
+          onClose={handleCerrarModal}
           onGuardar={handleGuardarCampana}
         />
 

@@ -7,6 +7,19 @@ export const ProductStatus = ({
   isMobile = false,
 }) => {
   const size = isMobile ? "text-sm px-3 py-1.5" : "text-xs px-2 py-0.5";
+  const descuento = Number(porcentajeDescuento);
+  const badgeTone = (() => {
+    if (descuento >= 20) {
+      return "bg-red-50 border-red-200 text-red-700";
+    }
+    if (descuento >= 15) {
+      return "bg-amber-50 border-amber-200 text-amber-700";
+    }
+    if (descuento >= 10) {
+      return "bg-emerald-50 border-emerald-200 text-emerald-700";
+    }
+    return "bg-orange-50 border-orange-200 text-orange-700";
+  })();
 
   return (
     <div
@@ -21,7 +34,7 @@ export const ProductStatus = ({
       )}
       {tieneOferta ? (
         <span
-          className={`inline-flex items-center gap-1 rounded-lg bg-orange-50 border border-orange-200 text-orange-700 font-bold whitespace-nowrap ${size}`}
+          className={`inline-flex items-center gap-1 rounded-lg border font-bold whitespace-nowrap ${badgeTone} ${size}`}
         >
           <Percent size={isMobile ? 14 : 11} aria-hidden="true" />
           {porcentajeDescuento}% OFF

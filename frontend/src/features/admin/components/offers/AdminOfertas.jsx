@@ -10,6 +10,7 @@ import {
   Pagination,
   ModalDescuento,
   ModalAgregarOferta,
+  ConfirmQuitarOfertaDialog,
 } from "./components";
 
 const AdminOfertas = () => {
@@ -18,6 +19,9 @@ const AdminOfertas = () => {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modalAgregarAbierto, setModalAgregarAbierto] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [modalQuitarAbierto, setModalQuitarAbierto] = useState(false);
+  const [productoQuitar, setProductoQuitar] = useState(null);
+  const [quitandoOferta, setQuitandoOferta] = useState(false);
 
   const { estaEnCampana, handleCambiarOferta } = useOfertasData();
 
@@ -29,7 +33,7 @@ const AdminOfertas = () => {
     const getItemsPorPagina = (width) => {
       if (width < 640) return 3;
       if (width < 1024) return 4;
-      return 6;
+      return 7;
     };
 
     const applyResponsivePagination = () => {
@@ -60,15 +64,50 @@ const AdminOfertas = () => {
     handleCambiarOferta(producto, true, porcentaje);
   };
 
+  const abrirModalQuitar = (producto) => {
+    setProductoQuitar(producto);
+    setModalQuitarAbierto(true);
+  };
+
+  const cerrarModalQuitar = () => {
+    if (quitandoOferta) return;
+    setModalQuitarAbierto(false);
+    setProductoQuitar(null);
+  };
+
+  const confirmarQuitarOferta = async () => {
+    if (!productoQuitar) return;
+    try {
+      setQuitandoOferta(true);
+      await handleCambiarOferta(productoQuitar, false);
+      cerrarModalQuitar();
+    } finally {
+      setQuitandoOferta(false);
+    }
+  };
+
+  const handleCambiarOfertaConConfirmacion = (
+    producto,
+    activar,
+    porcentaje,
+  ) => {
+    if (activar) {
+      handleCambiarOferta(producto, true, porcentaje);
+      return;
+    }
+
+    abrirModalQuitar(producto);
+  };
+
   return (
     <AdminLayout
       title="Gestor de Ofertas Individuales"
       description="Gestiona descuentos puntuales por producto con una vista simple y accionable"
       usePageScroll={false}
-      contentClassName="flex h-full min-h-0 flex-col pb-2"
+      contentClassName="flex min-h-0 flex-col"
     >
       <div
-        className="flex min-h-0 flex-1 flex-col gap-3 sm:gap-4"
+        className="flex min-h-0 flex-1 flex-col gap-4 sm:gap-5"
         role="main"
         aria-label="Panel de ofertas"
       >
@@ -79,20 +118,19 @@ const AdminOfertas = () => {
           />
         </section>
 
-        <section
-          aria-label="Listado de productos en oferta"
-          className="flex flex-col gap-3 lg:min-h-0 lg:flex-1"
-        >
-          <div className="lg:min-h-0 lg:flex-1">
+        <div className="flex min-w-0 min-h-0 flex-1 flex-col gap-4">
+          <div className="min-w-0">
             <OfertasTable
               onEstablecerDescuento={abrirModalDescuento}
-              onCambiarOferta={handleCambiarOferta}
+              onCambiarOferta={handleCambiarOfertaConConfirmacion}
               estaEnCampana={estaEnCampana}
             />
           </div>
 
-          <Pagination />
-        </section>
+          <div className="mt-auto min-w-0 shrink-0">
+            <Pagination />
+          </div>
+        </div>
       </div>
 
       <ModalDescuento
@@ -115,6 +153,14 @@ const AdminOfertas = () => {
         categorias={categorias}
         estaEnCampana={estaEnCampana}
         onConfirm={confirmarAgregarOferta}
+      />
+
+      <ConfirmQuitarOfertaDialog
+        isOpen={modalQuitarAbierto}
+        isLoading={quitandoOferta}
+        producto={productoQuitar}
+        onClose={cerrarModalQuitar}
+        onConfirm={confirmarQuitarOferta}
       />
 
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
