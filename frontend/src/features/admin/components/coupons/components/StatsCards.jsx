@@ -1,66 +1,67 @@
-import { motion } from "framer-motion";
 import { Tag, CheckCircle2, XCircle, Clock, TrendingUp } from "lucide-react";
 
-const STATS = (e) => [
-  {
-    label: "Total",
-    value: e.total,
-    icon: Tag,
-    accent: "text-gray-700",
-    iconBg: "bg-gray-100",
-  },
-  {
-    label: "Activos",
-    value: e.activos,
-    icon: CheckCircle2,
-    accent: "text-green-700",
-    iconBg: "bg-green-100",
-  },
-  {
-    label: "Inactivos",
-    value: e.inactivos,
-    icon: XCircle,
-    accent: "text-gray-500",
-    iconBg: "bg-gray-100",
-  },
-  {
-    label: "Expirados",
-    value: e.expirados,
-    icon: Clock,
-    accent: "text-orange-600",
-    iconBg: "bg-orange-50",
-  },
-  {
-    label: "Usos",
-    value: e.vecesUsadoTotal,
-    icon: TrendingUp,
-    accent: "text-gray-700",
-    iconBg: "bg-gray-100",
-  },
-];
+export const StatsCards = ({ estadisticas }) => {
+  const stats = [
+    {
+      titulo: "Total",
+      valor: estadisticas.total,
+      icono: Tag,
+      iconBg: "bg-gray-100",
+      iconColor: "text-gray-700",
+    },
+    {
+      titulo: "Activos",
+      valor: estadisticas.activos,
+      icono: CheckCircle2,
+      iconBg: "bg-green-100",
+      iconColor: "text-green-600",
+    },
+    {
+      titulo: "Inactivos",
+      valor: estadisticas.inactivos,
+      icono: XCircle,
+      iconBg: "bg-gray-100",
+      iconColor: "text-gray-600",
+    },
+    {
+      titulo: "Expirados",
+      valor: estadisticas.expirados,
+      icono: Clock,
+      iconBg: "bg-red-100",
+      iconColor: "text-red-600",
+    },
+    {
+      titulo: "Usos",
+      valor: estadisticas.vecesUsadoTotal,
+      icono: TrendingUp,
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-600",
+    },
+  ];
 
-export const StatsCards = ({ estadisticas }) => (
-  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
-    {STATS(estadisticas).map((stat, i) => (
-      <motion.div
-        key={stat.label}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: i * 0.05 }}
-        className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs"
-      >
-        <div
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${stat.iconBg}`}
-        >
-          <stat.icon size={15} className={stat.accent} aria-hidden="true" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-xs text-gray-500 truncate">{stat.label}</p>
-          <p className={`text-lg font-bold leading-none mt-0.5 ${stat.accent}`}>
-            {stat.value ?? 0}
-          </p>
-        </div>
-      </motion.div>
-    ))}
-  </div>
-);
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-2">
+      {stats.map((stat, index) => {
+        const Icon = stat.icono;
+        return (
+          <div
+            key={index}
+            className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4 hover:border-gray-200 transition-colors"
+          >
+            <div className={`${stat.iconBg} p-2.5 rounded-lg shrink-0`}>
+              <Icon className={stat.iconColor} size={22} strokeWidth={2} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                {stat.titulo}
+              </p>
+              <p className="text-xl font-bold text-gray-900 mt-0.5">
+                {stat.valor}
+              </p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};

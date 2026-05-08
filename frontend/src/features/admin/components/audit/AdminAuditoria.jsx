@@ -48,73 +48,53 @@ const AdminAuditoria = () => {
 
   return (
     <AdminLayout
-      title="Auditoría"
-      description="Registro completo de acciones críticas del sistema"
-      contentClassName="flex h-full min-h-0 flex-col gap-3"
+      title="Auditoria"
+      description="Seguimiento de acciones y cambios en el sistema"
     >
-      <AuditoriaFilters
-        filtros={filtros}
-        onFiltroChange={handleFiltroChange}
-        onLimpiar={limpiarFiltros}
-        onBuscar={cargarAuditorias}
-      />
+      <div className="mb-2 shrink-0">
+        <AuditoriaFilters
+          filtros={filtros}
+          onFiltroChange={handleFiltroChange}
+          onLimpiar={limpiarFiltros}
+          onBuscar={cargarAuditorias}
+        />
+      </div>
 
       {error && <ErrorBanner error={error} />}
 
-      <div className="flex flex-col gap-2 md:hidden">
+      <div className="flex-1 overflow-y-auto min-h-0">
         {loading ? (
-          <div className="rounded-xl border border-gray-200 bg-white">
-            <LoadingState />
-          </div>
+          <LoadingState />
         ) : auditorias.length === 0 ? (
-          <div className="rounded-xl border border-gray-200 bg-white">
-            <EmptyState />
-          </div>
+          <EmptyState />
         ) : (
           <>
-            {auditorias.map((a, i) => (
-              <AuditoriaCard
-                key={a.idAuditoria}
-                auditoria={a}
-                index={i}
+            <div className="md:hidden space-y-2.5">
+              {auditorias.map((a, i) => (
+                <AuditoriaCard
+                  key={a.idAuditoria}
+                  auditoria={a}
+                  index={i}
+                  onVerDetalles={verDetalles}
+                />
+              ))}
+            </div>
+
+            <div className="hidden md:block">
+              <AuditoriaTable
+                auditorias={auditorias}
                 onVerDetalles={verDetalles}
               />
-            ))}
-            <div className="rounded-xl border border-gray-200 bg-white">
-              <AuditoriaPagination {...paginationProps} />
             </div>
           </>
         )}
       </div>
 
-      <div className="hidden min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs md:flex">
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          {loading ? (
-            <table className="w-full">
-              <tbody>
-                <LoadingState asTableRow />
-              </tbody>
-            </table>
-          ) : auditorias.length === 0 ? (
-            <table className="w-full">
-              <tbody>
-                <EmptyState asTableRow />
-              </tbody>
-            </table>
-          ) : (
-            <AuditoriaTable
-              auditorias={auditorias}
-              onVerDetalles={verDetalles}
-            />
-          )}
+      {!loading && auditorias.length > 0 && (
+        <div className="mt-3 shrink-0">
+          <AuditoriaPagination {...paginationProps} />
         </div>
-
-        {!loading && auditorias.length > 0 && (
-          <div className="shrink-0 border-t border-gray-100">
-            <AuditoriaPagination {...paginationProps} />
-          </div>
-        )}
-      </div>
+      )}
 
       <AuditoriaModal
         auditoria={auditoriaSeleccionada}

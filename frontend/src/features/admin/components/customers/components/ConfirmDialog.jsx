@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, AlertCircle, Info, X } from "lucide-react";
+import { useEffect } from "react";
+import { AlertTriangle, Power } from "lucide-react";
 
 export const ConfirmDialog = ({
   isOpen,
@@ -11,34 +11,37 @@ export const ConfirmDialog = ({
   confirmText = "Confirmar",
   cancelText = "Cancelar",
 }) => {
-  const typeConfig = {
-    warning: {
-      icon: AlertTriangle,
-      gradient: "from-yellow-500 to-orange-500",
-      bgIcon: "bg-yellow-100",
-      textIcon: "text-yellow-600",
-      buttonBg:
-        "from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600",
-    },
-    danger: {
-      icon: AlertCircle,
-      gradient: "from-red-500 to-red-600",
-      bgIcon: "bg-red-100",
-      textIcon: "text-red-600",
-      buttonBg: "from-red-500 to-red-600 hover:from-red-600 hover:to-red-700",
-    },
-    info: {
-      icon: Info,
-      gradient: "from-blue-500 to-blue-600",
-      bgIcon: "bg-blue-100",
-      textIcon: "text-blue-600",
-      buttonBg:
-        "from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700",
-    },
-  };
+  useEffect(() => {
+    if (!isOpen) return;
 
-  const config = typeConfig[type] || typeConfig.warning;
-  const Icon = config.icon;
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const isDanger = type === "danger";
+  const isInfo = type === "info";
+
+  const iconBg = isDanger
+    ? "bg-red-50 text-red-600 ring-red-200"
+    : isInfo
+      ? "bg-blue-50 text-blue-600 ring-blue-200"
+      : "bg-amber-50 text-amber-600 ring-amber-200";
+
+  const confirmBg = isDanger
+    ? "bg-red-600 hover:bg-red-700 focus-visible:ring-red-500/40"
+    : isInfo
+      ? "bg-blue-600 hover:bg-blue-700 focus-visible:ring-blue-500/40"
+      : "bg-amber-600 hover:bg-amber-700 focus-visible:ring-amber-500/40";
+
+  const Icon = isDanger || isInfo ? Power : AlertTriangle;
 
   const handleConfirm = async () => {
     const result = await onConfirm();
@@ -48,63 +51,44 @@ export const ConfirmDialog = ({
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/45 backdrop-blur-sm cursor-pointer"
+        onClick={onClose}
+        aria-label="Cerrar confirmacion"
+      />
+
+      <div className="relative w-full rounded-t-2xl bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-2xl sm:p-6">
+        <div
+          className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full ring-1 ${iconBg}`}
+        >
+          <Icon size={28} aria-hidden="true" />
+        </div>
+
+        <h3 className="text-center text-xl font-extrabold text-gray-800">
+          {title}
+        </h3>
+        <p className="mt-2 text-center text-sm text-gray-500">{message}</p>
+
+        <div className="mt-6 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={handleConfirm}
+            className={`h-11 rounded-xl px-4 font-bold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 cursor-pointer ${confirmBg}`}
+          >
+            {confirmText}
+          </button>
+
+          <button
+            type="button"
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-          />
-
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
-            >
-              <div
-                className={`bg-linear-to-r ${config.gradient} px-6 py-4 flex items-center justify-between`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`${config.bgIcon} p-2 rounded-lg`}>
-                    <Icon className={config.textIcon} size={24} />
-                  </div>
-                  <h3 className="text-xl font-bold text-white">{title}</h3>
-                </div>
-                <button
-                  onClick={onClose}
-                  className="p-1 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <X className="text-white" size={20} />
-                </button>
-              </div>
-
-              <div className="p-6">
-                <p className="text-gray-600 leading-relaxed">{message}</p>
-              </div>
-
-              <div className="flex gap-3 px-6 pb-6">
-                <button
-                  onClick={onClose}
-                  className="flex-1 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors"
-                >
-                  {cancelText}
-                </button>
-                <button
-                  onClick={handleConfirm}
-                  className={`flex-1 px-4 py-2.5 bg-linear-to-r ${config.buttonBg} text-white font-medium rounded-lg transition-colors shadow-lg`}
-                >
-                  {confirmText}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        </>
-      )}
-    </AnimatePresence>
+            className="h-11 rounded-xl bg-slate-600 hover:bg-slate-700 px-4 font-bold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/40 cursor-pointer"
+          >
+            {cancelText}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };

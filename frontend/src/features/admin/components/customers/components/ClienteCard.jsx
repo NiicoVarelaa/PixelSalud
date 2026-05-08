@@ -2,11 +2,15 @@ import { motion } from "framer-motion";
 import {
   Mail,
   CreditCard,
-  Edit,
+  Edit2,
   Power,
-  CheckCircle,
+  RotateCcw,
+  CheckCircle2,
   XCircle,
 } from "lucide-react";
+
+const baseBtn =
+  "transition-colors cursor-pointer focus:outline-none focus-visible:ring-2";
 
 export const ClienteCard = ({ cliente, onEditar, onCambiarEstado }) => {
   const esActivo = cliente.activo !== 0 && cliente.activo !== false;
@@ -15,11 +19,8 @@ export const ClienteCard = ({ cliente, onEditar, onCambiarEstado }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2, boxShadow: "0 10px 18px -8px rgb(0 0 0 / 0.12)" }}
-      className="mb-3 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+      className="mb-3 overflow-hidden rounded-xl border border-gray-100 bg-white"
     >
-      <div className={`h-1 ${esActivo ? "bg-green-500" : "bg-red-500"}`} />
-
       <div className="p-4">
         <div className="flex items-center justify-between">
           <div>
@@ -28,20 +29,27 @@ export const ClienteCard = ({ cliente, onEditar, onCambiarEstado }) => {
             </h3>
             <p className="text-xs text-gray-400">ID: #{cliente.idCliente}</p>
           </div>
-          <div className="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1.5">
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+              esActivo
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
             {esActivo ? (
-              <CheckCircle className="text-green-600" size={18} />
+              <CheckCircle2 size={14} />
             ) : (
-              <XCircle className="text-red-600" size={18} />
+              <XCircle size={14} />
             )}
-          </div>
+            {esActivo ? "Activo" : "Inactivo"}
+          </span>
         </div>
       </div>
 
       <div className="space-y-3 px-4 pb-4">
         <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-sky-50 p-2">
-            <Mail className="text-sky-600" size={16} />
+          <div className="rounded-lg bg-blue-50 p-2">
+            <Mail className="text-blue-600" size={16} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-500 uppercase font-semibold">
@@ -67,53 +75,37 @@ export const ClienteCard = ({ cliente, onEditar, onCambiarEstado }) => {
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-3">
-          <div
-            className={`${esActivo ? "bg-green-50" : "bg-red-50"} p-2 rounded-lg`}
-          >
-            {esActivo ? (
-              <CheckCircle className="text-green-600" size={16} />
-            ) : (
-              <XCircle className="text-red-600" size={16} />
-            )}
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 uppercase font-semibold">
-              Estado
-            </p>
-            <p
-              className={`text-sm font-semibold ${esActivo ? "text-green-600" : "text-red-600"}`}
-            >
-              {esActivo ? "Activo" : "Inactivo"}
-            </p>
-          </div>
-        </div>
       </div>
 
-      <div className="flex gap-2 border-t border-gray-100 bg-gray-50 p-4">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+      <div className="flex gap-2 border-t border-gray-100 bg-gray-50 p-2.5 justify-end">
+        <button
           onClick={() => onEditar(cliente)}
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-2.5 font-medium text-yellow-700 transition-colors hover:bg-yellow-100"
+          className={`p-2 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200 focus-visible:ring-yellow-500 ${baseBtn}`}
+          title="Editar"
+          aria-label={`Editar ${cliente.nombreCliente} ${cliente.apellidoCliente}`}
         >
-          <Edit size={16} />
-          Editar
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => onCambiarEstado(cliente)}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-medium transition-colors ${
-            esActivo
-              ? "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
-              : "border border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
-          }`}
-        >
-          <Power size={16} />
-          {esActivo ? "Desactivar" : "Activar"}
-        </motion.button>
+          <Edit2 size={16} />
+        </button>
+
+        {esActivo ? (
+          <button
+            onClick={() => onCambiarEstado(cliente)}
+            className={`p-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 focus-visible:ring-red-500 ${baseBtn}`}
+            title="Desactivar"
+            aria-label={`Desativar ${cliente.nombreCliente} ${cliente.apellidoCliente}`}
+          >
+            <Power size={16} />
+          </button>
+        ) : (
+          <button
+            onClick={() => onCambiarEstado(cliente)}
+            className={`p-2 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 focus-visible:ring-green-500 ${baseBtn}`}
+            title="Reactivar"
+            aria-label={`Reactivar ${cliente.nombreCliente} ${cliente.apellidoCliente}`}
+          >
+            <RotateCcw size={16} />
+          </button>
+        )}
       </div>
     </motion.div>
   );

@@ -93,7 +93,7 @@ export const EmpleadoModal = ({
       e.nombreEmpleado = "El nombre es obligatorio";
     if (!formData.apellidoEmpleado.trim())
       e.apellidoEmpleado = "El apellido es obligatorio";
-    if (!formData.dniEmpleado.trim()) e.dniEmpleado = "El DNI es obligatorio";
+    if (!String(formData.dniEmpleado || "").trim()) e.dniEmpleado = "El DNI es obligatorio";
     if (!formData.emailEmpleado.trim())
       e.emailEmpleado = "El email es obligatorio";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailEmpleado))

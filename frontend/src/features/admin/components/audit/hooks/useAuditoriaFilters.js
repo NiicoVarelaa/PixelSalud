@@ -6,7 +6,7 @@ export const useAuditoriaFilters = () => {
     tipoUsuario: "",
     fechaDesde: "",
     fechaHasta: "",
-    limite: 10,
+    limite: 6,
     offset: 0,
   });
 
@@ -24,7 +24,7 @@ export const useAuditoriaFilters = () => {
       tipoUsuario: "",
       fechaDesde: "",
       fechaHasta: "",
-      limite: 10,
+      limite: 6,
       offset: 0,
     });
   };
