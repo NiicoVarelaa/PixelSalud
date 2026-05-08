@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
 import { AdminLayout } from "@features/admin/components/shared";
 import { useCuponesData } from "./hooks/useCuponesData";
 import { useCuponesFilters } from "./hooks/useCuponesFilters";
@@ -65,8 +64,8 @@ const AdminCupones = () => {
     const nuevoEstado = estadoActual === "activo" ? "inactivo" : "activo";
     setConfirmDialog({
       isOpen: true,
-      title: "¿Cambiar estado del cupón?",
-      message: `El cupón será ${nuevoEstado === "activo" ? "activado" : "desactivado"}.`,
+      title: "Cambiar estado del cupon",
+      message: `El cupon sera ${nuevoEstado === "activo" ? "activado" : "desactivado"}.`,
       onConfirm: () => cambiarEstado(id, estadoActual),
     });
   };
@@ -74,8 +73,8 @@ const AdminCupones = () => {
   const handleEliminar = (id) => {
     setConfirmDialog({
       isOpen: true,
-      title: "¿Eliminar cupón?",
-      message: "Esta acción no se puede deshacer.",
+      title: "Eliminar cupon",
+      message: "Esta accion no se puede deshacer.",
       onConfirm: () => eliminarCupon(id),
     });
   };
@@ -91,18 +90,7 @@ const AdminCupones = () => {
   return (
     <AdminLayout
       title="Cupones"
-      description="Administrá cupones de descuento y su historial de uso"
-      contentClassName="flex h-full min-h-0 flex-col gap-3"
-      headerAction={
-        <button
-          type="button"
-          onClick={() => setModalAbierto(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-green-700 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-        >
-          <Plus size={15} aria-hidden="true" />
-          Crear cupón
-        </button>
-      }
+      description={`${cuponesFiltrados.length} cupon${cuponesFiltrados.length !== 1 ? "es" : ""} encontrado${cuponesFiltrados.length !== 1 ? "s" : ""}`}
     >
       <StatsCards estadisticas={estadisticas} />
 
@@ -114,29 +102,32 @@ const AdminCupones = () => {
 
       {vistaActual === "cupones" ? (
         <div
-          className="flex min-h-0 flex-1 flex-col gap-3"
+          className="flex min-h-0 flex-1 flex-col"
           role="tabpanel"
           id="panel-cupones"
           aria-labelledby="tab-cupones"
         >
-          <CuponesFilters
-            busqueda={busqueda}
-            setBusqueda={setBusqueda}
-            filtroEstado={filtroEstado}
-            setFiltroEstado={setFiltroEstado}
-            filtroTipo={filtroTipo}
-            setFiltroTipo={setFiltroTipo}
-            onResetPaginacion={resetPaginacion}
-          />
+          <div className="mb-2 shrink-0">
+            <CuponesFilters
+              busqueda={busqueda}
+              setBusqueda={setBusqueda}
+              filtroEstado={filtroEstado}
+              setFiltroEstado={setFiltroEstado}
+              filtroTipo={filtroTipo}
+              setFiltroTipo={setFiltroTipo}
+              onResetPaginacion={resetPaginacion}
+              onCrearCupon={() => setModalAbierto(true)}
+            />
+          </div>
 
-          <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs">
+          <div className="flex-1 overflow-y-auto min-h-0">
             {cargando ? (
               <LoadingState />
             ) : cuponesPaginados.length === 0 ? (
               <EmptyState mensaje="No se encontraron cupones" />
             ) : (
-              <div className="flex min-h-0 flex-1 flex-col">
-                <div className="block min-h-0 flex-1 overflow-y-auto p-3 md:hidden">
+              <>
+                <div className="block md:hidden">
                   <div className="grid gap-2.5">
                     {cuponesPaginados.map((cupon, i) => (
                       <CuponCard
@@ -150,31 +141,33 @@ const AdminCupones = () => {
                   </div>
                 </div>
 
-                <div className="hidden min-h-0 flex-1 overflow-y-auto md:block">
+                <div className="hidden md:block">
                   <CuponTable
                     cupones={cuponesPaginados}
                     onCambiarEstado={handleCambiarEstado}
                     onEliminar={handleEliminar}
                   />
                 </div>
-
-                <div className="shrink-0 border-t border-gray-100 bg-white/95 px-4 py-3">
-                  <CuponesPagination
-                    paginaActual={paginaActual}
-                    totalPaginas={totalPaginas}
-                    indicePrimero={indicePrimero}
-                    indiceUltimo={indiceUltimo}
-                    totalItems={cuponesFiltrados.length}
-                    onCambiarPagina={setPaginaActual}
-                  />
-                </div>
-              </div>
+              </>
             )}
           </div>
+
+          {cuponesFiltrados.length > 0 && (
+            <div className="mt-3 shrink-0">
+              <CuponesPagination
+                paginaActual={paginaActual}
+                totalPaginas={totalPaginas}
+                indicePrimero={indicePrimero}
+                indiceUltimo={indiceUltimo}
+                totalItems={cuponesFiltrados.length}
+                onCambiarPagina={setPaginaActual}
+              />
+            </div>
+          )}
         </div>
       ) : (
         <div
-          className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs"
+          className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-100 bg-white"
           role="tabpanel"
           id="panel-historial"
           aria-labelledby="tab-historial"

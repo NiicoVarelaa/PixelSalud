@@ -1,40 +1,26 @@
-import { motion } from "framer-motion";
 import { FileSearch, AlertCircle } from "lucide-react";
 
-export const LoadingState = ({ asTableRow = false }) => {
-  const inner = (
+export const LoadingState = () => (
+  <div className="bg-white rounded-xl border border-gray-100">
     <div
-      className="flex flex-col items-center justify-center gap-2 py-16"
+      className="flex flex-col items-center justify-center py-16"
       role="status"
       aria-live="polite"
-      aria-label="Cargando registros de auditoría"
+      aria-label="Cargando registros de auditoria"
     >
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
-        className="h-8 w-8 rounded-full border-2 border-gray-200 border-t-green-600"
+      <div
+        className="h-8 w-8 rounded-full border-2 border-gray-200 border-t-green-600 animate-spin"
         aria-hidden="true"
       />
-      <p className="text-sm text-gray-500">Cargando auditorías...</p>
+      <p className="mt-3 text-sm text-gray-500">Cargando auditorias...</p>
     </div>
-  );
+  </div>
+);
 
-  if (asTableRow) {
-    return (
-      <tr>
-        <td colSpan={6}>{inner}</td>
-      </tr>
-    );
-  }
-  return inner;
-};
-
-export const EmptyState = ({ asTableRow = false }) => {
-  const inner = (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col items-center justify-center gap-2 py-16 text-center"
+export const EmptyState = () => (
+  <div className="bg-white rounded-xl border border-gray-100">
+    <div
+      className="flex flex-col items-center justify-center py-16 text-center px-6"
       role="status"
     >
       <div
@@ -43,30 +29,21 @@ export const EmptyState = ({ asTableRow = false }) => {
       >
         <FileSearch size={22} className="text-gray-400" />
       </div>
-      <p className="text-sm font-semibold text-gray-700">Sin resultados</p>
-      <p className="text-xs text-gray-400">
+      <p className="mt-3 text-sm font-semibold text-gray-700">
+        Sin resultados
+      </p>
+      <p className="mt-1 text-xs text-gray-400">
         No hay registros con los filtros aplicados
       </p>
-    </motion.div>
-  );
-
-  if (asTableRow) {
-    return (
-      <tr>
-        <td colSpan={6}>{inner}</td>
-      </tr>
-    );
-  }
-  return inner;
-};
+    </div>
+  </div>
+);
 
 export const ErrorBanner = ({ error }) => (
-  <motion.div
-    initial={{ opacity: 0, y: -8 }}
-    animate={{ opacity: 1, y: 0 }}
+  <div
     role="alert"
     aria-live="assertive"
-    className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3"
+    className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 mb-2"
   >
     <AlertCircle
       size={16}
@@ -75,9 +52,9 @@ export const ErrorBanner = ({ error }) => (
     />
     <div>
       <p className="text-xs font-semibold text-red-700">
-        Error al cargar auditorías
+        Error al cargar auditorias
       </p>
       <p className="mt-0.5 text-xs text-red-600">{error}</p>
     </div>
-  </motion.div>
+  </div>
 );

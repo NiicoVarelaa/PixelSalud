@@ -62,15 +62,15 @@ export const ClienteModal = ({
     if (!formData.dniCliente.trim()) {
       nuevosErrores.dniCliente = "El DNI es obligatorio";
     } else if (!/^\d{7,8}$/.test(formData.dniCliente)) {
-      nuevosErrores.dniCliente = "DNI inválido (7-8 dígitos)";
+      nuevosErrores.dniCliente = "DNI invalido (7-8 digitos)";
     }
     if (!formData.emailCliente.trim()) {
       nuevosErrores.emailCliente = "El email es obligatorio";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailCliente)) {
-      nuevosErrores.emailCliente = "Email inválido";
+      nuevosErrores.emailCliente = "Email invalido";
     }
     if (!esEdicion && !formData.contraCliente.trim()) {
-      nuevosErrores.contraCliente = "La contraseña es obligatoria";
+      nuevosErrores.contraCliente = "La contrasena es obligatoria";
     }
 
     setErrores(nuevosErrores);
@@ -91,226 +91,234 @@ export const ClienteModal = ({
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-          />
+      <div
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cliente-modal-title"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+          aria-hidden="true"
+        />
 
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="relative w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden"
+        >
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-600 text-white shrink-0">
+                <User size={17} aria-hidden="true" />
+              </span>
+              <div>
+                <h2 id="cliente-modal-title" className="text-base font-semibold text-gray-900">
+                  {esEdicion ? "Editar Cliente" : "Nuevo Cliente"}
+                </h2>
+                <p className="text-xs text-gray-500">
+                  {esEdicion ? "Modifica los datos del cliente" : "Completa los datos para registrar un cliente"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+              aria-label="Cerrar modal"
             >
-              <div className="bg-linear-to-r from-green-500 to-green-600 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
-                    <User className="text-white" size={24} />
+              <X size={18} />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                  Nombre *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="text-gray-400" size={16} />
                   </div>
-                  <h2 className="text-2xl font-bold text-white">
-                    {esEdicion ? "Editar Cliente" : "Nuevo Cliente"}
-                  </h2>
+                  <input
+                    type="text"
+                    name="nombreCliente"
+                    value={formData.nombreCliente}
+                    onChange={handleChange}
+                    placeholder="Ej: Maria"
+                    className={`w-full h-10 pl-9 pr-3 bg-gray-50 border rounded-xl text-sm text-gray-800 placeholder-gray-400 transition-colors hover:border-gray-300 hover:bg-white focus:border-green-500 focus:bg-white focus:outline-none focus:ring focus:ring-green-500/15 ${
+                      errores.nombreCliente
+                        ? "border-red-400 focus:border-red-500 focus:ring-red-500/15"
+                        : "border-gray-200"
+                    }`}
+                  />
                 </div>
-                <button
-                  onClick={onClose}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <X className="text-white" size={24} />
-                </button>
+                {errores.nombreCliente && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle size={12} />
+                    {errores.nombreCliente}
+                  </p>
+                )}
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6">
-                <div className="space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                        Nombre *
-                      </label>
-                      <div className="relative">
-                        <User
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                          size={18}
-                        />
-                        <input
-                          type="text"
-                          name="nombreCliente"
-                          value={formData.nombreCliente}
-                          onChange={handleChange}
-                          placeholder="Ej: María"
-                          className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                            errores.nombreCliente
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-green-500"
-                          }`}
-                        />
-                      </div>
-                      {errores.nombreCliente && (
-                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                          <AlertCircle size={12} />
-                          {errores.nombreCliente}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                        Apellido *
-                      </label>
-                      <div className="relative">
-                        <User
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                          size={18}
-                        />
-                        <input
-                          type="text"
-                          name="apellidoCliente"
-                          value={formData.apellidoCliente}
-                          onChange={handleChange}
-                          placeholder="Ej: Gómez"
-                          className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                            errores.apellidoCliente
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-green-500"
-                          }`}
-                        />
-                      </div>
-                      {errores.apellidoCliente && (
-                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                          <AlertCircle size={12} />
-                          {errores.apellidoCliente}
-                        </p>
-                      )}
-                    </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                  Apellido *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="text-gray-400" size={16} />
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                      DNI *
-                    </label>
-                    <div className="relative">
-                      <CreditCard
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                        size={18}
-                      />
-                      <input
-                        type="text"
-                        name="dniCliente"
-                        value={formData.dniCliente}
-                        onChange={handleChange}
-                        placeholder="12345678"
-                        maxLength={8}
-                        className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                          errores.dniCliente
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:ring-green-500"
-                        }`}
-                      />
-                    </div>
-                    {errores.dniCliente && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                        <AlertCircle size={12} />
-                        {errores.dniCliente}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                      Email *
-                    </label>
-                    <div className="relative">
-                      <Mail
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                        size={18}
-                      />
-                      <input
-                        type="email"
-                        name="emailCliente"
-                        value={formData.emailCliente}
-                        onChange={handleChange}
-                        placeholder="maria@email.com"
-                        className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                          errores.emailCliente
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:ring-green-500"
-                        }`}
-                      />
-                    </div>
-                    {errores.emailCliente && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                        <AlertCircle size={12} />
-                        {errores.emailCliente}
-                      </p>
-                    )}
-                  </div>
-
-                  {!esEdicion && (
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                        Contraseña *
-                      </label>
-                      <div className="relative">
-                        <Lock
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                          size={18}
-                        />
-                        <input
-                          type="password"
-                          name="contraCliente"
-                          value={formData.contraCliente}
-                          onChange={handleChange}
-                          placeholder="*******"
-                          className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                            errores.contraCliente
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:ring-green-500"
-                          }`}
-                        />
-                      </div>
-                      {errores.contraCliente && (
-                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                          <AlertCircle size={12} />
-                          {errores.contraCliente}
-                        </p>
-                      )}
-                    </div>
-                  )}
+                  <input
+                    type="text"
+                    name="apellidoCliente"
+                    value={formData.apellidoCliente}
+                    onChange={handleChange}
+                    placeholder="Ej: Gomez"
+                    className={`w-full h-10 pl-9 pr-3 bg-gray-50 border rounded-xl text-sm text-gray-800 placeholder-gray-400 transition-colors hover:border-gray-300 hover:bg-white focus:border-green-500 focus:bg-white focus:outline-none focus:ring focus:ring-green-500/15 ${
+                      errores.apellidoCliente
+                        ? "border-red-400 focus:border-red-500 focus:ring-red-500/15"
+                        : "border-gray-200"
+                    }`}
+                  />
                 </div>
+                {errores.apellidoCliente && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle size={12} />
+                    {errores.apellidoCliente}
+                  </p>
+                )}
+              </div>
+            </div>
 
-                <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    disabled={enviando}
-                    className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={enviando}
-                    className="flex-1 px-4 py-3 bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 shadow-lg"
-                  >
-                    {enviando
-                      ? "Guardando..."
-                      : esEdicion
-                        ? "Actualizar Cliente"
-                        : "Crear Cliente"}
-                  </button>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                DNI *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <CreditCard className="text-gray-400" size={16} />
                 </div>
-              </form>
-            </motion.div>
-          </div>
-        </>
-      )}
+                <input
+                  type="text"
+                  name="dniCliente"
+                  value={formData.dniCliente}
+                  onChange={handleChange}
+                  placeholder="12345678"
+                  maxLength={8}
+                  className={`w-full h-10 pl-9 pr-3 bg-gray-50 border rounded-xl text-sm text-gray-800 placeholder-gray-400 transition-colors hover:border-gray-300 hover:bg-white focus:border-green-500 focus:bg-white focus:outline-none focus:ring focus:ring-green-500/15 ${
+                    errores.dniCliente
+                      ? "border-red-400 focus:border-red-500 focus:ring-red-500/15"
+                      : "border-gray-200"
+                  }`}
+                />
+              </div>
+              {errores.dniCliente && (
+                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                  <AlertCircle size={12} />
+                  {errores.dniCliente}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                Email *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="text-gray-400" size={16} />
+                </div>
+                <input
+                  type="email"
+                  name="emailCliente"
+                  value={formData.emailCliente}
+                  onChange={handleChange}
+                  placeholder="maria@email.com"
+                  className={`w-full h-10 pl-9 pr-3 bg-gray-50 border rounded-xl text-sm text-gray-800 placeholder-gray-400 transition-colors hover:border-gray-300 hover:bg-white focus:border-green-500 focus:bg-white focus:outline-none focus:ring focus:ring-green-500/15 ${
+                    errores.emailCliente
+                      ? "border-red-400 focus:border-red-500 focus:ring-red-500/15"
+                      : "border-gray-200"
+                  }`}
+                />
+              </div>
+              {errores.emailCliente && (
+                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                  <AlertCircle size={12} />
+                  {errores.emailCliente}
+                </p>
+              )}
+            </div>
+
+            {!esEdicion && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                  Contrasena *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="text-gray-400" size={16} />
+                  </div>
+                  <input
+                    type="password"
+                    name="contraCliente"
+                    value={formData.contraCliente}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    className={`w-full h-10 pl-9 pr-3 bg-gray-50 border rounded-xl text-sm text-gray-800 placeholder-gray-400 transition-colors hover:border-gray-300 hover:bg-white focus:border-green-500 focus:bg-white focus:outline-none focus:ring focus:ring-green-500/15 ${
+                      errores.contraCliente
+                        ? "border-red-400 focus:border-red-500 focus:ring-red-500/15"
+                        : "border-gray-200"
+                    }`}
+                  />
+                </div>
+                {errores.contraCliente && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle size={12} />
+                    {errores.contraCliente}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={enviando}
+                className="h-9 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={enviando}
+                className="h-9 px-4 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+              >
+                {enviando
+                  ? "Guardando..."
+                  : esEdicion
+                    ? "Actualizar"
+                    : "Crear cliente"}
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      </div>
     </AnimatePresence>
   );
 };

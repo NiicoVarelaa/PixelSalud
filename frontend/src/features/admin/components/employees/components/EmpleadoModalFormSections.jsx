@@ -113,7 +113,8 @@ export const EmpleadoModalFormSections = ({
           >
             <input
               id="dni"
-              type="number"
+              type="text"
+              inputMode="numeric"
               name="dniEmpleado"
               value={formData.dniEmpleado}
               onChange={onChange}

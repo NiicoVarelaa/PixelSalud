@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Eye, Clock } from "lucide-react";
 import {
   formatearFecha,
@@ -7,100 +6,131 @@ import {
   getRolBadgeColor,
 } from "../utils/helpers";
 
-const COL_HEADERS = [
-  "Fecha/Hora",
-  "Evento",
-  "Módulo",
-  "Usuario",
-  "Descripción",
-  "",
-];
+const baseBtn =
+  "transition-colors cursor-pointer focus:outline-none focus-visible:ring-2";
 
 export const AuditoriaTable = ({ auditorias, onVerDetalles }) => {
+  if (auditorias.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 p-6 text-center">
+        <p className="text-gray-600 font-medium text-sm">
+          No se encontraron registros
+        </p>
+        <p className="text-xs text-gray-500 mt-1">
+          Intenta ajustar los filtros de busqueda
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full" aria-label="Registros de auditoría">
-        <thead>
-          <tr className="border-b border-gray-200 bg-gray-50">
-            {COL_HEADERS.map((col) => (
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden mt-2">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
               <th
-                key={col}
                 scope="col"
-                className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-gray-500 ${
-                  col === "" ? "w-12" : "text-left"
-                }`}
+                className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
               >
-                {col}
+                Fecha/Hora
               </th>
+              <th
+                scope="col"
+                className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+              >
+                Evento
+              </th>
+              <th
+                scope="col"
+                className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+              >
+                Modulo
+              </th>
+              <th
+                scope="col"
+                className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+              >
+                Usuario
+              </th>
+              <th
+                scope="col"
+                className="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+              >
+                Descripcion
+              </th>
+              <th
+                scope="col"
+                className="px-3 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider"
+              >
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
+            {auditorias.map((auditoria) => (
+              <tr
+                key={auditoria.idAuditoria}
+                className="hover:bg-gray-50 transition-colors duration-150"
+              >
+                <td className="px-3 py-2.5 whitespace-nowrap">
+                  <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                    <Clock
+                      size={12}
+                      className="text-gray-400"
+                      aria-hidden="true"
+                    />
+                    {formatearFecha(auditoria.fechaHora)}
+                  </span>
+                </td>
+
+                <td className="px-3 py-2.5 whitespace-nowrap">
+                  <span
+                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${getEventoBadgeColor(auditoria.evento)}`}
+                  >
+                    {formatearEvento(auditoria.evento)}
+                  </span>
+                </td>
+
+                <td className="px-3 py-2.5 whitespace-nowrap">
+                  <span className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 capitalize">
+                    {auditoria.modulo}
+                  </span>
+                </td>
+
+                <td className="px-3 py-2.5 whitespace-nowrap">
+                  <p className="text-xs font-medium text-gray-900">
+                    {auditoria.nombreUsuario || "N/A"}
+                  </p>
+                  <span
+                    className={`mt-0.5 inline-block rounded-full px-2 py-0 text-xs font-semibold ${getRolBadgeColor(auditoria.tipoUsuario)}`}
+                  >
+                    {auditoria.tipoUsuario}
+                  </span>
+                </td>
+
+                <td className="px-3 py-2.5 max-w-60">
+                  <p className="truncate text-xs text-gray-500">
+                    {auditoria.descripcion || "-"}
+                  </p>
+                </td>
+
+                <td className="px-3 py-3 whitespace-nowrap text-right">
+                  <button
+                    type="button"
+                    onClick={() => onVerDetalles(auditoria)}
+                    className={`p-2 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 focus-visible:ring-green-500 ${baseBtn}`}
+                    title="Ver detalles"
+                    aria-label={`Ver detalles del registro ${formatearEvento(auditoria.evento)}`}
+                  >
+                    <Eye size={16} aria-hidden="true" />
+                  </button>
+                </td>
+              </tr>
             ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {auditorias.map((auditoria, index) => (
-            <motion.tr
-              key={auditoria.idAuditoria}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: index * 0.02 }}
-              className="group transition-colors hover:bg-gray-50/80"
-            >
-              <td className="px-4 py-2.5 whitespace-nowrap">
-                <span className="inline-flex items-center gap-1 text-xs text-gray-500">
-                  <Clock
-                    size={11}
-                    className="text-gray-400"
-                    aria-hidden="true"
-                  />
-                  {formatearFecha(auditoria.fechaHora)}
-                </span>
-              </td>
-
-              <td className="px-4 py-2.5 whitespace-nowrap">
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getEventoBadgeColor(auditoria.evento)}`}
-                >
-                  {formatearEvento(auditoria.evento)}
-                </span>
-              </td>
-
-              <td className="px-4 py-2.5 whitespace-nowrap">
-                <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 capitalize">
-                  {auditoria.modulo}
-                </span>
-              </td>
-
-              <td className="px-4 py-2.5 whitespace-nowrap">
-                <p className="text-xs font-medium text-gray-900">
-                  {auditoria.nombreUsuario || "N/A"}
-                </p>
-                <span
-                  className={`mt-0.5 inline-block rounded-full px-2 py-0 text-[11px] font-semibold ${getRolBadgeColor(auditoria.tipoUsuario)}`}
-                >
-                  {auditoria.tipoUsuario}
-                </span>
-              </td>
-
-              <td className="px-4 py-2.5 max-w-60">
-                <p className="truncate text-xs text-gray-500">
-                  {auditoria.descripcion || "—"}
-                </p>
-              </td>
-
-              <td className="px-4 py-2.5 text-center">
-                <button
-                  type="button"
-                  onClick={() => onVerDetalles(auditoria)}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 mx-auto"
-                  aria-label={`Ver detalles del registro ${formatearEvento(auditoria.evento)}`}
-                  title="Ver detalles"
-                >
-                  <Eye size={13} aria-hidden="true" />
-                </button>
-              </td>
-            </motion.tr>
-          ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

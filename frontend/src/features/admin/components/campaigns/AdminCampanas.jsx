@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Plus } from "lucide-react";
 import { AdminLayout } from "@features/admin/components/shared";
 import { useProductStore } from "@store/useProductStore";
 import { useCampanasData } from "./hooks/useCampanasData";
@@ -72,6 +71,18 @@ const AdminCampanas = () => {
     paginaActual,
     itemsPorPagina: ITEMS_PER_PAGE,
   });
+
+  const totalFiltradas = useMemo(() => {
+    return campanas.filter((c) => {
+      const t = busqueda.toLowerCase();
+      const match = !t || c.nombreCampana.toLowerCase().includes(t);
+      const matchEstado =
+        filtroEstado === "todos" ||
+        (filtroEstado === "activas" && c.esActiva) ||
+        (filtroEstado === "inactivas" && !c.esActiva);
+      return match && matchEstado;
+    }).length;
+  }, [campanas, busqueda, filtroEstado]);
 
   useEffect(() => {
     fetchCampanas();
@@ -201,34 +212,24 @@ const AdminCampanas = () => {
   return (
     <>
       <AdminLayout
-        title="Gestión de Campañas"
-        description="Administra campañas de ofertas con múltiples productos"
-        contentClassName="flex h-full min-h-0 flex-col gap-4"
+        title="Gestion de Campanas"
+        description={`${totalFiltradas} campana${totalFiltradas !== 1 ? "s" : ""} encontrada${totalFiltradas !== 1 ? "s" : ""}`}
       >
-        <div className="flex w-full shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <StatsCards campanas={campanas} productos={productos} />
+        <StatsCards campanas={campanas} productos={productos} />
 
-          <button
-            onClick={handleAbrirModal}
-            className="group flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-green-600 px-5 py-2.5 font-semibold text-white shadow-md shadow-green-600/20 transition-all hover:bg-green-700 hover:shadow-lg hover:shadow-green-600/25 sm:w-auto"
-          >
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-green-600 group-hover:bg-green-50">
-              <Plus size={16} />
-            </span>
-            Nueva Campaña
-          </button>
+        <div className="mb-2 shrink-0">
+          <CampanasFilters
+            busqueda={busqueda}
+            setBusqueda={setBusqueda}
+            filtroEstado={filtroEstado}
+            setFiltroEstado={setFiltroEstado}
+            vistaMode={vistaMode}
+            setVistaMode={setVistaMode}
+            onCrearCampana={handleAbrirModal}
+          />
         </div>
 
-        <CampanasFilters
-          busqueda={busqueda}
-          setBusqueda={setBusqueda}
-          filtroEstado={filtroEstado}
-          setFiltroEstado={setFiltroEstado}
-          vistaMode={vistaMode}
-          setVistaMode={setVistaMode}
-        />
-
-        <div className="mt-4 min-h-0 flex-1">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {cargando ? (
             <LoadingState />
           ) : campanasActuales.length === 0 ? (
@@ -254,13 +255,17 @@ const AdminCampanas = () => {
               onEliminar={handleEliminarCampana}
             />
           )}
-
-          <CampanasPagination
-            paginaActual={paginaActual}
-            totalPaginas={totalPaginas}
-            onCambiarPagina={setPaginaActual}
-          />
         </div>
+
+        {campanasActuales.length > 0 && (
+          <div className="mt-3 shrink-0">
+            <CampanasPagination
+              paginaActual={paginaActual}
+              totalPaginas={totalPaginas}
+              onCambiarPagina={setPaginaActual}
+            />
+          </div>
+        )}
 
         <CampanaModal
           isOpen={modalAbierto}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { AdminLayout } from "@features/admin/components/shared";
-import PaginationProductos from "@features/admin/components/products/components/Pagination";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useMensajesData } from "./hooks/useMensajesData";
@@ -14,6 +13,7 @@ import {
   EmptyState,
   ErrorBanner,
 } from "./components";
+import PaginationProductos from "@features/admin/components/products/components/Pagination";
 
 const AdminMensajes = () => {
   const [mensajeSeleccionado, setMensajeSeleccionado] = useState(null);
@@ -41,9 +41,6 @@ const AdminMensajes = () => {
     paginaActual,
     totalPaginas,
     handleCambiarPagina,
-    indiceInicio,
-    itemsPorPagina,
-    limpiarFiltros,
   } = useMensajesFilters(mensajes);
 
   useEffect(() => {
@@ -68,48 +65,37 @@ const AdminMensajes = () => {
     <>
       <AdminLayout
         title="Mensajes"
-        description="Mensajes recibidos de clientes"
-        contentClassName="flex h-full min-h-0 flex-col gap-3"
+        description={`${mensajesFiltrados.length} mensaje${mensajesFiltrados.length !== 1 ? "s" : ""} recibido${mensajesFiltrados.length !== 1 ? "s" : ""}`}
       >
-        <MensajesFilters
-          filtroEstado={filtroEstado}
-          onFiltroEstadoChange={setFiltroEstado}
-          busqueda={busqueda}
-          onBusquedaChange={setBusqueda}
-          onLimpiar={limpiarFiltros}
-        />
+        <div className="mb-2 shrink-0">
+          <MensajesFilters
+            filtroEstado={filtroEstado}
+            setFiltroEstado={setFiltroEstado}
+            busqueda={busqueda}
+            setBusqueda={setBusqueda}
+          />
+        </div>
 
         {error && <ErrorBanner error={error} />}
 
-        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {loading ? (
             <LoadingState />
           ) : mensajesFiltrados.length === 0 ? (
             <EmptyState />
           ) : (
-            <div className="h-full overflow-y-auto">
-              <MensajesTable
-                mensajes={mensajesPaginados}
-                onVerDetalle={handleVerDetalle}
-                onResponder={handleResponder}
-                onArchivar={handleArchivar}
-                onEliminar={eliminarMensaje}
-              />
-            </div>
+            <MensajesTable
+              mensajes={mensajesPaginados}
+              onVerDetalle={handleVerDetalle}
+              onResponder={handleResponder}
+              onArchivar={handleArchivar}
+              onEliminar={eliminarMensaje}
+            />
           )}
         </div>
 
-        {!loading && mensajesFiltrados.length > 0 && totalPaginas > 1 && (
-          <div className="mt-3 shrink-0 space-y-2">
-            <p className="text-xs font-medium text-gray-600" aria-live="polite">
-              Mostrando {indiceInicio + 1}-
-              {Math.min(
-                indiceInicio + itemsPorPagina,
-                mensajesFiltrados.length,
-              )}{" "}
-              de {mensajesFiltrados.length} mensajes
-            </p>
-
+        {!loading && mensajesFiltrados.length > 0 && (
+          <div className="mt-3 shrink-0">
             <PaginationProductos
               currentPage={paginaActual}
               totalPages={totalPaginas}

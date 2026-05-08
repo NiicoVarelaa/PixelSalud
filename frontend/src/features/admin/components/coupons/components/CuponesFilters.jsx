@@ -1,8 +1,6 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, XCircle } from "lucide-react";
-
-const selectCls =
-  "h-9 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700 cursor-pointer transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100";
+import { useMemo } from "react";
+import { Search, Plus } from "lucide-react";
+import CustomSelect from "@features/admin/components/products/components/CustomSelect";
 
 export const CuponesFilters = ({
   busqueda,
@@ -12,10 +10,8 @@ export const CuponesFilters = ({
   filtroTipo,
   setFiltroTipo,
   onResetPaginacion,
+  onCrearCupon,
 }) => {
-  const hayFiltros =
-    busqueda || filtroEstado !== "todos" || filtroTipo !== "todos";
-
   const handleBusqueda = (v) => {
     setBusqueda(v);
     onResetPaginacion();
@@ -29,124 +25,83 @@ export const CuponesFilters = ({
     onResetPaginacion();
   };
 
-  const limpiar = () => {
-    setBusqueda("");
-    setFiltroEstado("todos");
-    setFiltroTipo("todos");
-    onResetPaginacion();
-  };
+  const opcionesEstado = useMemo(
+    () => [
+      { value: "todos", label: "Todos los estados" },
+      { value: "activo", label: "Activos" },
+      { value: "inactivo", label: "Inactivos" },
+      { value: "expirado", label: "Expirados" },
+    ],
+    [],
+  );
+
+  const opcionesTipo = useMemo(
+    () => [
+      { value: "todos", label: "Todos los usuarios" },
+      { value: "nuevo", label: "Nuevos" },
+      { value: "vip", label: "VIP" },
+    ],
+    [],
+  );
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-      className="rounded-xl border border-gray-200 bg-white shadow-xs"
-      role="search"
-      aria-label="Filtros de cupones"
-    >
-      <div className="grid grid-cols-1 gap-2.5 p-3 sm:grid-cols-2 lg:grid-cols-4 lg:p-3.5">
-        <div className="lg:col-span-2">
-          <label
-            htmlFor="busqueda-cupon"
-            className="mb-1.5 block text-xs font-medium text-gray-500"
-          >
-            Buscar
+    <div className="bg-white rounded-xl border border-gray-100 p-3 sm:p-4">
+      <div className="flex flex-wrap sm:flex-nowrap items-end gap-3">
+        <div className="relative w-full sm:flex-1 sm:min-w-0">
+          <label htmlFor="search-cupones" className="sr-only">
+            Buscar cupones
           </label>
-          <div className="relative">
-            <Search
-              size={14}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              aria-hidden="true"
-            />
-            <input
-              id="busqueda-cupon"
-              type="search"
-              value={busqueda}
-              onChange={(e) => handleBusqueda(e.target.value)}
-              placeholder="Código o descripción..."
-              className="w-full h-9 pl-8.5 pr-8 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100"
-            />
-            <AnimatePresence>
-              {busqueda && (
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  type="button"
-                  onClick={() => handleBusqueda("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded"
-                  aria-label="Limpiar búsqueda"
-                >
-                  <XCircle size={15} />
-                </motion.button>
-              )}
-            </AnimatePresence>
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400" />
           </div>
+          <input
+            type="search"
+            id="search-cupones"
+            value={busqueda}
+            onChange={(e) => handleBusqueda(e.target.value)}
+            className="
+              w-full h-[42px] pl-11 pr-4 bg-gray-50 
+              border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 transition-colors hover:border-gray-300 hover:bg-white focus:border-green-500 focus:bg-white focus:outline-none focus:ring focus:ring-green-500/15
+            "
+            placeholder="Buscar por codigo o descripcion..."
+            aria-label="Buscar cupones"
+          />
         </div>
 
-        <div>
-          <label
-            htmlFor="filtro-estado"
-            className="mb-1.5 block text-xs font-medium text-gray-500"
-          >
-            Estado
-          </label>
-          <select
-            id="filtro-estado"
+        <div className="w-full sm:w-44">
+          <CustomSelect
+            id="filter-cupon-estado"
+            label="Estado"
             value={filtroEstado}
-            onChange={(e) => handleEstado(e.target.value)}
-            className={selectCls}
-            aria-label="Filtrar por estado del cupón"
-          >
-            <option value="todos">Todos</option>
-            <option value="activo">Activos</option>
-            <option value="inactivo">Inactivos</option>
-            <option value="expirado">Expirados</option>
-          </select>
+            onChange={handleEstado}
+            options={opcionesEstado}
+            hideLabel
+          />
         </div>
 
-        <div>
-          <label
-            htmlFor="filtro-tipo"
-            className="mb-1.5 block text-xs font-medium text-gray-500"
-          >
-            Tipo usuario
-          </label>
-          <select
-            id="filtro-tipo"
+        <div className="w-full sm:w-44">
+          <CustomSelect
+            id="filter-cupon-tipo"
+            label="Tipo usuario"
             value={filtroTipo}
-            onChange={(e) => handleTipo(e.target.value)}
-            className={selectCls}
-            aria-label="Filtrar por tipo de usuario"
+            onChange={handleTipo}
+            options={opcionesTipo}
+            hideLabel
+          />
+        </div>
+
+        <div className="w-full sm:w-auto">
+          <button
+            onClick={onCrearCupon}
+            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm shadow-green-600/20 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer whitespace-nowrap h-[42px]"
+            title="Crear cupon"
+            aria-label="Crear cupon"
           >
-            <option value="todos">Todos</option>
-            <option value="nuevo">Nuevos</option>
-            <option value="vip">VIP</option>
-          </select>
+            <Plus size={18} />
+            <span className="text-sm font-medium hidden sm:inline">Crear cupon</span>
+          </button>
         </div>
       </div>
-
-      <AnimatePresence>
-        {hayFiltros && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="border-t border-gray-100 px-3 py-2 lg:px-3.5"
-          >
-            <button
-              type="button"
-              onClick={limpiar}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded"
-              aria-label="Limpiar todos los filtros"
-            >
-              <XCircle size={13} aria-hidden="true" />
-              Limpiar filtros
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.section>
+    </div>
   );
 };

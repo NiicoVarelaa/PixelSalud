@@ -15,10 +15,10 @@ export const estadoLabels = {
 
 export const getEstadoColor = (estado) => {
   const colors = {
-    nuevo: "bg-primary-100 text-primary-700",
-    en_proceso: "bg-yellow-100 text-yellow-700",
-    respondido: "bg-blue-100 text-blue-700",
-    cerrado: "bg-gray-200 text-gray-600",
+    nuevo: "bg-green-100 text-green-800",
+    en_proceso: "bg-yellow-100 text-yellow-800",
+    respondido: "bg-blue-100 text-blue-800",
+    cerrado: "bg-gray-100 text-gray-700",
   };
   return colors[estado] || "bg-gray-100 text-gray-700";
 };

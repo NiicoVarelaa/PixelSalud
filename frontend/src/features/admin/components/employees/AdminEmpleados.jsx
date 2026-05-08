@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@store/useAuthStore";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { ArrowLeft, UserPlus } from "lucide-react";
 import { AdminLayout } from "@features/admin/components/shared";
 
 import { useEmpleadosData } from "./hooks/useEmpleadosData";
@@ -21,7 +20,7 @@ import {
 } from "./components";
 
 const AdminEmpleados = () => {
-  const ITEMS_POR_PAGINA = 6;
+  const ITEMS_POR_PAGINA = 7;
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
@@ -76,7 +75,11 @@ const AdminEmpleados = () => {
 
   const handleGuardarEmpleado = async (datosEmpleado, idEmpleado) => {
     if (idEmpleado) {
-      return await actualizarEmpleado(idEmpleado, datosEmpleado);
+      const payload = { ...datosEmpleado };
+      if (!payload.contraEmpleado?.trim()) {
+        delete payload.contraEmpleado;
+      }
+      return await actualizarEmpleado(idEmpleado, payload);
     } else {
       return await crearEmpleado(datosEmpleado);
     }
@@ -87,12 +90,12 @@ const AdminEmpleados = () => {
 
     setConfirmDialog({
       isOpen: true,
-      title: esActivo ? "¿Dar de Baja?" : "¿Reactivar Empleado?",
+      title: esActivo ? "Desactivar Empleado" : "Reactivar Empleado",
       message: esActivo
-        ? `El empleado ${empleado.nombreEmpleado} ${empleado.apellidoEmpleado} perderá acceso al sistema.`
-        : `El empleado ${empleado.nombreEmpleado} ${empleado.apellidoEmpleado} recuperará acceso al sistema.`,
+        ? `El empleado ${empleado.nombreEmpleado} ${empleado.apellidoEmpleado} perdera acceso al sistema.`
+        : `El empleado ${empleado.nombreEmpleado} ${empleado.apellidoEmpleado} recuperara acceso al sistema.`,
       type: esActivo ? "danger" : "info",
-      confirmText: esActivo ? "Dar de Baja" : "Reactivar",
+      confirmText: esActivo ? "Desactivar" : "Reactivar",
       action: () => cambiarEstadoEmpleado(empleado.idEmpleado, esActivo),
     });
   };
@@ -107,45 +110,31 @@ const AdminEmpleados = () => {
   return (
     <>
       <AdminLayout
-        title="Administración de Empleados"
-        description="Gestiona usuarios internos, accesos y permisos de manera centralizada"
-        contentClassName="flex h-full min-h-0 flex-col gap-4"
-        headerAction={
-          <div className="flex gap-3">
-            <button
-              onClick={handleCrearEmpleado}
-              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white shadow-md transition-colors hover:bg-green-700"
-            >
-              <UserPlus size={20} /> Nuevo Empleado
-            </button>
-            <Link
-              to="/admin"
-              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-200 px-4 py-2 font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-300"
-            >
-              <ArrowLeft size={18} /> Volver
-            </Link>
-          </div>
-        }
+        title="Administracion de Empleados"
+        description={`${empleadosFiltrados.length} empleado${empleadosFiltrados.length !== 1 ? "s" : ""} encontrado${empleadosFiltrados.length !== 1 ? "s" : ""}`}
       >
         <StatsCards estadisticas={estadisticas} />
 
-        <EmpleadosFilters
-          busqueda={busqueda}
-          setBusqueda={setBusqueda}
-          filtroEstado={filtroEstado}
-          setFiltroEstado={setFiltroEstado}
-          totalFiltrados={empleadosFiltrados.length}
-          totalEmpleados={empleados.length}
-        />
+        <div className="shrink-0">
+          <EmpleadosFilters
+            busqueda={busqueda}
+            setBusqueda={setBusqueda}
+            filtroEstado={filtroEstado}
+            setFiltroEstado={setFiltroEstado}
+            totalFiltrados={empleadosFiltrados.length}
+            totalEmpleados={empleados.length}
+            onCrearEmpleado={handleCrearEmpleado}
+          />
+        </div>
 
-        <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {cargando ? (
             <LoadingState />
           ) : empleadosActuales.length === 0 ? (
             <EmptyState onCrearEmpleado={handleCrearEmpleado} />
           ) : (
-            <div className="flex min-h-0 flex-1 flex-col">
-              <div className="min-h-0 flex-1 overflow-y-auto p-4 lg:hidden">
+            <>
+              <div className="lg:hidden space-y-2.5">
                 {empleadosActuales.map((empleado) => (
                   <EmpleadoCard
                     key={empleado.idEmpleado}
@@ -156,43 +145,26 @@ const AdminEmpleados = () => {
                 ))}
               </div>
 
-              <div className="hidden min-h-0 flex-1 overflow-auto lg:block">
+              <div className="hidden lg:block">
                 <EmpleadoTable
                   empleados={empleadosActuales}
                   onEditar={handleEditarEmpleado}
                   onCambiarEstado={handleCambiarEstado}
                 />
               </div>
-
-              {empleadosFiltrados.length > 0 && (
-                <div className="mt-3 shrink-0 space-y-2 px-3 pb-3 sm:px-4 sm:pb-4">
-                  <p
-                    className="text-xs font-medium text-gray-600"
-                    aria-live="polite"
-                  >
-                    Mostrando{" "}
-                    {Math.min(
-                      (paginaActual - 1) * ITEMS_POR_PAGINA + 1,
-                      empleadosFiltrados.length,
-                    )}
-                    -
-                    {Math.min(
-                      paginaActual * ITEMS_POR_PAGINA,
-                      empleadosFiltrados.length,
-                    )}{" "}
-                    de {empleadosFiltrados.length} empleados
-                  </p>
-
-                  <EmpleadosPagination
-                    paginaActual={paginaActual}
-                    totalPaginas={totalPaginas}
-                    onCambiarPagina={setPaginaActual}
-                  />
-                </div>
-              )}
-            </div>
+            </>
           )}
         </div>
+
+        {empleadosFiltrados.length > 0 && (
+          <div className="mt-3 shrink-0">
+            <EmpleadosPagination
+              paginaActual={paginaActual}
+              totalPaginas={totalPaginas}
+              onCambiarPagina={setPaginaActual}
+            />
+          </div>
+        )}
 
         <EmpleadoModal
           isOpen={modalAbierto}

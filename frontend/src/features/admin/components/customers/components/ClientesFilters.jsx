@@ -1,5 +1,6 @@
-import { Search, Filter, RotateCcw } from "lucide-react";
-import { motion } from "framer-motion";
+import { useMemo } from "react";
+import { Search, Plus, User2, UserPlus } from "lucide-react";
+import CustomSelect from "@features/admin/components/products/components/CustomSelect";
 
 export const ClientesFilters = ({
   busqueda,
@@ -8,66 +9,68 @@ export const ClientesFilters = ({
   setFiltroEstado,
   totalFiltrados = 0,
   totalClientes = 0,
+  onCrearCliente,
 }) => {
-  const hayFiltrosActivos = busqueda.trim() !== "" || filtroEstado !== "todos";
+  const opcionesEstado = useMemo(
+    () => [
+      { value: "todos", label: "Todos los clientes" },
+      { value: "activos", label: "Activos" },
+      { value: "inactivos", label: "Inactivos" },
+    ],
+    [],
+  );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mb-5 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-    >
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="text-gray-400" size={20} />
+    <div className="bg-white rounded-xl border border-gray-100 p-3 sm:p-4">
+      <div className="flex flex-wrap sm:flex-nowrap items-end gap-3">
+        <div className="relative w-full sm:flex-1 sm:min-w-0">
+          <label htmlFor="search-clientes" className="sr-only">
+            Buscar clientes
+          </label>
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400 group-focus-within:text-green-600 transition-colors" />
           </div>
           <input
-            type="text"
-            placeholder="Buscar por nombre, apellido, email o DNI..."
+            type="search"
+            id="search-clientes"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-800 placeholder-gray-400 transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100"
+            className="
+              w-full h-[42px] pl-11 pr-4 bg-gray-50 
+              border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 transition-colors hover:border-gray-300 hover:bg-white focus:border-green-500 focus:bg-white focus:outline-none focus:ring focus:ring-green-500
+            "
+            placeholder="Buscar por nombre, apellido, email o DNI..."
+            aria-label="Buscar clientes"
           />
         </div>
 
-        <div className="relative w-full md:w-64">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Filter className="text-gray-400" size={20} />
-          </div>
-          <select
+        <div className="w-full sm:w-48">
+          <CustomSelect
+            id="filter-client-status"
+            label="Estado"
             value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
-            className="w-full appearance-none rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-700 transition-colors focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-100"
-          >
-            <option value="todos">Todos los clientes</option>
-            <option value="activos">✓ Activos</option>
-            <option value="inactivos">✗ Inactivos</option>
-          </select>
+            onChange={setFiltroEstado}
+            options={opcionesEstado}
+            hideLabel
+          />
         </div>
 
-        {hayFiltrosActivos && (
+        <div className="w-full sm:w-auto">
           <button
-            type="button"
-            onClick={() => {
-              setBusqueda("");
-              setFiltroEstado("todos");
-            }}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
+            onClick={onCrearCliente}
+            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm shadow-green-600/20 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer whitespace-nowrap h-[42px]"
+            title="Nuevo Cliente"
+            aria-label="Nuevo Cliente"
           >
-            <RotateCcw size={14} />
-            Limpiar
+            <UserPlus size={18} />
+            <span className="text-sm font-medium hidden sm:inline">Nuevo cliente</span>
           </button>
-        )}
+        </div>
       </div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="mt-3 text-xs font-medium text-gray-500"
-      >
+      <p className="mt-3 text-xs font-medium text-gray-500">
         {totalFiltrados} de {totalClientes} clientes visibles
-      </motion.p>
-    </motion.div>
+      </p>
+    </div>
   );
 };

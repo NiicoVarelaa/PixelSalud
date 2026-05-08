@@ -38,7 +38,8 @@ export const useEmpleadosData = () => {
         console.warn("No se pudieron cargar empleados inactivos:", error);
       }
 
-      setEmpleados([...activos, ...inactivos]);
+      const todos = [...activos, ...inactivos].sort((a, b) => b.idEmpleado - a.idEmpleado);
+      setEmpleados(todos);
     } catch (error) {
       console.error("Error al obtener empleados", error);
       toastError("No se pudieron cargar los empleados");
