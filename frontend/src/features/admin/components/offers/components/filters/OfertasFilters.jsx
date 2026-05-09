@@ -1,16 +1,11 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Plus, XCircle, RotateCcw, Tag } from "lucide-react";
+import { Search, Plus, XCircle, RotateCcw, Tag, Download } from "lucide-react";
 import { useOfertasStore } from "../../store/useOfertasStore";
 import { useMemo } from "react";
 import CustomSelect from "../../../products/components/CustomSelect";
 import { hasActiveOffer } from "../../utils/ofertasFilters";
-
-const DESCUENTO_ATAJOS = [
-  { key: "todos", label: "Todos" },
-  { key: "10", label: "10% OFF" },
-  { key: "15", label: "15% OFF" },
-  { key: "20", label: "20% OFF" },
-];
+import { OPCIONES_DESCUENTO_FILTRO } from "../../utils/constants";
+import { exportarOfertasCSV } from "../../utils/exportCSV";
 
 export const OfertasFilters = ({
   categorias = [],
@@ -47,16 +42,6 @@ export const OfertasFilters = ({
     [categorias],
   );
 
-  const opcionesDescuento = useMemo(
-    () => [
-      { value: "todos", label: "Todos los descuentos" },
-      { value: "10", label: "10% OFF" },
-      { value: "15", label: "15% OFF" },
-      { value: "20", label: "20% OFF" },
-    ],
-    [],
-  );
-
   return (
     <motion.section
       initial={{ opacity: 0, y: -8 }}
@@ -85,18 +70,31 @@ export const OfertasFilters = ({
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={onOpenAgregarOferta}
-            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm shadow-green-600/20 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer"
-            title="Agregar Producto"
-            aria-label="Agregar Producto"
-          >
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-green-600 group-hover:bg-green-50">
-              <Plus size={16} aria-hidden="true" />
-            </span>
-            <span className="text-sm font-medium">Agregar producto</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => exportarOfertasCSV(productos)}
+              className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 px-3 sm:px-4 py-2.5 rounded-xl transition-all border border-gray-200 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer"
+              title="Exportar ofertas"
+              aria-label="Exportar ofertas a CSV"
+            >
+              <Download size={18} />
+              <span className="text-sm font-medium hidden sm:inline">Exportar</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenAgregarOferta}
+              className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm shadow-green-600/20 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer"
+              title="Agregar Producto"
+              aria-label="Agregar Producto"
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-green-600 group-hover:bg-green-50">
+                <Plus size={16} aria-hidden="true" />
+              </span>
+              <span className="text-sm font-medium">Agregar producto</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -157,40 +155,14 @@ export const OfertasFilters = ({
             label="Descuento"
             value={filtroDescuento}
             onChange={setFiltroDescuento}
-            options={opcionesDescuento}
+            options={OPCIONES_DESCUENTO_FILTRO}
             hideLabel
           />
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div
-            className="flex flex-wrap gap-1.5"
-            role="group"
-            aria-label="Filtrar por porcentaje de descuento"
-          >
-            {DESCUENTO_ATAJOS.map((atajo) => {
-              const activo = filtroDescuento === atajo.key;
-              return (
-                <button
-                  key={atajo.key}
-                  type="button"
-                  onClick={() => setFiltroDescuento(atajo.key)}
-                  className={`h-8 rounded-md px-3 text-xs font-semibold transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-1 ${
-                    activo
-                      ? "bg-green-600 text-white"
-                      : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-                  }`}
-                  aria-pressed={activo}
-                  aria-label={`Filtrar: ${atajo.label}`}
-                >
-                  {atajo.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <AnimatePresence>
-            {hayFiltrosActivos && (
+        <AnimatePresence>
+          {hayFiltrosActivos && (
+            <div className="flex flex-wrap items-center gap-2">
               <motion.button
                 initial={{ opacity: 0, x: 8 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -203,9 +175,9 @@ export const OfertasFilters = ({
                 <RotateCcw size={13} aria-hidden="true" />
                 Limpiar
               </motion.button>
-            )}
-          </AnimatePresence>
-        </div>
+            </div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {hayFiltrosActivos && (

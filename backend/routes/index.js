@@ -9,6 +9,7 @@ module.exports = {
   DashboardRoutes: require("./DashboardRoutes"),
   EmpleadosRoutes: require("./EmpleadosRoutes"),
   FavoritosRoutes: require("./FavoritosRoutes"),
+  HistorialOfertasRoutes: require("./HistorialOfertasRoutes"),
   ImagenesProductosRoutes: require("./ImagenesProductosRoutes"),
   MedicosRoutes: require("./MedicosRoutes"),
   MensajesRoutes: require("./MensajesRoutes"),

@@ -331,6 +331,21 @@ const obtenerCampanasProximasAVencer = async (dias = 7) => {
   return campanas;
 };
 
+const toggleCampanaActiva = async (idCampana) => {
+  const campana = await campanasRepository.findById(idCampana);
+  if (!campana) {
+    throw new Error("Campaña no encontrada");
+  }
+
+  const nuevoEstado = !campana.esActiva;
+  await campanasRepository.update(idCampana, { esActiva: nuevoEstado });
+
+  return {
+    mensaje: `Campaña ${nuevoEstado ? "activada" : "desactivada"} correctamente`,
+    esActiva: nuevoEstado,
+  };
+};
+
 module.exports = {
   obtenerCampanas,
   obtenerCampanasActivas,
@@ -348,4 +363,5 @@ module.exports = {
   obtenerCampanasDeProducto,
   obtenerMejorDescuento,
   obtenerCampanasProximasAVencer,
+  toggleCampanaActiva,
 };

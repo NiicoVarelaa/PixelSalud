@@ -183,6 +183,16 @@ const getCampanasProximasAVencer = async (req, res, next) => {
   }
 };
 
+const toggleActiva = async (req, res, next) => {
+  try {
+    const { idCampana } = req.params;
+    const resultado = await campanasService.toggleCampanaActiva(idCampana);
+    res.json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getCampanas,
   getCampanasActivas,
@@ -198,4 +208,5 @@ module.exports = {
   getCampanasDeProducto,
   getMejorDescuento,
   getCampanasProximasAVencer,
+  toggleActiva,
 };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Tag } from "lucide-react";
+import { X, Tag, AlertCircle } from "lucide-react";
 import { CuponModalFormSections } from "./CuponModalFormSections";
 import { CuponModalEmailSection } from "./CuponModalEmailSection";
 import { CuponModalActions } from "./CuponModalActions";
@@ -15,15 +15,55 @@ export const CuponModal = ({
   onSubmit,
   clientes = [],
   cargandoClientes = false,
+  cuponEditar = null,
 }) => {
   const closeRef = useRef(null);
   const [segmentoFiltro, setSegmentoFiltro] = useState("todos");
-  const [formData, setFormData] = useState(createInitialCuponFormData);
+  const [formData, setFormData] = useState(() => {
+    if (cuponEditar) {
+      return {
+        codigo: cuponEditar.codigo || "",
+        tipoCupon: cuponEditar.tipoCupon || "porcentaje",
+        valorDescuento: cuponEditar.valorDescuento || "",
+        descripcion: cuponEditar.descripcion || "",
+        fechaInicio: cuponEditar.fechaInicio ? cuponEditar.fechaInicio.split("T")[0] : "",
+        fechaVencimiento: cuponEditar.fechaVencimiento ? cuponEditar.fechaVencimiento.split("T")[0] : "",
+        usoMaximo: cuponEditar.usoMaximo || "",
+        tipoUsuario: cuponEditar.tipoUsuario || "todos",
+        montoMinimo: cuponEditar.montoMinimo || "",
+        enviarPorMail: false,
+        destinatarios: [],
+      };
+    }
+    return createInitialCuponFormData();
+  });
+  const prevDestinatariosRef = useRef(null);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   const resetForm = useCallback(() => {
     setSegmentoFiltro("todos");
-    setFormData(createInitialCuponFormData());
-  }, []);
+    if (cuponEditar) {
+      setFormData({
+        codigo: cuponEditar.codigo || "",
+        tipoCupon: cuponEditar.tipoCupon || "porcentaje",
+        valorDescuento: cuponEditar.valorDescuento || "",
+        descripcion: cuponEditar.descripcion || "",
+        fechaInicio: cuponEditar.fechaInicio ? cuponEditar.fechaInicio.split("T")[0] : "",
+        fechaVencimiento: cuponEditar.fechaVencimiento ? cuponEditar.fechaVencimiento.split("T")[0] : "",
+        usoMaximo: cuponEditar.usoMaximo || "",
+        tipoUsuario: cuponEditar.tipoUsuario || "todos",
+        montoMinimo: cuponEditar.montoMinimo || "",
+        enviarPorMail: false,
+        destinatarios: [],
+      });
+    } else {
+      setFormData(createInitialCuponFormData());
+    }
+    setErrors({});
+    setTouched({});
+    prevDestinatariosRef.current = null;
+  }, [cuponEditar]);
 
   const handleClose = useCallback(() => {
     resetForm();
@@ -45,18 +85,126 @@ export const CuponModal = ({
     };
   }, [isOpen, handleClose]);
 
+  useEffect(() => {
+    if (cuponEditar) {
+      setFormData({
+        codigo: cuponEditar.codigo || "",
+        tipoCupon: cuponEditar.tipoCupon || "porcentaje",
+        valorDescuento: cuponEditar.valorDescuento || "",
+        descripcion: cuponEditar.descripcion || "",
+        fechaInicio: cuponEditar.fechaInicio ? cuponEditar.fechaInicio.split("T")[0] : "",
+        fechaVencimiento: cuponEditar.fechaVencimiento ? cuponEditar.fechaVencimiento.split("T")[0] : "",
+        usoMaximo: cuponEditar.usoMaximo || "",
+        tipoUsuario: cuponEditar.tipoUsuario || "todos",
+        montoMinimo: cuponEditar.montoMinimo || "",
+        enviarPorMail: false,
+        destinatarios: [],
+      });
+    } else {
+      setFormData(createInitialCuponFormData());
+    }
+    setErrors({});
+    setTouched({});
+    setSegmentoFiltro("todos");
+    prevDestinatariosRef.current = null;
+  }, [cuponEditar, isOpen]);
+
+  const validateField = useCallback((key, value) => {
+    switch (key) {
+      case "codigo":
+        return !value.trim() ? "El codigo es obligatorio" : "";
+      case "tipoCupon":
+        return !value ? "El tipo de descuento es obligatorio" : "";
+      case "valorDescuento":
+        if (!value) return "El valor es obligatorio";
+        if (parseFloat(value) <= 0) return "Debe ser mayor a 0";
+        if (formData.tipoCupon === "porcentaje" && parseFloat(value) > 100) return "Maximo 100%";
+        return "";
+      case "fechaInicio":
+        if (!value) return "La fecha de inicio es obligatoria";
+        return "";
+      case "fechaVencimiento":
+        if (!value) return "La fecha de vencimiento es obligatoria";
+        if (formData.fechaInicio && new Date(value) <= new Date(formData.fechaInicio)) {
+          return "Debe ser posterior a la fecha de inicio";
+        }
+        return "";
+      case "destinatarios":
+        if (formData.enviarPorMail && value !== "todos" && (!Array.isArray(value) || value.length === 0)) {
+          return "Selecciona al menos un cliente";
+        }
+        return "";
+      default:
+        return "";
+    }
+  }, [formData.tipoCupon, formData.fechaInicio, formData.enviarPorMail]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const newErrors = {};
+    const validarCampos = ["codigo", "tipoCupon", "valorDescuento", "fechaInicio", "fechaVencimiento"];
+    validarCampos.forEach((key) => {
+      const err = validateField(key, formData[key]);
+      if (err) newErrors[key] = err;
+    });
+    if (formData.enviarPorMail) {
+      const err = validateField("destinatarios", formData.destinatarios);
+      if (err) newErrors.destinatarios = err;
+    }
+    setErrors(newErrors);
+    setTouched((prev) => {
+      const all = { ...prev };
+      validarCampos.forEach((k) => (all[k] = true));
+      if (formData.enviarPorMail) all.destinatarios = true;
+      return all;
+    });
+
+    if (Object.keys(newErrors).length > 0) return;
+
     const ok = await onSubmit(formData);
     if (ok) resetForm();
   };
 
-  const setField = (key, value) =>
+  const setField = useCallback((key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+    setTouched((prev) => ({ ...prev, [key]: true }));
+    setErrors((prev) => {
+      const err = validateField(key, value);
+      if (!err) {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      }
+      return { ...prev, [key]: err };
+    });
+  }, [validateField]);
   const clientesFiltrados = useMemo(
     () => filtrarClientesPorSegmento(clientes, segmentoFiltro),
     [clientes, segmentoFiltro],
   );
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (formData.enviarPorMail && formData.destinatarios === "todos") {
+      prevDestinatariosRef.current = clientesFiltrados.map((c) => c.idCliente);
+    } else if (Array.isArray(formData.destinatarios)) {
+      prevDestinatariosRef.current = formData.destinatarios;
+    }
+  }, [isOpen, clientesFiltrados, formData.enviarPorMail, formData.destinatarios]);
+
+  useEffect(() => {
+    if (
+      !formData.enviarPorMail &&
+      prevDestinatariosRef.current !== null &&
+      prevDestinatariosRef.current.length > 0
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        destinatarios: prevDestinatariosRef.current,
+      }));
+    }
+  }, [formData.enviarPorMail]);
 
   const seleccionarSegmento = () => {
     const ids = clientesFiltrados.map((c) => c.idCliente);
@@ -109,18 +257,20 @@ export const CuponModal = ({
         >
           <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 shrink-0">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-green-100">
-                <Tag size={17} className="text-green-700" aria-hidden="true" />
-              </div>
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-600 text-white shrink-0">
+                <Tag size={17} aria-hidden="true" />
+              </span>
               <div>
                 <h2
                   id="cupon-modal-title"
-                  className="text-sm font-semibold text-gray-900 leading-none"
+                  className="text-base font-semibold text-gray-900"
                 >
-                  Crear cupón
+                  {cuponEditar ? "Editar cupón" : "Nuevo cupón"}
                 </h2>
-                <p className="mt-0.5 text-xs text-gray-500">
-                  Completá los datos del nuevo cupón
+                <p className="text-xs text-gray-500">
+                  {cuponEditar
+                    ? "Modifica los datos del cupón"
+                    : "Completa los datos para crear el cupón"}
                 </p>
               </div>
             </div>
@@ -131,7 +281,7 @@ export const CuponModal = ({
               className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
               aria-label="Cerrar modal"
             >
-              <X size={17} />
+              <X size={18} />
             </button>
           </div>
 
@@ -140,7 +290,7 @@ export const CuponModal = ({
             onSubmit={handleSubmit}
             className="flex-1 overflow-y-auto px-5 py-4 space-y-5"
           >
-            <CuponModalFormSections formData={formData} setField={setField} />
+            <CuponModalFormSections formData={formData} setField={setField} errors={errors} touched={touched} />
 
             <CuponModalEmailSection
               formData={formData}
@@ -155,7 +305,7 @@ export const CuponModal = ({
             />
           </form>
 
-          <CuponModalActions onClose={handleClose} />
+          <CuponModalActions onClose={handleClose} esEdicion={!!cuponEditar} />
         </motion.div>
       </div>
     </AnimatePresence>

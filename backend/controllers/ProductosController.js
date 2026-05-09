@@ -1,5 +1,6 @@
 const productosService = require("../services/ProductosService");
 const { Auditoria } = require("../helps");
+const historialService = require("../services/HistorialOfertasService");
 
 const getProductos = async (req, res, next) => {
   try {
@@ -86,6 +87,43 @@ const updateProducto = async (req, res, next) => {
       productoAnterior,
       req,
     );
+
+    const enOfertaAnterior = Boolean(productoAnterior.enOferta);
+    const enOfertaNueva = Boolean(producto.enOferta);
+    const porcentajeAnterior = Number(productoAnterior.porcentajeDescuento) || 0;
+    const porcentajeNuevo = Number(producto.porcentajeDescuento) || 0;
+
+    if (enOfertaNueva && !enOfertaAnterior) {
+      await historialService.registrarCambioOferta({
+        idProducto,
+        accion: "ACTIVADA",
+        porcentajeAnterior: 0,
+        porcentajeNuevo,
+        idUsuario: req.user?.id || 0,
+        nombreUsuario: req.user?.nombre || "Sistema",
+        tipoUsuario: req.user?.role || "admin",
+      });
+    } else if (enOfertaNueva && enOfertaAnterior && porcentajeAnterior !== porcentajeNuevo) {
+      await historialService.registrarCambioOferta({
+        idProducto,
+        accion: "MODIFICADA",
+        porcentajeAnterior,
+        porcentajeNuevo,
+        idUsuario: req.user?.id || 0,
+        nombreUsuario: req.user?.nombre || "Sistema",
+        tipoUsuario: req.user?.role || "admin",
+      });
+    } else if (!enOfertaNueva && enOfertaAnterior) {
+      await historialService.registrarCambioOferta({
+        idProducto,
+        accion: "DESACTIVADA",
+        porcentajeAnterior,
+        porcentajeNuevo: 0,
+        idUsuario: req.user?.id || 0,
+        nombreUsuario: req.user?.nombre || "Sistema",
+        tipoUsuario: req.user?.role || "admin",
+      });
+    }
 
     res.status(200).json({
       message: "Producto actualizado correctamente",

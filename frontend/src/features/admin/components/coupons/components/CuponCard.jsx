@@ -1,4 +1,4 @@
-import { Tag, Clock, Users, Power, Trash2, CheckCircle2, XCircle } from "lucide-react";
+import { Tag, Clock, Users, Power, Trash2, CheckCircle2, XCircle, Edit2, Eye } from "lucide-react";
 import {
   formatearFecha,
   getTipoUsuarioBadge,
@@ -24,6 +24,8 @@ export const CuponCard = ({
   cupon,
   onCambiarEstado,
   onEliminar,
+  onEditar,
+  onVerDetalle,
 }) => {
   const esActivo = cupon.estado === "activo";
   const pctUso = cupon.usoMaximo
@@ -119,6 +121,22 @@ export const CuponCard = ({
       </div>
 
       <div className="flex gap-2 border-t border-gray-100 bg-gray-50 p-2.5 justify-end">
+        <button
+          onClick={() => onVerDetalle(cupon)}
+          className={`p-2 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 focus-visible:ring-blue-500 ${baseBtn}`}
+          title="Ver detalle"
+          aria-label={`Ver detalle cupon ${cupon.codigo}`}
+        >
+          <Eye size={16} />
+        </button>
+        <button
+          onClick={() => onEditar(cupon)}
+          className={`p-2 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 focus-visible:ring-amber-500 ${baseBtn}`}
+          title="Editar"
+          aria-label={`Editar cupon ${cupon.codigo}`}
+        >
+          <Edit2 size={16} />
+        </button>
         <button
           onClick={() => onCambiarEstado(cupon.idCupon, cupon.estado)}
           className={`p-2 rounded-lg ${baseBtn} ${

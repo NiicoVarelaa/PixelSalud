@@ -4,9 +4,19 @@ const getValidationMessage = ({
   esDosPorUno,
 }) => {
   if (!campana.nombreCampana?.trim()) return "Falta el nombre";
+  if (!campana.fechaInicio) return "Falta la fecha de inicio";
+  if (!campana.fechaFin) return "Falta la fecha de fin";
+  if (campana.fechaInicio && campana.fechaFin && new Date(campana.fechaFin) < new Date(campana.fechaInicio)) {
+    return "La fecha de fin debe ser posterior a la de inicio";
+  }
   if (productosSeleccionados.length === 0)
     return "Seleccioná al menos un producto";
-  if (!esDosPorUno && !campana.porcentajeDescuento) return "Falta el descuento";
+  if (!esDosPorUno) {
+    if (!campana.porcentajeDescuento) return "Falta el descuento";
+    const val = parseFloat(campana.porcentajeDescuento);
+    if (val <= 0) return "El descuento debe ser mayor a 0";
+    if (val > 100) return "El descuento no puede ser mayor a 100%";
+  }
   return "";
 };
 

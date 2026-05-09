@@ -14,17 +14,23 @@ import {
   CuponModal,
   LoadingState,
   EmptyState,
+  CuponDetail,
+  HistorialFilters,
 } from "./components";
 
 const AdminCupones = () => {
   const [vistaActual, setVistaActual] = useState("cupones");
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [cuponEditando, setCuponEditando] = useState(null);
+  const [cuponDetalle, setCuponDetalle] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: "",
     message: "",
     onConfirm: null,
   });
+  const [historialBusqueda, setHistorialBusqueda] = useState("");
+  const [historialFiltroCodigo, setHistorialFiltroCodigo] = useState("todos");
 
   const {
     cupones,
@@ -33,6 +39,7 @@ const AdminCupones = () => {
     cargandoClientes,
     cargando,
     crearCupon,
+    editarCupon,
     cambiarEstado,
     eliminarCupon,
     estadisticas,
@@ -58,6 +65,31 @@ const AdminCupones = () => {
   const handleCrearCupon = async (formData) => {
     const success = await crearCupon(formData, () => setModalAbierto(false));
     return success;
+  };
+
+  const handleEditarCupon = async (formData) => {
+    const success = await editarCupon(
+      cuponEditando.idCupon,
+      formData,
+      () => {
+        setModalAbierto(false);
+        setCuponEditando(null);
+      }
+    );
+    return success;
+  };
+
+  const abrirModalEdicion = (cupon) => {
+    setCuponEditando(cupon);
+    setModalAbierto(true);
+  };
+
+  const abrirDetalle = (cupon) => {
+    setCuponDetalle(cupon);
+  };
+
+  const cerrarDetalle = () => {
+    setCuponDetalle(null);
   };
 
   const handleCambiarEstado = (id, estadoActual) => {
@@ -86,6 +118,21 @@ const AdminCupones = () => {
       message: "",
       onConfirm: null,
     });
+
+  const historialFiltrado = historial.filter((uso) => {
+    const matchBusqueda =
+      uso.codigo?.toLowerCase().includes(historialBusqueda.toLowerCase()) ||
+      uso.nombreCliente?.toLowerCase().includes(historialBusqueda.toLowerCase()) ||
+      uso.emailCliente?.toLowerCase().includes(historialBusqueda.toLowerCase());
+    const matchCodigo =
+      historialFiltroCodigo === "todos" || uso.codigo === historialFiltroCodigo;
+    return matchBusqueda && matchCodigo;
+  });
+
+  const codigosUnicos = [...new Set(historial.map((u) => u.codigo))].map((c) => ({
+    value: c,
+    label: c,
+  }));
 
   return (
     <AdminLayout
@@ -116,7 +163,11 @@ const AdminCupones = () => {
               filtroTipo={filtroTipo}
               setFiltroTipo={setFiltroTipo}
               onResetPaginacion={resetPaginacion}
-              onCrearCupon={() => setModalAbierto(true)}
+              onCrearCupon={() => {
+                setCuponEditando(null);
+                setModalAbierto(true);
+              }}
+              cuponesFiltrados={cuponesFiltrados}
             />
           </div>
 
@@ -136,6 +187,8 @@ const AdminCupones = () => {
                         index={i}
                         onCambiarEstado={handleCambiarEstado}
                         onEliminar={handleEliminar}
+                        onEditar={abrirModalEdicion}
+                        onVerDetalle={abrirDetalle}
                       />
                     ))}
                   </div>
@@ -146,6 +199,8 @@ const AdminCupones = () => {
                     cupones={cuponesPaginados}
                     onCambiarEstado={handleCambiarEstado}
                     onEliminar={handleEliminar}
+                    onEditar={abrirModalEdicion}
+                    onVerDetalle={abrirDetalle}
                   />
                 </div>
               </>
@@ -172,16 +227,32 @@ const AdminCupones = () => {
           id="panel-historial"
           aria-labelledby="tab-historial"
         >
-          <HistorialTable historial={historial} />
+          <HistorialFilters
+            busqueda={historialBusqueda}
+            setBusqueda={setHistorialBusqueda}
+            filtroCodigo={historialFiltroCodigo}
+            setFiltroCodigo={setHistorialFiltroCodigo}
+            opcionesCodigo={codigosUnicos}
+          />
+          <HistorialTable historial={historialFiltrado} />
         </div>
       )}
 
       <CuponModal
         isOpen={modalAbierto}
-        onClose={() => setModalAbierto(false)}
-        onSubmit={handleCrearCupon}
+        onClose={() => {
+          setModalAbierto(false);
+          setCuponEditando(null);
+        }}
+        onSubmit={cuponEditando ? handleEditarCupon : handleCrearCupon}
         clientes={clientes}
         cargandoClientes={cargandoClientes}
+        cuponEditar={cuponEditando}
+      />
+
+      <CuponDetail
+        cupon={cuponDetalle}
+        onClose={cerrarDetalle}
       />
 
       <ConfirmDialog

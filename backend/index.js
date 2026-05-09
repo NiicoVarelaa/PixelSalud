@@ -35,6 +35,7 @@ const routesAuditoria = require("./routes/AuditoriaRoutes");
 const routesTicket = require("./routes/TicketRoutes");
 const routesCloudinary = require("./routes/CloudinaryRoutes");
 const routesNewsletter = require("./routes/NewsletterRoutes");
+const routesHistorialOfertas = require("./routes/HistorialOfertasRoutes");
 const {
   startBirthdayCouponScheduler,
 } = require("./services/BirthdayCouponScheduler");
@@ -101,6 +102,7 @@ app.use(`${API_PREFIX}/admin/auditoria`, routesAuditoria);
 app.use(`${API_PREFIX}/ticket`, routesTicket);
 app.use(`${API_PREFIX}/cloudinary`, routesCloudinary);
 app.use(`${API_PREFIX}/newsletter`, routesNewsletter);
+app.use(`${API_PREFIX}/`, routesHistorialOfertas);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

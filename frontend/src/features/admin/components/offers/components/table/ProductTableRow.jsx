@@ -11,6 +11,7 @@ export const ProductTableRow = ({
   estaEnCampana,
   onEstablecerDescuento,
   onCambiarOferta,
+  onVerDetalle,
 }) => {
   const tieneOferta =
     Boolean(producto.enOferta) && Number(producto.porcentajeDescuento) > 0;
@@ -71,6 +72,7 @@ export const ProductTableRow = ({
             tieneOferta={tieneOferta}
             onEstablecerDescuento={onEstablecerDescuento}
             onCambiarOferta={onCambiarOferta}
+            onVerDetalle={onVerDetalle}
           />
         </div>
       </td>

@@ -100,6 +100,15 @@ router.patch(
   campanasController.updateOverride,
 );
 
+router.patch(
+  "/:idCampana/toggle-activa",
+  mutationLimiter,
+  auth,
+  verificarRol(["admin"]),
+  validate({ params: campanasSchemas.idCampanaParam }),
+  campanasController.toggleActiva,
+);
+
 router.get(
   "/admin/proximas-a-vencer",
   auth,

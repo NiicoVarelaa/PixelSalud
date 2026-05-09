@@ -10,7 +10,9 @@ import {
   Pagination,
   ModalDescuento,
   ModalAgregarOferta,
-  ConfirmQuitarOfertaDialog,
+  ConfirmOfertaDialog,
+  OfertaDetail,
+  OfertasStatsCards,
 } from "./components";
 
 const AdminOfertas = () => {
@@ -19,9 +21,16 @@ const AdminOfertas = () => {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modalAgregarAbierto, setModalAgregarAbierto] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
-  const [modalQuitarAbierto, setModalQuitarAbierto] = useState(false);
-  const [productoQuitar, setProductoQuitar] = useState(null);
-  const [quitandoOferta, setQuitandoOferta] = useState(false);
+  const [productoDetalle, setProductoDetalle] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    producto: null,
+    type: "danger",
+    title: "",
+    message: "",
+    confirmText: "",
+    onConfirm: null,
+  });
 
   const { estaEnCampana, handleCambiarOferta } = useOfertasData();
 
@@ -53,50 +62,71 @@ const AdminOfertas = () => {
     setModalAbierto(true);
   };
 
-  const confirmarDescuento = (porcentaje) => {
+  const confirmarDescuento = (porcentaje, fechas) => {
     if (productoSeleccionado) {
-      handleCambiarOferta(productoSeleccionado, true, porcentaje);
+      handleCambiarOferta(productoSeleccionado, true, porcentaje, fechas);
     }
   };
 
-  const confirmarAgregarOferta = ({ producto, porcentaje }) => {
+  const confirmarAgregarOferta = ({ producto, porcentaje, fechas }) => {
     if (!producto) return;
-    handleCambiarOferta(producto, true, porcentaje);
+    handleCambiarOferta(producto, true, porcentaje, fechas);
   };
 
-  const abrirModalQuitar = (producto) => {
-    setProductoQuitar(producto);
-    setModalQuitarAbierto(true);
+  const cerrarConfirmDialog = () => {
+    setConfirmDialog({
+      isOpen: false,
+      producto: null,
+      type: "danger",
+      title: "",
+      message: "",
+      confirmText: "",
+      onConfirm: null,
+    });
   };
 
-  const cerrarModalQuitar = () => {
-    if (quitandoOferta) return;
-    setModalQuitarAbierto(false);
-    setProductoQuitar(null);
+  const abrirDetalle = (producto) => {
+    setProductoDetalle(producto);
   };
 
-  const confirmarQuitarOferta = async () => {
-    if (!productoQuitar) return;
-    try {
-      setQuitandoOferta(true);
-      await handleCambiarOferta(productoQuitar, false);
-      cerrarModalQuitar();
-    } finally {
-      setQuitandoOferta(false);
-    }
+  const cerrarDetalle = () => {
+    setProductoDetalle(null);
   };
 
   const handleCambiarOfertaConConfirmacion = (
     producto,
     activar,
     porcentaje,
+    fechas,
   ) => {
     if (activar) {
-      handleCambiarOferta(producto, true, porcentaje);
+      setConfirmDialog({
+        isOpen: true,
+        producto,
+        type: "success",
+        title: `¿Aplicar ${porcentaje}% de descuento?`,
+        message: `Se aplicará un ${porcentaje}% OFF a ${producto.nombreProducto}${fechas ? ` (${new Date(fechas.fechaInicio).toLocaleDateString("es-AR")} - ${new Date(fechas.fechaFin).toLocaleDateString("es-AR")})` : ""}`,
+        confirmText: "Sí, aplicar",
+        onConfirm: () => {
+          handleCambiarOferta(producto, true, porcentaje, fechas);
+          cerrarConfirmDialog();
+        },
+      });
       return;
     }
 
-    abrirModalQuitar(producto);
+    setConfirmDialog({
+      isOpen: true,
+      producto,
+      type: "danger",
+      title: "¿Quitar oferta?",
+      message: `Se eliminará el descuento de ${producto.nombreProducto}`,
+      confirmText: "Sí, quitar",
+      onConfirm: async () => {
+        await handleCambiarOferta(producto, false);
+        cerrarConfirmDialog();
+      },
+    });
   };
 
   return (
@@ -106,6 +136,8 @@ const AdminOfertas = () => {
       usePageScroll={false}
       contentClassName="flex min-h-0 flex-col"
     >
+      <OfertasStatsCards productos={productos} />
+
       <div
         className="flex min-h-0 flex-1 flex-col gap-4 sm:gap-5"
         role="main"
@@ -123,6 +155,7 @@ const AdminOfertas = () => {
             <OfertasTable
               onEstablecerDescuento={abrirModalDescuento}
               onCambiarOferta={handleCambiarOfertaConConfirmacion}
+              onVerDetalle={abrirDetalle}
               estaEnCampana={estaEnCampana}
             />
           </div>
@@ -155,12 +188,20 @@ const AdminOfertas = () => {
         onConfirm={confirmarAgregarOferta}
       />
 
-      <ConfirmQuitarOfertaDialog
-        isOpen={modalQuitarAbierto}
-        isLoading={quitandoOferta}
-        producto={productoQuitar}
-        onClose={cerrarModalQuitar}
-        onConfirm={confirmarQuitarOferta}
+      <ConfirmOfertaDialog
+        isOpen={confirmDialog.isOpen}
+        producto={confirmDialog.producto}
+        onClose={cerrarConfirmDialog}
+        onConfirm={confirmDialog.onConfirm}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmText={confirmDialog.confirmText}
+        type={confirmDialog.type}
+      />
+
+      <OfertaDetail
+        producto={productoDetalle}
+        onClose={cerrarDetalle}
       />
 
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />

@@ -4,6 +4,7 @@ export const useOfertasStore = create((set) => ({
   productos: [],
   idsProductosEnCampanas: [],
   cargando: false,
+  cargandoId: null,
   busqueda: "",
   filtroCategoria: "todas",
   filtroDescuento: "todos",
@@ -13,6 +14,7 @@ export const useOfertasStore = create((set) => ({
   setProductos: (productos) => set({ productos }),
   setIdsProductosEnCampanas: (ids) => set({ idsProductosEnCampanas: ids }),
   setCargando: (cargando) => set({ cargando }),
+  setCargandoId: (id) => set({ cargandoId: id }),
   setBusqueda: (busqueda) => set({ busqueda, paginaActual: 1 }),
   setFiltroCategoria: (filtroCategoria) =>
     set({ filtroCategoria, paginaActual: 1 }),

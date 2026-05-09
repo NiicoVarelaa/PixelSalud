@@ -1,6 +1,6 @@
-import PaginationProductos from "@features/admin/components/products/components/Pagination";
 import { useOfertasStore } from "../../store/useOfertasStore";
-import { usePagination } from "./usePagination";
+import { useOfertasFilters } from "../../hooks/useOfertasFilters";
+import PaginationProductos from "@features/admin/components/products/components/Pagination";
 
 export const Pagination = () => {
   const {
@@ -15,23 +15,22 @@ export const Pagination = () => {
     cargando,
   } = useOfertasStore();
 
-  const { totalPaginas, productosFiltrados } =
-    usePagination({
-      productos,
-      busqueda,
-      filtroCategoria,
-      filtroDescuento,
-      idsProductosEnCampanas,
-      paginaActual,
-      itemsPorPagina,
-    });
+  const { totalPaginas, totalItems } = useOfertasFilters({
+    productos,
+    busqueda,
+    filtroCategoria,
+    filtroDescuento,
+    idsProductosEnCampanas,
+    paginaActual,
+    itemsPorPagina,
+  });
 
-  if (cargando || productosFiltrados.length === 0 || totalPaginas <= 1) {
+  if (cargando || totalItems === 0 || totalPaginas <= 1) {
     return null;
   }
 
   return (
-    <div>
+    <div className="space-y-2" aria-label="Paginación de ofertas">
       <PaginationProductos
         currentPage={paginaActual}
         totalPages={totalPaginas}

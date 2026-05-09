@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Calendar, Package, Edit2, Power, Trash2, Percent } from "lucide-react";
+import { Calendar, Package, Edit2, Power, Trash2, Percent, Eye } from "lucide-react";
 import { formatearFecha } from "../utils/formatters";
 
 const TipoBadge = ({ tipo }) => (
@@ -30,6 +30,7 @@ export const CampanaCard = ({
   onEditar,
   onToggleActiva,
   onEliminar,
+  onVerDetalle,
 }) => {
   const esDosPorUno = String(campana.tipo || "").toUpperCase() === "2X1";
 
@@ -91,6 +92,15 @@ export const CampanaCard = ({
       </div>
 
       <div className="flex items-center gap-1.5 border-t border-gray-100 bg-gray-50 px-4 py-2.5">
+        <button
+          type="button"
+          onClick={() => onVerDetalle(campana)}
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-500 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+          aria-label={`Ver detalle campaña ${campana.nombreCampana}`}
+        >
+          <Eye size={14} aria-hidden="true" />
+        </button>
+
         <button
           type="button"
           onClick={() => onEditar(campana)}

@@ -4,6 +4,7 @@ export const useCampanasFilters = ({
   campanas,
   busqueda,
   filtroEstado,
+  filtroTipo,
   paginaActual,
   itemsPorPagina,
 }) => {
@@ -16,9 +17,11 @@ export const useCampanasFilters = ({
         filtroEstado === "todos" ||
         (filtroEstado === "activas" && campana.esActiva) ||
         (filtroEstado === "inactivas" && !campana.esActiva);
-      return matchBusqueda && matchEstado;
+      const matchTipo =
+        filtroTipo === "todos" || campana.tipo === filtroTipo;
+      return matchBusqueda && matchEstado && matchTipo;
     });
-  }, [campanas, busqueda, filtroEstado]);
+  }, [campanas, busqueda, filtroEstado, filtroTipo]);
 
   const totalPaginas = Math.ceil(campanasFiltradas.length / itemsPorPagina);
   const indiceInicio = (paginaActual - 1) * itemsPorPagina;
@@ -29,5 +32,7 @@ export const useCampanasFilters = ({
     campanasActuales,
     campanasFiltradas,
     totalPaginas,
+    indiceInicio,
+    indiceFin,
   };
 };

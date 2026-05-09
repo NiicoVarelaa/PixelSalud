@@ -1,4 +1,4 @@
-import { Power, Trash2, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Power, Trash2, CheckCircle2, XCircle, Clock, Edit2, Eye } from "lucide-react";
 import {
   formatearFecha,
   getTipoUsuarioBadge,
@@ -20,7 +20,7 @@ const getEstadoBadge = (estado) => {
   }
 };
 
-export const CuponTable = ({ cupones, onCambiarEstado, onEliminar }) => {
+export const CuponTable = ({ cupones, onCambiarEstado, onEliminar, onEditar, onVerDetalle }) => {
   if (cupones.length === 0) {
     return (
       <div className="bg-white rounded-xl border border-gray-100 p-6 text-center">
@@ -164,6 +164,22 @@ export const CuponTable = ({ cupones, onCambiarEstado, onEliminar }) => {
 
                   <td className="px-3 py-3 whitespace-nowrap text-right">
                     <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={() => onVerDetalle(cupon)}
+                        className={`p-2 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 focus-visible:ring-blue-500 ${baseBtn}`}
+                        title="Ver detalle"
+                        aria-label={`Ver detalle cupon ${cupon.codigo}`}
+                      >
+                        <Eye size={16} aria-hidden="true" />
+                      </button>
+                      <button
+                        onClick={() => onEditar(cupon)}
+                        className={`p-2 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 focus-visible:ring-amber-500 ${baseBtn}`}
+                        title="Editar"
+                        aria-label={`Editar cupon ${cupon.codigo}`}
+                      >
+                        <Edit2 size={16} aria-hidden="true" />
+                      </button>
                       <button
                         onClick={() => onCambiarEstado(cupon.idCupon, cupon.estado)}
                         className={`p-2 rounded-lg ${baseBtn} ${
