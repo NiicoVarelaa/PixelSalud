@@ -11,6 +11,7 @@ export const ProductCard = ({
   estaEnCampana,
   onEstablecerDescuento,
   onCambiarOferta,
+  onVerDetalle,
 }) => {
   const tieneOferta =
     Boolean(producto.enOferta) && Number(producto.porcentajeDescuento) > 0;
@@ -69,6 +70,7 @@ export const ProductCard = ({
             tieneOferta={tieneOferta}
             onEstablecerDescuento={onEstablecerDescuento}
             onCambiarOferta={onCambiarOferta}
+            onVerDetalle={onVerDetalle}
             isMobile
           />
         </div>

@@ -29,14 +29,6 @@ export const useAuditoriaFilters = () => {
     });
   };
 
-  const paginaAnterior = () => {
-    handleFiltroChange("offset", Math.max(0, filtros.offset - filtros.limite));
-  };
-
-  const paginaSiguiente = () => {
-    handleFiltroChange("offset", filtros.offset + filtros.limite);
-  };
-
   const irAPagina = (pagina) => {
     const paginaSegura = Math.max(1, Number(pagina) || 1);
     handleFiltroChange("offset", (paginaSegura - 1) * filtros.limite);
@@ -47,7 +39,5 @@ export const useAuditoriaFilters = () => {
     handleFiltroChange,
     irAPagina,
     limpiarFiltros,
-    paginaAnterior,
-    paginaSiguiente,
   };
 };

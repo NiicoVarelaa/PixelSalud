@@ -66,58 +66,65 @@ const obtenerAuditorias = async (filtros = {}) => {
     idEntidad,
     fechaDesde,
     fechaHasta,
-    limite = 100,
+    limite = 50,
     offset = 0,
   } = filtros;
 
-  let query = "SELECT * FROM auditoria WHERE 1=1";
+  let whereClause = "WHERE 1=1";
   const params = [];
 
   if (modulo) {
-    query += " AND modulo = ?";
+    whereClause += " AND modulo = ?";
     params.push(modulo);
   }
 
   if (tipoUsuario) {
-    query += " AND tipoUsuario = ?";
+    whereClause += " AND tipoUsuario = ?";
     params.push(tipoUsuario);
   }
 
   if (idUsuario) {
-    query += " AND idUsuario = ?";
+    whereClause += " AND idUsuario = ?";
     params.push(idUsuario);
   }
 
   if (entidadAfectada) {
-    query += " AND entidadAfectada = ?";
+    whereClause += " AND entidadAfectada = ?";
     params.push(entidadAfectada);
   }
 
   if (idEntidad) {
-    query += " AND idEntidad = ?";
+    whereClause += " AND idEntidad = ?";
     params.push(idEntidad);
   }
 
   if (fechaDesde) {
-    query += " AND fechaHora >= ?";
+    whereClause += " AND fechaHora >= ?";
     params.push(fechaDesde);
   }
 
   if (fechaHasta) {
-    query += " AND fechaHora <= ?";
+    whereClause += " AND fechaHora < DATE_ADD(?, INTERVAL 1 DAY)";
     params.push(fechaHasta);
   }
 
-  query += " ORDER BY fechaHora DESC LIMIT ? OFFSET ?";
-  params.push(limite, offset);
+  const [[{ total }]] = await pool.query(
+    `SELECT COUNT(*) as total FROM auditoria ${whereClause}`,
+    params,
+  );
 
-  const [registros] = await pool.query(query, params);
+  const query = `SELECT * FROM auditoria ${whereClause} ORDER BY fechaHora DESC LIMIT ? OFFSET ?`;
+  const dataParams = [...params, limite, offset];
+  const [registros] = await pool.query(query, dataParams);
 
-  return registros.map((registro) => ({
-    ...registro,
-    datosAnteriores: parseJsonSafe(registro.datosAnteriores),
-    datosNuevos: parseJsonSafe(registro.datosNuevos),
-  }));
+  return {
+    data: registros.map((registro) => ({
+      ...registro,
+      datosAnteriores: parseJsonSafe(registro.datosAnteriores),
+      datosNuevos: parseJsonSafe(registro.datosNuevos),
+    })),
+    total,
+  };
 };
 
 const obtenerAuditoriasPorUsuario = async (

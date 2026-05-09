@@ -44,8 +44,13 @@ export const CampanaModal = ({
 
   const isFormValid =
     campana.nombreCampana?.trim() &&
+    campana.fechaInicio &&
+    campana.fechaFin &&
     (esDosPorUno || campana.porcentajeDescuento) &&
-    productosSeleccionados.length > 0;
+    productosSeleccionados.length > 0 &&
+    (!campana.fechaInicio || !campana.fechaFin || new Date(campana.fechaFin) >= new Date(campana.fechaInicio)) &&
+    (!esDosPorUno || campana.porcentajeDescuento === 0 || campana.porcentajeDescuento === "" ||
+     (parseFloat(campana.porcentajeDescuento) >= 0 && parseFloat(campana.porcentajeDescuento) <= 100));
 
   const handleSubmit = (e) => {
     e.preventDefault();

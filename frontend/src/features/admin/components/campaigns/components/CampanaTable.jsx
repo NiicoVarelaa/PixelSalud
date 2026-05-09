@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Percent, Package, Edit2, Power, Trash2 } from "lucide-react";
+import { Percent, Package, Edit2, Power, Trash2, Eye } from "lucide-react";
 import { formatearFecha } from "../utils/formatters";
 
 export const CampanaTable = ({
@@ -7,6 +7,7 @@ export const CampanaTable = ({
   onEditar,
   onToggleActiva,
   onEliminar,
+  onVerDetalle,
 }) => {
   return (
     <motion.div
@@ -126,6 +127,15 @@ export const CampanaTable = ({
 
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => onVerDetalle(campana)}
+                        className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-500 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                        aria-label={`Ver detalle ${campana.nombreCampana}`}
+                        title="Ver detalle"
+                      >
+                        <Eye size={13} />
+                      </button>
                       <button
                         type="button"
                         onClick={() => onEditar(campana)}

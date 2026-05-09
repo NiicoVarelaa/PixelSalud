@@ -4,7 +4,6 @@ import { DEFAULT_VALUES, RANGE_LABEL_BY_KEY } from "../constants/constants";
 export const useActiveFilterChips = ({
   activeDateRange,
   filters,
-  onClearDateRange,
   onFilterChange,
 }) => {
   return useMemo(() => {

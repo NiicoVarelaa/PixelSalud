@@ -15,7 +15,7 @@ const obtenerAuditorias = async (req, res, next) => {
       offset = 0,
     } = req.query;
 
-    const auditorias = await AuditoriaRepository.obtenerAuditorias({
+    const resultado = await AuditoriaRepository.obtenerAuditorias({
       modulo,
       tipoUsuario,
       idUsuario: idUsuario ? parseInt(idUsuario) : undefined,
@@ -29,8 +29,10 @@ const obtenerAuditorias = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: auditorias,
-      total: auditorias.length,
+      data: resultado.data,
+      total: resultado.total,
+      limite: parseInt(limite),
+      offset: parseInt(offset),
     });
   } catch (error) {
     next(error);

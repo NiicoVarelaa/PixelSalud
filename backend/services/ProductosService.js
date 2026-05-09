@@ -100,9 +100,24 @@ const actualizarProducto = async (idProducto, data) => {
       );
     }
 
+    const fechaInicio = data.fechaInicioOferta || null;
+    const fechaFin = data.fechaFinOferta || null;
+
+    if (fechaInicio && fechaFin) {
+      const inicio = new Date(fechaInicio);
+      const fin = new Date(fechaFin);
+      if (fin <= inicio) {
+        throw createValidationError(
+          "La fecha de fin debe ser posterior a la fecha de inicio",
+        );
+      }
+    }
+
     await productosRepository.upsertOfertaProducto(
       idProducto,
       porcentajeDescuento,
+      fechaInicio,
+      fechaFin,
     );
   }
 

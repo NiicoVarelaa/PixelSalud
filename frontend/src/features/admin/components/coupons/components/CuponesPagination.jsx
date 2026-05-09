@@ -4,8 +4,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 export const CuponesPagination = ({
   paginaActual,
   totalPaginas,
-  indicePrimero,
-  indiceUltimo,
   totalItems,
   onCambiarPagina,
 }) => {
@@ -13,14 +11,6 @@ export const CuponesPagination = ({
 
   return (
     <div className="space-y-2" aria-label="Paginación de cupones">
-      <p className="text-xs text-gray-500" aria-live="polite">
-        <span className="font-semibold text-gray-700">
-          {indicePrimero + 1}–{Math.min(indiceUltimo, totalItems)}
-        </span>{" "}
-        de <span className="font-semibold text-gray-700">{totalItems}</span>{" "}
-        cupones
-      </p>
-
       {totalPaginas > 1 ? (
         <PaginationProductos
           currentPage={paginaActual}

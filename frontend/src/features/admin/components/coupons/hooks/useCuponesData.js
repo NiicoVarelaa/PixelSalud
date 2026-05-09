@@ -83,6 +83,24 @@ export const useCuponesData = () => {
       return false;
     }
 
+    if (
+      nuevoCupon.fechaInicio &&
+      nuevoCupon.fechaVencimiento &&
+      new Date(nuevoCupon.fechaVencimiento) <= new Date(nuevoCupon.fechaInicio)
+    ) {
+      toast.error("La fecha de vencimiento debe ser posterior a la fecha de inicio");
+      return false;
+    }
+
+    const fechaInicio = new Date(nuevoCupon.fechaInicio);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    fechaInicio.setHours(0, 0, 0, 0);
+    if (fechaInicio < hoy) {
+      toast.error("La fecha de inicio no puede ser anterior a hoy");
+      return false;
+    }
+
     try {
       await apiClient.post("/cupones", nuevoCupon);
       toast.success("Cupón creado exitosamente");
@@ -91,6 +109,53 @@ export const useCuponesData = () => {
       return true;
     } catch (error) {
       toast.error(error.response?.data?.message || "Error al crear cupón");
+      console.error("Error:", error);
+      return false;
+    }
+  };
+
+  const editarCupon = async (id, datosActualizados, onSuccess) => {
+    if (
+      !datosActualizados.codigo ||
+      !datosActualizados.tipoCupon ||
+      !datosActualizados.valorDescuento ||
+      !datosActualizados.fechaInicio ||
+      !datosActualizados.fechaVencimiento
+    ) {
+      toast.error("Los campos marcados con * son obligatorios");
+      return false;
+    }
+
+    if (parseFloat(datosActualizados.valorDescuento) <= 0) {
+      toast.error("El valor del descuento debe ser mayor a 0");
+      return false;
+    }
+
+    if (
+      datosActualizados.tipoCupon === "porcentaje" &&
+      parseFloat(datosActualizados.valorDescuento) > 100
+    ) {
+      toast.error("El porcentaje no puede ser mayor a 100");
+      return false;
+    }
+
+    if (
+      datosActualizados.fechaInicio &&
+      datosActualizados.fechaVencimiento &&
+      new Date(datosActualizados.fechaVencimiento) <= new Date(datosActualizados.fechaInicio)
+    ) {
+      toast.error("La fecha de vencimiento debe ser posterior a la fecha de inicio");
+      return false;
+    }
+
+    try {
+      await apiClient.put(`/cupones/${id}`, datosActualizados);
+      toast.success("Cupón actualizado exitosamente");
+      await fetchCupones();
+      if (onSuccess) onSuccess();
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error al actualizar cupón");
       console.error("Error:", error);
       return false;
     }
@@ -160,6 +225,7 @@ export const useCuponesData = () => {
     estadisticas: getEstadisticas(),
     cambiarEstado,
     crearCupon,
+    editarCupon,
     eliminarCupon,
     fetchCupones,
     fetchHistorial,

@@ -8,6 +8,7 @@ import {
   Shield,
   FileText,
   ArrowLeftRight,
+  Hash,
 } from "lucide-react";
 import {
   formatearFecha,
@@ -16,29 +17,42 @@ import {
   formatearEvento,
 } from "../utils/helpers";
 
-const DataRow = ({ label, children }) => (
-  <div className="flex items-start gap-2 py-2">
-    <span className="w-32 shrink-0 text-xs font-medium text-gray-500">
-      {label}
-    </span>
-    <span className="flex-1 text-xs font-medium text-gray-800 break-words">
-      {children}
-    </span>
+const DataRow = ({ label, children, icon }) => (
+  <div className="flex items-start gap-3 py-2.5">
+    {icon && (
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gray-100 mt-px">
+        {createElement(icon, { size: 12, className: "text-gray-500" })}
+      </div>
+    )}
+    <div className="min-w-0 flex-1">
+      <span className="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-0.5">
+        {label}
+      </span>
+      <span className="block text-sm font-medium text-gray-800 break-words">
+        {children}
+      </span>
+    </div>
   </div>
 );
 
 const JsonBlock = ({ title, data, Icon, accentClass }) => {
   if (!data) return null;
+  let jsonStr;
+  try {
+    jsonStr = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+  } catch {
+    jsonStr = String(data);
+  }
   return (
-    <div>
+    <div className="flex-1 min-w-0">
       <div
-        className={`mb-1.5 flex items-center gap-1.5 text-xs font-semibold ${accentClass}`}
+        className={`mb-2 flex items-center gap-1.5 text-xs font-semibold ${accentClass}`}
       >
         {createElement(Icon, { size: 13, "aria-hidden": "true" })}
         {title}
       </div>
-      <pre className="overflow-x-auto rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-3 text-xs leading-relaxed text-gray-700 font-mono">
-        {JSON.stringify(data, null, 2)}
+      <pre className="overflow-x-auto rounded-xl border border-gray-200 bg-gray-50/80 px-3.5 py-3 text-xs leading-relaxed text-gray-700 font-mono max-h-60">
+        {jsonStr}
       </pre>
     </div>
   );
@@ -93,11 +107,11 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
             className="relative flex w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl max-h-[92vh]"
           >
             <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 shrink-0">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-100">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-600 shadow-sm shadow-green-600/25">
                   <Shield
-                    size={17}
-                    className="text-gray-700"
+                    size={18}
+                    className="text-white"
                     aria-hidden="true"
                   />
                 </div>
@@ -108,8 +122,10 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
                   >
                     Detalle de auditoria
                   </h2>
-                  <p className="text-xs text-gray-500">
-                    Registro #{auditoria.idAuditoria} · {formatearEvento(auditoria.evento)}
+                  <p className="text-xs text-gray-500 truncate">
+                    Registro #{auditoria.idAuditoria}{" "}
+                    <span className="text-gray-300">·</span>{" "}
+                    {formatearEvento(auditoria.evento)}
                   </p>
                 </div>
               </div>
@@ -131,50 +147,56 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
                 >
                   {formatearEvento(auditoria.evento)}
                 </span>
-                <span className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 capitalize">
+                <span className="inline-flex items-center gap-1 rounded-lg bg-green-50 border border-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
                   {auditoria.modulo}
                 </span>
                 {auditoria.accion && (
-                  <span className="rounded-lg bg-orange-50 border border-orange-200 px-2.5 py-1 text-xs font-medium text-orange-700">
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-amber-50 border border-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
                     {auditoria.accion}
                   </span>
                 )}
               </div>
 
-              <div>
-                <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  <Clock size={12} aria-hidden="true" /> Informacion general
-                </p>
-                <div className="rounded-xl border border-gray-100 bg-gray-50 divide-y divide-gray-100">
-                  <DataRow label="Fecha/Hora">
-                    {formatearFecha(auditoria.fechaHora)}
-                  </DataRow>
-                  {auditoria.entidadAfectada && (
-                    <DataRow label="Entidad">
-                      {auditoria.entidadAfectada}
-                      {auditoria.idEntidad ? ` #${auditoria.idEntidad}` : ""}
+              {(auditoria.descripcion || auditoria.entidadAfectada) && (
+                <div>
+                  <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                    <FileText size={12} aria-hidden="true" />
+                    Informacion general
+                  </p>
+                  <div className="rounded-xl border border-gray-100 divide-y divide-gray-100">
+                    {auditoria.descripcion && (
+                      <DataRow label="Descripcion">
+                        {auditoria.descripcion}
+                      </DataRow>
+                    )}
+                    <DataRow label="Fecha y hora" icon={Clock}>
+                      {formatearFecha(auditoria.fechaHora)}
                     </DataRow>
-                  )}
-                  {auditoria.descripcion && (
-                    <DataRow label="Descripcion">
-                      {auditoria.descripcion}
-                    </DataRow>
-                  )}
+                    {auditoria.entidadAfectada && (
+                      <DataRow label="Entidad" icon={Hash}>
+                        {auditoria.entidadAfectada}
+                        {auditoria.idEntidad
+                          ? ` #${auditoria.idEntidad}`
+                          : ""}
+                      </DataRow>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div>
-                <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  <User size={12} aria-hidden="true" /> Usuario
+                <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  <User size={12} aria-hidden="true" />
+                  Usuario
                 </p>
-                <div className="rounded-xl border border-gray-100 bg-gray-50 divide-y divide-gray-100">
-                  <DataRow label="Nombre">
+                <div className="rounded-xl border border-gray-100 divide-y divide-gray-100">
+                  <DataRow label="Nombre" icon={User}>
                     {auditoria.nombreUsuario || "N/A"}
                   </DataRow>
                   <DataRow label="Email">
                     {auditoria.emailUsuario || "N/A"}
                   </DataRow>
-                  <DataRow label="Rol">
+                  <DataRow label="Rol" icon={Shield}>
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getRolBadgeColor(auditoria.tipoUsuario)}`}
                     >
@@ -186,35 +208,39 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
               </div>
 
               {(auditoria.datosAnteriores || auditoria.datosNuevos) && (
-                <div className="space-y-3">
-                  <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                    <ArrowLeftRight size={12} aria-hidden="true" /> Cambios
+                <div>
+                  <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                    <ArrowLeftRight size={12} aria-hidden="true" />
+                    Cambios
                   </p>
-                  <JsonBlock
-                    title="Datos anteriores"
-                    data={auditoria.datosAnteriores}
-                    icon={FileText}
-                    accentClass="text-orange-600"
-                  />
-                  <JsonBlock
-                    title="Datos nuevos"
-                    data={auditoria.datosNuevos}
-                    icon={FileText}
-                    accentClass="text-green-600"
-                  />
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <JsonBlock
+                      title="Datos anteriores"
+                      data={auditoria.datosAnteriores}
+                      Icon={FileText}
+                      accentClass="text-orange-600"
+                    />
+                    <JsonBlock
+                      title="Datos nuevos"
+                      data={auditoria.datosNuevos}
+                      Icon={FileText}
+                      accentClass="text-green-600"
+                    />
+                  </div>
                 </div>
               )}
 
               <div>
-                <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  <Monitor size={12} aria-hidden="true" /> Metadata
+                <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  <Monitor size={12} aria-hidden="true" />
+                  Metadata
                 </p>
-                <div className="rounded-xl border border-gray-100 bg-gray-50 divide-y divide-gray-100">
-                  <DataRow label="Direccion IP">
+                <div className="rounded-xl border border-gray-100 divide-y divide-gray-100">
+                  <DataRow label="Direccion IP" icon={Monitor}>
                     {auditoria.ip || "N/A"}
                   </DataRow>
                   <DataRow label="User Agent">
-                    <span className="text-gray-500 break-all">
+                    <span className="text-gray-500 break-all text-xs">
                       {auditoria.userAgent || "N/A"}
                     </span>
                   </DataRow>
@@ -226,7 +252,7 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="h-9 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+                className="h-9 px-5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
               >
                 Cerrar
               </button>

@@ -7,17 +7,20 @@ export const formatearFecha = (fecha) => {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
+    timeZone: "America/Argentina/Buenos_Aires",
   });
 };
 
+const tienePalabra = (evento, palabra) => evento.split('_').includes(palabra);
+
 export const getEventoBadgeColor = (evento) => {
-  if (evento.includes("EXITOSO") || evento.includes("CREADA"))
+  if (tienePalabra(evento, 'EXITOSO') || tienePalabra(evento, 'CREADA') || tienePalabra(evento, 'CREADO') || tienePalabra(evento, 'RECIBIDO') || tienePalabra(evento, 'OTORGADO') || tienePalabra(evento, 'ACTIVADO'))
     return "bg-green-100 text-green-800";
-  if (evento.includes("FALLIDO") || evento.includes("ERROR"))
+  if (tienePalabra(evento, 'FALLIDO') || tienePalabra(evento, 'ERROR') || tienePalabra(evento, 'RECHAZADO') || tienePalabra(evento, 'REVOCADO') || tienePalabra(evento, 'ANULADA') || tienePalabra(evento, 'DESACTIVADO'))
     return "bg-red-100 text-red-800";
-  if (evento.includes("MODIFICADO") || evento.includes("ACTUALIZADO"))
+  if (tienePalabra(evento, 'MODIFICADO') || tienePalabra(evento, 'MODIFICADA') || tienePalabra(evento, 'ACTUALIZADO') || tienePalabra(evento, 'CAMBIADO'))
     return "bg-blue-100 text-blue-800";
-  if (evento.includes("ELIMINADO") || evento.includes("CANCELADA"))
+  if (tienePalabra(evento, 'ELIMINADO') || tienePalabra(evento, 'ELIMINADA') || tienePalabra(evento, 'CANCELADA'))
     return "bg-orange-100 text-orange-800";
   return "bg-gray-100 text-gray-800";
 };

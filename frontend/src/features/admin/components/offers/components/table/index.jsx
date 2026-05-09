@@ -1,13 +1,14 @@
 import { motion } from "framer-motion";
 import { useOfertasStore } from "../../store/useOfertasStore";
+import { useOfertasFilters } from "../../hooks/useOfertasFilters";
 import { LoadingState, EmptyState } from "./States";
 import { ProductCard } from "./ProductCard";
 import { ProductTableRow } from "./ProductTableRow";
-import { useProductFilters } from "./useProductFilters";
 
 export const OfertasTable = ({
   onEstablecerDescuento,
   onCambiarOferta,
+  onVerDetalle,
   estaEnCampana,
 }) => {
   const {
@@ -21,7 +22,7 @@ export const OfertasTable = ({
     cargando,
   } = useOfertasStore();
 
-  const productosPaginados = useProductFilters({
+  const { productosPaginados } = useOfertasFilters({
     productos,
     busqueda,
     filtroCategoria,
@@ -60,13 +61,14 @@ export const OfertasTable = ({
       >
         {productosPaginados.map((producto, index) => (
           <div key={producto.idProducto} role="listitem">
-            <ProductCard
-              producto={producto}
-              index={index}
-              estaEnCampana={estaEnCampana}
-              onEstablecerDescuento={onEstablecerDescuento}
-              onCambiarOferta={onCambiarOferta}
-            />
+          <ProductCard
+            producto={producto}
+            index={index}
+            estaEnCampana={estaEnCampana}
+            onEstablecerDescuento={onEstablecerDescuento}
+            onCambiarOferta={onCambiarOferta}
+            onVerDetalle={onVerDetalle}
+          />
           </div>
         ))}
       </div>
@@ -114,6 +116,7 @@ export const OfertasTable = ({
                   estaEnCampana={estaEnCampana}
                   onEstablecerDescuento={onEstablecerDescuento}
                   onCambiarOferta={onCambiarOferta}
+                  onVerDetalle={onVerDetalle}
                 />
               ))}
             </tbody>

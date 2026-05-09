@@ -27,7 +27,6 @@ const AdminReportes = () => {
     setDateRange,
     updateFilter,
     clearFilters,
-    clearDateRange,
   } = filterHook;
 
   const { downloading, downloadReport } = useReportDownload(filters);
@@ -89,7 +88,6 @@ const AdminReportes = () => {
           onToggle={() => {}}
           onDateRangeChange={setDateRange}
           onFilterChange={updateFilter}
-          onClearDateRange={clearDateRange}
           onClear={clearFilters}
           onOpenInfo={handleOpenInfoModal}
           fixed

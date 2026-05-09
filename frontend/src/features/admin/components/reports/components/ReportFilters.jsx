@@ -28,7 +28,6 @@ const ReportFilters = memo(
     onToggle,
     onDateRangeChange,
     onFilterChange,
-    onClearDateRange,
     onClear,
     onOpenInfo,
     fixed = false,
@@ -39,7 +38,6 @@ const ReportFilters = memo(
     const activeChips = useActiveFilterChips({
       activeDateRange,
       filters,
-      onClearDateRange,
       onFilterChange,
     });
 
@@ -202,7 +200,6 @@ ReportFilters.propTypes = {
   onToggle: PropTypes.func.isRequired,
   onDateRangeChange: PropTypes.func.isRequired,
   onFilterChange: PropTypes.func.isRequired,
-  onClearDateRange: PropTypes.func,
   onClear: PropTypes.func.isRequired,
   onOpenInfo: PropTypes.func,
   fixed: PropTypes.bool,
@@ -210,7 +207,6 @@ ReportFilters.propTypes = {
 
 ReportFilters.defaultProps = {
   activeDateRange: null,
-  onClearDateRange: () => {},
   onOpenInfo: () => {},
   fixed: false,
 };

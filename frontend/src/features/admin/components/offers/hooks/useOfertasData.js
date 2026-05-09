@@ -24,6 +24,7 @@ export const useOfertasData = () => {
     setProductos,
     setIdsProductosEnCampanas,
     setCargando,
+    setCargandoId,
     idsProductosEnCampanas,
   } = useOfertasStore();
 
@@ -90,7 +91,7 @@ export const useOfertasData = () => {
   );
 
   const handleCambiarOferta = useCallback(
-    async (producto, activar, porcentaje = null) => {
+    async (producto, activar, porcentaje = null, fechas = null) => {
       if (estaEnCampana(producto.idProducto)) {
         toastError(
           "Este producto está en una campaña activa. No se pueden aplicar ofertas individuales.",
@@ -99,13 +100,27 @@ export const useOfertasData = () => {
         return;
       }
 
+      if (activar) {
+        const val = Number(porcentaje);
+        if (!Number.isFinite(val) || val <= 0 || val > 100) {
+          toastError("El descuento debe ser un valor entre 1 y 100");
+          return;
+        }
+      }
+
       try {
         setCargando(true);
+        setCargandoId(producto.idProducto);
 
         const datosActualizacion = {
           enOferta: activar,
           porcentajeDescuento: activar ? porcentaje : 0,
         };
+
+        if (fechas) {
+          datosActualizacion.fechaInicioOferta = fechas.fechaInicio;
+          datosActualizacion.fechaFinOferta = fechas.fechaFin;
+        }
 
         await axios.put(
           `${backendUrl}/productos/actualizar/${producto.idProducto}`,
@@ -130,9 +145,10 @@ export const useOfertasData = () => {
         );
       } finally {
         setCargando(false);
+        setCargandoId(null);
       }
     },
-    [estaEnCampana, backendUrl, getConfig, fetchProducts, setCargando],
+    [estaEnCampana, backendUrl, getConfig, fetchProducts, setCargando, setCargandoId],
   );
 
   return {

@@ -10,19 +10,6 @@ const baseBtn =
   "transition-colors cursor-pointer focus:outline-none focus-visible:ring-2";
 
 export const AuditoriaTable = ({ auditorias, onVerDetalles }) => {
-  if (auditorias.length === 0) {
-    return (
-      <div className="bg-white rounded-xl border border-gray-100 p-6 text-center">
-        <p className="text-gray-600 font-medium text-sm">
-          No se encontraron registros
-        </p>
-        <p className="text-xs text-gray-500 mt-1">
-          Intenta ajustar los filtros de busqueda
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden mt-2">
       <div className="overflow-x-auto">

@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Search, CircleCheck, Circle, Tag } from "lucide-react";
+import { X, Search, CircleCheck, Circle, Tag, Calendar } from "lucide-react";
 import Default from "@assets/default.webp";
 import CustomSelect from "@features/admin/components/products/components/CustomSelect";
 import { getProductoImageUrl } from "../table/utils";
+import { DESCUENTOS_DISPONIBLES } from "../../utils/constants";
 
 const DESCUENTOS = [10, 15, 20];
 
@@ -20,6 +21,11 @@ export const ModalAgregarOferta = ({
   const [categoria, setCategoria] = useState("todas");
   const [productoSeleccionadoId, setProductoSeleccionadoId] = useState(null);
   const [porcentaje, setPorcentaje] = useState(10);
+  const [modoCustom, setModoCustom] = useState(false);
+  const [porcentajeCustom, setPorcentajeCustom] = useState("");
+  const [conFechas, setConFechas] = useState(false);
+  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
 
   const productosDisponibles = useMemo(() => {
     return productos.filter((producto) => {
@@ -57,12 +63,26 @@ export const ModalAgregarOferta = ({
     setCategoria("todas");
     setProductoSeleccionadoId(null);
     setPorcentaje(10);
+    setModoCustom(false);
+    setPorcentajeCustom("");
+    setConFechas(false);
+    setFechaInicio("");
+    setFechaFin("");
     onClose();
   };
 
   const handleSubmit = () => {
     if (!productoSeleccionado) return;
-    onConfirm({ producto: productoSeleccionado, porcentaje });
+    const descuentoFinal = modoCustom
+      ? Number(porcentajeCustom)
+      : porcentaje;
+    if (descuentoFinal < 1 || descuentoFinal > 100) return;
+    if (conFechas && (!fechaInicio || !fechaFin || new Date(fechaFin) <= new Date(fechaInicio))) return;
+    onConfirm({
+      producto: productoSeleccionado,
+      porcentaje: descuentoFinal,
+      fechas: conFechas ? { fechaInicio, fechaFin } : null,
+    });
     handleClose();
   };
 
@@ -124,13 +144,16 @@ export const ModalAgregarOferta = ({
                 Descuento
               </legend>
               <div className="grid grid-cols-3 gap-2">
-                {DESCUENTOS.map((value) => {
-                  const active = porcentaje === value;
+                {DESCUENTOS_DISPONIBLES.map((value) => {
+                  const active = !modoCustom && porcentaje === value;
                   return (
                     <button
                       key={value}
                       type="button"
-                      onClick={() => setPorcentaje(value)}
+                      onClick={() => {
+                        setModoCustom(false);
+                        setPorcentaje(value);
+                      }}
                       className={`h-11 cursor-pointer rounded-xl text-sm font-bold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 ${
                         active
                           ? "border border-green-600 bg-green-50 text-green-700"
@@ -143,6 +166,75 @@ export const ModalAgregarOferta = ({
                   );
                 })}
               </div>
+
+              <div className="mt-2 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => setModoCustom(!modoCustom)}
+                  className="flex h-10 w-full cursor-pointer items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white px-4 text-sm font-medium text-gray-600 transition-colors hover:border-green-400 hover:text-green-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                >
+                  {modoCustom ? "Usar descuento predefinido" : "Descuento personalizado"}
+                </button>
+
+                {modoCustom && (
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={porcentajeCustom}
+                      onChange={(e) => setPorcentajeCustom(e.target.value)}
+                      placeholder="Ingresá un porcentaje (1-100)"
+                      className="w-full h-11 rounded-xl border border-gray-200 bg-white px-4 pr-10 text-sm font-semibold text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500 transition-colors"
+                      aria-label="Porcentaje de descuento personalizado"
+                    />
+                    <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">
+                      %
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setConFechas(!conFechas)}
+                className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 bg-white px-4 text-sm font-medium text-gray-600 transition-colors hover:border-blue-400 hover:text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                <Calendar size={14} />
+                {conFechas ? "Sin fechas de validez" : "Agregar fechas de validez"}
+              </button>
+
+              {conFechas && (
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-gray-500">
+                      Inicio
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={fechaInicio}
+                      onChange={(e) => setFechaInicio(e.target.value)}
+                      className="w-full h-10 rounded-xl border border-gray-200 bg-white px-3 text-xs text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-gray-500">
+                      Fin
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={fechaFin}
+                      onChange={(e) => setFechaFin(e.target.value)}
+                      className="w-full h-10 rounded-xl border border-gray-200 bg-white px-3 text-xs text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-colors"
+                    />
+                  </div>
+                  {conFechas && fechaInicio && fechaFin && new Date(fechaFin) <= new Date(fechaInicio) && (
+                    <p className="col-span-2 text-xs text-red-500">
+                      La fecha de fin debe ser posterior al inicio
+                    </p>
+                  )}
+                </div>
+              )}
             </fieldset>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -253,7 +345,12 @@ export const ModalAgregarOferta = ({
                 <span className="font-medium text-gray-700">
                   {productoSeleccionado.nombreProducto}
                 </span>{" "}
-                · {porcentaje}% OFF
+                · {modoCustom ? (porcentajeCustom || "0") : porcentaje}% OFF
+                {conFechas && fechaInicio && fechaFin && (
+                  <span className="block text-[10px] text-gray-400">
+                    {new Date(fechaInicio).toLocaleDateString("es-AR")} - {new Date(fechaFin).toLocaleDateString("es-AR")}
+                  </span>
+                )}
               </p>
             )}
             <button
@@ -266,9 +363,29 @@ export const ModalAgregarOferta = ({
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={!productoSeleccionado}
+              disabled={
+                !productoSeleccionado ||
+                (modoCustom &&
+                  (porcentajeCustom === "" ||
+                    Number(porcentajeCustom) < 1 ||
+                    Number(porcentajeCustom) > 100)) ||
+                (conFechas &&
+                  (!fechaInicio ||
+                    !fechaFin ||
+                    new Date(fechaFin) <= new Date(fechaInicio)))
+              }
               className="h-9 px-4 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-              aria-disabled={!productoSeleccionado}
+              aria-disabled={
+                !productoSeleccionado ||
+                (modoCustom &&
+                  (porcentajeCustom === "" ||
+                    Number(porcentajeCustom) < 1 ||
+                    Number(porcentajeCustom) > 100)) ||
+                (conFechas &&
+                  (!fechaInicio ||
+                    !fechaFin ||
+                    new Date(fechaFin) <= new Date(fechaInicio)))
+              }
             >
               Agregar en oferta
             </button>

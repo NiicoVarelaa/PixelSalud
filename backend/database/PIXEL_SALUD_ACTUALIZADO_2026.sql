@@ -376,6 +376,23 @@ CREATE TABLE NewsletterSuscripciones (
   CONSTRAINT fk_newsletter_cliente FOREIGN KEY (idCliente) REFERENCES Clientes(idCliente) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE historial_ofertas (
+  idHistorial INT PRIMARY KEY AUTO_INCREMENT,
+  idProducto INT NOT NULL,
+  accion ENUM('ACTIVADA', 'MODIFICADA', 'DESACTIVADA') NOT NULL,
+  porcentajeAnterior INT DEFAULT 0,
+  porcentajeNuevo INT DEFAULT 0,
+  idUsuario INT NOT NULL,
+  nombreUsuario VARCHAR(100),
+  tipoUsuario ENUM('admin', 'empleado', 'sistema') NOT NULL,
+  fechaHora DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (idProducto) REFERENCES Productos(idProducto) ON DELETE CASCADE,
+  INDEX idx_producto (idProducto),
+  INDEX idx_fecha (fechaHora),
+  INDEX idx_usuario (idUsuario)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Historial de cambios en ofertas individuales de productos';
+
 CREATE TABLE auditoria (
   idAuditoria INT PRIMARY KEY AUTO_INCREMENT,
   evento VARCHAR(100) NOT NULL COMMENT 'Tipo de evento',

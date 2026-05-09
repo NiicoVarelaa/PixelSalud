@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, AlertTriangle, Info } from "lucide-react";
+import { X, AlertTriangle, Info, Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 const TYPE_CONFIG = {
@@ -35,9 +36,11 @@ export const ConfirmDialog = ({
   confirmText = "Confirmar",
   cancelText = "Cancelar",
   type = "warning",
-  isProcessing = false,
+  isProcessing: externalProcessing = false,
 }) => {
   const closeRef = useRef(null);
+  const [internalProcessing, setInternalProcessing] = useState(false);
+  const isProcessing = externalProcessing || internalProcessing;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -53,8 +56,13 @@ export const ConfirmDialog = ({
     TYPE_CONFIG[type] ?? TYPE_CONFIG.warning;
 
   const handleConfirm = async () => {
-    await onConfirm?.();
-    onClose();
+    setInternalProcessing(true);
+    try {
+      await onConfirm?.();
+    } finally {
+      setInternalProcessing(false);
+      onClose();
+    }
   };
 
   return (
@@ -134,7 +142,14 @@ export const ConfirmDialog = ({
                 disabled={isProcessing}
                 className={`flex-1 h-9 rounded-lg text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${confirmClass}`}
               >
-                {isProcessing ? "Procesando..." : confirmText}
+                {isProcessing ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Loader2 size={14} className="animate-spin" />
+                    Procesando...
+                  </span>
+                ) : (
+                  confirmText
+                )}
               </button>
             </div>
           </motion.div>

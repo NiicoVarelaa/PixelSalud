@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@features/admin/components/shared";
@@ -12,6 +12,7 @@ import {
   CampanaTable,
   CampanasPagination,
   CampanaModal,
+  CampanaDetail,
   ConfirmDialog,
   LoadingState,
   EmptyState,
@@ -34,6 +35,7 @@ const AdminCampanas = () => {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [campanaEditando, setCampanaEditando] = useState(null);
+  const [campanaDetalle, setCampanaDetalle] = useState(null);
 
   const [nuevaCampana, setNuevaCampana] = useState({
     nombreCampana: "",
@@ -53,6 +55,7 @@ const AdminCampanas = () => {
   const [paginaActual, setPaginaActual] = useState(1);
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("todos");
+  const [filtroTipo, setFiltroTipo] = useState("todos");
 
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
@@ -64,25 +67,20 @@ const AdminCampanas = () => {
 
   const ITEMS_PER_PAGE = vistaMode === "cards" ? 9 : 8;
 
-  const { campanasActuales, totalPaginas } = useCampanasFilters({
+  const {
+    campanasActuales,
+    campanasFiltradas,
+    totalPaginas,
+    indiceInicio,
+    indiceFin,
+  } = useCampanasFilters({
     campanas,
     busqueda,
     filtroEstado,
+    filtroTipo,
     paginaActual,
     itemsPorPagina: ITEMS_PER_PAGE,
   });
-
-  const totalFiltradas = useMemo(() => {
-    return campanas.filter((c) => {
-      const t = busqueda.toLowerCase();
-      const match = !t || c.nombreCampana.toLowerCase().includes(t);
-      const matchEstado =
-        filtroEstado === "todos" ||
-        (filtroEstado === "activas" && c.esActiva) ||
-        (filtroEstado === "inactivas" && !c.esActiva);
-      return match && matchEstado;
-    }).length;
-  }, [campanas, busqueda, filtroEstado]);
 
   useEffect(() => {
     fetchCampanas();
@@ -91,7 +89,7 @@ const AdminCampanas = () => {
 
   useEffect(() => {
     setPaginaActual(1);
-  }, [busqueda, filtroEstado, vistaMode]);
+  }, [busqueda, filtroEstado, filtroTipo, vistaMode]);
 
   const limpiarFormulario = () => {
     setNuevaCampana({
@@ -129,28 +127,27 @@ const AdminCampanas = () => {
     );
   };
 
-  const seleccionarTodos = (idsDisponibles = []) => {
-    const idsSeleccionables = idsDisponibles;
+  const seleccionarTodos = (idsDisponibles) => {
+    if (!idsDisponibles || idsDisponibles.length === 0) return;
 
-    if (idsSeleccionables.length === 0) {
-      setProductosSeleccionados([]);
-      return;
-    }
-
-    const todosVisiblesSeleccionados = idsSeleccionables.every((id) =>
+    const todosSeleccionados = idsDisponibles.every((id) =>
       productosSeleccionados.includes(id),
     );
 
-    if (todosVisiblesSeleccionados) {
+    if (todosSeleccionados) {
       setProductosSeleccionados((prev) =>
-        prev.filter((id) => !idsSeleccionables.includes(id)),
+        prev.filter((id) => !idsDisponibles.includes(id)),
       );
     } else {
       setProductosSeleccionados((prev) => {
-        const merged = new Set([...prev, ...idsSeleccionables]);
+        const merged = new Set([...prev, ...idsDisponibles]);
         return Array.from(merged);
       });
     }
+  };
+
+  const deseleccionarTodos = () => {
+    setProductosSeleccionados([]);
   };
 
   const handleGuardarCampana = async () => {
@@ -209,11 +206,19 @@ const AdminCampanas = () => {
     });
   };
 
+  const abrirDetalle = (campana) => {
+    setCampanaDetalle(campana);
+  };
+
+  const cerrarDetalle = () => {
+    setCampanaDetalle(null);
+  };
+
   return (
     <>
       <AdminLayout
         title="Gestion de Campanas"
-        description={`${totalFiltradas} campana${totalFiltradas !== 1 ? "s" : ""} encontrada${totalFiltradas !== 1 ? "s" : ""}`}
+        description={`${campanasFiltradas.length} campana${campanasFiltradas.length !== 1 ? "s" : ""} encontrada${campanasFiltradas.length !== 1 ? "s" : ""}`}
       >
         <StatsCards campanas={campanas} productos={productos} />
 
@@ -223,9 +228,12 @@ const AdminCampanas = () => {
             setBusqueda={setBusqueda}
             filtroEstado={filtroEstado}
             setFiltroEstado={setFiltroEstado}
+            filtroTipo={filtroTipo}
+            setFiltroTipo={setFiltroTipo}
             vistaMode={vistaMode}
             setVistaMode={setVistaMode}
             onCrearCampana={handleAbrirModal}
+            campanasFiltradas={campanasFiltradas}
           />
         </div>
 
@@ -244,6 +252,7 @@ const AdminCampanas = () => {
                   onEditar={handleEditarCampana}
                   onToggleActiva={handleToggleActiva}
                   onEliminar={handleEliminarCampana}
+                  onVerDetalle={abrirDetalle}
                 />
               ))}
             </div>
@@ -253,6 +262,7 @@ const AdminCampanas = () => {
               onEditar={handleEditarCampana}
               onToggleActiva={handleToggleActiva}
               onEliminar={handleEliminarCampana}
+              onVerDetalle={abrirDetalle}
             />
           )}
         </div>
@@ -262,6 +272,9 @@ const AdminCampanas = () => {
             <CampanasPagination
               paginaActual={paginaActual}
               totalPaginas={totalPaginas}
+              indiceInicio={indiceInicio}
+              indiceFin={indiceFin}
+              totalItems={campanasFiltradas.length}
               onCambiarPagina={setPaginaActual}
             />
           </div>
@@ -276,6 +289,7 @@ const AdminCampanas = () => {
           idsProductosBloqueados={idsProductosBloqueados}
           onToggleProducto={toggleProductoSeleccion}
           onSeleccionarTodos={seleccionarTodos}
+          onDeseleccionarTodos={deseleccionarTodos}
           productos={productos}
           categorias={categorias}
           busquedaProducto={busquedaProducto}
@@ -284,6 +298,11 @@ const AdminCampanas = () => {
           onCategoriaFiltroChange={setCategoriaFiltro}
           onClose={handleCerrarModal}
           onGuardar={handleGuardarCampana}
+        />
+
+        <CampanaDetail
+          campana={campanaDetalle}
+          onClose={cerrarDetalle}
         />
 
         <ConfirmDialog

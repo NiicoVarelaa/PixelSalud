@@ -297,7 +297,7 @@ const update = async (idProducto, data) => {
   return result.affectedRows > 0;
 };
 
-const upsertOfertaProducto = async (idProducto, porcentajeDescuento) => {
+const upsertOfertaProducto = async (idProducto, porcentajeDescuento, fechaInicio = null, fechaFin = null) => {
   await pool.query(
     `UPDATE Ofertas
      SET esActiva = 0,
@@ -308,10 +308,13 @@ const upsertOfertaProducto = async (idProducto, porcentajeDescuento) => {
     [idProducto],
   );
 
+  const inicio = fechaInicio || new Date();
+  const fin = fechaFin || new Date(new Date().setFullYear(new Date().getFullYear() + 10));
+
   const [result] = await pool.query(
     `INSERT INTO Ofertas (idProducto, porcentajeDescuento, fechaInicio, fechaFin, esActiva)
-     VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 10 YEAR), 1)`,
-    [idProducto, porcentajeDescuento],
+     VALUES (?, ?, ?, ?, 1)`,
+    [idProducto, porcentajeDescuento, inicio, fin],
   );
 
   return result.affectedRows > 0;
