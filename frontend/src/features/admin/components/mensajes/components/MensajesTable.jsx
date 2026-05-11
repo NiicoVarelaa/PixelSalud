@@ -36,19 +36,6 @@ export const MensajesTable = ({
   onArchivar,
   onEliminar,
 }) => {
-  if (mensajes.length === 0) {
-    return (
-      <div className="bg-white rounded-xl border border-gray-100 p-6 text-center">
-        <p className="text-gray-600 font-medium text-sm">
-          No se encontraron mensajes
-        </p>
-        <p className="text-xs text-gray-500 mt-1">
-          Intenta ajustar los filtros de busqueda
-        </p>
-      </div>
-    );
-  }
-
   return (
     <>
       <div className="md:hidden space-y-2.5">
@@ -161,7 +148,7 @@ export const MensajesTable = ({
                     <td className="px-3 py-2.5">
                       <div className="flex flex-col gap-1.5">
                         <MensajeEstadoBadge estado={msg.estado} />
-                        {!msg.leido && (
+                        {!msg.leido && msg.estado === "nuevo" && (
                           <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700">
                             <AlertCircle size={11} />
                             Nuevo

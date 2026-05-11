@@ -33,12 +33,6 @@ export const useMensajesFilters = (mensajes, itemsPorPagina = 8) => {
     indiceInicio + itemsPorPagina,
   );
 
-  const limpiarFiltros = () => {
-    setFiltroEstado("todos");
-    setBusqueda("");
-    setPaginaActual(1);
-  };
-
   const handleFiltroEstadoChange = (valor) => {
     setFiltroEstado(valor);
     setPaginaActual(1);
@@ -66,6 +60,5 @@ export const useMensajesFilters = (mensajes, itemsPorPagina = 8) => {
     setBusqueda: handleBusquedaChange,
     setFiltroEstado: handleFiltroEstadoChange,
     handleCambiarPagina,
-    limpiarFiltros,
   };
 };

@@ -57,6 +57,12 @@ const crearMensaje = async ({
     );
   }
 
+  if (asunto && asunto.trim().length > 200) {
+    throw createValidationError(
+      "El asunto no puede superar los 200 caracteres",
+    );
+  }
+
   if (
     typeof mensaje !== "string" ||
     mensaje.trim().length < 10 ||
