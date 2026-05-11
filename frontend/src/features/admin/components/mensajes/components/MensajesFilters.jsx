@@ -1,6 +1,13 @@
-import { useMemo } from "react";
 import { Search } from "lucide-react";
 import CustomSelect from "@features/admin/components/products/components/CustomSelect";
+
+const OPCIONES_ESTADO = [
+  { value: "todos", label: "Todos los mensajes" },
+  { value: "nuevo", label: "Nuevos" },
+  { value: "en_proceso", label: "En proceso" },
+  { value: "respondido", label: "Respondidos" },
+  { value: "cerrado", label: "Cerrados" },
+];
 
 export const MensajesFilters = ({
   filtroEstado,
@@ -8,17 +15,6 @@ export const MensajesFilters = ({
   busqueda,
   setBusqueda,
 }) => {
-  const opcionesEstado = useMemo(
-    () => [
-      { value: "todos", label: "Todos los mensajes" },
-      { value: "nuevo", label: "Nuevos" },
-      { value: "en_proceso", label: "En proceso" },
-      { value: "respondido", label: "Respondidos" },
-      { value: "cerrado", label: "Cerrados" },
-    ],
-    [],
-  );
-
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-3 sm:p-4">
       <div className="flex flex-wrap sm:flex-nowrap items-end gap-3">
@@ -49,7 +45,7 @@ export const MensajesFilters = ({
             label="Estado"
             value={filtroEstado}
             onChange={setFiltroEstado}
-            options={opcionesEstado}
+            options={OPCIONES_ESTADO}
             hideLabel
           />
         </div>

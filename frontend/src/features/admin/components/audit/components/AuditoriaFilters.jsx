@@ -40,7 +40,7 @@ export const AuditoriaFilters = ({
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-3 sm:p-4">
       <div className="flex flex-wrap items-end gap-3">
-        <div className="w-full sm:w-44">
+        <div className="w-full sm:flex-1 sm:min-w-0">
           <CustomSelect
             id="filter-audit-modulo"
             label="Modulo"
@@ -51,7 +51,7 @@ export const AuditoriaFilters = ({
           />
         </div>
 
-        <div className="w-full sm:w-44">
+        <div className="w-full sm:flex-1 sm:min-w-0">
           <CustomSelect
             id="filter-audit-usuario"
             label="Usuario"
@@ -62,7 +62,7 @@ export const AuditoriaFilters = ({
           />
         </div>
 
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-0.5 shrink-0">
           <div className="w-full sm:w-36">
             <DatePickerDay
               id="filtro-desde"
@@ -88,7 +88,7 @@ export const AuditoriaFilters = ({
           </div>
         </div>
 
-        <div className="flex gap-2 sm:ml-auto">
+        <div className="flex gap-2 shrink-0">
           <button
             type="button"
             onClick={onBuscar}

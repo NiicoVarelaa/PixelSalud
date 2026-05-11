@@ -95,7 +95,7 @@ const AdminMensajes = () => {
         </div>
 
         {!loading && mensajesFiltrados.length > 0 && (
-          <div className="mt-3 shrink-0">
+          <div className="shrink-0">
             <PaginationProductos
               currentPage={paginaActual}
               totalPages={totalPaginas}

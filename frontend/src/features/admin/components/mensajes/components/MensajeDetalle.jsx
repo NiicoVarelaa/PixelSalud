@@ -174,8 +174,8 @@ export const MensajeDetalle = ({
               {!mensaje.leido && (
                 <button
                   type="button"
-                  onClick={() => {
-                    onMarcarLeido(mensaje.idMensaje);
+                  onClick={async () => {
+                    await onMarcarLeido(mensaje.idMensaje);
                     onClose();
                   }}
                   className="inline-flex items-center gap-1.5 h-8 rounded-lg border border-green-200 bg-green-50 px-3 text-xs font-semibold text-green-700 hover:bg-green-100 active:scale-95 cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
