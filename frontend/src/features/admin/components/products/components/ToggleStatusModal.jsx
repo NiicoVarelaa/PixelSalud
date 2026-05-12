@@ -1,11 +1,15 @@
 import PropTypes from "prop-types";
-import { X, Power, AlertCircle } from "lucide-react";
+import { X, Power, AlertCircle, Loader2 } from "lucide-react";
 
-const ToggleStatusModal = ({ isOpen, onClose, product, onConfirm }) => {
+const ToggleStatusModal = ({ isOpen, onClose, product, onConfirm, loading = false, error = "" }) => {
   if (!isOpen || !product) return null;
 
   const isActivating = !product.activo;
   const action = isActivating ? "Activar" : "Desactivar";
+
+  const handleConfirm = async () => {
+    await onConfirm();
+  };
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
@@ -44,6 +48,12 @@ const ToggleStatusModal = ({ isOpen, onClose, product, onConfirm }) => {
         </div>
 
         <div className="px-8 py-6">
+          {error && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
+              <AlertCircle size={16} className="text-red-600 shrink-0" />
+              <p className="text-sm font-medium text-red-800">{error}</p>
+            </div>
+          )}
           <div className="bg-gray-50 rounded-xl p-4 mb-6">
             <div className="flex gap-4">
               <img
@@ -61,7 +71,7 @@ const ToggleStatusModal = ({ isOpen, onClose, product, onConfirm }) => {
                 </h3>
                 <p className="text-sm text-gray-500">{product.categoria}</p>
                 <p className="text-sm font-medium text-gray-700 mt-1">
-                  Stock: {product.stock} unidades
+                  Stock: {product.stock ?? 0} unidades
                 </p>
               </div>
             </div>
@@ -104,23 +114,31 @@ const ToggleStatusModal = ({ isOpen, onClose, product, onConfirm }) => {
           <div className="flex gap-3 justify-end">
             <button
               onClick={onClose}
-              className="px-6 py-2.5 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all cursor-pointer"
+              disabled={loading}
+              className="px-6 py-2.5 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancelar
             </button>
             <button
-              onClick={() => {
-                onConfirm();
-                onClose();
-              }}
-              className={`px-6 py-2.5 font-medium rounded-xl text-white transition-all shadow-sm flex items-center gap-2 cursor-pointer ${
+              onClick={handleConfirm}
+              disabled={loading}
+              className={`px-6 py-2.5 font-medium rounded-xl text-white transition-all shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                 isActivating
                   ? "bg-green-600 hover:bg-green-700 shadow-green-600/20"
                   : "bg-orange-500 hover:bg-orange-600 shadow-orange-500/20"
               }`}
             >
-              <Power className="h-4 w-4" />
-              {action}
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Procesando...
+                </>
+              ) : (
+                <>
+                  <Power className="h-4 w-4" />
+                  {action}
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -141,6 +159,8 @@ ToggleStatusModal.propTypes = {
     activo: PropTypes.bool,
   }),
   onConfirm: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+  error: PropTypes.string,
 };
 
 export default ToggleStatusModal;
