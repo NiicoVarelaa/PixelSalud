@@ -52,8 +52,8 @@ import {
 
 import {
   PanelEmpleadosPage as PanelEmpleados,
+  DashboardEmpleado,
   MenuEmpleados,
-  VistiaInicialCardsEmpleado,
   EmpleadoRealizarVenta,
   EmpleadoListaVentas,
   EmpleadoEditarVenta,
@@ -135,7 +135,7 @@ const App = () => {
 
         <Route element={<ProtectedRoute allowedRoles={["empleado"]} />}>
           <Route path="/panelempleados" element={<PanelEmpleados />}>
-            <Route index element={<VistiaInicialCardsEmpleado />} />
+            <Route index element={<DashboardEmpleado />} />
             <Route path="venta" element={<EmpleadoRealizarVenta />} />
             <Route path="productos" element={<EmpleadosProductos />} />
             <Route

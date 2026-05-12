@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { X, ArrowRight } from "lucide-react";
+import { X, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { cleanPrice } from "../utils/productUtils";
 import CustomSelect from "./CustomSelect";
 
@@ -10,6 +10,8 @@ const CreateProductModal = ({
   setNuevoProducto,
   onSubmit,
   categorias,
+  loading = false,
+  error = "",
 }) => {
   if (!isOpen) return null;
 
@@ -66,6 +68,12 @@ const CreateProductModal = ({
         </div>
 
         <div className="px-8 py-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+          {error && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
+              <AlertCircle size={16} className="text-red-600 shrink-0" />
+              <p className="text-sm font-medium text-red-800">{error}</p>
+            </div>
+          )}
           <div className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -146,11 +154,20 @@ const CreateProductModal = ({
           </button>
           <button
             onClick={onSubmit}
-            disabled={!isFormValid}
+            disabled={!isFormValid || loading}
             className="px-5 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-600 flex items-center gap-2"
           >
-            Continuar
-            <ArrowRight className="h-4 w-4" />
+            {loading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Creando...
+              </>
+            ) : (
+              <>
+                Continuar
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -171,6 +188,8 @@ CreateProductModal.propTypes = {
   setNuevoProducto: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   categorias: PropTypes.arrayOf(PropTypes.string).isRequired,
+  loading: PropTypes.bool,
+  error: PropTypes.string,
 };
 
 export default CreateProductModal;

@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useState, useCallback, useEffect } from "react";
-import { X, Save, Package, Images } from "lucide-react";
+import { X, Save, Package, Images, Loader2, AlertCircle } from "lucide-react";
 import { cleanPrice, detectAndCleanPrice } from "../utils/productUtils";
 import UploadImagenes from "./UploadImagenes";
 import CustomSelect from "./CustomSelect";
@@ -12,6 +12,8 @@ const EditProductModal = ({
   onSave,
   categorias,
   onUpdateImages,
+  loading = false,
+  error = "",
 }) => {
   const [activeTab, setActiveTab] = useState("datos");
   const [formData, setFormData] = useState({
@@ -115,6 +117,12 @@ const EditProductModal = ({
         <div className="flex-1 overflow-y-auto px-8 py-6">
           {activeTab === "datos" ? (
             <div className="space-y-5">
+              {error && (
+                <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
+                  <AlertCircle size={16} className="text-red-600 shrink-0" />
+                  <p className="text-sm font-medium text-red-800">{error}</p>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Nombre del producto
@@ -205,12 +213,22 @@ const EditProductModal = ({
               disabled={
                 !formData.nombreProducto ||
                 !formData.categoria ||
-                !formData.precio
+                !formData.precio ||
+                loading
               }
               className="px-5 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-600 flex items-center gap-2"
             >
-              <Save className="h-4 w-4" />
-              Guardar cambios
+              {loading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  Guardar cambios
+                </>
+              )}
             </button>
           )}
         </div>
@@ -233,6 +251,8 @@ EditProductModal.propTypes = {
   onSave: PropTypes.func.isRequired,
   categorias: PropTypes.arrayOf(PropTypes.string).isRequired,
   onUpdateImages: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+  error: PropTypes.string,
 };
 
 export default EditProductModal;

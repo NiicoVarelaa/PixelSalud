@@ -1,15 +1,14 @@
 import { useEffect } from "react";
-import { useNavigate, Outlet, useLocation } from "react-router-dom"; // Importamos Outlet y useLocation
+import { useNavigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "@store/useAuthStore";
-import { toast } from "react-toastify";
-import { NavbarEmpleado, SidebarEmpleado } from "@features/employee/layout";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import SidebarEmpleado from "../layout/sidebar/SidebarEmpleado";
 
-const PanelEmpleados = () => {
+const PanelEmpleado = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Protección de ruta
   useEffect(() => {
     if (!user || user.rol !== "empleado") {
       toast.error("Acceso no autorizado.");
@@ -20,38 +19,30 @@ const PanelEmpleados = () => {
 
   if (!user) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p>Cargando...</p>
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-gray-500">Cargando...</p>
       </div>
     );
   }
 
-  // Lógica para mostrar/ocultar Sidebar
-  // Si la ruta es EXACTAMENTE "/panelempleados", estamos en el dashboard de cards -> NO mostrar sidebar
-  // Si la ruta es "/panelempleados/venta", etc. -> SÍ mostrar sidebar
-  const esDashboardInicial = location.pathname === "/panelempleados";
-
   return (
-    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
-      {/* 1. Navbar Superior (Siempre visible) */}
-      <NavbarEmpleado />
+    <div className="flex min-h-dvh flex-col bg-gray-50 lg:h-dvh lg:flex-row lg:overflow-hidden">
+      <SidebarEmpleado />
 
-      {/* 2. Contenedor Flexible */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* A) SIDEBAR: Se oculta si estamos en el inicio */}
-        {!esDashboardInicial && <SidebarEmpleado user={user} />}
-
-        {/* B) ÁREA PRINCIPAL */}
-        <main className="flex-1 overflow-y-auto relative bg-gray-100">
-          {/* <Outlet /> es un hueco donde React Router va a pintar 
-                el componente hijo que corresponda según la URL 
-                (Venta, Productos, Cards, etc.)
-            */}
+      <main className="flex min-h-0 flex-1 overflow-visible bg-gray-50 lg:h-full lg:overflow-hidden lg:p-6">
+        <div className="flex w-full flex-1 flex-col p-4 lg:h-full lg:min-h-0 lg:p-0">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        theme="colored"
+        toastClassName="text-sm font-medium"
+      />
     </div>
   );
 };
 
-export default PanelEmpleados;
+export default PanelEmpleado;
