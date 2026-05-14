@@ -2,7 +2,9 @@ const mensajesService = require("../services/MensajesService");
 
 const listarMensajes = async (req, res, next) => {
   try {
-    const mensajes = await mensajesService.obtenerMensajes();
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const mensajes = await mensajesService.obtenerMensajesPaginados(page, limit);
     res.status(200).json(mensajes);
   } catch (error) {
     next(error);

@@ -19,6 +19,10 @@ const obtenerCampanas = async () => {
   return campanasConConteo;
 };
 
+const obtenerCampanasPaginadas = async (page = 1, limit = 20) => {
+  return await campanasRepository.findAllPaginated(page, limit);
+};
+
 const obtenerCampanasActivas = async () => {
   const campanas = await campanasRepository.findActive();
 
@@ -348,6 +352,7 @@ const toggleCampanaActiva = async (idCampana) => {
 
 module.exports = {
   obtenerCampanas,
+  obtenerCampanasPaginadas,
   obtenerCampanasActivas,
   obtenerCampanaPorId,
   obtenerCampanaConProductos,

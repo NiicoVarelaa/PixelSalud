@@ -34,6 +34,4 @@ export const requiereReceta = (producto) => {
   return producto?.requiereReceta === 1 || producto?.requiereReceta === true;
 };
 
-export const formatearPrecio = (valor) => {
-  return new Intl.NumberFormat("es-AR").format(Number(valor) || 0);
-};
+export { formatPrice as formatearPrecio } from "@utils/formatMoneda";

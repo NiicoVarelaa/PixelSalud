@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import apiClient from "../utils/apiClient";
-import { useAuthStore } from "./useAuthStore";
+import { useAuthStore } from "@store/useAuthStore";
 import { toast } from "react-toastify";
+import { carritoService } from "@services/carritoService";
 
 export const useCarritoStore = create((set, get) => ({
   carrito: [],
@@ -19,10 +19,9 @@ export const useCarritoStore = create((set, get) => ({
     }
 
     try {
-      const response = await apiClient.get(`/carrito/${user.id}`);
-      set({ carrito: response.data });
-    } catch (error) {
-      console.error("Error al sincronizar el carrito:", error);
+      const data = await carritoService.getSincronizar(user.id);
+      set({ carrito: data });
+    } catch {
       toast.error("No se pudo cargar tu carrito.");
       set({ carrito: [] });
     }
@@ -37,14 +36,10 @@ export const useCarritoStore = create((set, get) => ({
     }
 
     try {
-      await apiClient.post("/carrito/agregar", {
-        idProducto: producto.idProducto,
-        idCliente: user.id,
-      });
+      await carritoService.agregar(producto.idProducto, user.id);
       toast.success("Producto agregado al carrito");
       get().sincronizarCarrito();
-    } catch (error) {
-      console.error("Error al agregar al carrito:", error);
+    } catch {
       toast.error("Ocurrió un problema al agregar el producto");
     }
   },
@@ -54,14 +49,12 @@ export const useCarritoStore = create((set, get) => ({
     if (!user) return;
 
     try {
-      await apiClient.delete(`/carrito/eliminar/${user.id}/${idProducto}`);
-
+      await carritoService.eliminar(user.id, idProducto);
       set((state) => ({
         carrito: state.carrito.filter((p) => p.idProducto !== idProducto),
       }));
       toast.warning("Producto eliminado del carrito");
-    } catch (error) {
-      console.error("Error al eliminar el producto:", error);
+    } catch {
       toast.error("Hubo un problema al eliminar el producto");
     }
   },
@@ -71,11 +64,10 @@ export const useCarritoStore = create((set, get) => ({
     if (!user) return;
 
     try {
-      await apiClient.delete(`/carrito/vaciar/${user.id}`);
+      await carritoService.vaciar(user.id);
       set({ carrito: [] });
       toast.warning("Carrito vaciado correctamente");
-    } catch (error) {
-      console.error("Error al vaciar el carrito:", error);
+    } catch {
       toast.error("Hubo un problema al vaciar el carrito");
     }
   },
@@ -85,19 +77,14 @@ export const useCarritoStore = create((set, get) => ({
     if (!user) return;
 
     try {
-      await apiClient.put(`/carrito/aumentar`, {
-        idProducto,
-        idCliente: user.id,
-      });
-
+      await carritoService.aumentarCantidad(idProducto, user.id);
       set((state) => ({
         carrito: state.carrito.map((p) =>
           p.idProducto === idProducto ? { ...p, cantidad: p.cantidad + 1 } : p,
         ),
       }));
       toast.info("Cantidad actualizada");
-    } catch (error) {
-      console.error("Error al aumentar la cantidad:", error);
+    } catch {
       toast.error("No se pudo actualizar la cantidad");
     }
   },
@@ -110,19 +97,14 @@ export const useCarritoStore = create((set, get) => ({
     if (item && item.cantidad <= 1) return;
 
     try {
-      await apiClient.put(`/carrito/disminuir`, {
-        idProducto,
-        idCliente: user.id,
-      });
-
+      await carritoService.disminuirCantidad(idProducto, user.id);
       set((state) => ({
         carrito: state.carrito.map((p) =>
           p.idProducto === idProducto ? { ...p, cantidad: p.cantidad - 1 } : p,
         ),
       }));
       toast.info("Cantidad actualizada");
-    } catch (error) {
-      console.error("Error al disminuir la cantidad:", error);
+    } catch {
       toast.error("No se pudo actualizar la cantidad");
     }
   },

@@ -180,6 +180,10 @@ const obtenerTodosCupones = async () => {
   return await cuponesRepository.findAll();
 };
 
+const obtenerTodosCuponesPaginados = async (page = 1, limit = 20) => {
+  return await cuponesRepository.findAllPaginated(page, limit);
+};
+
 const obtenerCuponesActivos = async () => {
   return await cuponesRepository.findAllActivos();
 };
@@ -248,6 +252,7 @@ module.exports = {
   crearCupon,
   validarYCalcularDescuento,
   obtenerTodosCupones,
+  obtenerTodosCuponesPaginados,
   obtenerCuponesActivos,
   obtenerCuponPorCodigo,
   obtenerCuponPorId,

@@ -1,9 +1,7 @@
 import { Award, RotateCcw, Shield, Truck } from "lucide-react";
+import { cleanAndParsePrice, formatCurrency } from "@utils/formatMoneda";
 
-export const CURRENCY_FORMATTER = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-});
+export { cleanAndParsePrice, formatCurrency };
 
 export const TRUST_BADGES = [
   { icon: Shield, label: "Pago seguro" },
@@ -11,21 +9,6 @@ export const TRUST_BADGES = [
   { icon: RotateCcw, label: "Devolucion gratis" },
   { icon: Award, label: "Calidad garantizada" },
 ];
-
-export const formatCurrency = (number) => CURRENCY_FORMATTER.format(number);
-
-export const cleanAndParsePrice = (price) => {
-  if (typeof price === "number") return price;
-  if (typeof price !== "string") return 0;
-
-  let cleaned = price.replace(/[^0-9,.]/g, "");
-  if (cleaned.includes(",")) {
-    cleaned = cleaned.replace(/\./g, "").replace(",", ".");
-  }
-
-  const parsed = parseFloat(cleaned);
-  return Number.isNaN(parsed) ? 0 : parsed;
-};
 
 export const getProductPricing = ({
   precio,

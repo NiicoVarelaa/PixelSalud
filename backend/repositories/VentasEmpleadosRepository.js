@@ -21,6 +21,69 @@ const findAll = async () => {
   return rows;
 };
 
+const findAllPaginated = async (page = 1, limit = 20) => {
+  const offset = (page - 1) * limit;
+  const sql = `
+    SELECT 
+      ve.idVentaE, 
+      ve.idEmpleado,
+      ve.fechaPago, 
+      ve.horaPago, 
+      ve.metodoPago, 
+      ve.estado,
+      ve.totalPago, 
+      e.nombreEmpleado, 
+      e.apellidoEmpleado, 
+      e.dniEmpleado
+    FROM VentasEmpleados ve
+    JOIN Empleados e ON ve.idEmpleado = e.idEmpleado
+    ORDER BY ve.idVentaE DESC
+    LIMIT ? OFFSET ?
+  `;
+  const [rows] = await pool.query(sql, [limit, offset]);
+
+  const [countRows] = await pool.query("SELECT COUNT(*) as total FROM VentasEmpleados");
+
+  return {
+    ventas: rows,
+    total: countRows[0].total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(countRows[0].total / limit),
+  };
+};
+
+const findByEmpleadoIdPaginated = async (idEmpleado, page = 1, limit = 20) => {
+  const offset = (page - 1) * limit;
+  const sql = `
+    SELECT 
+      ve.idVentaE, 
+      ve.fechaPago, 
+      ve.horaPago, 
+      ve.metodoPago, 
+      ve.estado,
+      ve.totalPago
+    FROM VentasEmpleados ve
+    WHERE ve.idEmpleado = ?
+    ORDER BY ve.idVentaE DESC
+    LIMIT ? OFFSET ?
+  `;
+  const [rows] = await pool.query(sql, [idEmpleado, limit, offset]);
+
+  const [countRows] = await pool.query(
+    "SELECT COUNT(*) as total FROM VentasEmpleados WHERE idEmpleado = ?",
+    [idEmpleado],
+  );
+
+  return {
+    ventas: rows,
+    total: countRows[0].total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(countRows[0].total / limit),
+  };
+};
+
 const findByEmpleadoId = async (idEmpleado) => {
   const sql = `
     SELECT 
@@ -215,6 +278,8 @@ const existsEmpleado = async (idEmpleado) => {
 
 module.exports = {
   findAll,
+  findAllPaginated,
+  findByEmpleadoIdPaginated,
   findByEmpleadoId,
   findById,
   findByIdSimple,

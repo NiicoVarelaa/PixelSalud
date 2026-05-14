@@ -4,6 +4,9 @@ const {
   registrarCliente,
   startGoogleAuth,
   googleCallback,
+  refreshToken,
+  logout,
+  logoutAll,
 } = require("../controllers/AuthController");
 const validate = require("../middlewares/validate");
 const {
@@ -11,6 +14,7 @@ const {
   registroClienteBodySchema,
 } = require("../schemas/AuthSchemas");
 const { authLimiter, registerLimiter } = require("../config/rateLimiters");
+const { authMiddleware } = require("../middlewares/Auth");
 
 const router = express.Router();
 
@@ -21,6 +25,9 @@ router.post(
   validate({ body: registroClienteBodySchema }),
   registrarCliente,
 );
+router.post("/refresh", refreshToken);
+router.post("/logout", logout);
+router.post("/logout-all", authMiddleware, logoutAll);
 router.get("/google-auth", startGoogleAuth);
 router.get("/google-callback", googleCallback);
 

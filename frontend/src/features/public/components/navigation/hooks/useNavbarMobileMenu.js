@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useModalLock } from "@hooks/useModalLock";
 
 const FOCUSABLE_SELECTOR = [
   "a[href]",
@@ -50,18 +51,7 @@ const useNavbarMobileMenu = ({
     closeMenu();
   }, [closeMenu, handleLogout]);
 
-  useEffect(() => {
-    if (!isMenuOpen) {
-      return undefined;
-    }
-
-    closeButtonRef.current?.focus();
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isMenuOpen]);
+  useModalLock(isMenuOpen);
 
   useEffect(() => {
     if (!isMenuOpen) {

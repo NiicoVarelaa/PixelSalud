@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useProductStore } from "@store/useProductStore";
-import { useFiltroStore } from "@store/useFiltroStore";
+import { useFiltroStore, getProductosFiltrados } from "@store/useFiltroStore";
 
 const HIDDEN_PUBLIC_CATEGORY = "Medicamentos con Receta";
 const HOME_CAMPAIGN_NAME =
@@ -11,7 +11,7 @@ export const useProductosPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { productos, campanasInicio, fetchProducts, isLoading } =
+  const { productos, campanasInicio, productosCyberMonday, fetchProducts, isLoading } =
     useProductStore();
   const {
     filtroCategoria,
@@ -20,7 +20,6 @@ export const useProductosPage = () => {
     setFiltroCategoria,
     setBusqueda,
     setOrdenPrecio,
-    getProductosFiltrados,
   } = useFiltroStore();
 
   const [paginaActual, setPaginaActual] = useState(1);
@@ -48,7 +47,18 @@ export const useProductosPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
-  const productosBase = getProductosFiltrados();
+  const productosBase = useMemo(
+    () =>
+      getProductosFiltrados({
+        productos,
+        productosCyberMonday,
+        campanasInicio,
+        filtroCategoria,
+        busqueda,
+        ordenPrecio,
+      }),
+    [productos, productosCyberMonday, campanasInicio, filtroCategoria, busqueda, ordenPrecio],
+  );
 
   const productosPaginados = useMemo(() => {
     const indiceInicio = (paginaActual - 1) * productosPorPagina;

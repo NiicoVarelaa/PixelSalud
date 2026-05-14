@@ -1,16 +1,4 @@
-export const formatFecha = (fechaStr) => {
-  if (!fechaStr) return "-";
-  const fecha = new Date(fechaStr);
-  if (isNaN(fecha)) return "-";
-  return fecha.toLocaleDateString("es-AR", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-export const formatMoneda = (val) => `$${Number(val).toLocaleString("es-AR")}`;
+export { formatMoneda } from "@utils/formatMoneda";
 
 export const COLORS = {
   blue:   { bg: "bg-blue-50", icon: "text-green-600", border: "border-green-500" },

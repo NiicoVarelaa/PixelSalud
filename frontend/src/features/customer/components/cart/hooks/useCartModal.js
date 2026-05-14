@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "@utils/apiClient";
 import Default from "@assets/default.webp";
 import { useCarritoStore } from "@store/useCarritoStore";
+import { useModalLock } from "@hooks/useModalLock";
 import { getProductSubtotal } from "../utils/cartModalHelpers";
 
 const useCartModal = () => {
@@ -80,14 +81,7 @@ const useCartModal = () => {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isCartModalOpen, setIsCartModalOpen]);
 
-  useEffect(() => {
-    if (!isCartModalOpen) return undefined;
-
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isCartModalOpen]);
+  useModalLock(isCartModalOpen);
 
   const subtotal = useMemo(
     () =>

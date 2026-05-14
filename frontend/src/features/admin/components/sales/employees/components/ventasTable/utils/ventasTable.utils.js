@@ -125,8 +125,4 @@ export const obtenerItemsPagina = ({
 export const formatearFechaVenta = (fecha) =>
   !fecha ? "-" : new Date(fecha).toLocaleDateString("es-ES");
 
-export const formatearMonedaVenta = (valor) =>
-  new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-  }).format(Number(valor) || 0);
+export { formatMoneda as formatearMonedaVenta } from "@utils/formatMoneda";

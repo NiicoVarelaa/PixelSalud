@@ -1,12 +1,12 @@
 import { Eye, EyeOff, Loader2, Lock, LogIn, Mail } from "lucide-react";
 
 const LoginForm = ({
-  user,
+  register,
   showPassword,
   isSubmitting,
-  onChange,
   onSubmit,
   onTogglePassword,
+  errors,
 }) => {
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
@@ -24,18 +24,19 @@ const LoginForm = ({
           <input
             type="email"
             id="email"
-            name="email"
-            value={user.email}
             placeholder="tuemail@ejemplo.com"
-            onChange={onChange}
             autoComplete="email"
             inputMode="email"
-            required
-            aria-required="true"
             disabled={isSubmitting}
-            className="h-11 w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 focus:border-primary-700 focus:outline-none focus:ring focus:ring-primary-600/60 disabled:cursor-not-allowed disabled:bg-slate-50"
+            {...register("email")}
+            className={`h-11 w-full rounded-xl border bg-white py-3 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 focus:border-primary-700 focus:outline-none focus:ring focus:ring-primary-600/60 disabled:cursor-not-allowed disabled:bg-slate-50 ${
+              errors.email ? "border-red-400" : "border-slate-300"
+            }`}
           />
         </div>
+        {errors.email && (
+          <p className="text-xs text-red-500">{errors.email.message}</p>
+        )}
       </div>
 
       <div className="space-y-1.5">
@@ -52,15 +53,13 @@ const LoginForm = ({
           <input
             type={showPassword ? "text" : "password"}
             id="password"
-            name="password"
-            value={user.password}
             placeholder="Contrasena"
-            onChange={onChange}
             autoComplete="current-password"
-            required
-            aria-required="true"
             disabled={isSubmitting}
-            className="h-11 w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-11 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 focus:border-primary-700 focus:outline-none focus:ring focus:ring-primary-600/60 disabled:cursor-not-allowed disabled:bg-slate-50"
+            {...register("password")}
+            className={`h-11 w-full rounded-xl border bg-white py-3 pl-10 pr-11 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 focus:border-primary-700 focus:outline-none focus:ring focus:ring-primary-600/60 disabled:cursor-not-allowed disabled:bg-slate-50 ${
+              errors.password ? "border-red-400" : "border-slate-300"
+            }`}
           />
           <button
             type="button"
@@ -80,6 +79,9 @@ const LoginForm = ({
             )}
           </button>
         </div>
+        {errors.password && (
+          <p className="text-xs text-red-500">{errors.password.message}</p>
+        )}
       </div>
 
       <button

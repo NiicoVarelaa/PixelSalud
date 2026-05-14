@@ -4,7 +4,9 @@ const { Auditoria } = require("../helps");
 const getUserOrders = async (req, res, next) => {
   try {
     const idCliente = req.user.id;
-    const result = await ventasOnlineService.obtenerVentasPorCliente(idCliente);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const result = await ventasOnlineService.obtenerVentasPorCliente(idCliente, page, limit);
     res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -13,7 +15,9 @@ const getUserOrders = async (req, res, next) => {
 
 const mostrarTodasLasVentas = async (req, res, next) => {
   try {
-    const result = await ventasOnlineService.obtenerTodasLasVentas();
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const result = await ventasOnlineService.obtenerTodasLasVentas(page, limit);
     res.status(200).json(result);
   } catch (error) {
     next(error);

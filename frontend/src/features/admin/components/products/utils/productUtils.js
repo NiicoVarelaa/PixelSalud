@@ -31,29 +31,7 @@ export const filterValidCategories = (categorias) => {
   });
 };
 
-export const formatPrice = (precio) => {
-  const precioLimpio = String(precio).replace(",", ".");
-  const numero = Number(precioLimpio);
-
-  if (isNaN(numero)) return "$0.00";
-
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(numero);
-};
-
-export const cleanPrice = (valor) => {
-  if (!valor) return "";
-
-  return String(valor)
-    .replace(/\$/g, "")
-    .replace(/\s/g, "") 
-    .replace(/\./g, "")
-    .replace(",", "."); 
-};
+export { formatPrice, cleanAndParsePrice as cleanPrice } from "@utils/formatMoneda";
 
 export const detectAndCleanPrice = (precioRaw) => {
   if (precioRaw.includes(",")) {

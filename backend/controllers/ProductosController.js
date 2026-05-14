@@ -11,6 +11,17 @@ const getProductos = async (req, res, next) => {
   }
 };
 
+const getProductosPaginados = async (req, res, next) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const result = await productosService.obtenerProductosPaginados(page, limit);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getProducto = async (req, res, next) => {
   try {
     const { idProducto } = req.params;
@@ -236,6 +247,7 @@ const activarProducto = async (req, res, next) => {
 
 module.exports = {
   getProductos,
+  getProductosPaginados,
   getProductoBajado,
   getProducto,
   buscarProductos,

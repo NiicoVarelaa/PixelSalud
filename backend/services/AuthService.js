@@ -1,5 +1,6 @@
 const authRepository = require("../repositories/AuthRepository");
 const clientesRepository = require("../repositories/ClientesRepository");
+const refreshTokensRepository = require("../repositories/RefreshTokensRepository");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
@@ -53,12 +54,19 @@ const buildAuthResponse = async ({
     permisos,
   };
 
-  const token = jwt.sign(payload, process.env.SECRET_KEY);
+  const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "24h" });
+
+  const refreshToken = crypto.randomBytes(40).toString("hex");
+  const tokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  await refreshTokensRepository.createRefreshToken(user.id, tokenHash, expiresAt);
 
   const response = {
     msg,
     tipo,
     token,
+    refreshToken,
     id: user.id,
     email: user.email,
     nombre: user.nombre,
@@ -153,7 +161,68 @@ const loginWithGoogle = async ({ email, nombre, apellido }) => {
   });
 };
 
+const refreshAccessToken = async (refreshToken) => {
+  if (!refreshToken) {
+    throw createValidationError("Refresh token es requerido");
+  }
+
+  const tokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+  const storedToken = await refreshTokensRepository.findRefreshToken(tokenHash);
+
+  if (!storedToken) {
+    throw createUnauthorizedError("Refresh token inválido o expirado");
+  }
+
+  const user = await authRepository.findUserById(storedToken.idUsuario);
+  if (!user) {
+    throw createUnauthorizedError("Usuario no encontrado");
+  }
+
+  await refreshTokensRepository.revokeRefreshToken(tokenHash);
+
+  const tipo = user.rol;
+  const permisos = await buildPermisosByTipo(tipo, user.id);
+  const role = user.rol || tipo;
+
+  const payload = {
+    id: user.id,
+    role,
+    nombre: user.nombre,
+    email: user.email,
+    permisos,
+  };
+
+  const newAccessToken = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "24h" });
+
+  const newRefreshToken = crypto.randomBytes(40).toString("hex");
+  const newTokenHash = crypto.createHash("sha256").update(newRefreshToken).digest("hex");
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  await refreshTokensRepository.createRefreshToken(user.id, newTokenHash, expiresAt);
+
+  return {
+    token: newAccessToken,
+    refreshToken: newRefreshToken,
+  };
+};
+
+const logoutUser = async (refreshToken) => {
+  if (refreshToken) {
+    const tokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+    await refreshTokensRepository.revokeRefreshToken(tokenHash);
+  }
+  return { message: "Sesión cerrada correctamente" };
+};
+
+const logoutAllSessions = async (userId) => {
+  await refreshTokensRepository.revokeAllUserTokens(userId);
+  return { message: "Todas las sesiones cerradas correctamente" };
+};
+
 module.exports = {
   login,
   loginWithGoogle,
+  refreshAccessToken,
+  logoutUser,
+  logoutAllSessions,
 };

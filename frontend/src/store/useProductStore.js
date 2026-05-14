@@ -1,13 +1,9 @@
 import { create } from "zustand";
-import axios from "axios";
+import apiClient from "@utils/apiClient";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const API_URL_ALL = `${API_BASE_URL}/productos`;
-const API_URL_CAMPANAS_ACTIVAS = `${API_BASE_URL}/campanas/activas`;
 const HIDDEN_PUBLIC_CATEGORY = "Medicamentos con Receta";
-
 const PRODUCTS_PER_SECTION = 6;
+const PAGE_SIZE = 50;
 
 const normalizeCampaignProduct = (product, campana = null) => {
   const precioBase = Number(product?.precio) || 0;
@@ -33,7 +29,7 @@ const normalizeCampaignProduct = (product, campana = null) => {
   };
 };
 
-export const useProductStore = create((set) => ({
+export const useProductStore = create((set, get) => ({
   productosArriba: [],
   productosAbajo: [],
   productosCyberMonday: [],
@@ -42,17 +38,21 @@ export const useProductStore = create((set) => ({
   categorias: [],
   isLoading: false,
   error: null,
+  hasMore: true,
+  currentPage: 0,
+  totalProductos: 0,
 
   fetchProducts: async () => {
     set({ isLoading: true, error: null });
 
     try {
       const [resAll, resCampanas] = await Promise.all([
-        axios.get(API_URL_ALL),
-        axios.get(API_URL_CAMPANAS_ACTIVAS).catch(() => ({ data: [] })),
+        apiClient.get("/productos/paginados", { params: { page: 1, limit: PAGE_SIZE } }),
+        apiClient.get("/campanas/activas").catch(() => ({ data: [] })),
       ]);
 
-      const todos = resAll.data;
+      const todos = resAll.data.productos || [];
+      const total = resAll.data.total || 0;
       const campanasActivas = resCampanas.data || [];
 
       const productosDisponiblesArriba = todos.filter(
@@ -76,8 +76,8 @@ export const useProductStore = create((set) => ({
 
       const campanasConProductos = await Promise.all(
         campanasActivas.map(async (campana) => {
-          const responseCampana = await axios
-            .get(`${API_BASE_URL}/campanas/${campana.idCampana}/productos`)
+          const responseCampana = await apiClient
+            .get(`/campanas/${campana.idCampana}/productos`)
             .catch(() => ({ data: { productos: [] } }));
 
           const productosCampana = (responseCampana.data?.productos || [])
@@ -132,6 +132,9 @@ export const useProductStore = create((set) => ({
         productos: todos,
         categorias: categoriasUnicas,
         isLoading: false,
+        hasMore: todos.length < total,
+        currentPage: 1,
+        totalProductos: total,
       });
     } catch (error) {
       console.error("Error al traer productos:", error);
@@ -139,6 +142,32 @@ export const useProductStore = create((set) => ({
         error: "No se pudieron cargar los productos. Intenta más tarde.",
         isLoading: false,
       });
+    }
+  },
+
+  fetchMoreProducts: async () => {
+    const { currentPage, hasMore, isLoading, productos } = get();
+    if (isLoading || !hasMore) return;
+
+    const nextPage = currentPage + 1;
+    try {
+      const res = await apiClient.get("/productos/paginados", {
+        params: { page: nextPage, limit: PAGE_SIZE },
+      });
+
+      const nuevos = res.data.productos || [];
+      if (nuevos.length === 0) {
+        set({ hasMore: false });
+        return;
+      }
+
+      set({
+        productos: [...productos, ...nuevos],
+        currentPage: nextPage,
+        hasMore: nextPage < Math.ceil((res.data.total || 0) / PAGE_SIZE),
+      });
+    } catch (error) {
+      console.error("Error al cargar más productos:", error);
     }
   },
 }));

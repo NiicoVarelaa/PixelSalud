@@ -9,12 +9,12 @@ import useRegistroForm from "@features/auth/hooks/useRegistroForm";
 
 const Registro = () => {
   const {
-    form,
+    register,
+    errors,
     isSubmitting,
     showPassword,
-    handleChange,
-    togglePassword,
     handleSubmit,
+    togglePassword,
     handleGoogleRegister,
     goToLogin,
   } = useRegistroForm();
@@ -34,12 +34,12 @@ const Registro = () => {
       >
         <RegistroHeader onBack={goToLogin} />
         <RegistroForm
-          form={form}
+          register={register}
           showPassword={showPassword}
           isSubmitting={isSubmitting}
-          onChange={handleChange}
-          onTogglePassword={togglePassword}
+          errors={errors}
           onSubmit={handleSubmit}
+          onTogglePassword={togglePassword}
         />
         <RegistroGoogleButton onClick={handleGoogleRegister} />
         <RegistroFooter />

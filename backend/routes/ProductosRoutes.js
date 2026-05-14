@@ -18,6 +18,7 @@ const {
 
 const {
   getProductos,
+  getProductosPaginados,
   getProducto,
   getProductoBajado,
   createProducto,
@@ -31,6 +32,8 @@ const {
 const router = express.Router();
 
 router.get("/productos", getProductos);
+
+router.get("/productos/paginados", getProductosPaginados);
 
 router.get(
   "/productos/bajados",

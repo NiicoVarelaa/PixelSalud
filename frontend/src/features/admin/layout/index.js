@@ -1,1 +1,1 @@
-export { default as SiderbarAdmin } from "./SiderbarAdmin";
+export { default as SidebarAdmin } from "./SidebarAdmin";

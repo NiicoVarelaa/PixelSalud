@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useModalLock } from "@hooks/useModalLock";
 import { X, Tag, AlertCircle } from "lucide-react";
 import { CuponModalFormSections } from "./CuponModalFormSections";
 import { CuponModalEmailSection } from "./CuponModalEmailSection";
@@ -70,17 +71,16 @@ export const CuponModal = ({
     onClose();
   }, [onClose, resetForm]);
 
+  useModalLock(isOpen);
+
   useEffect(() => {
     if (!isOpen) return;
     closeRef.current?.focus();
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e) => {
       if (e.key === "Escape") handleClose();
     };
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prev;
       document.removeEventListener("keydown", onKey);
     };
   }, [isOpen, handleClose]);

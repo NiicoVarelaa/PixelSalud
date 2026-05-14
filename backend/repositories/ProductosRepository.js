@@ -436,14 +436,66 @@ const enrichProductWithImages = async (producto) => {
 const enrichProductsWithImages = async (productos) => {
   if (!productos || productos.length === 0) return [];
 
-  return Promise.all(
-    productos.map((producto) => enrichProductWithImages(producto)),
+  const ids = productos.map((p) => p.idProducto);
+  const [rows] = await pool.query(
+    `SELECT idProducto, urlImagen, orden, esPrincipal, altText
+     FROM ImagenesProductos
+     WHERE idProducto IN (?)
+     ORDER BY idProducto, esPrincipal DESC, orden ASC`,
+    [ids],
   );
+
+  const imagesByProduct = {};
+  rows.forEach((row) => {
+    if (!imagesByProduct[row.idProducto]) {
+      imagesByProduct[row.idProducto] = [];
+    }
+    imagesByProduct[row.idProducto].push({
+      idImagen: row.idImagen,
+      urlImagen: row.urlImagen,
+      orden: row.orden,
+      esPrincipal: row.esPrincipal,
+      altText: row.altText,
+    });
+  });
+
+  return productos.map((producto) => ({
+    ...producto,
+    imagenes:
+      imagesByProduct[producto.idProducto]?.length > 0
+        ? imagesByProduct[producto.idProducto]
+        : producto.img
+          ? [
+              {
+                idImagen: null,
+                urlImagen: producto.img,
+                orden: 1,
+                esPrincipal: true,
+                altText: producto.nombreProducto,
+              },
+            ]
+          : [],
+  }));
 };
 
 const findAllWithOfertasAndImages = async () => {
   const productos = await findAllWithOfertas();
   return enrichProductsWithImages(productos);
+};
+
+const findAllWithOfertasPaginated = async (page = 1, limit = 20) => {
+  const offset = (page - 1) * limit;
+  const productos = await findAllWithOfertas();
+  const total = productos.length;
+  const paginated = productos.slice(offset, offset + limit);
+  const enriched = await enrichProductsWithImages(paginated);
+  return {
+    productos: enriched,
+    total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(total / limit),
+  };
 };
 
 const findByIdWithOfertasAndImages = async (idProducto) => {
@@ -482,6 +534,7 @@ module.exports = {
   enrichProductWithImages,
   enrichProductsWithImages,
   findAllWithOfertasAndImages,
+  findAllWithOfertasPaginated,
   findByIdWithOfertasAndImages,
   searchByNameWithImages,
   findByCategoriaWithOfertasAndImages,

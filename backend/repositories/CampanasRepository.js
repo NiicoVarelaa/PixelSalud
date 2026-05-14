@@ -20,6 +20,44 @@ const findAll = async () => {
   return rows;
 };
 
+const findAllPaginated = async (page = 1, limit = 20) => {
+  const offset = (page - 1) * limit;
+  const [rows] = await pool.query(
+    `SELECT 
+        idCampana, 
+        nombreCampana, 
+        descripcion, 
+        porcentajeDescuento, 
+        fechaInicio, 
+        fechaFin, 
+        esActiva, 
+        tipo, 
+        prioridad,
+        created_at,
+        updated_at
+      FROM campanas_ofertas
+      ORDER BY prioridad DESC, fechaInicio DESC
+      LIMIT ? OFFSET ?`,
+    [limit, offset],
+  );
+  const [countRows] = await pool.query("SELECT COUNT(*) as total FROM campanas_ofertas");
+  
+  const campanasConConteo = await Promise.all(
+    rows.map(async (campana) => {
+      const totalProductos = await countProductos(campana.idCampana);
+      return { ...campana, totalProductos };
+    }),
+  );
+
+  return {
+    campanas: campanasConConteo,
+    total: countRows[0].total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(countRows[0].total / limit),
+  };
+};
+
 const findActive = async () => {
   const [rows] = await pool.query(
     `SELECT 
@@ -258,6 +296,7 @@ const findExpiringIn = async (dias = 7) => {
 
 module.exports = {
   findAll,
+  findAllPaginated,
   findActive,
   findById,
   findByNombre,

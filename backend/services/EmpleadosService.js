@@ -10,6 +10,10 @@ const obtenerEmpleados = async () => {
   return await empleadosRepository.findAllWithPermisos();
 };
 
+const obtenerEmpleadosPaginados = async (page = 1, limit = 20) => {
+  return await empleadosRepository.findAllWithPermisosPaginated(page, limit);
+};
+
 const obtenerEmpleadosInactivos = async () => {
   const empleados = await empleadosRepository.findInactivos();
 
@@ -151,6 +155,7 @@ const reactivarEmpleado = async (idEmpleado) => {
 
 module.exports = {
   obtenerEmpleados,
+  obtenerEmpleadosPaginados,
   obtenerEmpleadosInactivos,
   obtenerEmpleadoPorId,
   crearEmpleado,

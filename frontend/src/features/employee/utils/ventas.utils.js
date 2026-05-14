@@ -1,10 +1,5 @@
 import { Banknote, CreditCard, ArrowRightLeft } from "lucide-react";
-
-export const formatMoneda = (val) => {
-  const num = Number(val);
-  if (!Number.isFinite(num)) return "$0";
-  return `$${num.toLocaleString("es-AR")}`;
-};
+export { formatMoneda } from "@utils/formatMoneda";
 
 export const formatearFecha = (fecha) => {
   if (!fecha) return "-";

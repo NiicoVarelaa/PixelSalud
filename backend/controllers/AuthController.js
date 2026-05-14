@@ -255,9 +255,45 @@ const googleCallback = async (req, res) => {
   }
 };
 
+const refreshToken = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    const resultado = await authService.refreshAccessToken(refreshToken);
+    res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const logout = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    const resultado = await authService.logoutUser(refreshToken);
+    res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const logoutAll = async (req, res, next) => {
+  try {
+    const userId = req.userId || req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Usuario no autenticado" });
+    }
+    const resultado = await authService.logoutAllSessions(userId);
+    res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   login,
   registrarCliente,
   startGoogleAuth,
   googleCallback,
+  refreshToken,
+  logout,
+  logoutAll,
 };

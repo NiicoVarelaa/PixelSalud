@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@store/useAuthStore";
+import apiClient from "@utils/apiClient";
 import {
   ARGENTINA,
   inicialForm,
@@ -7,7 +8,7 @@ import {
 } from "@features/customer/components/profile/direcciones/direccionesConfig";
 
 const usePerfilDirecciones = () => {
-  const { user, token } = useAuthStore();
+  const { user } = useAuthStore();
   const userId = user?.id;
 
   const [direcciones, setDirecciones] = useState([]);
@@ -27,11 +28,6 @@ const usePerfilDirecciones = () => {
     [direcciones.length],
   );
 
-  const apiUrl = useMemo(
-    () => import.meta.env.VITE_API_URL || "http://localhost:5000/api",
-    [],
-  );
-
   const onChange = useCallback(
     (event) => {
       const { name, value } = event.target;
@@ -42,30 +38,19 @@ const usePerfilDirecciones = () => {
   );
 
   const cargarDirecciones = useCallback(async () => {
-    if (!userId || !token) return;
+    if (!userId) return;
 
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`${apiUrl}/clientes/${userId}/direcciones`, {
-        headers: { auth: `Bearer ${token}` },
-      });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(
-          data?.error || data?.msg || "No se pudieron cargar las direcciones",
-        );
-      }
-
-      const data = await response.json();
+      const { data } = await apiClient.get(`/clientes/${userId}/direcciones`);
       setDirecciones(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message || "No se pudieron cargar las direcciones");
+      setError(err.response?.data?.error || err.response?.data?.msg || "No se pudieron cargar las direcciones");
     } finally {
       setLoading(false);
     }
-  }, [apiUrl, token, userId]);
+  }, [userId]);
 
   useEffect(() => {
     cargarDirecciones();
@@ -122,25 +107,13 @@ const usePerfilDirecciones = () => {
       setError("");
 
       try {
-        const endpoint = modoEdicion
-          ? `${apiUrl}/clientes/${userId}/direcciones/${editandoId}`
-          : `${apiUrl}/clientes/${userId}/direcciones`;
-        const method = modoEdicion ? "PUT" : "POST";
-
-        const response = await fetch(endpoint, {
-          method,
-          headers: {
-            "Content-Type": "application/json",
-            auth: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          const data = await response.json().catch(() => ({}));
-          throw new Error(
-            data?.error || data?.msg || "No se pudo guardar la direccion",
+        if (modoEdicion) {
+          await apiClient.put(
+            `/clientes/${userId}/direcciones/${editandoId}`,
+            payload,
           );
+        } else {
+          await apiClient.post(`/clientes/${userId}/direcciones`, payload);
         }
 
         setForm(inicialForm);
@@ -148,18 +121,16 @@ const usePerfilDirecciones = () => {
         setMostrarFormulario(false);
         await cargarDirecciones();
       } catch (err) {
-        setError(err.message || "No se pudo guardar la direccion");
+        setError(err.response?.data?.error || err.response?.data?.msg || "No se pudo guardar la direccion");
       } finally {
         setGuardando(false);
       }
     },
     [
-      apiUrl,
       cargarDirecciones,
       editandoId,
       form,
       modoEdicion,
-      token,
       userId,
       validarFormulario,
     ],
@@ -205,54 +176,30 @@ const usePerfilDirecciones = () => {
     async (idDireccion) => {
       setError("");
       try {
-        const response = await fetch(
-          `${apiUrl}/clientes/${userId}/direcciones/${idDireccion}/predeterminada`,
-          {
-            method: "PUT",
-            headers: { auth: `Bearer ${token}` },
-          },
+        await apiClient.put(
+          `/clientes/${userId}/direcciones/${idDireccion}/predeterminada`,
         );
-
-        if (!response.ok) {
-          const data = await response.json().catch(() => ({}));
-          throw new Error(
-            data?.error || data?.msg || "No se pudo marcar como predeterminada",
-          );
-        }
-
         await cargarDirecciones();
       } catch (err) {
-        setError(err.message || "No se pudo marcar como predeterminada");
+        setError(err.response?.data?.error || err.response?.data?.msg || "No se pudo marcar como predeterminada");
       }
     },
-    [apiUrl, cargarDirecciones, token, userId],
+    [cargarDirecciones, userId],
   );
 
   const eliminarDireccion = useCallback(
     async (idDireccion) => {
       setError("");
       try {
-        const response = await fetch(
-          `${apiUrl}/clientes/${userId}/direcciones/${idDireccion}`,
-          {
-            method: "DELETE",
-            headers: { auth: `Bearer ${token}` },
-          },
+        await apiClient.delete(
+          `/clientes/${userId}/direcciones/${idDireccion}`,
         );
-
-        if (!response.ok) {
-          const data = await response.json().catch(() => ({}));
-          throw new Error(
-            data?.error || data?.msg || "No se pudo eliminar la direccion",
-          );
-        }
-
         await cargarDirecciones();
       } catch (err) {
-        setError(err.message || "No se pudo eliminar la direccion");
+        setError(err.response?.data?.error || err.response?.data?.msg || "No se pudo eliminar la direccion");
       }
     },
-    [apiUrl, cargarDirecciones, token, userId],
+    [cargarDirecciones, userId],
   );
 
   return {

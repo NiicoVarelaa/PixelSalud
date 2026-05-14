@@ -1,8 +1,4 @@
-export const formatMoneda = (val) => {
-  const num = Number(val);
-  if (!Number.isFinite(num)) return "$0";
-  return `$${num.toLocaleString("es-AR")}`;
-};
+export { formatMoneda } from "@utils/formatMoneda";
 
 export const ITEMS_POR_PAGINA = 8;
 

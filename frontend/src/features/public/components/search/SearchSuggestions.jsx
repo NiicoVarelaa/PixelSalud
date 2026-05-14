@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
+import { formatMoneda } from "@utils/formatMoneda";
 
 const SearchSuggestions = ({ searchTerm, productos, onClose, isLoading }) => {
   const navigate = useNavigate();
@@ -39,15 +40,6 @@ const SearchSuggestions = ({ searchTerm, productos, onClose, isLoading }) => {
     e.stopPropagation();
     navigate(`/productos/${idProducto}`);
     onClose();
-  };
-
-  const formatPrice = (precio) => {
-    return new Intl.NumberFormat("es-AR", {
-      style: "currency",
-      currency: "ARS",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }).format(precio);
   };
 
   return (
@@ -170,7 +162,7 @@ const SearchSuggestions = ({ searchTerm, productos, onClose, isLoading }) => {
                       </h4>
                       <div className="flex items-baseline gap-2">
                         <p className="text-lg font-bold text-green-600">
-                          {formatPrice(producto.precio)}
+                          {formatMoneda(producto.precio)}
                         </p>
                       </div>
                       {producto.stock <= 5 && producto.stock > 0 && (

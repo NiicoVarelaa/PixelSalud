@@ -3,7 +3,9 @@ const { Auditoria } = require("../helps");
 
 const obtenerVentasEmpleado = async (req, res, next) => {
   try {
-    const ventas = await ventasEmpleadosService.obtenerTodasLasVentas();
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const ventas = await ventasEmpleadosService.obtenerTodasLasVentas(page, limit);
     res.status(200).json(ventas);
   } catch (error) {
     next(error);
@@ -13,8 +15,10 @@ const obtenerVentasEmpleado = async (req, res, next) => {
 const obtenerLaVentaDeUnEmpleado = async (req, res, next) => {
   try {
     const idEmpleado = parseInt(req.params.idEmpleado, 10);
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
     const ventas =
-      await ventasEmpleadosService.obtenerVentasPorEmpleado(idEmpleado);
+      await ventasEmpleadosService.obtenerVentasPorEmpleado(idEmpleado, page, limit);
     res.status(200).json(ventas);
   } catch (error) {
     next(error);
@@ -71,7 +75,9 @@ const obtenerVentaParaEditar = async (req, res, next) => {
 
 const obtenerVentasParaAdmin = async (req, res, next) => {
   try {
-    const ventas = await ventasEmpleadosService.obtenerTodasLasVentas();
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const ventas = await ventasEmpleadosService.obtenerTodasLasVentas(page, limit);
     res.status(200).json(ventas);
   } catch (error) {
     next(error);

@@ -81,7 +81,9 @@ const crearCupon = async (req, res, next) => {
 
 const obtenerTodosCupones = async (req, res, next) => {
   try {
-    const cupones = await cuponesService.obtenerTodosCupones();
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const cupones = await cuponesService.obtenerTodosCuponesPaginados(page, limit);
 
     res.status(200).json({
       success: true,

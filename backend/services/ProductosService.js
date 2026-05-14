@@ -9,6 +9,10 @@ const obtenerProductos = async () => {
   return await productosRepository.findAllWithOfertasAndImages();
 };
 
+const obtenerProductosPaginados = async (page = 1, limit = 20) => {
+  return await productosRepository.findAllWithOfertasPaginated(page, limit);
+};
+
 const obtenerProductoPorId = async (idProducto) => {
   const producto =
     await productosRepository.findByIdWithOfertasAndImages(idProducto);
@@ -168,6 +172,7 @@ const activarProducto = async (idProducto) => {
 
 module.exports = {
   obtenerProductos,
+  obtenerProductosPaginados,
   obtenerProductoPorId,
   obtenerProductosInactivos,
   buscarProductos,

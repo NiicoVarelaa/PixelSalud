@@ -17,6 +17,32 @@ const findAll = async () => {
   return rows;
 };
 
+const findAllPaginated = async (page = 1, limit = 20) => {
+  const offset = (page - 1) * limit;
+  const sql = `
+    SELECT 
+      idMedico, 
+      nombreMedico, 
+      apellidoMedico, 
+      matricula, 
+      emailMedico, 
+      activo 
+    FROM Medicos 
+    WHERE activo = true
+    ORDER BY idMedico DESC
+    LIMIT ? OFFSET ?
+  `;
+  const [rows] = await pool.query(sql, [limit, offset]);
+  const [countRows] = await pool.query("SELECT COUNT(*) as total FROM Medicos WHERE activo = true");
+  return {
+    medicos: rows,
+    total: countRows[0].total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(countRows[0].total / limit),
+  };
+};
+
 const findInactivos = async () => {
   const sql = `
     SELECT 
@@ -146,6 +172,7 @@ const reactivar = async (idMedico) => {
 
 module.exports = {
   findAll,
+  findAllPaginated,
   findInactivos,
   findById,
   findByEmail,

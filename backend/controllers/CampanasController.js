@@ -2,7 +2,9 @@ const campanasService = require("../services/CampanasService");
 
 const getCampanas = async (req, res, next) => {
   try {
-    const campanas = await campanasService.obtenerCampanas();
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const campanas = await campanasService.obtenerCampanasPaginadas(page, limit);
     res.json(campanas);
   } catch (error) {
     next(error);

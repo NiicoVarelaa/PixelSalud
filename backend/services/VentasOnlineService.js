@@ -1,28 +1,41 @@
 const ventasOnlineRepository = require("../repositories/VentasOnlineRepository");
+const { withTransaction } = require("../utils/transaction");
 const { createNotFoundError, createValidationError } = require("../errors");
 
-const obtenerVentasPorCliente = async (idCliente) => {
-  const ventas = await ventasOnlineRepository.findByClienteId(idCliente);
+const obtenerVentasPorCliente = async (idCliente, page = 1, limit = 20) => {
+  const result = await ventasOnlineRepository.findByClienteIdPaginated(idCliente, page, limit);
 
   return {
     success: true,
-    results: ventas,
+    results: result.ventas,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+    totalPages: result.totalPages,
   };
 };
 
-const obtenerTodasLasVentas = async () => {
-  const ventas = await ventasOnlineRepository.findAll();
+const obtenerTodasLasVentas = async (page = 1, limit = 20) => {
+  const result = await ventasOnlineRepository.findAllPaginated(page, limit);
 
-  if (!ventas || ventas.length === 0) {
+  if (!result.ventas || result.ventas.length === 0) {
     return {
       message: "No se encontraron ventas online",
       results: [],
+      total: 0,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
     };
   }
 
   return {
     message: "Éxito al traer todas las ventas",
-    results: ventas,
+    results: result.ventas,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+    totalPages: result.totalPages,
   };
 };
 
@@ -57,75 +70,77 @@ const registrarVentaOnline = async ({
     );
   }
 
-  const clienteExists = await ventasOnlineRepository.existsCliente(idCliente);
-  if (!clienteExists) {
-    throw createNotFoundError(`Cliente con ID ${idCliente} no encontrado`);
-  }
+  return withTransaction(async (conn) => {
+    const clienteExists = await ventasOnlineRepository.existsClienteWithConn(conn, idCliente);
+    if (!clienteExists) {
+      throw createNotFoundError(`Cliente con ID ${idCliente} no encontrado`);
+    }
 
-  for (const prod of productos) {
-    const stock = await ventasOnlineRepository.getProductoStock(
-      prod.idProducto,
+    for (const prod of productos) {
+      const stock = await ventasOnlineRepository.getProductoStockWithConn(conn, prod.idProducto);
+
+      if (stock === null) {
+        throw createNotFoundError(
+          `Producto con ID ${prod.idProducto} no encontrado`,
+        );
+      }
+
+      if (stock < prod.cantidad) {
+        throw createValidationError(
+          `Stock insuficiente del producto ID ${prod.idProducto}. Disponible: ${stock}, Solicitado: ${prod.cantidad}`,
+        );
+      }
+    }
+
+    let idDireccion = null;
+    if (tipoEntrega === "Envio") {
+      if (!direccionEnvio) {
+        throw createValidationError(
+          "Se requiere dirección de envío para entregas tipo 'Envio'",
+        );
+      }
+
+      idDireccion = await ventasOnlineRepository.createDireccionWithConn(conn, {
+        idCliente,
+        ...direccionEnvio,
+      });
+    }
+
+    const totalPago = productos.reduce(
+      (acc, p) => acc + p.precioUnitario * p.cantidad,
+      0,
     );
 
-    if (stock === null) {
-      throw createNotFoundError(
-        `Producto con ID ${prod.idProducto} no encontrado`,
-      );
-    }
-
-    if (stock < prod.cantidad) {
-      throw createValidationError(
-        `Stock insuficiente del producto ID ${prod.idProducto}. Disponible: ${stock}, Solicitado: ${prod.cantidad}`,
-      );
-    }
-  }
-
-  let idDireccion = null;
-  if (tipoEntrega === "Envio") {
-    if (!direccionEnvio) {
-      throw createValidationError(
-        "Se requiere dirección de envío para entregas tipo 'Envio'",
-      );
-    }
-
-    idDireccion = await ventasOnlineRepository.createDireccion({
+    const idVentaO = await ventasOnlineRepository.createWithConn(conn, {
+      totalPago,
+      metodoPago,
       idCliente,
-      ...direccionEnvio,
+      tipoEntrega,
+      estado: "Pendiente",
+      idDireccion,
     });
-  }
 
-  const totalPago = productos.reduce(
-    (acc, p) => acc + p.precioUnitario * p.cantidad,
-    0,
-  );
+    for (const prod of productos) {
+      await ventasOnlineRepository.createDetalleWithConn(
+        conn,
+        idVentaO,
+        prod.idProducto,
+        prod.cantidad,
+        prod.precioUnitario,
+      );
 
-  const idVentaO = await ventasOnlineRepository.create({
-    totalPago,
-    metodoPago,
-    idCliente,
-    tipoEntrega,
-    estado: "Pendiente",
-    idDireccion,
-  });
+      await ventasOnlineRepository.updateStockRestarWithConn(
+        conn,
+        prod.idProducto,
+        prod.cantidad,
+      );
+    }
 
-  for (const prod of productos) {
-    await ventasOnlineRepository.createDetalle(
+    return {
+      mensaje: "Venta registrada exitosamente",
       idVentaO,
-      prod.idProducto,
-      prod.cantidad,
-      prod.precioUnitario,
-    );
-
-    await ventasOnlineRepository.updateStockRestar(
-      prod.idProducto,
-      prod.cantidad,
-    );
-  }
-
-  return {
-    mensaje: "Venta registrada exitosamente",
-    idVentaO,
-  };
+    };
+  });
 };
 
 const actualizarEstadoVenta = async (idVentaO, nuevoEstado) => {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@store/useAuthStore";
+import apiClient from "@utils/apiClient";
 import {
   EDITABLE_KEYS,
   normalizarFechaInput,
@@ -17,7 +18,7 @@ const getInitialFormData = () => ({
 });
 
 const usePerfilForm = () => {
-  const { user, token } = useAuthStore();
+  const { user } = useAuthStore();
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(getInitialFormData);
@@ -37,15 +38,9 @@ const usePerfilForm = () => {
 
       setFetchLoading(true);
       try {
-        const apiUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-        const res = await fetch(`${apiUrl}/clientes/${user.id}`, {
-          headers: { auth: `Bearer ${token}` },
-        });
+        const res = await apiClient.get(`/clientes/${user.id}`);
+        const data = res.data;
 
-        if (!res.ok) throw new Error("No se pudo obtener el perfil");
-
-        const data = await res.json();
         if (!data || !Object.keys(data).length) {
           setErrorMsg("No se encontraron datos del usuario.");
           return;
@@ -78,7 +73,7 @@ const usePerfilForm = () => {
     };
 
     fetchCliente();
-  }, [token, user?.id]);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!successMsg) return;
@@ -177,19 +172,10 @@ const usePerfilForm = () => {
           body.contraCliente = formData.contraCliente;
         }
 
-        const apiUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-        const res = await fetch(`${apiUrl}/clientes/actualizar/${user.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            auth: `Bearer ${token}`,
-          },
-          body: JSON.stringify(body),
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Error al actualizar");
+        await apiClient.put(
+          `/clientes/actualizar/${user.id}`,
+          body,
+        );
 
         setSuccessMsg("Perfil actualizado con exito");
         setIsEditing(false);
@@ -218,7 +204,7 @@ const usePerfilForm = () => {
         setLoading(false);
       }
     },
-    [formData, hasChanges, initialSnapshot, token, user?.id],
+    [formData, hasChanges, initialSnapshot, user?.id],
   );
 
   return {

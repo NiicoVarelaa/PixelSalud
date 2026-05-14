@@ -15,6 +15,35 @@ const findAllWithPermisos = async () => {
   return rows;
 };
 
+const findAllWithPermisosPaginated = async (page = 1, limit = 20) => {
+  const offset = (page - 1) * limit;
+  const sql = `
+    SELECT e.*, 
+           p.crear_productos, 
+           p.modificar_productos, 
+           p.modificar_ventasE, 
+           p.ver_ventasTotalesE 
+    FROM Empleados e
+    LEFT JOIN Permisos p ON e.idEmpleado = p.idEmpleado
+    WHERE e.activo = true
+    ORDER BY e.idEmpleado DESC
+    LIMIT ? OFFSET ?
+  `;
+  const [rows] = await pool.query(sql, [limit, offset]);
+
+  const [countRows] = await pool.query(
+    "SELECT COUNT(*) as total FROM Empleados WHERE activo = true",
+  );
+
+  return {
+    empleados: rows,
+    total: countRows[0].total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(countRows[0].total / limit),
+  };
+};
+
 const findInactivos = async () => {
   const sql = `SELECT * FROM Empleados WHERE activo = false`;
   const [rows] = await pool.query(sql);
@@ -156,6 +185,7 @@ const existsPermisos = async (idEmpleado) => {
 
 module.exports = {
   findAllWithPermisos,
+  findAllWithPermisosPaginated,
   findInactivos,
   findByIdWithPermisos,
   findByEmail,
