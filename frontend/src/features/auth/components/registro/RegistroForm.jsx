@@ -3,12 +3,12 @@ import RegistroInputField from "./RegistroInputField";
 import RegistroPasswordField from "./RegistroPasswordField";
 
 const RegistroForm = ({
-  form,
+  register,
   showPassword,
   isSubmitting,
-  onChange,
-  onTogglePassword,
   onSubmit,
+  onTogglePassword,
+  errors,
 }) => {
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
@@ -18,12 +18,11 @@ const RegistroForm = ({
           name="nombreCliente"
           label="Nombre"
           placeholder="Nombre"
-          value={form.nombreCliente}
-          onChange={onChange}
+          register={register}
           icon={<User className="h-4 w-4" aria-hidden="true" />}
           autoComplete="given-name"
-          minLength={2}
           disabled={isSubmitting}
+          error={errors.nombreCliente}
         />
 
         <RegistroInputField
@@ -31,35 +30,34 @@ const RegistroForm = ({
           name="apellidoCliente"
           label="Apellido"
           placeholder="Apellido"
-          value={form.apellidoCliente}
-          onChange={onChange}
+          register={register}
           icon={<User className="h-4 w-4" aria-hidden="true" />}
           autoComplete="family-name"
-          minLength={2}
           disabled={isSubmitting}
+          error={errors.apellidoCliente}
         />
       </div>
 
       <RegistroInputField
         id="email"
-        type="email"
         name="email"
         label="Correo electronico"
         placeholder="tuemail@ejemplo.com"
-        value={form.email}
-        onChange={onChange}
+        register={register}
+        type="email"
         icon={<Mail className="h-4 w-4" aria-hidden="true" />}
         autoComplete="email"
         inputMode="email"
         disabled={isSubmitting}
+        error={errors.email}
       />
 
       <RegistroPasswordField
-        value={form.contraCliente}
+        register={register}
         showPassword={showPassword}
-        onChange={onChange}
         onToggle={onTogglePassword}
         disabled={isSubmitting}
+        error={errors.contraCliente}
       />
 
       <button

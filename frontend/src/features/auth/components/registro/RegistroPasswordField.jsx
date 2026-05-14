@@ -1,11 +1,11 @@
 import { Eye, EyeOff, Lock } from "lucide-react";
 
 const RegistroPasswordField = ({
-  value,
+  register,
   showPassword,
-  onChange,
   onToggle,
   disabled,
+  error,
 }) => {
   return (
     <div className="space-y-1.5">
@@ -24,15 +24,13 @@ const RegistroPasswordField = ({
         <input
           type={showPassword ? "text" : "password"}
           id="contraCliente"
-          name="contraCliente"
           placeholder="Contrasena"
-          value={value}
-          onChange={onChange}
-          className="h-11 w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-11 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 focus:border-primary-700 focus:outline-none focus:ring focus:ring-primary-600/60 disabled:cursor-not-allowed disabled:bg-slate-50"
-          required
-          minLength={8}
           autoComplete="new-password"
           disabled={disabled}
+          {...register("contraCliente")}
+          className={`h-11 w-full rounded-xl border bg-white py-3 pl-10 pr-11 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 focus:border-primary-700 focus:outline-none focus:ring focus:ring-primary-600/60 disabled:cursor-not-allowed disabled:bg-slate-50 ${
+            error ? "border-red-400" : "border-slate-300"
+          }`}
         />
 
         <button
@@ -53,6 +51,7 @@ const RegistroPasswordField = ({
           )}
         </button>
       </div>
+      {error && <p className="text-xs text-red-500">{error.message}</p>}
     </div>
   );
 };

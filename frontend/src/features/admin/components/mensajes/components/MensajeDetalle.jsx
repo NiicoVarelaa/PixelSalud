@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useModalLock } from "@hooks/useModalLock";
 import {
   X,
   Mail,
@@ -33,17 +34,16 @@ export const MensajeDetalle = ({
 }) => {
   const closeRef = useRef(null);
 
+  useModalLock(isOpen);
+
   useEffect(() => {
     if (!isOpen) return;
     closeRef.current?.focus();
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prev;
       document.removeEventListener("keydown", onKey);
     };
   }, [isOpen, onClose]);

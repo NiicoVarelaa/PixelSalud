@@ -1,20 +1,24 @@
 import { useState, useEffect, useRef } from "react";
-import apiClient from "@utils/apiClient"; // Usamos tu cliente configurado
+import apiClient from "@utils/apiClient";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@features/admin/components/shared";
+import Pagination from "@features/admin/components/products/components/Pagination";
 
 const AdminMedicos = () => {
   const [medicos, setMedicos] = useState([]);
   const [editandoId, setEditandoId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const modalRef = useRef();
+  const modalRef = useRef(null);
 
-  // Filtros
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("todos");
 
-  // Estados para el formulario
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalMedicos, setTotalMedicos] = useState(0);
+  const limit = 20;
+
   const [medicoEditado, setMedicoEditado] = useState({
     nombreMedico: "",
     apellidoMedico: "",
@@ -54,15 +58,16 @@ const AdminMedicos = () => {
 
   const obtenerMedicos = async () => {
     try {
-      // Nota: Usamos minúscula '/medicos' que es lo estándar.
-      // Si tu backend define la ruta como '/Medicos', cámbialo aquí.
-      const res = await apiClient.get("/medicos");
-      setMedicos(res.data);
+      const res = await apiClient.get(`/medicos?page=${page}&limit=${limit}`);
+      const data = res.data;
+      setMedicos(data.medicos || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalMedicos(data.total || 0);
     } catch (error) {
-      // MANEJO ESPECÍFICO PARA TU CONTROLADOR
-      // Tu backend devuelve 404 si no hay médicos (results.length === 0)
       if (error.response && error.response.status === 404) {
-        setMedicos([]); // No es un error real, solo que está vacío
+        setMedicos([]);
+        setTotalPages(1);
+        setTotalMedicos(0);
       } else {
         console.error("Error al obtener médicos", error);
         toast.error("Error al cargar la lista de médicos.");
@@ -72,7 +77,7 @@ const AdminMedicos = () => {
 
   useEffect(() => {
     obtenerMedicos();
-  }, []);
+  }, [page]);
 
   const iniciarEdicion = (med) => {
     setEditandoId(med.idMedico);
@@ -179,7 +184,6 @@ const AdminMedicos = () => {
 
   // --- FILTROS ---
   const medicosFiltrados = medicos.filter((med) => {
-    // Normalización del estado activo (mysql devuelve 1/0)
     const isActive =
       med.activo === 0
         ? false
@@ -203,6 +207,10 @@ const AdminMedicos = () => {
 
     return coincideBusqueda && coincideEstado;
   });
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
 
   // --- RENDERIZADO ---
   const renderMedicoModal = () => {
@@ -362,6 +370,11 @@ const AdminMedicos = () => {
       </div>
 
       <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        {totalMedicos > 0 && (
+          <div className="px-4 py-2 border-b border-gray-200 text-sm text-gray-600">
+            Mostrando {medicos.length} de {totalMedicos} médicos
+          </div>
+        )}
         {/* Vista Mobile */}
         <div className="grid gap-3 overflow-y-auto p-3 lg:hidden">
           {medicosFiltrados.length > 0 ? (
@@ -550,6 +563,15 @@ const AdminMedicos = () => {
           </table>
         </div>
       </div>
+
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      )}
+
       {isModalOpen && renderMedicoModal()}
     </AdminLayout>
   );

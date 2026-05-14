@@ -7,7 +7,7 @@ import {
   LoyaltyCard,
   PersonalAttentionCard,
   PrescriptionCard,
-} from "./componentes";
+} from "./components";
 
 const BannerGrid = () => {
   const productosArriba = useProductStore((state) => state.productosArriba);

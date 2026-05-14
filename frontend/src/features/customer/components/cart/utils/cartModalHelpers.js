@@ -1,26 +1,11 @@
-export const parseNumericPrice = (value) => {
-  if (typeof value === "number") return value;
-  if (typeof value === "string") {
-    return parseFloat(value.replace(/[^0-9.-]+/g, "")) || 0;
-  }
+import { parsePriceFromString, formatPrice } from "@utils/formatMoneda";
 
-  return Number(value) || 0;
-};
-
-export const formatPrice = (price) => {
-  const numericPrice = parseNumericPrice(price);
-
-  return new Intl.NumberFormat("es-AR", {
-    style: "decimal",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(numericPrice);
-};
+export { parsePriceFromString as parseNumericPrice, formatPrice };
 
 export const getProductUnitPrice = (product) => {
   const priceToUse =
     product.precioFinal || product.precioRegular || product.precio || 0;
-  return parseNumericPrice(priceToUse);
+  return parsePriceFromString(priceToUse);
 };
 
 export const getProductSubtotal = (product) => {

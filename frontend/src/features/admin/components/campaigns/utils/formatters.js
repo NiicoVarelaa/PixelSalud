@@ -15,10 +15,4 @@ export const formatearFecha = (fecha) => {
   return new Date(fecha).toLocaleDateString("es-AR");
 };
 
-export const formatearPrecio = (precio) => {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 2,
-  }).format(precio);
-};
+export { formatPrice as formatearPrecio } from "@utils/formatMoneda";

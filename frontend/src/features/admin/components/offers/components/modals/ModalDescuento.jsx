@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "framer-motion";
+import { useModalLock } from "@hooks/useModalLock";
 import { Tag, X, Calendar } from "lucide-react";
 import { DESCUENTOS_DETALLE } from "../../utils/constants";
 
@@ -20,6 +21,8 @@ export const ModalDescuento = ({
   const [fechaFin, setFechaFin] = useState("");
   const [conFechas, setConFechas] = useState(false);
 
+  useModalLock(isOpen);
+
   useEffect(() => {
     if (!isOpen) {
       setPorcentajeCustom("");
@@ -30,14 +33,11 @@ export const ModalDescuento = ({
       return;
     }
     closeButtonRef.current?.focus();
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prev;
       document.removeEventListener("keydown", onKey);
     };
   }, [isOpen, onClose]);

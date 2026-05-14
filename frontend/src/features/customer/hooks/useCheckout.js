@@ -4,6 +4,9 @@ import { useCarritoStore } from "@store/useCarritoStore";
 import { useAuthStore } from "@store/useAuthStore";
 import { toast } from "react-toastify";
 import { sucursalesData } from "@data/sucursalesData";
+import apiClient from "@utils/apiClient";
+import { parsePriceFromString } from "@utils/priceUtils";
+import { formatCurrency } from "@utils/formatMoneda";
 
 export const useCheckout = () => {
   const navigate = useNavigate();
@@ -48,27 +51,14 @@ export const useCheckout = () => {
 
   const subtotal = useMemo(() => {
     return carrito.reduce((acc, prod) => {
-      const priceToUse =
-        prod.precioFinal || prod.precioRegular || prod.precio || 0;
-      const price =
-        typeof priceToUse === "string"
-          ? parseFloat(priceToUse.replace(/[^0-9.-]+/g, "")) || 0
-          : Number(priceToUse) || 0;
+      const price = parsePriceFromString(
+        prod.precioFinal || prod.precioRegular || prod.precio || 0,
+      );
       return acc + price * prod.cantidad;
     }, 0);
   }, [carrito]);
 
   const total = Math.max(subtotal - appliedDiscount, 0);
-
-  const formatPrice = (value) => {
-    const numericValue = Number(value) || 0;
-    return new Intl.NumberFormat("es-AR", {
-      style: "currency",
-      currency: "ARS",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(numericValue);
-  };
 
   const handleApplyDiscount = async () => {
     if (!discountCode.trim()) {
@@ -77,35 +67,25 @@ export const useCheckout = () => {
     }
 
     try {
-      const backendUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-      const response = await fetch(`${backendUrl}/cupones/validar`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          auth: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          codigo: discountCode.trim().toUpperCase(),
-          montoCompra: subtotal,
-        }),
+      const response = await apiClient.post("/cupones/validar", {
+        codigo: discountCode.trim().toUpperCase(),
+        montoCompra: subtotal,
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok && data.success) {
+      if (data.success) {
         setAppliedDiscount(data.data.descuento);
         setAppliedCouponCode(discountCode.trim().toUpperCase());
         toast.success(
-          `¡Cupón aplicado! Descuento: ${formatPrice(data.data.descuento)}`,
+          `¡Cupón aplicado! Descuento: ${formatCurrency(data.data.descuento)}`,
         );
       } else {
         setAppliedDiscount(0);
         setAppliedCouponCode(null);
         toast.error(data.message || "Cupón no válido");
       }
-    } catch (error) {
-      console.error("Error validando cupón:", error);
+    } catch {
       setAppliedDiscount(0);
       setAppliedCouponCode(null);
       toast.error("Error al validar el cupón");
@@ -163,48 +143,37 @@ export const useCheckout = () => {
 
     setIsProcessing(true);
     try {
-      const backendUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-      const response = await fetch(`${backendUrl}/mercadopago/create-order`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          auth: `Bearer ${token}`,
+      const response = await apiClient.post("/mercadopago/create-order", {
+        products: carrito.map((product) => ({
+          id: product.idProducto,
+          quantity: product.cantidad,
+        })),
+        customer_info: {
+          name: personalData.nombre,
+          surname: personalData.apellido,
+          email: personalData.email,
+          phone: personalData.celular,
+          address: {
+            street_name: selectedBranch?.address || "Retiro en tienda",
+            street_number: "0",
+            zip_code: selectedBranch?.zipCode || "0000",
+          },
         },
-        body: JSON.stringify({
-          products: carrito.map((product) => ({
-            id: product.idProducto,
-            quantity: product.cantidad,
-          })),
-          customer_info: {
-            name: personalData.nombre,
-            surname: personalData.apellido,
-            email: personalData.email,
-            phone: personalData.celular,
-            address: {
-              street_name: selectedBranch?.address || "Retiro en tienda",
-              street_number: "0",
-              zip_code: selectedBranch?.zipCode || "0000",
-            },
-          },
-          checkout_data: {
-            dni: personalData.dni,
-            fechaNacimiento: personalData.fechaNacimiento,
-            celular: personalData.celular,
-            aceptaTyC: personalData.aceptaTyC,
-            sucursalCodigo: selectedBranch?.id || "",
-            sucursalNombre: selectedBranch?.name || "",
-            sucursalDireccion: selectedBranch?.address || "",
-            legalVersion: "checkout_2026_03",
-          },
-          discount: appliedDiscount,
-          codigoCupon: appliedCouponCode,
-        }),
+        checkout_data: {
+          dni: personalData.dni,
+          fechaNacimiento: personalData.fechaNacimiento,
+          celular: personalData.celular,
+          aceptaTyC: personalData.aceptaTyC,
+          sucursalCodigo: selectedBranch?.id || "",
+          sucursalNombre: selectedBranch?.name || "",
+          sucursalDireccion: selectedBranch?.address || "",
+          legalVersion: "checkout_2026_03",
+        },
+        discount: appliedDiscount,
+        codigoCupon: appliedCouponCode,
       });
 
-      const responseData = await response.json();
-      if (!response.ok)
-        throw new Error(responseData.message || `Error ${response.status}`);
+      const responseData = response.data;
       const checkoutUrl =
         responseData.checkout_url ||
         responseData.init_point ||
@@ -224,7 +193,7 @@ export const useCheckout = () => {
         );
       }
     } catch (error) {
-      if (error.message.includes("401") || error.message.includes("Token")) {
+      if (error.message?.includes("401") || error.message?.includes("Token")) {
         toast.error("Sesión expirada. Por favor inicia sesión nuevamente.");
         navigate("/login");
       } else {
@@ -258,7 +227,7 @@ export const useCheckout = () => {
     selectedBranchId,
     subtotal,
     total,
-    formatPrice,
+    formatCurrency,
     handleApplyDiscount,
     handleBackToPersonalData,
     handleBackToPickup,

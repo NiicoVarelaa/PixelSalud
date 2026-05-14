@@ -1,30 +1,57 @@
 const ventasEmpleadosRepository = require("../repositories/VentasEmpleadosRepository");
 const { createNotFoundError, createValidationError } = require("../errors");
 
-const obtenerTodasLasVentas = async () => {
-  const ventas = await ventasEmpleadosRepository.findAll();
+const obtenerTodasLasVentas = async (page = 1, limit = 20) => {
+  const result = await ventasEmpleadosRepository.findAllPaginated(page, limit);
 
-  if (!ventas || ventas.length === 0) {
-    return [];
+  if (!result.ventas || result.ventas.length === 0) {
+    return {
+      message: "No se encontraron ventas",
+      results: [],
+      total: 0,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+    };
   }
 
-  return ventas;
+  return {
+    message: "Éxito al traer todas las ventas",
+    results: result.ventas,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+    totalPages: result.totalPages,
+  };
 };
 
-const obtenerVentasPorEmpleado = async (idEmpleado) => {
+const obtenerVentasPorEmpleado = async (idEmpleado, page = 1, limit = 20) => {
   const empleadoExists =
     await ventasEmpleadosRepository.existsEmpleado(idEmpleado);
   if (!empleadoExists) {
     throw createNotFoundError(`Empleado con ID ${idEmpleado} no encontrado`);
   }
 
-  const ventas = await ventasEmpleadosRepository.findByEmpleadoId(idEmpleado);
+  const result = await ventasEmpleadosRepository.findByEmpleadoIdPaginated(idEmpleado, page, limit);
 
-  if (!ventas || ventas.length === 0) {
-    return [];
+  if (!result.ventas || result.ventas.length === 0) {
+    return {
+      message: "No se encontraron ventas para este empleado",
+      results: [],
+      total: 0,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+    };
   }
 
-  return ventas;
+  return {
+    results: result.ventas,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+    totalPages: result.totalPages,
+  };
 };
 
 const obtenerDetalleVenta = async (idVentaE) => {

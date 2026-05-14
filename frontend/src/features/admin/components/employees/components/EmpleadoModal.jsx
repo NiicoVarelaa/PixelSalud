@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useModalLock } from "@hooks/useModalLock";
 import { EmpleadoModalHeader } from "./EmpleadoModalHeader";
 import { EmpleadoModalFormSections } from "./EmpleadoModalFormSections";
 import { EmpleadoModalActions } from "./EmpleadoModalActions";
@@ -31,17 +32,16 @@ export const EmpleadoModal = ({
   const [errores, setErrores] = useState({});
   const [enviando, setEnviando] = useState(false);
 
+  useModalLock(isOpen);
+
   useEffect(() => {
     if (!isOpen) return;
     closeRef.current?.focus();
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prev;
       document.removeEventListener("keydown", onKey);
     };
   }, [isOpen, onClose]);

@@ -1,5 +1,6 @@
 import { useEffect, useRef, createElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useModalLock } from "@hooks/useModalLock";
 import {
   X,
   User,
@@ -61,17 +62,16 @@ const JsonBlock = ({ title, data, Icon, accentClass }) => {
 export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
   const closeRef = useRef(null);
 
+  useModalLock(isOpen);
+
   useEffect(() => {
     if (!isOpen) return;
     closeRef.current?.focus();
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prev;
       document.removeEventListener("keydown", onKey);
     };
   }, [isOpen, onClose]);

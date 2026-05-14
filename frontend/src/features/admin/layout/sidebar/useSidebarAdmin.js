@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@store/useAuthStore";
+import apiClient from "@utils/apiClient";
+import { useModalLock } from "@hooks/useModalLock";
 import { baseMenuItems } from "./sidebarConfig";
 
 const useSidebarAdmin = () => {
-  const { user, token, logoutUser } = useAuthStore();
+  const { user, logoutUser } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -14,9 +15,6 @@ const useSidebarAdmin = () => {
 
   const sidebarRef = useRef(null);
   const closeButtonRef = useRef(null);
-
-  const backendUrl =
-    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const isActive = useCallback(
     (path) => location.pathname === path,
@@ -36,17 +34,15 @@ const useSidebarAdmin = () => {
   );
 
   const fetchUnreadMessages = useCallback(async () => {
-    if (!token) return;
+    if (!user) return;
 
     try {
-      const response = await axios.get(`${backendUrl}/mensajes/no-leidos`, {
-        headers: { auth: `Bearer ${token}` },
-      });
-      setUnreadMessagesCount(response.data.count || 0);
-    } catch (error) {
-      console.error("Error al obtener mensajes no leídos:", error);
+      const { data } = await apiClient.get("/mensajes/no-leidos");
+      setUnreadMessagesCount(data.count || 0);
+    } catch {
+      console.error("Error al obtener mensajes no leídos");
     }
-  }, [backendUrl, token]);
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -67,13 +63,7 @@ const useSidebarAdmin = () => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
-  useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "unset";
-
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isMobileMenuOpen]);
+  useModalLock(isMobileMenuOpen);
 
   useEffect(() => {
     if (isMobileMenuOpen && closeButtonRef.current) {

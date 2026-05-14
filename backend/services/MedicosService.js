@@ -6,6 +6,10 @@ const obtenerMedicos = async () => {
   return await medicosRepository.findAll();
 };
 
+const obtenerMedicosPaginados = async (page = 1, limit = 20) => {
+  return await medicosRepository.findAllPaginated(page, limit);
+};
+
 const obtenerMedicosInactivos = async () => {
   const medicos = await medicosRepository.findInactivos();
 
@@ -132,6 +136,7 @@ const reactivarMedico = async (idMedico) => {
 
 module.exports = {
   obtenerMedicos,
+  obtenerMedicosPaginados,
   obtenerMedicosInactivos,
   obtenerMedicoPorId,
   crearMedico,

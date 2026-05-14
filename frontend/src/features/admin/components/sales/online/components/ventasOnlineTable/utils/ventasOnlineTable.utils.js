@@ -119,8 +119,4 @@ export const obtenerItemsPagina = ({
 export const formatearFechaVentaOnline = (fecha) =>
   !fecha ? "-" : new Date(fecha).toLocaleDateString("es-ES");
 
-export const formatearMonedaVentaOnline = (valor) =>
-  new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-  }).format(Number(valor) || 0);
+export { formatMoneda as formatearMonedaVentaOnline } from "@utils/formatMoneda";

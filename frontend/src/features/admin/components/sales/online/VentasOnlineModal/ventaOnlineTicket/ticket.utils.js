@@ -1,16 +1,11 @@
 import Default from "@assets/default.webp";
+export { formatMoneda as formatearMoneda } from "@utils/formatMoneda";
 
 export const OPCIONES_METODO_PAGO = [
   { value: "Efectivo", label: "Efectivo" },
   { value: "Tarjeta", label: "Tarjeta" },
   { value: "Transferencia", label: "Transferencia" },
 ];
-
-export const formatearMoneda = (valor) =>
-  new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-  }).format(Number(valor) || 0);
 
 export const getProductImage = (item, imagenesPorProducto) => {
   return (

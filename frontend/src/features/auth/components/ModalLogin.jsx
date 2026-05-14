@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useModalLock } from "@hooks/useModalLock";
 import { LogIn, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -21,6 +22,8 @@ const ModalLogin = ({ isOpen, onClose }) => {
     onClose();
     navigate("/login");
   }, [navigate, onClose]);
+
+  useModalLock(isOpen);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -57,8 +60,6 @@ const ModalLogin = ({ isOpen, onClose }) => {
     };
 
     document.addEventListener("keydown", handleEscape);
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
 
     const frame = requestAnimationFrame(() => {
       loginButtonRef.current?.focus();
@@ -66,7 +67,6 @@ const ModalLogin = ({ isOpen, onClose }) => {
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = originalOverflow;
       cancelAnimationFrame(frame);
       if (previouslyFocusedRef.current?.focus) {
         previouslyFocusedRef.current.focus();

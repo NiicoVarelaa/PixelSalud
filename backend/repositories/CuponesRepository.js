@@ -64,6 +64,32 @@ const findAllActivos = async () => {
   return rows;
 };
 
+const findAllPaginated = async (page = 1, limit = 20) => {
+  const offset = (page - 1) * limit;
+  const query = `
+    SELECT 
+      *,
+      (usoMaximo - vecesUsado) AS usosDisponibles,
+      CASE 
+        WHEN NOW() > fechaVencimiento THEN 'expirado'
+        WHEN vecesUsado >= usoMaximo THEN 'agotado'
+        ELSE estado
+      END AS estadoCalculado
+    FROM Cupones
+    ORDER BY fechaCreacion DESC
+    LIMIT ? OFFSET ?
+  `;
+  const [rows] = await pool.query(query, [limit, offset]);
+  const [countRows] = await pool.query("SELECT COUNT(*) as total FROM Cupones");
+  return {
+    cupones: rows,
+    total: countRows[0].total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(countRows[0].total / limit),
+  };
+};
+
 const findAll = async () => {
   const query = `
     SELECT 
@@ -297,6 +323,7 @@ module.exports = {
   findById,
   findAllActivos,
   findAll,
+  findAllPaginated,
   validarCupon,
   verificarPrimeraCompra,
   verificarUsoCliente,

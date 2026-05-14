@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useVentasOnlineStore } from "../store/useVentasOnlineStore";
 import Default from "@assets/default.webp";
+import { formatMoneda as formatearMoneda } from "@utils/formatMoneda";
 
 export const useVentasOnlineData = () => {
   const { setVentas, setProductosDisponibles, setCargando, updateVentaEstado } =
@@ -109,12 +110,6 @@ export const useVentasOnlineData = () => {
         (acc, item) => acc + item.cantidad * item.precioUnitario,
         0,
       );
-
-      const formatearMoneda = (val) =>
-        new Intl.NumberFormat("es-AR", {
-          style: "currency",
-          currency: "ARS",
-        }).format(Number(val) || 0);
 
       const escaparHtml = (texto) =>
         String(texto || "")

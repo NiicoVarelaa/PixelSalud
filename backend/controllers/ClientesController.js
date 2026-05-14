@@ -3,7 +3,9 @@ const { Auditoria } = require("../helps");
 
 const getClientes = async (req, res, next) => {
   try {
-    const clientes = await clientesService.obtenerClientes();
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const clientes = await clientesService.obtenerClientesPaginados(page, limit);
     res.status(200).json(clientes);
   } catch (error) {
     next(error);

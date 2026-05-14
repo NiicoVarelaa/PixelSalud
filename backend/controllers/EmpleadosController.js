@@ -3,8 +3,10 @@ const { Auditoria } = require("../helps");
 
 const getEmpleados = async (req, res, next) => {
   try {
-    const empleados = await empleadosService.obtenerEmpleados();
-    res.status(200).json({ msg: "Exito", results: empleados });
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const empleados = await empleadosService.obtenerEmpleadosPaginados(page, limit);
+    res.status(200).json(empleados);
   } catch (error) {
     next(error);
   }

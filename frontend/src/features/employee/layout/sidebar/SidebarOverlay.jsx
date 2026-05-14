@@ -1,13 +1,7 @@
-import { useEffect } from "react";
+import { useModalLock } from "@hooks/useModalLock";
 
 export const SidebarOverlay = ({ isVisible, onClose }) => {
-  useEffect(() => {
-    if (!isVisible) return;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isVisible]);
+  useModalLock(isVisible);
 
   if (!isVisible) return null;
 

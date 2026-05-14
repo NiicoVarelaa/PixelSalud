@@ -34,6 +34,51 @@ const findAll = async () => {
   return rows;
 };
 
+const findAllPaginated = async (page = 1, limit = 20) => {
+  const offset = (page - 1) * limit;
+  const query = `
+    SELECT 
+      c.idCliente,
+      c.nombreCliente,
+      c.apellidoCliente,
+      c.emailCliente,
+      c.dni,
+      c.fechaNacimiento,
+      c.telefono,
+      c.direccion,
+      c.fecha_registro,
+      c.activo,
+      c.rol,
+      COALESCE(v.totalCompras, 0) AS totalCompras,
+      COALESCE(v.totalGastado, 0) AS totalGastado,
+      v.ultimaCompra
+    FROM Clientes c
+    LEFT JOIN (
+      SELECT
+        idCliente,
+        COUNT(*) AS totalCompras,
+        SUM(totalPago) AS totalGastado,
+        MAX(fechaPago) AS ultimaCompra
+      FROM VentasOnlines
+      WHERE estado = 'retirado'
+      GROUP BY idCliente
+    ) v ON c.idCliente = v.idCliente
+    ORDER BY c.idCliente DESC
+    LIMIT ? OFFSET ?`;
+
+  const [rows] = await pool.query(query, [limit, offset]);
+
+  const [countRows] = await pool.query("SELECT COUNT(*) as total FROM Clientes");
+
+  return {
+    clientes: rows,
+    total: countRows[0].total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(countRows[0].total / limit),
+  };
+};
+
 const findInactivos = async () => {
   const query = `
     SELECT 
@@ -443,6 +488,7 @@ const deleteDireccionCliente = async (idCliente, idDireccion) => {
 
 module.exports = {
   findAll,
+  findAllPaginated,
   findInactivos,
   findById,
   findByEmail,

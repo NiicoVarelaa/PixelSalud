@@ -17,6 +17,7 @@ import {
   CuponDetail,
   HistorialFilters,
 } from "./components";
+import Pagination from "@features/admin/components/products/components/Pagination";
 
 const AdminCupones = () => {
   const [vistaActual, setVistaActual] = useState("cupones");
@@ -31,6 +32,8 @@ const AdminCupones = () => {
   });
   const [historialBusqueda, setHistorialBusqueda] = useState("");
   const [historialFiltroCodigo, setHistorialFiltroCodigo] = useState("todos");
+  const [historialPagina, setHistorialPagina] = useState(1);
+  const historialPorPagina = 15;
 
   const {
     cupones,
@@ -128,6 +131,16 @@ const AdminCupones = () => {
       historialFiltroCodigo === "todos" || uso.codigo === historialFiltroCodigo;
     return matchBusqueda && matchCodigo;
   });
+
+  const historialTotalPaginas = Math.ceil(historialFiltrado.length / historialPorPagina);
+  const historialPaginado = historialFiltrado.slice(
+    (historialPagina - 1) * historialPorPagina,
+    historialPagina * historialPorPagina,
+  );
+
+  const handleHistorialPageChange = (newPage) => {
+    setHistorialPagina(newPage);
+  };
 
   const codigosUnicos = [...new Set(historial.map((u) => u.codigo))].map((c) => ({
     value: c,
@@ -234,7 +247,16 @@ const AdminCupones = () => {
             setFiltroCodigo={setHistorialFiltroCodigo}
             opcionesCodigo={codigosUnicos}
           />
-          <HistorialTable historial={historialFiltrado} />
+          <HistorialTable historial={historialPaginado} />
+          {historialTotalPaginas > 1 && (
+            <div className="px-4 py-3">
+              <Pagination
+                currentPage={historialPagina}
+                totalPages={historialTotalPaginas}
+                onPageChange={handleHistorialPageChange}
+              />
+            </div>
+          )}
         </div>
       )}
 

@@ -8,10 +8,10 @@ import useLoginForm from "@features/auth/hooks/useLoginForm";
 
 const Login = () => {
   const {
-    user,
     isSubmitting,
     showPassword,
-    handleInputChange,
+    register,
+    errors,
     handleSubmit,
     togglePassword,
     goHome,
@@ -32,10 +32,10 @@ const Login = () => {
       >
         <LoginHeader onBack={goHome} />
         <LoginForm
-          user={user}
+          register={register}
           showPassword={showPassword}
           isSubmitting={isSubmitting}
-          onChange={handleInputChange}
+          errors={errors}
           onSubmit={handleSubmit}
           onTogglePassword={togglePassword}
         />

@@ -7,6 +7,10 @@ const obtenerMensajes = async () => {
   return mensajes || [];
 };
 
+const obtenerMensajesPaginados = async (page = 1, limit = 20) => {
+  return await mensajesRepository.findAllPaginated(page, limit);
+};
+
 const obtenerMensajePorId = async (idMensaje) => {
   const mensaje = await mensajesRepository.findById(idMensaje);
 
@@ -205,6 +209,7 @@ const obtenerRecientesNoLeidos = async (limit = 5) => {
 
 module.exports = {
   obtenerMensajes,
+  obtenerMensajesPaginados,
   obtenerMensajePorId,
   obtenerMensajesPorEstado,
   obtenerMensajesPorCliente,

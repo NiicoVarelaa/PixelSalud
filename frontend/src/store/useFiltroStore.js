@@ -1,7 +1,6 @@
 import { create } from "zustand";
-import { useProductStore } from "./useProductStore";
 
-export const useFiltroStore = create((set, get) => ({
+export const useFiltroStore = create((set) => ({
   filtroCategoria: "todos",
   busqueda: "",
   ordenPrecio: "defecto",
@@ -15,100 +14,96 @@ export const useFiltroStore = create((set, get) => ({
       busqueda: "",
       ordenPrecio: "defecto",
     }),
-
-  getProductosFiltrados: () => {
-    const { productos, productosCyberMonday, campanasInicio } =
-      useProductStore.getState();
-    const { filtroCategoria, busqueda, ordenPrecio } = get();
-
-    const normalizeText = (value = "") =>
-      String(value)
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .trim();
-
-    const sortByPrice = (lista) =>
-      [...lista].sort((a, b) => {
-        const precioA = Number(
-          a.precioFinal || a.precio || a.precioRegular || 0,
-        );
-        const precioB = Number(
-          b.precioFinal || b.precio || b.precioRegular || 0,
-        );
-
-        if (ordenPrecio === "menor-precio") return precioA - precioB;
-        if (ordenPrecio === "mayor-precio") return precioB - precioA;
-        return 0;
-      });
-
-    const coincideBusqueda = (producto) =>
-      String(producto?.nombreProducto || "")
-        .toLowerCase()
-        .includes(busqueda.toLowerCase());
-
-    const getDiscountPercentages = (producto) => {
-      const descuentos = [];
-
-      const descuentoDirecto = Number(producto?.porcentajeDescuento);
-      if (Number.isFinite(descuentoDirecto) && descuentoDirecto > 0) {
-        descuentos.push(descuentoDirecto);
-      }
-
-      if (Array.isArray(producto?.ofertas)) {
-        producto.ofertas.forEach((offer) => {
-          const value = Number(offer?.porcentajeDescuento || offer?.descuento);
-          if (Number.isFinite(value) && value > 0) {
-            descuentos.push(value);
-          }
-        });
-      }
-
-      return descuentos;
-    };
-
-    const campanaSeleccionada = Array.isArray(campanasInicio)
-      ? campanasInicio.find(
-          (campana) =>
-            normalizeText(campana?.nombreCampana) ===
-            normalizeText(filtroCategoria),
-        )
-      : null;
-
-    let productosFiltrados;
-    if (filtroCategoria.toLowerCase().includes("cyber monday")) {
-      productosFiltrados = sortByPrice(
-        productosCyberMonday.filter((p) => coincideBusqueda(p)),
-      );
-    } else if (campanaSeleccionada) {
-      productosFiltrados = sortByPrice(
-        (campanaSeleccionada.productos || []).filter((p) =>
-          coincideBusqueda(p),
-        ),
-      );
-    } else if (filtroCategoria === "Ofertas") {
-      const descuentosObjetivo = new Set([10, 15, 20]);
-
-      productosFiltrados = sortByPrice(
-        productos.filter((p) => {
-          const descuentos = getDiscountPercentages(p);
-          const tieneDescuentoObjetivo = descuentos.some((value) =>
-            descuentosObjetivo.has(Math.round(value)),
-          );
-
-          return tieneDescuentoObjetivo && coincideBusqueda(p);
-        }),
-      );
-    } else {
-      productosFiltrados = sortByPrice(
-        productos.filter((p) => {
-          const coincideCategoria =
-            filtroCategoria === "todos" || p.categoria === filtroCategoria;
-
-          return coincideCategoria && coincideBusqueda(p);
-        }),
-      );
-    }
-    return productosFiltrados;
-  },
 }));
+
+const normalizeText = (value = "") =>
+  String(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+const sortByPrice = (lista, ordenPrecio) =>
+  [...lista].sort((a, b) => {
+    const precioA = Number(a.precioFinal || a.precio || a.precioRegular || 0);
+    const precioB = Number(b.precioFinal || b.precio || b.precioRegular || 0);
+    if (ordenPrecio === "menor-precio") return precioA - precioB;
+    if (ordenPrecio === "mayor-precio") return precioB - precioA;
+    return 0;
+  });
+
+const getDiscountPercentages = (producto) => {
+  const descuentos = [];
+  const descuentoDirecto = Number(producto?.porcentajeDescuento);
+  if (Number.isFinite(descuentoDirecto) && descuentoDirecto > 0) {
+    descuentos.push(descuentoDirecto);
+  }
+  if (Array.isArray(producto?.ofertas)) {
+    producto.ofertas.forEach((offer) => {
+      const value = Number(offer?.porcentajeDescuento || offer?.descuento);
+      if (Number.isFinite(value) && value > 0) {
+        descuentos.push(value);
+      }
+    });
+  }
+  return descuentos;
+};
+
+export const getProductosFiltrados = ({
+  productos,
+  productosCyberMonday,
+  campanasInicio,
+  filtroCategoria,
+  busqueda,
+  ordenPrecio,
+}) => {
+  const coincideBusqueda = (producto) =>
+    String(producto?.nombreProducto || "")
+      .toLowerCase()
+      .includes(busqueda.toLowerCase());
+
+  const campanaSeleccionada = Array.isArray(campanasInicio)
+    ? campanasInicio.find(
+        (campana) =>
+          normalizeText(campana?.nombreCampana) ===
+          normalizeText(filtroCategoria),
+      )
+    : null;
+
+  let productosFiltrados;
+  if (filtroCategoria.toLowerCase().includes("cyber monday")) {
+    productosFiltrados = sortByPrice(
+      productosCyberMonday.filter((p) => coincideBusqueda(p)),
+      ordenPrecio,
+    );
+  } else if (campanaSeleccionada) {
+    productosFiltrados = sortByPrice(
+      (campanaSeleccionada.productos || []).filter((p) =>
+        coincideBusqueda(p),
+      ),
+      ordenPrecio,
+    );
+  } else if (filtroCategoria === "Ofertas") {
+    const descuentosObjetivo = new Set([10, 15, 20]);
+    productosFiltrados = sortByPrice(
+      productos.filter((p) => {
+        const descuentos = getDiscountPercentages(p);
+        const tieneDescuentoObjetivo = descuentos.some((value) =>
+          descuentosObjetivo.has(Math.round(value)),
+        );
+        return tieneDescuentoObjetivo && coincideBusqueda(p);
+      }),
+      ordenPrecio,
+    );
+  } else {
+    productosFiltrados = sortByPrice(
+      productos.filter((p) => {
+        const coincideCategoria =
+          filtroCategoria === "todos" || p.categoria === filtroCategoria;
+        return coincideCategoria && coincideBusqueda(p);
+      }),
+      ordenPrecio,
+    );
+  }
+  return productosFiltrados;
+};

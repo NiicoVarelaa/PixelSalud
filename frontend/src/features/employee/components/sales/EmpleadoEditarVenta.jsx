@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import apiClient from "@utils/apiClient";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "@store/useAuthStore";
+import { formatMoneda } from "@utils/formatMoneda";
 import {
   Search,
   ArrowLeft,
@@ -14,12 +15,6 @@ import {
   Loader2,
   X,
 } from "lucide-react";
-
-const formatMoneda = (val) => {
-  const num = Number(val);
-  if (!Number.isFinite(num)) return "$0";
-  return `$${num.toLocaleString("es-AR")}`;
-};
 
 const OPCIONES_METODO_PAGO = [
   { value: "Efectivo", label: "Efectivo" },

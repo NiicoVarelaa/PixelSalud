@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useModalLock } from "@hooks/useModalLock";
 import { X, Reply, Send, Mail } from "lucide-react";
 
 export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
@@ -18,17 +19,16 @@ export const MensajeRespuesta = ({ mensaje, isOpen, onClose, onEnviar }) => {
     onClose();
   }, [onClose]);
 
+  useModalLock(isOpen);
+
   useEffect(() => {
     if (!isOpen) return;
     closeRef.current?.focus();
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e) => {
       if (e.key === "Escape") handleClose();
     };
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prev;
       document.removeEventListener("keydown", onKey);
     };
   }, [isOpen, handleClose]);

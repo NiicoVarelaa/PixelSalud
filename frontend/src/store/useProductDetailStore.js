@@ -1,24 +1,7 @@
 import { create } from "zustand";
-import axios from "axios";
+import apiClient from "@utils/apiClient";
 import { useProductStore } from "./useProductStore";
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const API_URL = `${API_BASE_URL}/productos`;
-
-const cleanAndParsePrice = (price) => {
-  if (typeof price === "number") return price;
-  if (typeof price !== "string") return 0;
-
-  let cleaned = price.replace(/[^0-9,.]/g, "");
-
-  if (cleaned.includes(",")) {
-    cleaned = cleaned.replace(/\./g, "").replace(",", ".");
-  }
-
-  const parsed = parseFloat(cleaned);
-  return isNaN(parsed) ? 0 : parsed;
-};
+import { cleanAndParsePrice } from "@utils/priceUtils";
 
 export const useProductDetailStore = create((set) => ({
   producto: null,
@@ -31,7 +14,7 @@ export const useProductDetailStore = create((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const res = await axios.get(`${API_URL}/${id}`);
+      const res = await apiClient.get(`/productos/${id}`);
       const productoData = res.data;
       const precioActual = cleanAndParsePrice(
         productoData.precioFinal || productoData.precio,

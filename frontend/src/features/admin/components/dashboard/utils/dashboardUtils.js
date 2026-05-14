@@ -1,17 +1,5 @@
 import Default from "@assets/default.webp";
-
-export const formatCurrency = (value) => {
-  const numericValue = Number(value);
-
-  if (isNaN(numericValue)) return "$0";
-
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(numericValue);
-};
+export { formatCurrency } from "@utils/formatMoneda";
 
 export const getProductoImageUrl = (producto) => {
   if (!producto) return Default;

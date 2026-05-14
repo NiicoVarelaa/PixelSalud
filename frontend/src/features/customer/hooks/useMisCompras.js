@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@store/useAuthStore";
+import apiClient from "@utils/apiClient";
 import { agruparVentas } from "@features/customer/components/orders/ordersUtils";
 
 const useMisCompras = () => {
-  const { user, token } = useAuthStore();
+  const { user } = useAuthStore();
   const navigate = useNavigate();
 
   const [ventasAgrupadas, setVentasAgrupadas] = useState([]);
@@ -25,28 +25,17 @@ const useMisCompras = () => {
     const obtenerCompras = async () => {
       setCargando(true);
       try {
-        const backendUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
-        const { data } = await axios.get(`${backendUrl}/mis-compras`, {
-          headers: { auth: `Bearer ${token}` },
-        });
-
+        const { data } = await apiClient.get("/mis-compras");
         setVentasAgrupadas(agruparVentas(data.results || []));
       } catch (error) {
         console.error("Error al obtener compras:", error);
-        if (error.response?.status === 401) {
-          navigate("/login");
-        }
       } finally {
         setCargando(false);
       }
     };
 
-    if (token) {
-      obtenerCompras();
-    }
-  }, [navigate, token, user]);
+    obtenerCompras();
+  }, [navigate, user]);
 
   const toggleOrder = useCallback((idVenta) => {
     setExpandedOrder((prev) => (prev === idVenta ? null : idVenta));

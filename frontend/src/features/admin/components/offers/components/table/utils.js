@@ -10,13 +10,7 @@ export const getProductoImageUrl = (producto) => {
   return producto.img || Default;
 };
 
-export const formatearPrecio = (precio) => {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 2,
-  }).format(precio);
-};
+export { formatPrice as formatearPrecio } from "@utils/formatMoneda";
 
 export const calcularPrecioConDescuento = (producto) => {
   const tieneOferta =

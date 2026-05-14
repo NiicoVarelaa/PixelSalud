@@ -56,8 +56,53 @@ const findPermisosByEmpleado = async (idEmpleado) => {
   return results[0] || null;
 };
 
+const findUserById = async (userId) => {
+  const sqlAdmin = `
+    SELECT idAdmin AS id, nombreAdmin AS nombre, 
+           emailAdmin AS email, rol, 'admin' as tipo
+    FROM Admins WHERE idAdmin = ? AND activo = TRUE
+  `;
+  const [admins] = await pool.query(sqlAdmin, [userId]);
+  if (admins.length > 0) {
+    return { user: admins[0], tipo: "admin" };
+  }
+
+  const sqlEmpleado = `
+    SELECT idEmpleado AS id, nombreEmpleado AS nombre, apellidoEmpleado AS apellido, 
+           emailEmpleado AS email, rol, 'empleado' as tipo
+    FROM Empleados WHERE idEmpleado = ? AND activo = TRUE
+  `;
+  const [empleados] = await pool.query(sqlEmpleado, [userId]);
+  if (empleados.length > 0) {
+    return { user: empleados[0], tipo: "empleado" };
+  }
+
+  const sqlMedico = `
+    SELECT idMedico AS id, nombreMedico AS nombre, apellidoMedico AS apellido, 
+           emailMedico AS email, 'medico' as rol, 'medico' as tipo
+    FROM Medicos WHERE idMedico = ?
+  `;
+  const [medicos] = await pool.query(sqlMedico, [userId]);
+  if (medicos.length > 0) {
+    return { user: medicos[0], tipo: "medico" };
+  }
+
+  const sqlCliente = `
+    SELECT idCliente AS id, nombreCliente AS nombre, apellidoCliente AS apellido, 
+           emailCliente AS email, rol, dni, 'cliente' as tipo
+    FROM Clientes WHERE idCliente = ?
+  `;
+  const [clientes] = await pool.query(sqlCliente, [userId]);
+  if (clientes.length > 0) {
+    return { user: clientes[0], tipo: "cliente" };
+  }
+
+  return { user: null, tipo: null };
+};
+
 module.exports = {
   findUserByEmail,
+  findUserById,
   findPermisosByAdmin,
   findPermisosByEmpleado,
 };

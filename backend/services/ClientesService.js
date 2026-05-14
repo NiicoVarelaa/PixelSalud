@@ -13,6 +13,10 @@ const obtenerClientes = async () => {
   return await clientesRepository.findAll();
 };
 
+const obtenerClientesPaginados = async (page = 1, limit = 20) => {
+  return await clientesRepository.findAllPaginated(page, limit);
+};
+
 const obtenerClientesInactivos = async () => {
   const clientes = await clientesRepository.findInactivos();
 
@@ -428,6 +432,7 @@ const eliminarDireccionCliente = async (idCliente, idDireccion, authUser) => {
 
 module.exports = {
   obtenerClientes,
+  obtenerClientesPaginados,
   obtenerClientesInactivos,
   obtenerClientePorId,
   buscarClientePorDNI,

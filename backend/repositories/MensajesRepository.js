@@ -9,6 +9,25 @@ const findAll = async () => {
   return rows;
 };
 
+const findAllPaginated = async (page = 1, limit = 20) => {
+  const offset = (page - 1) * limit;
+  const [rows] = await pool.query(
+    `SELECT idMensaje, idCliente, nombre, email, asunto, tipoConsulta, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
+     FROM MensajesClientes 
+     ORDER BY fechaEnvio DESC
+     LIMIT ? OFFSET ?`,
+    [limit, offset],
+  );
+  const [countRows] = await pool.query("SELECT COUNT(*) as total FROM MensajesClientes");
+  return {
+    mensajes: rows,
+    total: countRows[0].total,
+    page: Number(page),
+    limit: Number(limit),
+    totalPages: Math.ceil(countRows[0].total / limit),
+  };
+};
+
 const findById = async (idMensaje) => {
   const [rows] = await pool.query(
     `SELECT idMensaje, idCliente, nombre, email, asunto, tipoConsulta, mensaje, fechaEnvio, estado, leido, respuesta, fechaRespuesta, respondidoPor 
@@ -149,6 +168,7 @@ const findRecentUnread = async (limit = 5) => {
 
 module.exports = {
   findAll,
+  findAllPaginated,
   findById,
   findByEstado,
   findByClienteId,
