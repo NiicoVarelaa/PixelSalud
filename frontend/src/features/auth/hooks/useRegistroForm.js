@@ -57,7 +57,7 @@ const useRegistroForm = () => {
 
   const googleAuthUrl = useMemo(() => {
     const apiBaseUrl = normalizeApiBaseUrl(import.meta.env.VITE_API_URL);
-    return import.meta.env.VITE_GOOGLE_AUTH_URL || `${apiBaseUrl}/google-auth`;
+    return import.meta.env.VITE_GOOGLE_AUTH_URL || `${apiBaseUrl}/auth/google-auth`;
   }, []);
 
   const navigateByRole = useCallback(
@@ -91,8 +91,8 @@ const useRegistroForm = () => {
       };
 
       try {
-        await apiClient.post("/registroCliente", dataToSend);
-        const loginResponse = await apiClient.post("/login", {
+        await apiClient.post("/auth/registroCliente", dataToSend);
+        const loginResponse = await apiClient.post("/auth/login", {
           email: dataToSend.emailCliente,
           contrasenia: dataToSend.contraCliente,
         });

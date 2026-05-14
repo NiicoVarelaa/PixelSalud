@@ -87,7 +87,7 @@ app.use(`${API_PREFIX}/`, routesCarrito);
 app.use(`${API_PREFIX}/`, routesOnlines);
 app.use(`${API_PREFIX}/`, routesVentasEmpleados);
 app.use(`${API_PREFIX}/`, routesClientes);
-app.use(`${API_PREFIX}/`, routesAuth);
+app.use(`${API_PREFIX}/auth`, routesAuth);
 app.use(`${API_PREFIX}/`, routesEmpleados);
 app.use(`${API_PREFIX}/favoritos`, favoritosRoutes);
 app.use(`${API_PREFIX}/mercadopago`, routesMercadoPago);

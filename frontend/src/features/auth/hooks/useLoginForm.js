@@ -77,7 +77,7 @@ const useLoginForm = () => {
     async (data) => {
       setIsSubmitting(true);
       try {
-        const response = await apiClient.post("/login", {
+        const response = await apiClient.post("/auth/login", {
           email: data.email.toLowerCase().trim(),
           contrasenia: data.password,
         });
