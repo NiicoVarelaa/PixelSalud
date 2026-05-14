@@ -14,7 +14,7 @@ const {
   registroClienteBodySchema,
 } = require("../schemas/AuthSchemas");
 const { authLimiter, registerLimiter } = require("../config/rateLimiters");
-const { authMiddleware } = require("../middlewares/Auth");
+const authMiddleware = require("../middlewares/Auth");
 
 const router = express.Router();
 
