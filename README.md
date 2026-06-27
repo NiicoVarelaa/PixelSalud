@@ -5,6 +5,51 @@ Sistema web para gestion de farmacia con dos aplicaciones separadas:
 - `backend/`: API REST con Node.js + Express + MySQL.
 - `frontend/`: SPA con React + Vite + Tailwind.
 
+## Screenshots
+
+### 🖥️ Cliente (E-commerce)
+
+| Vista | Preview |
+|-------|---------|
+| Home | `![Home](screenshots/client-home.png)` |
+| Productos con filtros | `![Productos](screenshots/client-productos.png)` |
+| Detalle de producto | `![Detalle](screenshots/client-producto-detalle.png)` |
+| Carrito | `![Carrito](screenshots/client-carrito.png)` |
+| Checkout | `![Checkout](screenshots/client-checkout.png)` |
+| Perfil / Pedidos | `![Perfil](screenshots/client-perfil.png)` |
+
+### ⚙️ Admin
+
+| Vista | Preview |
+|-------|---------|
+| Dashboard | `![Dashboard](screenshots/admin-dashboard.png)` |
+| Productos CRUD | `![Productos Admin](screenshots/admin-productos.png)` |
+| Ventas (online / empleado) | `![Ventas](screenshots/admin-ventas.png)` |
+| Ofertas | `![Ofertas](screenshots/admin-ofertas.png)` |
+| Campañas | `![Campañas](screenshots/admin-campanas.png)` |
+| Clientes | `![Clientes](screenshots/admin-clientes.png)` |
+| Empleados (roles y permisos) | `![Empleados](screenshots/admin-empleados.png)` |
+| Cupones | `![Cupones](screenshots/admin-cupones.png)` |
+| Reportes (exportar Excel) | `![Reportes](screenshots/admin-reportes.png)` |
+| Mensajes | `![Mensajes](screenshots/admin-mensajes.png)` |
+| Auditoría | `![Auditoría](screenshots/admin-auditoria.png)` |
+
+### 👨‍💼 Empleado (POS)
+
+| Vista | Preview |
+|-------|---------|
+| Dashboard empleado | `![Dashboard Empleado](screenshots/employee-dashboard.png)` |
+| POS — Realizar venta | `![POS](screenshots/employee-pos.png)` |
+| Mis ventas | `![Mis Ventas](screenshots/employee-mis-ventas.png)` |
+
+### 🩺 Médico
+
+| Vista | Preview |
+|-------|---------|
+| Nueva receta / Mis recetas | `![Médico](screenshots/medical-recetas.png)` |
+
+---
+
 ## Que incluye el proyecto
 
 - Arquitectura backend en 4 capas: Routes -> Controllers -> Services -> Repositories.
