@@ -13,7 +13,7 @@ export const useMensajesData = () => {
     setError(null);
     try {
       const res = await apiClient.get("/mensajes");
-      setMensajes(res.data);
+      setMensajes(Array.isArray(res.data) ? res.data : res.data?.mensajes ?? []);
     } catch (error) {
       console.error("Error al cargar mensajes:", error);
       setError("Error al cargar mensajes");

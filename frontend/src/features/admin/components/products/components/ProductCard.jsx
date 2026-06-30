@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import ProductActions from "./ProductActions";
 
 const ProductCard = ({ product, onEdit, onToggleActive, formatPrice }) => {
   return (

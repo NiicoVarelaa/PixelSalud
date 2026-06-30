@@ -21,11 +21,10 @@ export const useClientesData = () => {
     setCargando(true);
     try {
       const res = await apiClient.get("/clientes");
-      if (Array.isArray(res.data)) {
-        setClientes(res.data);
-      } else {
-        setClientes([]);
-      }
+      const data = Array.isArray(res.data)
+        ? res.data
+        : res.data?.clientes ?? [];
+      setClientes(data);
     } catch (error) {
       console.error("Error al obtener clientes", error);
       if (error.response?.status !== 404) {

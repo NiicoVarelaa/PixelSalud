@@ -16,11 +16,6 @@ const obtenerEmpleadosPaginados = async (page = 1, limit = 20) => {
 
 const obtenerEmpleadosInactivos = async () => {
   const empleados = await empleadosRepository.findInactivos();
-
-  if (empleados.length === 0) {
-    throw createNotFoundError("No hay empleados dados de baja");
-  }
-
   return empleados;
 };
 

@@ -328,7 +328,28 @@ const findAllPaginated = async (page = 1, limit = 20) => {
 
 const findByClienteIdPaginated = async (idCliente, page = 1, limit = 20) => {
   const offset = (page - 1) * limit;
-  const sql = `
+
+  const idsSql = `
+    SELECT v.idVentaO
+    FROM VentasOnlines v
+    WHERE v.idCliente = ?
+    ORDER BY v.idVentaO DESC
+    LIMIT ? OFFSET ?
+  `;
+  const [idRows] = await pool.query(idsSql, [idCliente, limit, offset]);
+  const ids = idRows.map((r) => r.idVentaO);
+
+  if (ids.length === 0) {
+    return {
+      ventas: [],
+      total: 0,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: 0,
+    };
+  }
+
+  const detailsSql = `
     SELECT 
       v.idVentaO, 
       v.fechaPago, 
@@ -336,15 +357,22 @@ const findByClienteIdPaginated = async (idCliente, page = 1, limit = 20) => {
       v.metodoPago, 
       v.totalPago,
       v.estado,
-      COUNT(d.idProducto) as cantidadProductos
+      d.idProducto,
+      d.cantidad,
+      d.precioUnitario,
+      p.nombreProducto,
+      COALESCE(img.urlImagen, p.img) as img
     FROM VentasOnlines v
     JOIN DetalleVentaOnline d ON v.idVentaO = d.idVentaO
-    WHERE v.idCliente = ?
-    GROUP BY v.idVentaO
-    ORDER BY v.idVentaO DESC
-    LIMIT ? OFFSET ?
+    JOIN Productos p ON d.idProducto = p.idProducto
+    LEFT JOIN (
+      SELECT idProducto, urlImagen 
+      FROM ImagenesProductos 
+      WHERE esPrincipal = TRUE
+    ) as img ON p.idProducto = img.idProducto
+    WHERE v.idVentaO IN (?)
   `;
-  const [rows] = await pool.query(sql, [idCliente, limit, offset]);
+  const [rows] = await pool.query(detailsSql, [ids]);
 
   const [countRows] = await pool.query(
     "SELECT COUNT(DISTINCT idVentaO) as total FROM VentasOnlines WHERE idCliente = ?",

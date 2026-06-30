@@ -78,11 +78,7 @@ export const useCarritoStore = create((set, get) => ({
 
     try {
       await carritoService.aumentarCantidad(idProducto, user.id);
-      set((state) => ({
-        carrito: state.carrito.map((p) =>
-          p.idProducto === idProducto ? { ...p, cantidad: p.cantidad + 1 } : p,
-        ),
-      }));
+      await get().sincronizarCarrito();
       toast.info("Cantidad actualizada");
     } catch {
       toast.error("No se pudo actualizar la cantidad");
@@ -98,11 +94,7 @@ export const useCarritoStore = create((set, get) => ({
 
     try {
       await carritoService.disminuirCantidad(idProducto, user.id);
-      set((state) => ({
-        carrito: state.carrito.map((p) =>
-          p.idProducto === idProducto ? { ...p, cantidad: p.cantidad - 1 } : p,
-        ),
-      }));
+      await get().sincronizarCarrito();
       toast.info("Cantidad actualizada");
     } catch {
       toast.error("No se pudo actualizar la cantidad");

@@ -33,7 +33,7 @@ export const useCampanasData = () => {
 
   const getConfig = useCallback(
     () => ({
-      headers: { Auth: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` },
     }),
     [token],
   );
@@ -43,7 +43,7 @@ export const useCampanasData = () => {
     try {
       await fetchProducts();
       const response = await axios.get(`${backendUrl}/campanas`, getConfig());
-      setCampanas(response.data);
+      setCampanas(response.data.campanas || []);
     } catch (error) {
       console.error("Error al cargar campañas:", error);
       toastError("Error al cargar las campañas.");

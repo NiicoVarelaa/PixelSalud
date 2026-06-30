@@ -80,7 +80,7 @@ export const CampanasFilters = ({
         </div>
 
         <div
-          className="flex rounded-lg border border-gray-200 bg-white p-0.5 shrink-0 h-[42px]"
+          className="hidden sm:flex rounded-lg border border-gray-200 bg-white p-0.5 shrink-0 h-[42px]"
           role="group"
           aria-label="Modo de vista"
         >
@@ -112,22 +112,20 @@ export const CampanasFilters = ({
           </button>
         </div>
 
-        <div className="w-full sm:w-auto">
+        <div className="flex w-full gap-3 sm:w-auto">
           <button
             onClick={() => exportarCampanasCSV(campanasFiltradas)}
-            className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 px-3 sm:px-4 py-2.5 rounded-xl transition-all border border-gray-200 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer whitespace-nowrap h-[42px]"
+            className="flex flex-1 items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 px-3 sm:px-4 py-2.5 rounded-xl transition-all border border-gray-200 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer whitespace-nowrap h-[42px]"
             title="Exportar campañas"
             aria-label="Exportar campañas a CSV"
           >
             <Download size={18} />
             <span className="text-sm font-medium hidden sm:inline">Exportar</span>
           </button>
-        </div>
 
-        <div className="w-full sm:w-auto">
           <button
             onClick={onCrearCampana}
-            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm shadow-green-600/20 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer whitespace-nowrap h-[42px]"
+            className="flex flex-1 items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm shadow-green-600/20 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer whitespace-nowrap h-[42px]"
             title="Nueva Campaña"
             aria-label="Nueva Campaña"
           >

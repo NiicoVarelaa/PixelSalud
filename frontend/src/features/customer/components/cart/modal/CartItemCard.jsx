@@ -56,7 +56,7 @@ const CartItemCard = ({
 
           <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
             <span className="font-semibold text-primary-600 text-base leading-none">
-              ${formatPrice(unitPrice)}
+              {formatPrice(unitPrice)}
             </span>
 
             {showDiscountBadge && (
@@ -118,7 +118,7 @@ const CartItemCard = ({
       <div className="mt-2.5 pt-2.5 sm:mt-3 sm:pt-3 border-t border-gray-100 flex justify-between items-center">
         <span className="text-[13px] sm:text-sm text-gray-600">Subtotal:</span>
         <span className="font-semibold text-gray-900 text-base sm:text-lg">
-          ${formatPrice(subtotal)}
+          {formatPrice(subtotal)}
         </span>
       </div>
     </motion.div>

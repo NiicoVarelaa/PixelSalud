@@ -7,6 +7,7 @@ import { Receipt } from "lucide-react";
 import TicketVenta from "@features/admin/components/sales/shared/TicketVenta";
 import VentasFilters from "./panels/VentasFilters";
 import VentasTableRow from "./panels/VentasTableRow";
+import VentasMobileList from "./panels/VentasMobileList";
 import VentasPagination from "./panels/VentasPagination";
 import { ConfirmAnularDialog, ConfirmReactivarDialog, DetalleModal } from "./dialogs";
 
@@ -61,7 +62,11 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
       if (url === "personal") finalUrl = `/ventasEmpleados/${user.idEmpleado || user.id}`;
       if (url === "general") finalUrl = "/ventasEmpleados";
       const response = await apiClient.get(finalUrl);
-      setVentas(Array.isArray(response.data) ? response.data : []);
+      setVentas(
+        Array.isArray(response.data)
+          ? response.data
+          : response.data?.results ?? [],
+      );
     } catch {
       setVentas([]);
     } finally {
@@ -139,29 +144,40 @@ const EmpleadoListaVentas = ({ endpoint, title }) => {
 
       <div className="flex-1 min-h-0">
         {loading ? <Skeleton /> : ventasFiltradas.length === 0 ? <EmptyState search={busqueda} /> : (
-          <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[860px] text-sm">
-                <thead className="border-b border-gray-100 bg-gray-50/50">
-                  <tr>
-                    {["ID", "Empleado", "Fecha", "Hora", "Método", "Total", "Estado", "Acciones"].map((col, i) => (
-                      <th key={col} className={`px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 ${i === 5 ? "text-right" : i >= 6 ? "text-center" : "text-left"}`}>{col}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {ventasActuales.map((venta) => (
-                    <VentasTableRow key={venta.idVentaE} venta={venta} permisos={permisos}
-                      onVerDetalle={(id) => setDetalleModal({ show: true, idVenta: id })}
-                      onImprimir={(id) => setTicketModal({ show: true, idVenta: id })}
-                      onEditar={(id) => navigate(`/panelempleados/editar-venta/${id}`)}
-                      onAnular={(id) => setAnularModal({ show: true, idVenta: id })}
-                      onReactivar={(id) => setReactivarModal({ show: true, idVenta: id })} />
-                  ))}
-                </tbody>
-              </table>
+          <>
+            <div className="lg:hidden">
+              <VentasMobileList ventas={ventasActuales} permisos={permisos}
+                onVerDetalle={(id) => setDetalleModal({ show: true, idVenta: id })}
+                onImprimir={(id) => setTicketModal({ show: true, idVenta: id })}
+                onEditar={(id) => navigate(`/panelempleados/editar-venta/${id}`)}
+                onAnular={(id) => setAnularModal({ show: true, idVenta: id })}
+                onReactivar={(id) => setReactivarModal({ show: true, idVenta: id })} />
             </div>
-          </div>
+
+            <div className="hidden lg:block overflow-hidden rounded-2xl border border-gray-100 bg-white">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[860px] text-sm">
+                  <thead className="border-b border-gray-100 bg-gray-50/50">
+                    <tr>
+                      {["ID", "Empleado", "Fecha", "Hora", "Método", "Total", "Estado", "Acciones"].map((col, i) => (
+                        <th key={col} className={`px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 ${i === 5 ? "text-right" : i >= 6 ? "text-center" : "text-left"}`}>{col}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {ventasActuales.map((venta) => (
+                      <VentasTableRow key={venta.idVentaE} venta={venta} permisos={permisos}
+                        onVerDetalle={(id) => setDetalleModal({ show: true, idVenta: id })}
+                        onImprimir={(id) => setTicketModal({ show: true, idVenta: id })}
+                        onEditar={(id) => navigate(`/panelempleados/editar-venta/${id}`)}
+                        onAnular={(id) => setAnularModal({ show: true, idVenta: id })}
+                        onReactivar={(id) => setReactivarModal({ show: true, idVenta: id })} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         )}
       </div>
 

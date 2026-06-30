@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { sucursalesData } from "@data/sucursalesData";
 import apiClient from "@utils/apiClient";
 import { parsePriceFromString } from "@utils/priceUtils";
-import { formatCurrency } from "@utils/formatMoneda";
+import { formatCurrency, formatPrice } from "@utils/formatMoneda";
 
 export const useCheckout = () => {
   const navigate = useNavigate();
@@ -227,7 +227,7 @@ export const useCheckout = () => {
     selectedBranchId,
     subtotal,
     total,
-    formatCurrency,
+    formatPrice,
     handleApplyDiscount,
     handleBackToPersonalData,
     handleBackToPickup,

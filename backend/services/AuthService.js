@@ -173,14 +173,13 @@ const refreshAccessToken = async (refreshToken) => {
     throw createUnauthorizedError("Refresh token inválido o expirado");
   }
 
-  const user = await authRepository.findUserById(storedToken.idUsuario);
+  const { user, tipo } = await authRepository.findUserById(storedToken.idUsuario);
   if (!user) {
     throw createUnauthorizedError("Usuario no encontrado");
   }
 
   await refreshTokensRepository.revokeRefreshToken(tokenHash);
 
-  const tipo = user.rol;
   const permisos = await buildPermisosByTipo(tipo, user.id);
   const role = user.rol || tipo;
 

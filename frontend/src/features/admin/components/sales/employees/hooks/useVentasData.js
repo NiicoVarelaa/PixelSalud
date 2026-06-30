@@ -13,7 +13,9 @@ export const useVentasData = () => {
     try {
       setCargando(true);
       const res = await apiClient.get("/ventasEmpleados/admin/listado");
-      const data = Array.isArray(res.data) ? res.data : [];
+      const data = Array.isArray(res.data)
+        ? res.data
+        : res.data?.results ?? [];
       setVentas(data);
     } catch (error) {
       console.error("Error al obtener ventas", error);

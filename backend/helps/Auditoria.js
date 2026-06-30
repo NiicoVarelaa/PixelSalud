@@ -69,6 +69,10 @@ const registrarAuditoria = async (datos, req = null) => {
 
     const datosCompletos = {
       ...datos,
+      nombreUsuario:
+        datos.nombreUsuario || req?.user?.nombre || null,
+      emailUsuario:
+        datos.emailUsuario || req?.user?.email || null,
       ip,
       userAgent,
     };

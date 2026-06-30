@@ -33,7 +33,9 @@ const DashboardEmpleado = () => {
     try {
       const idEmpleado = user?.idEmpleado || user?.id;
       const res = await apiClient.get(`/ventasEmpleados/${idEmpleado}`);
-      const ventas = Array.isArray(res.data) ? res.data : [];
+      const ventas = Array.isArray(res.data)
+        ? res.data
+        : res.data?.results ?? [];
 
       const hoy = new Date();
       hoy.setHours(0, 0, 0, 0);

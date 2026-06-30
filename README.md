@@ -158,16 +158,3 @@ Backend:
 - `backend/docs/AUDITORIA.md`
 - `backend/docs/INTEGRACION_AUDITORIA.md`
 
-Frontend:
-
-- `frontend/README.md`
-
-## Estado actual para portfolio
-
-- Frontend con lint pasando.
-- Backend con `verify-exports` pasando.
-- Variables sensibles fuera de control de versiones (usar siempre `.env`).
-
-## Nota
-
-El backend actualmente no tiene suite de tests automatizados configurada por defecto.

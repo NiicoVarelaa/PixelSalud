@@ -77,7 +77,7 @@ const AdminProductos = () => {
   const axiosConfig = useMemo(
     () => ({
       headers: {
-        Auth: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     }),
     [token],

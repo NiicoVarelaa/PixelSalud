@@ -58,12 +58,12 @@ export const EmpleadosFilters = ({
         <div className="w-full sm:w-auto">
           <button
             onClick={onCrearEmpleado}
-            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm shadow-green-600/20 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer whitespace-nowrap h-[42px]"
+            className="flex w-full sm:w-auto items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-xl transition-all shadow-sm shadow-green-600/20 focus-visible:ring-4 focus-visible:ring-green-500/30 outline-none cursor-pointer whitespace-nowrap h-[42px]"
             title="Nuevo Empleado"
             aria-label="Nuevo Empleado"
           >
             <Plus size={18} />
-            <span className="text-sm font-medium hidden sm:inline">Nuevo empleado</span>
+            <span className="text-sm font-medium">Nuevo empleado</span>
           </button>
         </div>
       </div>

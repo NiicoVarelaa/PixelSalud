@@ -1,15 +1,14 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCarritoStore } from "@store/useCarritoStore";
 import { useAuthStore } from "@store/useAuthStore";
 import { CheckCircle, Clock, Loader2, ShoppingBag, Truck } from "lucide-react";
 
 const CheckoutSuccess = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const vaciarCarritoLocal = useCarritoStore((state) => state.vaciarCarrito);
   const { token } = useAuthStore();
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(5);
   const [status, setStatus] = useState("approved");
 
   const targetPath = "/perfil/pedidos";
@@ -31,7 +30,7 @@ const CheckoutSuccess = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          auth: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -45,7 +44,8 @@ const CheckoutSuccess = () => {
   }, [token]);
 
   useEffect(() => {
-    const paymentStatus = searchParams.get("status") || "approved";
+    const params = new URLSearchParams(window.location.search);
+    const paymentStatus = params.get("status") || "approved";
     setStatus(paymentStatus);
 
     vaciarCarritoLocal();
@@ -54,19 +54,19 @@ const CheckoutSuccess = () => {
       clearCartInDB();
     }
 
-    let currentCount = 3;
-    const timer = setInterval(() => {
-      currentCount -= 1;
-      setCountdown(currentCount);
+    let secondsLeft = 5;
+    const interval = setInterval(() => {
+      secondsLeft -= 1;
+      setCountdown(secondsLeft);
 
-      if (currentCount <= 0) {
-        clearInterval(timer);
+      if (secondsLeft <= 0) {
+        clearInterval(interval);
         navigate(targetPath, { replace: true });
       }
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [searchParams, vaciarCarritoLocal, token, clearCartInDB, navigate]);
+    return () => clearInterval(interval);
+  }, [vaciarCarritoLocal, token, clearCartInDB, navigate]);
 
   const isApproved = status === "approved";
 

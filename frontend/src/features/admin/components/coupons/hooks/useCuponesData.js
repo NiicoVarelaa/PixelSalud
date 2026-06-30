@@ -13,7 +13,8 @@ export const useCuponesData = () => {
     try {
       setCargando(true);
       const response = await apiClient.get("/cupones");
-      setCupones(response.data.data || []);
+      const data = response.data.data;
+      setCupones(Array.isArray(data) ? data : data?.cupones ?? []);
     } catch (error) {
       toast.error("Error al cargar cupones");
       console.error("Error:", error);
@@ -38,7 +39,11 @@ export const useCuponesData = () => {
     try {
       setCargandoClientes(true);
       const response = await apiClient.get("/clientes");
-      setClientes(Array.isArray(response.data) ? response.data : []);
+      setClientes(
+        Array.isArray(response.data)
+          ? response.data
+          : response.data?.clientes ?? [],
+      );
     } catch (error) {
       toast.error("Error al cargar clientes para envio de cupones");
       console.error("Error:", error);

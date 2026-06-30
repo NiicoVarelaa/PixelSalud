@@ -62,7 +62,7 @@ const CheckoutPersonalDataStep = ({ defaultValues, onContinue }) => {
   };
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
       <header className="border-b border-slate-100 bg-slate-50 p-5 md:p-6">
         <h2 className="text-xl font-bold text-slate-900">Datos personales</h2>
         <p className="mt-1 text-sm text-slate-600">

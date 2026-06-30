@@ -60,7 +60,7 @@ const HistoryTab = ({ idProducto }) => {
       try {
         const res = await axios.get(
           `${backendUrl}/historial-ofertas/producto/${idProducto}`,
-          { headers: { Auth: `Bearer ${token}` } },
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         setHistorial(res.data);
       } catch (error) {

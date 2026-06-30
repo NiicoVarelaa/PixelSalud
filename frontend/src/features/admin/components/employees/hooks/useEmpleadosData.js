@@ -21,12 +21,9 @@ export const useEmpleadosData = () => {
     setCargando(true);
     try {
       const resActivos = await apiClient.get("/empleados");
-      let activos = [];
-      if (resActivos.data.results && Array.isArray(resActivos.data.results)) {
-        activos = resActivos.data.results;
-      } else if (Array.isArray(resActivos.data)) {
-        activos = resActivos.data;
-      }
+      let activos = Array.isArray(resActivos.data)
+        ? resActivos.data
+        : resActivos.data?.empleados ?? [];
 
       let inactivos = [];
       try {

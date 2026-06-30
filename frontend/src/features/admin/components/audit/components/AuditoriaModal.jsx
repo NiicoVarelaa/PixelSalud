@@ -1,15 +1,16 @@
-import { useEffect, useRef, createElement } from "react";
+import { useEffect, useRef, useState, createElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useModalLock } from "@hooks/useModalLock";
 import {
   X,
   User,
   Clock,
-  Monitor,
   Shield,
   FileText,
-  ArrowLeftRight,
   Hash,
+  Network,
+  ChevronDown,
+  MapPin,
 } from "lucide-react";
 import {
   formatearFecha,
@@ -18,10 +19,23 @@ import {
   formatearEvento,
 } from "../utils/helpers";
 
-const DataRow = ({ label, children, icon }) => (
-  <div className="flex items-start gap-3 py-2.5">
+const SectionTitle = ({ icon, children }) => (
+  <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+    {createElement(icon, { size: 12, "aria-hidden": "true" })}
+    {children}
+  </p>
+);
+
+const InfoCard = ({ children }) => (
+  <div className="rounded-xl border border-gray-100 bg-white divide-y divide-gray-100">
+    {children}
+  </div>
+);
+
+const InfoRow = ({ label, value, icon, valueClass = "text-gray-900" }) => (
+  <div className="flex items-center gap-3 px-4 py-3">
     {icon && (
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gray-100 mt-px">
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gray-100">
         {createElement(icon, { size: 12, className: "text-gray-500" })}
       </div>
     )}
@@ -29,32 +43,42 @@ const DataRow = ({ label, children, icon }) => (
       <span className="block text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-0.5">
         {label}
       </span>
-      <span className="block text-sm font-medium text-gray-800 break-words">
-        {children}
+      <span className={`block text-sm font-medium break-words ${valueClass}`}>
+        {value}
       </span>
     </div>
   </div>
 );
 
-const JsonBlock = ({ title, data, Icon, accentClass }) => {
+const CollapsibleJson = ({ data, title }) => {
+  const [open, setOpen] = useState(false);
   if (!data) return null;
   let jsonStr;
   try {
-    jsonStr = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+    jsonStr =
+      typeof data === "string" ? data : JSON.stringify(data, null, 2);
   } catch {
     jsonStr = String(data);
   }
+
   return (
-    <div className="flex-1 min-w-0">
-      <div
-        className={`mb-2 flex items-center gap-1.5 text-xs font-semibold ${accentClass}`}
+    <div className="border-t border-gray-100">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between px-4 py-3 text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
       >
-        {createElement(Icon, { size: 13, "aria-hidden": "true" })}
-        {title}
-      </div>
-      <pre className="overflow-x-auto rounded-xl border border-gray-200 bg-gray-50/80 px-3.5 py-3 text-xs leading-relaxed text-gray-700 font-mono max-h-60">
-        {jsonStr}
-      </pre>
+        <span>{title}</span>
+        <ChevronDown
+          size={14}
+          className={`transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <pre className="overflow-x-auto bg-gray-50 px-4 py-3 text-xs leading-relaxed text-gray-700 font-mono max-h-48 border-t border-gray-100">
+          {jsonStr}
+        </pre>
+      )}
     </div>
   );
 };
@@ -104,28 +128,26 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
-            className="relative flex w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl max-h-[92vh]"
+            className="relative flex w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-w-lg sm:rounded-2xl max-h-[92vh]"
           >
             <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 shrink-0">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-600 shadow-sm shadow-green-600/25">
-                  <Shield
-                    size={18}
-                    className="text-white"
-                    aria-hidden="true"
-                  />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-900">
+                  <Shield size={16} className="text-white" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
                   <h2
                     id="auditoria-modal-title"
                     className="text-base font-semibold text-gray-900"
                   >
-                    Detalle de auditoria
-                  </h2>
-                  <p className="text-xs text-gray-500 truncate">
-                    Registro #{auditoria.idAuditoria}{" "}
-                    <span className="text-gray-300">·</span>{" "}
                     {formatearEvento(auditoria.evento)}
+                  </h2>
+                  <p className="text-xs text-gray-500">
+                    {auditoria.fechaHora
+                      ? formatearFecha(auditoria.fechaHora)
+                      : ""}
+                    <span className="text-gray-300 mx-1.5">·</span>
+                    #{auditoria.idAuditoria}
                   </p>
                 </div>
               </div>
@@ -133,7 +155,7 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
                 ref={closeRef}
                 type="button"
                 onClick={onClose}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
                 aria-label="Cerrar modal"
               >
                 <X size={17} />
@@ -142,110 +164,99 @@ export const AuditoriaModal = ({ auditoria, isOpen, onClose }) => {
 
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
               <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${getEventoBadgeColor(auditoria.evento)}`}
-                >
-                  {formatearEvento(auditoria.evento)}
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-lg bg-green-50 border border-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
-                  {auditoria.modulo}
-                </span>
+                {auditoria.modulo && (
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-gray-100 border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-700 capitalize">
+                    {auditoria.modulo}
+                  </span>
+                )}
                 {auditoria.accion && (
-                  <span className="inline-flex items-center gap-1 rounded-lg bg-amber-50 border border-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-amber-50 border border-amber-200 px-2.5 py-1 text-xs font-medium text-amber-700">
                     {auditoria.accion}
                   </span>
                 )}
               </div>
 
-              {(auditoria.descripcion || auditoria.entidadAfectada) && (
-                <div>
-                  <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                    <FileText size={12} aria-hidden="true" />
-                    Informacion general
+              {auditoria.descripcion && (
+                <div className="rounded-xl bg-blue-50 border border-blue-100 px-4 py-3">
+                  <p className="text-sm font-medium text-blue-900">
+                    {auditoria.descripcion}
                   </p>
-                  <div className="rounded-xl border border-gray-100 divide-y divide-gray-100">
-                    {auditoria.descripcion && (
-                      <DataRow label="Descripcion">
-                        {auditoria.descripcion}
-                      </DataRow>
-                    )}
-                    <DataRow label="Fecha y hora" icon={Clock}>
-                      {formatearFecha(auditoria.fechaHora)}
-                    </DataRow>
-                    {auditoria.entidadAfectada && (
-                      <DataRow label="Entidad" icon={Hash}>
-                        {auditoria.entidadAfectada}
-                        {auditoria.idEntidad
-                          ? ` #${auditoria.idEntidad}`
-                          : ""}
-                      </DataRow>
-                    )}
-                  </div>
                 </div>
               )}
 
               <div>
-                <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  <User size={12} aria-hidden="true" />
-                  Usuario
-                </p>
-                <div className="rounded-xl border border-gray-100 divide-y divide-gray-100">
-                  <DataRow label="Nombre" icon={User}>
-                    {auditoria.nombreUsuario || "N/A"}
-                  </DataRow>
-                  <DataRow label="Email">
-                    {auditoria.emailUsuario || "N/A"}
-                  </DataRow>
-                  <DataRow label="Rol" icon={Shield}>
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getRolBadgeColor(auditoria.tipoUsuario)}`}
-                    >
-                      {auditoria.tipoUsuario}
-                      {auditoria.idUsuario ? ` #${auditoria.idUsuario}` : ""}
-                    </span>
-                  </DataRow>
-                </div>
+                <SectionTitle icon={User}>Usuario</SectionTitle>
+                <InfoCard>
+                  <InfoRow
+                    label="Nombre"
+                    value={auditoria.nombreUsuario || "Sistema"}
+                    icon={User}
+                    valueClass={
+                      auditoria.nombreUsuario
+                        ? "text-gray-900"
+                        : "text-gray-400 italic"
+                    }
+                  />
+                  {auditoria.emailUsuario && (
+                    <InfoRow label="Email" value={auditoria.emailUsuario} />
+                  )}
+                  <InfoRow
+                    label="Rol"
+                    icon={Shield}
+                    value={
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getRolBadgeColor(auditoria.tipoUsuario)}`}
+                      >
+                        {auditoria.tipoUsuario}
+                        {auditoria.idUsuario ? ` #${auditoria.idUsuario}` : ""}
+                      </span>
+                    }
+                  />
+                </InfoCard>
               </div>
+
+              {auditoria.entidadAfectada && (
+                <div>
+                  <SectionTitle icon={Hash}>Entidad afectada</SectionTitle>
+                  <InfoCard>
+                    <InfoRow
+                      label="Entidad"
+                      value={`${auditoria.entidadAfectada}${auditoria.idEntidad ? ` #${auditoria.idEntidad}` : ""}`}
+                      icon={FileText}
+                    />
+                  </InfoCard>
+                </div>
+              )}
 
               {(auditoria.datosAnteriores || auditoria.datosNuevos) && (
                 <div>
-                  <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                    <ArrowLeftRight size={12} aria-hidden="true" />
-                    Cambios
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <JsonBlock
+                  <SectionTitle icon={FileText}>Cambios</SectionTitle>
+                  <InfoCard>
+                    <CollapsibleJson
                       title="Datos anteriores"
                       data={auditoria.datosAnteriores}
-                      Icon={FileText}
-                      accentClass="text-orange-600"
                     />
-                    <JsonBlock
+                    <CollapsibleJson
                       title="Datos nuevos"
                       data={auditoria.datosNuevos}
-                      Icon={FileText}
-                      accentClass="text-green-600"
                     />
-                  </div>
+                  </InfoCard>
                 </div>
               )}
 
-              <div>
-                <p className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  <Monitor size={12} aria-hidden="true" />
-                  Metadata
-                </p>
-                <div className="rounded-xl border border-gray-100 divide-y divide-gray-100">
-                  <DataRow label="Direccion IP" icon={Monitor}>
-                    {auditoria.ip || "N/A"}
-                  </DataRow>
-                  <DataRow label="User Agent">
-                    <span className="text-gray-500 break-all text-xs">
-                      {auditoria.userAgent || "N/A"}
-                    </span>
-                  </DataRow>
+              {auditoria.ip && (
+                <div>
+                  <SectionTitle icon={Network}>Origen</SectionTitle>
+                  <InfoCard>
+                    <InfoRow
+                      label="Direccion IP"
+                      value={auditoria.ip}
+                      icon={MapPin}
+                      valueClass="text-xs font-mono text-gray-500"
+                    />
+                  </InfoCard>
                 </div>
-              </div>
+              )}
             </div>
 
             <div className="flex justify-end border-t border-gray-100 px-5 py-3.5 shrink-0">

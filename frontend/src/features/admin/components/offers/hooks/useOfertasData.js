@@ -33,7 +33,7 @@ export const useOfertasData = () => {
 
   const getConfig = useCallback(
     () => ({
-      headers: { Auth: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` },
     }),
     [token],
   );

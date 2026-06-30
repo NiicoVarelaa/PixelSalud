@@ -1,4 +1,4 @@
-import { ShoppingCart, Receipt, DollarSign, CreditCard, X } from "lucide-react";
+import { ShoppingCart, Receipt, DollarSign, CreditCard, Trash2, X } from "lucide-react";
 import { formatMoneda } from "@features/employee/utils/ventas.utils";
 
 const METODOS_PAGO = [
@@ -9,7 +9,7 @@ const METODOS_PAGO = [
 
 const TicketPanel = ({ carrito, metodoPago, setMetodoPago, total, finalizarVenta, onVaciar, onVaciarItem }) => (
   <div className="rounded-2xl border border-gray-100 bg-white flex flex-col min-h-0 flex-1">
-    <div className="flex items-center justify-between gap-3 p-5 pb-3">
+    <div className="flex items-center justify-between gap-3 px-5 py-4">
       <h2 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
         <Receipt size={16} className="text-gray-400" /> Ticket
         {carrito.length > 0 && (
@@ -18,9 +18,8 @@ const TicketPanel = ({ carrito, metodoPago, setMetodoPago, total, finalizarVenta
       </h2>
       {carrito.length > 0 && (
         <button type="button" onClick={onVaciar}
-          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-red-500 hover:bg-red-50 cursor-pointer transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-          Vaciar
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-red-500 hover:bg-red-50 cursor-pointer transition-colors">
+          <Trash2 size={12} /> Vaciar
         </button>
       )}
     </div>
@@ -32,43 +31,33 @@ const TicketPanel = ({ carrito, metodoPago, setMetodoPago, total, finalizarVenta
             <ShoppingCart size={26} className="text-gray-400" />
           </div>
           <p className="text-sm font-semibold text-gray-700">Ticket vacío</p>
-          <p className="mt-1 text-xs text-gray-400 max-w-xs">Busca un producto en el panel izquierdo y agrégalo al ticket</p>
+          <p className="mt-1 text-xs text-gray-400 max-w-xs">Buscá un producto y agregalo al ticket</p>
         </div>
       ) : (
-        <table className="w-full">
-          <thead className="sticky top-0 z-10">
-            <tr className="border-b border-gray-100 bg-gray-50/80 backdrop-blur-sm">
-              <th className="px-4 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400">Producto</th>
-              <th className="px-4 py-2.5 text-center text-[10px] font-bold uppercase tracking-wider text-gray-400 w-16">Cant</th>
-              <th className="px-4 py-2.5 text-right text-[10px] font-bold uppercase tracking-wider text-gray-400 w-24">Subtotal</th>
-              <th className="px-4 py-2.5 w-10"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {carrito.map((item, index) => (
-              <tr key={index} className="group hover:bg-gray-50/50 transition-colors">
-                <td className="px-4 py-2.5">
-                  <p className="text-sm font-medium text-gray-800 truncate max-w-[200px]">{item.nombreProducto}</p>
-                  <p className="text-xs text-gray-400">
-                    {formatMoneda(item.precioUnitario)} c/u
-                    {item.recetaFisica && (
-                      <span className="ml-1.5 inline-flex items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">Rx</span>
-                    )}
-                  </p>
-                </td>
-                <td className="px-4 py-2.5 text-center"><span className="text-sm font-semibold text-gray-700">{item.cantidad}</span></td>
-                <td className="px-4 py-2.5 text-right"><span className="text-sm font-semibold text-gray-800">{formatMoneda(item.cantidad * item.precioUnitario)}</span></td>
-                <td className="px-4 py-2.5">
-                  <button type="button" onClick={() => onVaciarItem(index)}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-300 hover:bg-red-50 hover:text-red-500 cursor-pointer transition-colors opacity-0 group-hover:opacity-100"
-                    aria-label="Eliminar producto">
-                    <X size={14} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ul className="divide-y divide-gray-50">
+          {carrito.map((item, index) => (
+            <li key={index} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors group">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-800 truncate">{item.nombreProducto}</p>
+                <div className="mt-0.5 flex items-center gap-2">
+                  <span className="text-xs text-gray-400 tabular-nums">{formatMoneda(item.precioUnitario)} c/u</span>
+                  {item.recetaFisica && (
+                    <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">Rx</span>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="inline-flex items-center justify-center h-7 min-w-7 rounded-lg bg-gray-100 px-2 text-xs font-bold text-gray-700 tabular-nums">{item.cantidad}</span>
+                <span className="text-sm font-semibold text-gray-800 tabular-nums w-20 text-right">{formatMoneda(item.cantidad * item.precioUnitario)}</span>
+              </div>
+              <button type="button" onClick={() => onVaciarItem(index)}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-gray-300 hover:bg-red-50 hover:text-red-500 cursor-pointer transition-colors"
+                aria-label="Eliminar producto">
+                <X size={14} />
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
 

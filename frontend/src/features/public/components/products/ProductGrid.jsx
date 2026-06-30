@@ -36,7 +36,7 @@ export const ProductGrid = ({
 
     try {
       const res = await axios.get(`${apiUrl}/recetas/cliente/${user.dni}`, {
-        headers: { Auth: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (res.data && res.data.length > 0) {
