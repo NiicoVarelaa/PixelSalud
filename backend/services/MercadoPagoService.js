@@ -173,7 +173,7 @@ const createOrder = async ({
     back_urls: {
       success: `${frontendUrl}/checkout/success`,
       failure: `${frontendUrl}/checkout/failure`,
-      pending: `${frontendUrl}/checkout/pending`,
+      pending: `${frontendUrl}/checkout/failure?status=pending`,
     },
     statement_descriptor: "PIXELSTORE",
     external_reference: externalReference,

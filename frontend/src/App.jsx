@@ -29,6 +29,7 @@ const NewsletterBaja = lazyLoad(() => import("@features/public/pages").then((m) 
 
 const Checkout = lazyLoad(() => import("@features/customer").then((m) => ({ default: m.CheckoutPage })));
 const CheckoutSuccess = lazyLoad(() => import("@features/customer").then((m) => ({ default: m.CheckoutSuccess })));
+const CheckoutFailure = lazyLoad(() => import("@features/customer").then((m) => ({ default: m.CheckoutFailure })));
 
 const Login = lazyLoad(() => import("@features/auth/pages").then((m) => ({ default: m.LoginPage })));
 const Registro = lazyLoad(() => import("@features/auth/pages").then((m) => ({ default: m.RegistroPage })));
@@ -90,6 +91,7 @@ const App = () => {
           <Route path="productos/:idProducto" element={<SuspensedRoute><Producto /></SuspensedRoute>} />
           <Route path="checkout" element={<SuspensedRoute><Checkout /></SuspensedRoute>} />
           <Route path="checkout/success" element={<SuspensedRoute><CheckoutSuccess /></SuspensedRoute>} />
+          <Route path="checkout/failure" element={<SuspensedRoute><CheckoutFailure /></SuspensedRoute>} />
           <Route path="sobreNosotros" element={<SuspensedRoute><SobreNosotros /></SuspensedRoute>} />
           <Route path="contacto" element={<SuspensedRoute><Contacto /></SuspensedRoute>} />
           <Route path="sucursales" element={<SuspensedRoute><Sucursales /></SuspensedRoute>} />
