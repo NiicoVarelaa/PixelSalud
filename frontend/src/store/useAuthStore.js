@@ -6,6 +6,7 @@ export const useAuthStore = create(
     (set) => ({
       user: null,
       token: null,
+      refreshToken: null,
       loginUser: (data) => {
         set({
           user: {
@@ -14,20 +15,24 @@ export const useAuthStore = create(
             apellido: data.apellido,
             email: data.email,
             rol: data.rol,
-            permisos: data.permisos, 
+            permisos: data.permisos,
             tipo: data.tipo,
             dni: data.dni,
           },
           token: data.token,
+          refreshToken: data.refreshToken || null,
         });
       },
+      updateTokens: (token, refreshToken) => {
+        set({ token, refreshToken: refreshToken || null });
+      },
       logoutUser: () => {
-        set({ user: null, token: null });
+        set({ user: null, token: null, refreshToken: null });
       },
     }),
     {
       name: "auth",
-      getStorage: () => sessionStorage,
-    }
-  )
+      getStorage: () => localStorage,
+    },
+  ),
 );

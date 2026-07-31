@@ -1,52 +1,37 @@
-
-import Fragancias from '../assets/Fragancias.webp';
-import Belleza from '../assets/Belleza.webp';
-import Dermocosmetica from '../assets/Dermocosmetica.webp';
-import MedConReceta from '../assets/MedConReceta.webp';
-import MedVentaLibre from '../assets/MedVentaLibre.webp';
-import CuidadoPersonal from '../assets/CuidadoPersonal.webp';
-import Bebes from '../assets/Bebes.webp';
-import CyberMonday from '../assets/CyberMonday.webp';
+import { getCloudinaryUrl } from "../utils/cloudinary";
 
 export const CATEGORIAS_DATA = [
-  { 
-    text: 'Fragancias', 
-    image: Fragancias, 
-    link: 'Fragancias', 
-    isPopular: true 
+  {
+    text: "Fragancias",
+    image: getCloudinaryUrl("Fragancias_zkd7fd.webp"),
+    link: "Fragancias",
+    isPopular: true,
   },
-  { 
-    text: 'Belleza', 
-    image: Belleza, 
-    link: 'Belleza', 
-    isTrending: true
+  {
+    text: "Belleza",
+    image: getCloudinaryUrl("Belleza_vqqnpf.webp"),
+    link: "Belleza",
+    isTrending: true,
   },
-  { 
-    text: 'Dermocosmética', 
-    image: Dermocosmetica, 
-    link: 'Dermocosmética', 
-    isOffer: true 
+  {
+    text: "Dermocosmética",
+    image: getCloudinaryUrl("Dermocosmetica_okgerc.webp"),
+    link: "Dermocosmética",
+    isOffer: true,
   },
-  { 
-    text: 'Medicamentos con Receta', 
-    image: MedConReceta, 
-    link: 'Medicamentos con Receta', 
-    isNew: true 
+  {
+    text: "Cuidado Personal",
+    image: getCloudinaryUrl("CuidadoPersonal_sto0at.webp"),
+    link: "Cuidado Personal",
   },
-  { 
-    text: 'Medicamentos Venta Libre', 
-    image: MedVentaLibre, 
-    link: 'Medicamentos Venta Libre', 
-
+  {
+    text: "Bebés y Niños",
+    image: getCloudinaryUrl("Bebes_ien4ad.webp"),
+    link: "Bebes y Niños",
   },
-  { 
-    text: 'Cuidado Personal', 
-    image: CuidadoPersonal, 
-    link: 'Cuidado Personal', 
-  },
-  { 
-    text: 'Bebés y Niños', 
-    image: Bebes, 
-    link: 'Bebes y Niños',
+  {
+    text: "Nutrición y Deportes",
+    image: getCloudinaryUrl("NutriciíonDeportes_wsz2fy.webp"),
+    link: "Nutrición y Deportes",
   },
 ];

@@ -1,0 +1,9 @@
+export { OfertasFilters } from "./filters/OfertasFilters";
+export { OfertasTable } from "./table";
+export { Pagination } from "./Pagination/Pagination";
+export { ModalDescuento } from "./modals/ModalDescuento";
+export { ModalAgregarOferta } from "./modals/ModalAgregarOferta";
+export { ConfirmQuitarOfertaDialog } from "./modals/ConfirmQuitarOfertaDialog";
+export { ConfirmOfertaDialog } from "./modals/ConfirmOfertaDialog";
+export { OfertaDetail } from "./modals/OfertaDetail";
+export { OfertasStatsCards } from "./stats/StatsCards";

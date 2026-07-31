@@ -1,27 +1,9 @@
 import { create } from "zustand";
-import axios from "axios";
+import apiClient from "@utils/apiClient";
 import { useProductStore } from "./useProductStore";
-
-const API_URL = "http://localhost:5000/productos";
-
-// Función de utilidad para parsear el precio de forma segura
-const cleanAndParsePrice = (price) => {
-  if (typeof price === "number") return price;
-  if (typeof price !== "string") return 0;
-
-  // Asume formato regional (ej: 1.000,00). Limpia símbolos y maneja la coma decimal.
-  let cleaned = price.replace(/[^0-9,.]/g, "");
-
-  if (cleaned.includes(",")) {
-    cleaned = cleaned.replace(/\./g, "").replace(",", ".");
-  }
-
-  const parsed = parseFloat(cleaned);
-  return isNaN(parsed) ? 0 : parsed;
-};
+import { cleanAndParsePrice } from "@utils/priceUtils";
 
 export const useProductDetailStore = create((set) => ({
-  // Estado inicial
   producto: null,
   relatedProducts: [],
   precioOriginal: null,
@@ -32,10 +14,10 @@ export const useProductDetailStore = create((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const res = await axios.get(`${API_URL}/${id}`);
-      const productoData = res.data;      
+      const res = await apiClient.get(`/productos/${id}`);
+      const productoData = res.data;
       const precioActual = cleanAndParsePrice(
-        productoData.precioFinal || productoData.precio
+        productoData.precioFinal || productoData.precio,
       );
       const precioRegular = cleanAndParsePrice(productoData.precioRegular);
 
@@ -51,14 +33,14 @@ export const useProductDetailStore = create((set) => ({
         .filter(
           (p) =>
             p.categoria === productoData.categoria &&
-            p.idProducto !== productoData.idProducto
+            p.idProducto !== productoData.idProducto,
         )
         .sort(() => 0.5 - Math.random())
         .slice(0, 8);
       set({
         producto: {
           ...productoData,
-          precio: precioActual, 
+          precio: precioActual,
         },
         relatedProducts: related,
         precioOriginal: tieneOferta ? precioRegular : null,
