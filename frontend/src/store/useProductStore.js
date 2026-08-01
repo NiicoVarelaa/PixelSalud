@@ -3,7 +3,8 @@ import apiClient from "@utils/apiClient";
 
 const HIDDEN_PUBLIC_CATEGORY = "Medicamentos con Receta";
 const PRODUCTS_PER_SECTION = 6;
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 100;
+const MAX_PAGES = 20;
 
 const normalizeCampaignProduct = (product, campana = null) => {
   const precioBase = Number(product?.precio) || 0;
@@ -51,9 +52,18 @@ export const useProductStore = create((set, get) => ({
         apiClient.get("/campanas/activas").catch(() => ({ data: [] })),
       ]);
 
-      const todos = resAll.data.productos || [];
+      let todos = resAll.data.productos || [];
       const total = resAll.data.total || 0;
       const campanasActivas = resCampanas.data || [];
+
+      let page = 2;
+      while (todos.length < total && page <= MAX_PAGES) {
+        const res = await apiClient.get("/productos/paginados", {
+          params: { page, limit: PAGE_SIZE },
+        });
+        todos = [...todos, ...(res.data.productos || [])];
+        page += 1;
+      }
 
       const productosDisponiblesArriba = todos.filter(
         (p) => p.categoria !== HIDDEN_PUBLIC_CATEGORY,
@@ -133,7 +143,7 @@ export const useProductStore = create((set, get) => ({
         categorias: categoriasUnicas,
         isLoading: false,
         hasMore: todos.length < total,
-        currentPage: 1,
+        currentPage: page - 1,
         totalProductos: total,
       });
     } catch (error) {
