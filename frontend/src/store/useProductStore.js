@@ -54,7 +54,9 @@ export const useProductStore = create((set, get) => ({
 
       let todos = resAll.data.productos || [];
       const total = resAll.data.total || 0;
-      const campanasActivas = resCampanas.data || [];
+      const campanasActivas = Array.isArray(resCampanas.data)
+        ? resCampanas.data
+        : [];
 
       let page = 2;
       while (todos.length < total && page <= MAX_PAGES) {

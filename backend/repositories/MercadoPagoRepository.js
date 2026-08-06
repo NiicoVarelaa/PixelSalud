@@ -238,6 +238,7 @@ const getUserOrders = async (idCliente) => {
       vo.horaPago,
       vo.metodoPago,
       vo.estado,
+      vo.externalReference,
       dvo.idProducto,
       dvo.cantidad,
       dvo.precioUnitario,
