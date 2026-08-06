@@ -9,15 +9,17 @@ const ProductCard = ({ product, onEdit, onToggleActive, formatPrice }) => {
     >
       <div className="flex gap-3">
         <div className="shrink-0">
-          <img
-            src={product.img}
-            alt={product.nombreProducto}
-            className="w-16 h-16 rounded-lg object-cover border border-gray-200 shadow-sm"
-            onError={(e) =>
-              (e.target.src =
-                "https://placehold.co/80x80/e5e7eb/6b7280?text=Sin+Imagen")
-            }
-          />
+          {product.img && (
+            <img
+              src={product.img}
+              alt={product.nombreProducto}
+              className="w-16 h-16 rounded-lg object-cover border border-gray-200 shadow-sm"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.style.display = "none";
+              }}
+            />
+          )}
         </div>
 
         <div className="flex-1 min-w-0 flex flex-col">

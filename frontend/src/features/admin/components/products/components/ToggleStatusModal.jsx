@@ -56,15 +56,17 @@ const ToggleStatusModal = ({ isOpen, onClose, product, onConfirm, loading = fals
           )}
           <div className="bg-gray-50 rounded-xl p-4 mb-6">
             <div className="flex gap-4">
-              <img
-                src={product.img}
-                alt={product.nombreProducto}
-                className="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                onError={(e) =>
-                  (e.target.src =
-                    "https://placehold.co/80x80/e5e7eb/6b7280?text=Sin+Imagen")
-                }
-              />
+              {product.img && (
+                <img
+                  src={product.img}
+                  alt={product.nombreProducto}
+                  className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.style.display = "none";
+                  }}
+                />
+              )}
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">
                   {product.nombreProducto}

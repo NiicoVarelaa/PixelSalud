@@ -82,15 +82,17 @@ const ProductTable = ({ products, onEdit, onToggleActive, formatPrice }) => {
                 <td className="px-3 py-2.5">
                   <div className="flex items-center gap-2.5">
                     <div className="shrink-0">
-                      <img
-                        src={product.img}
-                        alt={product.nombreProducto}
-                        className="w-12 h-12 rounded-lg object-cover border border-gray-200"
-                        onError={(e) =>
-                          (e.target.src =
-                            "https://placehold.co/48x48/e5e7eb/6b7280?text=Sin+Imagen")
-                        }
-                      />
+                      {product.img && (
+                        <img
+                          src={product.img}
+                          alt={product.nombreProducto}
+                          className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate max-w-xs">
