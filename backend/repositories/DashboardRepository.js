@@ -1,7 +1,12 @@
 const { pool } = require("../config/database");
 
+const fechaLocal = (date = new Date()) => {
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return local.toISOString().split("T")[0];
+};
+
 const getVentasHoy = async () => {
-  const hoy = new Date().toISOString().split("T")[0];
+  const hoy = fechaLocal();
 
   const [ventasOnline] = await pool.query(
     `SELECT 
@@ -33,7 +38,7 @@ const getVentasHoy = async () => {
 const getVentasSemana = async () => {
   const hace7Dias = new Date();
   hace7Dias.setDate(hace7Dias.getDate() - 7);
-  const fechaInicio = hace7Dias.toISOString().split("T")[0];
+  const fechaInicio = fechaLocal(hace7Dias);
 
   const [ventasOnline] = await pool.query(
     `SELECT COALESCE(SUM(totalPago), 0) as total
@@ -74,7 +79,7 @@ const getEstadisticasProductos = async () => {
 const getClientesActivos = async () => {
   const hace30Dias = new Date();
   hace30Dias.setDate(hace30Dias.getDate() - 30);
-  const fecha = hace30Dias.toISOString().split("T")[0];
+  const fecha = fechaLocal(hace30Dias);
 
   const [resultado] = await pool.query(
     `SELECT COUNT(DISTINCT idCliente) as total
@@ -104,20 +109,32 @@ const getProductosMasVendidos = async (limite = 5) => {
         p.img,
         p.precio,
         COALESCE(imgPrincipal.urlImagen, p.img) as imagenPrincipal,
-        COALESCE(SUM(dvo.cantidad), 0) + COALESCE(SUM(dve.cantidad), 0) as totalVendido,
-        COALESCE(SUM(dvo.cantidad * dvo.precioUnitario), 0) + COALESCE(SUM(dve.cantidad * dve.precioUnitario), 0) as ingresoTotal
+        COALESCE(o.vO, 0) + COALESCE(e.vE, 0) as totalVendido,
+        COALESCE(o.iO, 0) + COALESCE(e.iE, 0) as ingresoTotal
       FROM Productos p
       LEFT JOIN (
-        SELECT idProducto, urlImagen 
-        FROM ImagenesProductos 
+        SELECT dvo.idProducto,
+          SUM(dvo.cantidad) as vO,
+          SUM(dvo.cantidad * dvo.precioUnitario) as iO
+        FROM DetalleVentaOnline dvo
+        INNER JOIN VentasOnlines vo ON dvo.idVentaO = vo.idVentaO AND vo.estado = 'retirado'
+        GROUP BY dvo.idProducto
+      ) o ON p.idProducto = o.idProducto
+      LEFT JOIN (
+        SELECT dve.idProducto,
+          SUM(dve.cantidad) as vE,
+          SUM(dve.cantidad * dve.precioUnitario) as iE
+        FROM DetalleVentaEmpleado dve
+        INNER JOIN VentasEmpleados ve ON dve.idVentaE = ve.idVentaE AND ve.estado = 'completada'
+        GROUP BY dve.idProducto
+      ) e ON p.idProducto = e.idProducto
+      LEFT JOIN (
+        SELECT idProducto, urlImagen
+        FROM ImagenesProductos
         WHERE esPrincipal = TRUE
       ) as imgPrincipal ON p.idProducto = imgPrincipal.idProducto
-      LEFT JOIN DetalleVentaOnline dvo ON p.idProducto = dvo.idProducto
-      LEFT JOIN VentasOnlines vo ON dvo.idVentaO = vo.idVentaO AND vo.estado = 'retirado'
-      LEFT JOIN DetalleVentaEmpleado dve ON p.idProducto = dve.idProducto
-      LEFT JOIN VentasEmpleados ve ON dve.idVentaE = ve.idVentaE AND ve.estado = 'completada'
       WHERE p.activo = TRUE
-      GROUP BY p.idProducto, p.nombreProducto, p.img, p.precio, imgPrincipal.urlImagen
+      GROUP BY p.idProducto, p.nombreProducto, p.img, p.precio, imgPrincipal.urlImagen, o.vO, o.iO, e.vE, e.iE
       HAVING totalVendido > 0
       ORDER BY totalVendido DESC
       LIMIT ?`,
@@ -137,7 +154,7 @@ const getProductosMasVendidos = async (limite = 5) => {
 const getVentasPorDia = async (dias = 7) => {
   const fechaInicio = new Date();
   fechaInicio.setDate(fechaInicio.getDate() - dias);
-  const fecha = fechaInicio.toISOString().split("T")[0];
+  const fecha = fechaLocal(fechaInicio);
 
   const [ventasDiarias] = await pool.query(
     `SELECT 
@@ -154,7 +171,7 @@ const getVentasPorDia = async (dias = 7) => {
         WHERE DATE(fechaPago) >= ? AND estado = 'completada'
       ) AS ventas_consolidadas
       GROUP BY DATE(fecha)
-      ORDER BY dia DESC`,
+      ORDER BY dia ASC`,
     [fecha, fecha],
   );
 
