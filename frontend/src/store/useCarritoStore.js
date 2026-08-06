@@ -59,16 +59,16 @@ export const useCarritoStore = create((set, get) => ({
     }
   },
 
-  vaciarCarrito: async () => {
+  vaciarCarrito: async (mostrarToast = true) => {
     const user = useAuthStore.getState().user;
     if (!user) return;
 
     try {
       await carritoService.vaciar(user.id);
       set({ carrito: [] });
-      toast.warning("Carrito vaciado correctamente");
+      if (mostrarToast) toast.warning("Carrito vaciado correctamente");
     } catch {
-      toast.error("Hubo un problema al vaciar el carrito");
+      if (mostrarToast) toast.error("Hubo un problema al vaciar el carrito");
     }
   },
 
