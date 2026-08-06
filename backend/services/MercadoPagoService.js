@@ -470,12 +470,66 @@ const handleMerchantOrderResource = async (resourceUrl) => {
   } catch (error) {}
 };
 
+const sincronizarPagosPendientes = async (rows) => {
+  const ventasPendientes = rows.filter(
+    (row) =>
+      row.estado === "pendiente" &&
+      row.externalReference &&
+      row.externalReference !== "Sin referencia",
+  );
+
+  const idsVistos = new Set();
+
+  for (const venta of ventasPendientes) {
+    if (idsVistos.has(venta.idVentaO)) {
+      continue;
+    }
+    idsVistos.add(venta.idVentaO);
+
+    try {
+      const fetch = require("node-fetch");
+      const url = `https://api.mercadopago.com/v1/payments/search?external_reference=${encodeURIComponent(venta.externalReference)}&limit=1`;
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+        },
+      });
+
+      if (!response.ok) {
+        continue;
+      }
+
+      const data = await response.json();
+      const pago = data.results?.[0];
+
+      if (!pago) {
+        continue;
+      }
+
+      await updatePaymentInDatabase({
+        id: pago.id,
+        status: pago.status,
+        external_reference: pago.external_reference || venta.externalReference,
+      });
+    } catch (error) {}
+  }
+};
+
+const sincronizarPagosCliente = async (idCliente) => {
+  const rows = await mercadoPagoRepository.getUserOrders(idCliente);
+  await sincronizarPagosPendientes(rows);
+};
+
 const getUserOrders = async (userId) => {
   const results = await mercadoPagoRepository.getUserOrders(userId);
 
+  await sincronizarPagosPendientes(results);
+
+  const ventasRefrescadas = await mercadoPagoRepository.getUserOrders(userId);
+
   const ventasMap = new Map();
 
-  results.forEach((row) => {
+  ventasRefrescadas.forEach((row) => {
     if (!ventasMap.has(row.idVentaO)) {
       ventasMap.set(row.idVentaO, {
         idVentaO: row.idVentaO,
@@ -509,5 +563,6 @@ module.exports = {
   verifyWebhookSignature,
   processWebhook,
   getUserOrders,
+  sincronizarPagosCliente,
   clearUserCart,
 };

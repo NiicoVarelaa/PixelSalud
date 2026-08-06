@@ -1,8 +1,13 @@
 const ventasOnlineRepository = require("../repositories/VentasOnlineRepository");
 const { withTransaction } = require("../utils/transaction");
 const { createNotFoundError, createValidationError } = require("../errors");
+const mercadoPagoService = require("./MercadoPagoService");
 
 const obtenerVentasPorCliente = async (idCliente, page = 1, limit = 20) => {
+  try {
+    await mercadoPagoService.sincronizarPagosCliente(idCliente);
+  } catch (error) {}
+
   const result = await ventasOnlineRepository.findByClienteIdPaginated(idCliente, page, limit);
 
   return {

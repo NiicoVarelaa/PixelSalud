@@ -48,7 +48,7 @@ const CheckoutSuccess = () => {
     const paymentStatus = params.get("status") || "approved";
     setStatus(paymentStatus);
 
-    vaciarCarritoLocal();
+    vaciarCarritoLocal(false);
 
     if (paymentStatus === "approved" && token) {
       clearCartInDB();

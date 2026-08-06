@@ -132,7 +132,7 @@ const AdminProductos = () => {
       const productoAEnviar = {
         ...nuevoProducto,
         precio: Number(nuevoProducto.precio) || 0,
-        img: "https://placehold.co/400x400/e5e7eb/6b7280?text=Sin+Imagen",
+        img: "",
       };
 
       const response = await axios.post(
